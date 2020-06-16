@@ -1,0 +1,62 @@
+{
+  "name": "@eqworks/react-maps",
+  "version": "0.1.0",
+  "description": "React maps",
+  "author": "EQ Inc.",
+  "license": "UNLICENSED",
+  "private": false,
+  "main": "dist/index.js",
+  "source": "src/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "eslint src stories",
+    "build": "babel src --out-dir dist --copy-files",
+    "prepublishOnly": "yarn lint && yarn test && yarn build",
+    "storybook": "env $(print-env) start-storybook -p 6006",
+    "build-storybook": "env $(print-env) build-storybook"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EQWorks/poi-manage.git"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "kepler.gl": "^2.2.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/preset-react": "^7.0.0",
+    "@material-ui/styles": "^4.9.13",
+    "@storybook/addon-actions": "^5.3.19",
+    "@storybook/addon-links": "^5.3.19",
+    "@storybook/addons": "^5.3.19",
+    "@storybook/react": "^5.3.19",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.0.1",
+    "babel-loader": "^8.1.0",
+    "eslint": "^7.0.0",
+    "eslint-plugin-jest": "^23.11.0",
+    "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "kepler.gl": "^2.2.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-palm": "^3.2.2",
+    "react-redux": "^7.2.0",
+    "react-test-renderer": "^16.13.1",
+    "react-virtualized": "^9.21.2",
+    "redux": "^4.0.5",
+    "styled-components": "^5.1.1"
+  },
+  "bugs": {
+    "url": "https://github.com/EQWorks/poi-manage/issues"
+  },
+  "homepage": "https://github.com/EQWorks/poi-manage#readme"
+}
