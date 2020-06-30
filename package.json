@@ -22,9 +22,12 @@
     "type": "git",
     "url": "git+https://github.com/EQWorks/poi-manage.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "deck.gl": "^8.2.0",
+    "react-map-gl": "^5.2.7",
+    "supercluster": "^7.1.0"
+  },
   "peerDependencies": {
-    "kepler.gl": "^2.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
@@ -45,15 +48,9 @@
     "eslint-plugin-jest": "^23.11.0",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^4.0.0",
-    "kepler.gl": "^2.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-palm": "^3.2.2",
-    "react-redux": "^7.2.0",
-    "react-test-renderer": "^16.13.1",
-    "react-virtualized": "^9.21.2",
-    "redux": "^4.0.5",
-    "styled-components": "^5.1.1"
+    "react-test-renderer": "^16.13.1"
   },
   "bugs": {
     "url": "https://github.com/EQWorks/poi-manage/issues"
