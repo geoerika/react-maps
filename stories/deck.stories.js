@@ -1,21 +1,13 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
+import { storiesOf } from '@storybook/react'
+import DeckMap from '../src/components/deck'
+import POIsRadii from './data/pois-radii'
 
-import Deck from '../src/deck'
-
-
-export default {
-  title: 'Deck',
-  component: Deck,
-  decorators: [
-    (storyFn) => (
-      <div style={{ width: '100%', height: '100vh' }}>
-        {storyFn()}
-      </div>
-    ),
-  ],
-}
-
-export const normal = () => (
-  <Deck mapboxApiAccessToken={process.env.MAPBOX_ACCESS_TOKEN} />
-)
+storiesOf('Deck', module)
+  .add('DeckMap empty', () => (
+    <DeckMap/>
+  ))
+  .add('DeckMap POI no cluster', () => (
+    <DeckMap poiData={ POIsRadii }/>
+  ))
