@@ -23,6 +23,7 @@
     "url": "git+https://github.com/EQWorks/poi-manage.git"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "deck.gl": "^8.2.0",
     "react-map-gl": "^5.2.7",
     "styled-components": "^5.1.1",
