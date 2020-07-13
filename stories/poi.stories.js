@@ -6,8 +6,8 @@ import POIsRadii from './data/pois-radii'
 
 storiesOf('POI', module)
   .add('POI map - no cluster', () => (
-    <DeckMap poiData={ POIsRadii }/>
+    <DeckMap poiData={ POIsRadii } layerType='icon'/>
   ))
   .add('POI map - cluster', () => (
-    <DeckMap poiData={ POIsRadii } cluster={ true }/>
+    <DeckMap poiData={ POIsRadii } layerType='cluster'/>
   ))

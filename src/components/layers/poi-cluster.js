@@ -7,53 +7,47 @@ import {CompositeLayer} from 'deck.gl'
 import {IconLayer} from 'deck.gl'
 import Supercluster from 'supercluster'
 
-// import { isSameLocation } from '../small-business-helper/helper'
+import iconMapping from '../icons/cluster.json'
+import iconAtlas from '../icons/cluster.png'
 
-// function getIconName(size) {
-//   if (size === 0) {
-//     return '';
-//   }
-//   if (size < 10) {
-//     return `marker-${size}`;
-//   }
-//   if (size < 100) {
-//     return `marker-${Math.floor(size / 10)}0`;
-//   }
-//   return 'marker-100';
-// }
-
-const getIconSize = (size) => {
-  return Math.min(100, size) / 100 + 1;
+/**
+ * getIconName - sets icon name for clusters
+ * @param { array } d - poi data point
+ * @returns { string } - poi or cluster icon name
+ */
+const getIconName = (d) => {
+  let size = d.properties.point_count
+  // if size exists it is a cluster, get right number for icon name
+  return size
+    ? `marker-${size < 10 ? size : Math.min(Math.floor(size / 10) * 10, 100)}`
+    : 'marker-1'
 }
 
-
-const getIconName = (size) => {
-  return `marker-${size < 10 ? size : Math.min(Math.floor(size / 10) * 10, 100)}`
+/**
+ * getIconSize - sets the icon size for clusters
+ * @param { array } d - poi data point
+ * @returns { string } - poi or cluster icon size
+ */
+const getIconSize = () => d => {
+  // if d.properties.cluster exists it is a cluster, get right size for icon
+  return d.properties.cluster 
+    ? ((Math.min(100, d.properties.point_count) / 100) + 1) 
+    : 0.8
 }
 
-// const getSize = highlight => d => {
-//   const iconSize = d.properties.cluster 
-//     ? ((Math.min(100, d.properties.point_count) / 100) + 1) 
-//     : 0.8
-//   return ((d.properties.id || d.properties.cluster_id) === highlight) ? iconSize * 1.3 : iconSize
-// }
-
-// const getIcon = (highlight, index) => d => {
-//   // if d.type exists, it's a cluster, fetch all businesses under that cluster.
-//   if (d.type){
-//     // array of business inside a cluster
-//     // https://www.npmjs.com/package/supercluster#getleavesclusterid-limit--10-offset--0
-//     const clusteredBusiness = index.getLeaves(d.id, Infinity, 0).map(bus => bus.properties)
-//     // if they are not in the same location get the right name
-//     return isSameLocation(clusteredBusiness) ? 'marker' :  getIconName(d.properties.point_count)
-//   } else {
-//     return d.properties.egift_url
-//       ? (d.properties.id === highlight ? 'egift-focus' : 'egift')
-//       : (d.properties.id === highlight ? 'no-egift-focus' : 'no-egift')
-//   }
-// }
-
+// creates an icon layer that includes clusters
 export default class IconClusterLayer extends CompositeLayer {
+
+  static defaultProps = {
+    id: 'icon-cluster',
+    getPosition: d => d.geometry.coordinates,
+    pickable: true,
+    iconAtlas,
+    iconMapping,
+    sizeScale: 60,
+    superclusterZoom: 20  
+  }
+  
   shouldUpdateState({changeFlags}) {
     return changeFlags.somethingChanged
   }
@@ -103,7 +97,7 @@ export default class IconClusterLayer extends CompositeLayer {
       iconAtlas,
       iconMapping,
       sizeScale,
-      // highlight
+      getPosition
     } = this.props
 
     return new IconLayer(
@@ -113,10 +107,10 @@ export default class IconClusterLayer extends CompositeLayer {
         iconAtlas,
         iconMapping,
         sizeScale,
-        getPosition: d => d.geometry.coordinates,
-        getIcon: d => getIconName(d.properties.cluster ? d.properties.point_count : 1),
-        getSize: d => getIconSize(d.properties.cluster ? d.properties.point_count : 1)
-      }),
+        getPosition,
+        getIcon: d => getIconName(d),
+        getSize: getIconSize()
+      })
     )
   }
 }
