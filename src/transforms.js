@@ -1,4 +1,4 @@
-import { omit, pick } from 'lodash'
+import { omit } from 'lodash'
 import moment from 'moment'
 /*
 address_city: "Mill Bay"
@@ -39,15 +39,7 @@ visits_dow: {Wed: 0, Sun: 0, Thu: 0, Tue: 0, Mon: 6, …}
 visits_hod: {0: 0, 1: 0, 2: 0, 3: 0
 */
 
-const META_FIELDS = [
-  'address_city', 'address_country', 'address_label', 'address_line1', 'address_line2', 'address_postalcode', 'address_region', 'address_unit',
-  'category', 'chain_id', 'date_type', 'end_date', 'start_date', 'repeat_id', 'lat', 'lon', 'name', 'poi_id', 'report_id', 'time_zone', 'type', 
-]
 
-const DATA_FIELDS = [
-  'repeat_type', 'repeat_visitors', 'repeat_visitors_hh', 'repeat_visits', 'report_id', 'unique_hh', 'unique_visitors', 'unique_visitors_dow',
-  'unique_visitors_hod', 'unique_visitors_multi_visit', 'unique_visitors_single_visit', 'unique_xdevice', 'visits'
-]
 
 // TODO: expose filtering by meta_field values
 // TODO: expose grouping by meta_fields (take geometric centre of points?) -> sum, avg, min, max of metrics
