@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import ReportMap from '../src/components/report-wi-map'
-
 import axios from 'axios'
 
-import FO from './actions'
+import FO from '../src/actions'
+import ReportMap from '../src/components/report-wi-map'
+
 
 const getAxios = () => axios.create({
   baseURL: process.env.API_URL,
@@ -16,5 +16,5 @@ const getReport = FO(getAxios()).getReportWi
 
 storiesOf('Walk-In Report', module)
   .add('Basic Report', () => (
-    <ReportMap getReport={getReport} />
+    <ReportMap getReport={getReport} report_id={4} layer_id={1} map_id={145} />
   ))
