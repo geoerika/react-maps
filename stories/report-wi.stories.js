@@ -28,3 +28,13 @@ storiesOf('Walk-In Report', module)
       radiusBasedOn='visits'
     />
   ))
+  .add('Fill Based On Visits', () => (
+    // NOTE: large values skew this
+    <ReportMap
+      getReport={getReport}
+      report_id={4}
+      layer_id={1}
+      map_id={145}
+      fillBasedOn='visits'
+    />
+  ))

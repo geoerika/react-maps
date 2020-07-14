@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
-import { intensityByMetric } from '../utils'
+import { intensityByMetric, colorIntensityByMetric } from '../utils'
 
 
 const propTypes = {
@@ -12,6 +12,7 @@ const propTypes = {
   layer_id: PropTypes.number.isRequired,
   map_id: PropTypes.number.isRequired,
   radiusBasedOn: PropTypes.string,
+  fillBasedOn: PropTypes.string,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
   opacity: PropTypes.number,
@@ -39,6 +40,7 @@ const propTypes = {
 
 const defaultProps = {
   radiusBasedOn: '',
+  fillBasedOn: '',
   onClick: undefined,
   onHover: undefined,
   opacity: 0.8,
@@ -66,6 +68,7 @@ const ReportWIMap = ({
   layer_id,
   map_id,
   radiusBasedOn,
+  fillBasedOn,
   onClick,
   onHover,
   opacity,
@@ -105,6 +108,11 @@ const ReportWIMap = ({
         metric: radiusBasedOn,
         data: reportData,
       }) : getRadius
+      const finalGetFillColor = fillBasedOn.length ? colorIntensityByMetric({
+        color: [{ base: 100, multiplier: 155 }, { base: 0, multiplier: 0 }, { base: 0, multiplier: 0 }, { base: 255, multiplier: 0 }],
+        metric: fillBasedOn,
+        data: reportData,
+      }) : getFillColor
       setLayers([
         Scatter({
           id: `${report_id}-report-scatterplot-layer`,
@@ -115,7 +123,7 @@ const ReportWIMap = ({
           onHover,
           opacity,
           getRadius: finalGetRadius,
-          getFillColor,
+          getFillColor: finalGetFillColor,
           getLineWidth,
           getLineColor,
           ...scatterLayerProps,
