@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
+import { intensityByMetric } from '../utils'
 
 
 const propTypes = {
@@ -10,6 +11,7 @@ const propTypes = {
   report_id: PropTypes.number.isRequired,
   layer_id: PropTypes.number.isRequired,
   map_id: PropTypes.number.isRequired,
+  radiusBasedOn: PropTypes.string,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
   opacity: PropTypes.number,
@@ -36,6 +38,7 @@ const propTypes = {
 }
 
 const defaultProps = {
+  radiusBasedOn: '',
   onClick: undefined,
   onHover: undefined,
   opacity: 0.8,
@@ -52,7 +55,7 @@ const defaultProps = {
   // lineWidthMaxPixels: 10,
   stroked: true,
   lineWidthUnits: 'pixels',
-  getLineWidth: 5,
+  getLineWidth: 2,
   getLineColor: [0, 0, 0],
 }
 
@@ -62,6 +65,7 @@ const ReportWIMap = ({
   report_id,
   layer_id,
   map_id,
+  radiusBasedOn,
   onClick,
   onHover,
   opacity,
@@ -71,17 +75,6 @@ const ReportWIMap = ({
   getLineColor,
   ...scatterLayerProps
 }) => {
-  console.log(report_id,
-  layer_id,
-  map_id,
-  onClick,
-  onHover,
-  opacity,
-  getRadius,
-  getFillColor,
-  getLineWidth,
-  getLineColor,
-  scatterLayerProps)
   const [layers, setLayers] = useState([])
   useEffect(() => {
     const getData = async () => {
@@ -105,6 +98,13 @@ const ReportWIMap = ({
           y: 401.75357112382653
         }
       */
+      // TODO: these values through props
+      const finalGetRadius = radiusBasedOn.length ? intensityByMetric({
+        multiplier: 40,
+        base: 8,
+        metric: radiusBasedOn,
+        data: reportData,
+      }) : getRadius
       setLayers([
         Scatter({
           id: `${report_id}-report-scatterplot-layer`,
@@ -114,7 +114,7 @@ const ReportWIMap = ({
           onClick,
           onHover,
           opacity,
-          getRadius,
+          getRadius: finalGetRadius,
           getFillColor,
           getLineWidth,
           getLineColor,

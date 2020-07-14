@@ -1,4 +1,5 @@
-// TODO more built in types
+// TODO more built in types, e.g. intervals, filter
+// TODO cap max & mins
 export const intensityByMetric = ({
   intensityCallback = false,
   invert = false,
@@ -10,7 +11,7 @@ export const intensityByMetric = ({
   if (intensityCallback) return d => intensityCallback(d) * multiplier + base
   const { max, min } = data.reduce((agg, ele) => {
     agg.max = Math.max(agg.max, ele[metric])
-    agg.min = Math.max(agg.min, ele[metric])
+    agg.min = Math.min(agg.min, ele[metric])
     return agg
   }, { max: null, min: null })
   let intensity = v => (v - min) / (max - min)
