@@ -10,17 +10,83 @@ const propTypes = {
   report_id: PropTypes.number.isRequired,
   layer_id: PropTypes.number.isRequired,
   map_id: PropTypes.number.isRequired,
+  onClick: PropTypes.func,
+  onHover: PropTypes.func,
+  opacity: PropTypes.number,
+  getRadius: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.array,
+  ]),
+  radiusUnits: PropTypes.string,
+  filled: PropTypes.bool,
+  getFillColor: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.array,
+  ]),
+  stroked: PropTypes.bool,
+  lineWidthUnits: PropTypes.string,
+  getLineWidth: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.array,
+  ]),
+  getLineColor: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.array,
+  ]),
 }
-const defaultProps = { layers: [] }
+
+const defaultProps = {
+  onClick: undefined,
+  onHover: undefined,
+  opacity: 0.8,
+  getRadius: 10,
+  // radiusScale: 5,
+  radiusUnits: 'pixels',
+  // radiusMinPixels: 10,
+  // radiusMaxPixels: 100,
+  // getColor: () => null,
+  filled: true,
+  getFillColor: [255, 140, 0],
+  // lineWidthUnits,
+  // lineWidthMinPixels: 1,
+  // lineWidthMaxPixels: 10,
+  stroked: true,
+  lineWidthUnits: 'pixels',
+  getLineWidth: 5,
+  getLineColor: [0, 0, 0],
+}
 
 // DeckGL react component
-const ReportWIMap = ({ getReport, report_id, layer_id, map_id }) => {
+const ReportWIMap = ({
+  getReport,
+  report_id,
+  layer_id,
+  map_id,
+  onClick,
+  onHover,
+  opacity,
+  getRadius,
+  getFillColor,
+  getLineWidth,
+  getLineColor,
+  ...scatterLayerProps
+}) => {
+  console.log(report_id,
+  layer_id,
+  map_id,
+  onClick,
+  onHover,
+  opacity,
+  getRadius,
+  getFillColor,
+  getLineWidth,
+  getLineColor,
+  scatterLayerProps)
   const [layers, setLayers] = useState([])
   useEffect(() => {
     const getData = async () => {
       // TODO properly set layers!
       const reportData = await getReport({ report_id, layer_id, map_id })
-      console.log('---> data!', reportData)
       /*
         for all `getXYZ`, can be a raw value OR computed for each element{} of data[], provided through callback,
         for onHover and onClick:
@@ -41,30 +107,24 @@ const ReportWIMap = ({ getReport, report_id, layer_id, map_id }) => {
       */
       setLayers([
         Scatter({
-          id: 'scatterplot-layer',
+          id: `${report_id}-report-scatterplot-layer`,
           data: reportData,
           getPosition: d => [d.lon, d.lat],
-          pickable: true,
-          onClick: d => console.log('---> click', d),
-          onHover: d => console.log('---> hover', d),
-          autoHighlight: true,
-          opacity: 0.8,
-          getRadius: d => { console.log('radius', d); return d.visits },
-          radiusScale: 5,
-          radiusMinPixels: 10,
-          radiusMaxPixels: 100,
-          filled: true,
-          getFillColor: d => [255, 140, 0],
-          stroked: true,
-          lineWidthMinPixels: 1,
-          lineWidthMaxPixels: 10,
-          getLineWidth: d => d.visits,
-          getLineColor: d => [0, 0, 0],
+          pickable: onClick || onHover,
+          onClick,
+          onHover,
+          opacity,
+          getRadius,
+          getFillColor,
+          getLineWidth,
+          getLineColor,
+          ...scatterLayerProps,
         })
       ])
     }
     getData()
   }, [report_id, layer_id, map_id])
+
   return (
     <Map layers={layers} />
   )
