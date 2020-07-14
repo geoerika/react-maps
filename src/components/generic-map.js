@@ -34,6 +34,9 @@ const Map = ({ layers }) => {
         views={ MAP_VIEW }
         layers={layers}
         controller={ true }
+        // NOTE: same structure as layer click
+        // onHover={d => console.log('----> map hover', d)}
+        // onClick={d => console.log('----> map click', d)}
       >
         <StaticMap 
           mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN }

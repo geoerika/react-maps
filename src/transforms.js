@@ -43,6 +43,18 @@ const META_FIELDS = [
   'address_city', 'address_country', 'address_label', 'address_line1', 'address_line2', 'address_postalcode', 'address_region', 'address_unit',
   'category', 'chain_id', 'date_type', 'end_date', 'start_date', 'repeat_id', 'lat', 'lon', 'name', 'poi_id', 'report_id', 'time_zone', 'type', 
 ]
+
+const DATA_FIELDS = [
+  'repeat_type', 'repeat_visitors', 'repeat_visitors_hh', 'repeat_visits', 'report_id', 'unique_hh', 'unique_visitors', 'unique_visitors_dow',
+  'unique_visitors_hod', 'unique_visitors_multi_visit', 'unique_visitors_single_visit', 'unique_xdevice', 'visits'
+]
+
+// TODO: expose filtering by meta_field values
+// TODO: expose grouping by meta_fields (take geometric centre of points?) -> sum, avg, min, max of metrics
+// TODO: expose filtering by data_field values
+// TODO: date filters (within report)
+// TODO: date filters (between report durations)
+
 export const transformReportWi = report => report.map(poi_data => {
   // TODO process HOD and DOW into separate rows, possibly adding a new dataset entirely
   return { ...omit(poi_data, 'visits_dow', 'visits_hod'), start_date: moment(poi_data.start_date).format('YYYY-MM-DD HH:mm Z') }
