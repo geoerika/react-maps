@@ -48,6 +48,11 @@ const DeckMap = ({
   onClickType,
   customOnClick
 }) => {
+<<<<<<< HEAD
+=======
+
+  console.log('Rendering...')
+>>>>>>> Poi - refactor and clean up
 
   const [layers, setLayers] = useState([])
   const [viewState, setViewState] = useState(INIT_VIEW_STATE)
