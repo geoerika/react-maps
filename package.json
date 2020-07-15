@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "deck.gl": "^8.2.0",
-    "lodash": "^4.17.19",
     "react-map-gl": "^5.2.7",
+    "styled-components": "^5.1.1",
     "supercluster": "^7.1.0"
   },
   "peerDependencies": {
