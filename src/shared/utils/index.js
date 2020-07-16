@@ -1,19 +1,17 @@
 import IconClusterLayer from '../../components/layers/poi-cluster'
 import { setPOIIcon } from '../../components/layers/poi-icon'
+import { setGeoJsonLayer } from '../../components/layers/poi-geojson'
 
 // type of Deck.gl layers to use 
 const LAYERS_METHODS = {
-  'icon': (data) => {
-    return setPOIIcon(data)
-  },
-  'cluster': (data, onClick) => {
-    return new IconClusterLayer({
-      onClick,
-      data,
-      getSuperclusterRadius: (viewportZoom, sizeScale) => 
-        viewportZoom > 15 ? sizeScale / 3 : sizeScale
-    })
-  },
+  'icon': (data) => setPOIIcon(data),
+  'cluster': (data, onClick) => new IconClusterLayer({
+    onClick,
+    data,
+    getSuperclusterRadius: (viewportZoom, sizeScale) => 
+      viewportZoom > 15 ? sizeScale / 3 : sizeScale
+  }),
+  'geojson' : (data) => setGeoJsonLayer(data)
 }
 
 /**
@@ -45,6 +43,5 @@ const ON_CLICK_METHODS = {
  * @param { function } setActivePOI - sets activePOI
  * @returns { instanceOf } Deck.gl layer
  */
-export const processOnClick = (onClickType, params, setActivePOI) => {
-  return ON_CLICK_METHODS[onClickType](params, setActivePOI)
-}
+export const processOnClick = (onClickType, params, setActivePOI) =>
+  ON_CLICK_METHODS[onClickType](params, setActivePOI)

@@ -9,8 +9,8 @@ const defaultProps = {
   iconMapping: POI_ICON_MAPPING,
   sizeScale: 5,
   getPosition: d => d.geometry.coordinates,
-  getSize: d => 5,
-  getColor: d => [255, 0, 0],
+  getSize: 5,
+  getColor: [255, 0, 0],
 }
 
 /**
