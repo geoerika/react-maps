@@ -3,18 +3,11 @@ import DeckGL from 'deck.gl'
 import { FlyToInterpolator } from 'deck.gl'
 import { WebMercatorViewport } from 'deck.gl'
 import { StaticMap } from 'react-map-gl'
+import MapWrapper from './map-wrapper/index'
 
 import { processLayers, processOnClick } from '../shared/utils/index'
 
 import PropTypes from 'prop-types'
-
-import styled from 'styled-components'
-
-const MapWrapper = styled.div`
-  height: '100%';
-  width: '100%';
-  position: 'absolute';
-`
 
 // initial map view
 const INIT_VIEW_STATE = {
@@ -28,6 +21,8 @@ const INIT_VIEW_STATE = {
 }
 
 const propTypes = {
+  width: PropTypes.number,
+  height: PropTypes.number,
   poiData: PropTypes.array,
   layerArray: PropTypes.array,
   onClickType: PropTypes.string,
@@ -42,27 +37,20 @@ const defaultProps = {
 }
 
 // DeckGL React component
-const DeckMap = ({ 
+const DeckMap = ({
+  width,
+  height,
   poiData,
   layerArray,
   onClickType,
   customOnClick
 }) => {
-<<<<<<< HEAD
-=======
-
-  console.log('Rendering...')
->>>>>>> Poi - refactor and clean up
-
   const [layers, setLayers] = useState([])
   const [viewState, setViewState] = useState(INIT_VIEW_STATE)
   const [activePOI, setActivePOI] = useState({})
 
-  /**
-   * setInitialView - sets initial view based on the set of poi data
-   * @param { array } poiData - poi data array
-   */
-  const setInitialView = (poiData) => {
+  // setInitialView - sets initial view based on the set of poi data
+  const setInitialView = () => {
     // source: https://stackoverflow.com/questions/35586360/mapbox-gl-js-getbounds-fitbounds
     const lngArray = poiData.map((poi) => poi.geometry.coordinates[0])
     const latArray = poiData.map((poi) => poi.geometry.coordinates[1])
@@ -70,8 +58,8 @@ const DeckMap = ({
     const minCoords = [Math.min(...lngArray), Math.min(...latArray)];
     const maxCoords = [Math.max(...lngArray), Math.max(...latArray)];
     const formattedGeoData = [minCoords, maxCoords];
-
-    const viewPort = new WebMercatorViewport(INIT_VIEW_STATE).fitBounds(formattedGeoData)
+    const viewPort = new WebMercatorViewport({ width: width, height: height })
+      .fitBounds(formattedGeoData, {padding: 100})
     const { latitude, longitude, zoom } = viewPort;
 
     setViewState({...INIT_VIEW_STATE, longitude, latitude, zoom })
@@ -90,11 +78,11 @@ const DeckMap = ({
   
   // React Hook to handle setting up of initial view and layers
   useEffect(() => {
-    if (poiData.length) { 
-      setInitialView(poiData)
+    if (poiData.length && (width || height)) { 
+      setInitialView()
       setLayers(processLayers(layerArray, poiData, onClick))
     }
-  }, [onClick])
+  }, [onClick, width, height])
 
   // React Hook to handle updating view state
   useEffect(() => {
@@ -105,20 +93,18 @@ const DeckMap = ({
   }, [layers, activePOI])
   
   return (
-    <MapWrapper>
-      <DeckGL
-        initialViewState={ viewState }
-        layers={ layers }
-        controller={ true }
-      > 
-        <StaticMap 
-          mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN }
-        />
-      </DeckGL>
-    </MapWrapper>
+    <DeckGL
+      initialViewState={ viewState }
+      layers={ layers }
+      controller={ true }
+    > 
+      <StaticMap 
+        mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN }
+      />
+    </DeckGL> 
   )
 }
 
 DeckMap.propTypes = propTypes
 DeckMap.defaultProps = defaultProps
-export default DeckMap
+export default MapWrapper(DeckMap)
