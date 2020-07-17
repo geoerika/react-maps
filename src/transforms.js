@@ -1,5 +1,4 @@
 import { omit } from 'lodash'
-import moment from 'moment'
 /*
 address_city: "Mill Bay"
 address_country: "CA"
@@ -49,5 +48,5 @@ visits_hod: {0: 0, 1: 0, 2: 0, 3: 0
 
 export const transformReportWi = report => report.map(poi_data => {
   // TODO process HOD and DOW into separate rows, possibly adding a new dataset entirely
-  return { ...omit(poi_data, 'visits_dow', 'visits_hod'), start_date: moment(poi_data.start_date).format('YYYY-MM-DD HH:mm Z') }
+  return { ...omit(poi_data, 'visits_dow', 'visits_hod'), start_date: new Date(poi_data.start_date) }
 })
