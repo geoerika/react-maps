@@ -1,9 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
 import DeckGL from 'deck.gl'
 import { FlyToInterpolator } from 'deck.gl'
 import { WebMercatorViewport } from 'deck.gl'
 import { StaticMap } from 'react-map-gl'
-import MapWrapper from './map-wrapper/index'
+
+import styled from 'styled-components'
+
+const MapWrapper = styled.div`
+  width: 100%;
+  height: 100vh;
+  position: 'absolute';
+`
 
 import { processLayers, processOnClick } from '../shared/utils/index'
 
@@ -21,8 +28,6 @@ const INIT_VIEW_STATE = {
 }
 
 const propTypes = {
-  width: PropTypes.number,
-  height: PropTypes.number,
   poiData: PropTypes.array,
   layerArray: PropTypes.array,
   onClickType: PropTypes.string,
@@ -38,8 +43,6 @@ const defaultProps = {
 
 // DeckGL React component
 const DeckMap = ({
-  width,
-  height,
   poiData,
   layerArray,
   onClickType,
@@ -47,7 +50,10 @@ const DeckMap = ({
 }) => {
   const [layers, setLayers] = useState([])
   const [viewState, setViewState] = useState(INIT_VIEW_STATE)
-  const [activePOI, setActivePOI] = useState({})
+  const [clickCallback, setClickCallback] = useState({})
+
+  let [width, height] = [0, 0]
+  const deckRef = useRef()
 
   // setInitialView - sets initial view based on the set of poi data
   const setInitialView = () => {
@@ -70,19 +76,26 @@ const DeckMap = ({
    * @param { object } params - clicked icon or cluster
    */
   const onClick = useCallback(
-    (params) => {
-      if (onClickType) processOnClick(onClickType, params, setActivePOI)
-      customOnClick(params)
-    }, [],
-  )
+    (deckEvent) => {
+      const { object, layer, coordinate } = deckEvent
+      const [ longitude, latitude ] = coordinate
+      if (object.cluster) {
+        setClickCallback({ longitude, latitude, zoom: layer.state.z + 2})
+      } else onClickHandle(deckEvent, setClickCallback)
+    }, []
+  ) 
+
+  if (deckRef.current) {
+    [width, height] = [deckRef.current.deck.width, deckRef.current.deck.height]
+  }  
   
   // React Hook to handle setting up of initial view and layers
-  useEffect(() => {
-    if (poiData.length && (width || height)) { 
+  useLayoutEffect(() => {
+    if (poiData.length && width && height) {
+      setLayers(processLayers(layerArray, { ...mapProps, data: poiData, onClick: onClick }))
       setInitialView()
-      setLayers(processLayers(layerArray, poiData, onClick))
     }
-  }, [onClick, width, height])
+  }, [onClick, deckRef.current])
 
   // React Hook to handle updating view state
   useEffect(() => {
@@ -93,18 +106,21 @@ const DeckMap = ({
   }, [layers, activePOI])
   
   return (
-    <DeckGL
-      initialViewState={ viewState }
-      layers={ layers }
-      controller={ true }
-    > 
-      <StaticMap 
-        mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN }
-      />
-    </DeckGL> 
+    <MapWrapper>
+      <DeckGL
+        ref={ deckRef }
+        initialViewState={ viewState }
+        layers={ layers }
+        controller={ true }
+      > 
+        <StaticMap 
+          mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN }
+        />
+      </DeckGL> 
+    </MapWrapper>
   )
 }
 
 DeckMap.propTypes = propTypes
 DeckMap.defaultProps = defaultProps
-export default MapWrapper(DeckMap)
+export default DeckMap

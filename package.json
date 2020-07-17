@@ -26,7 +26,6 @@
     "axios": "^0.19.2",
     "deck.gl": "^8.2.0",
     "react-map-gl": "^5.2.7",
-    "react-virtualized": "^9.21.2",
     "styled-components": "^5.1.1",
     "supercluster": "^7.1.0"
   },
