@@ -36,7 +36,7 @@ const getIconSize = () => d => {
 }
 
 // creates an icon layer that includes clusters
-export default class IconClusterLayer extends CompositeLayer {
+class IconClusterLayer extends CompositeLayer {
 
   static defaultProps = {
     id: 'icon-cluster',
@@ -45,7 +45,9 @@ export default class IconClusterLayer extends CompositeLayer {
     iconAtlas,
     iconMapping,
     sizeScale: 60,
-    superclusterZoom: 20  
+    superclusterZoom: 20,
+    getSuperclusterRadius: (viewportZoom, sizeScale) => 
+      viewportZoom > 15 ? sizeScale / 3 : sizeScale
   }
   
   shouldUpdateState({changeFlags}) {
@@ -97,7 +99,8 @@ export default class IconClusterLayer extends CompositeLayer {
       iconAtlas,
       iconMapping,
       sizeScale,
-      getPosition
+      getPosition,
+      ...props
     } = this.props
 
     return new IconLayer(
@@ -109,8 +112,11 @@ export default class IconClusterLayer extends CompositeLayer {
         sizeScale,
         getPosition,
         getIcon: d => getIconName(d),
-        getSize: getIconSize()
+        getSize: getIconSize(),
+        ...props
       })
     )
   }
 }
+
+export default IconClusterLayer

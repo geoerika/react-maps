@@ -21,45 +21,16 @@ const defaultProps = {
 }
 
 /**
- * setPOIIcon - sets the poi icon layer
- * @param { array } data - poi data array
- * @param { boolean } stroked - whether to draw an outline around polygons (solid fill),to show radius also needs to be true
- * @param { number } lineWidthScale- line width multiplier that affects all lines, including radius outline
- * @param { number } lineWidthMinPixels - minimum line width in pixels.
- * @param { array } getFillColor - solid color of the polygon and point features, format is [r, g, b, [a]]
- * @param { function || number } getRadius - radius of Point and MultiPoint feature
- * @param { function || number } getLineWidth - width of line string and/or the outline of polygon 
- * @param { function || number } getElevation -  elevation of a polygon feature
- * @param { number } pointRadiusMaxPixels - maximum radius in pixels
- * @param { number } pointRadiusScale - global radius multiplier for all points
- * @returns { instanceOf GeoJsonLayer} 
+ * POIGeoJson - sets the poi icon layer
+ * @param { object } props - props for GeoJsonLayer
+ * @returns { instanceOf GeoJsonLayer } 
  */
-export const setGeoJsonLayer = (
-  data,
-  stroked,
-  lineWidthScale,
-  lineWidthMinPixels,
-  getFillColor,
-  opacity,
-  getRadius,
-  getLineWidth,
-  getElevation,
-  pointRadiusMaxPixels,
-  pointRadiusScale
-) => {
+const POIGeoJson = (props) => {
   return new GeoJsonLayer({ 
-    data,
-    stroked,
-    lineWidthScale,
-    lineWidthMinPixels,
-    getFillColor,
-    opacity,
-    getRadius,
-    getLineWidth,
-    getElevation,
-    pointRadiusMaxPixels,
-    pointRadiusScale,
+    ...props,
     ...defaultProps
   } );
 }
+
+export default POIGeoJson
   

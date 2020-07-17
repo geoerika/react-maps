@@ -3,15 +3,14 @@ import React from 'react'
 import { storiesOf } from '@storybook/react'
 import DeckMap from '../src/components/deck'
 import POIsRadii from './data/pois-radii'
-import POIsRadiiTo from './data/pois-radii-TO'
-import POIsPolygons from './data/pois-polygons'
+import POIsRadiiTo from './data/pois-radiito'
 
 storiesOf('POI', module)
   .add('POI map - no cluster', () => (
     <DeckMap poiData={ POIsRadii } layerArray={ ['icon'] }/>
   ))
   .add('POI map - cluster', () => (
-    <DeckMap poiData={ POIsRadii } layerArray={ ['cluster'] } onClickType='zoomOnClusterClick'/>
+    <DeckMap poiData={ POIsRadii } layerArray={ ['cluster'] }/>
   ))
   .add('POI maps - radii', () => (
     <DeckMap poiData={ POIsRadiiTo } layerArray={ ['geojson'] }/>

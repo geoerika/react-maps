@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react'
 import DeckGL from 'deck.gl'
 import { FlyToInterpolator } from 'deck.gl'
 import { WebMercatorViewport } from 'deck.gl'
@@ -12,7 +12,7 @@ const MapWrapper = styled.div`
   position: 'absolute';
 `
 
-import { processLayers, processOnClick } from '../shared/utils/index'
+import { processLayers } from '../shared/utils/index'
 
 import PropTypes from 'prop-types'
 
@@ -30,29 +30,25 @@ const INIT_VIEW_STATE = {
 const propTypes = {
   poiData: PropTypes.array,
   layerArray: PropTypes.array,
-  onClickType: PropTypes.string,
-  customOnClick: PropTypes.func
+  onClickHandle: PropTypes.func
 }
 
 const defaultProps = {
   poiData: [],
   layerArray: [],
-  onClickType: '',
-  customOnClick: () => {}
+  onClickHandle: () => {}
 }
 
 // DeckGL React component
 const DeckMap = ({
   poiData,
   layerArray,
-  onClickType,
-  customOnClick
+  onClickHandle,
+  ...mapProps
 }) => {
   const [layers, setLayers] = useState([])
   const [viewState, setViewState] = useState(INIT_VIEW_STATE)
-  const [clickCallback, setClickCallback] = useState({})
-
-  let [width, height] = [0, 0]
+  const [onClickPayload, setOnClickPayload] = useState({})
   const deckRef = useRef()
 
   // setInitialView - sets initial view based on the set of poi data
@@ -64,7 +60,7 @@ const DeckMap = ({
     const minCoords = [Math.min(...lngArray), Math.min(...latArray)];
     const maxCoords = [Math.max(...lngArray), Math.max(...latArray)];
     const formattedGeoData = [minCoords, maxCoords];
-    const viewPort = new WebMercatorViewport({ width: width, height: height })
+    const viewPort = new WebMercatorViewport({ width, height })
       .fitBounds(formattedGeoData, {padding: 100})
     const { latitude, longitude, zoom } = viewPort;
 
@@ -80,30 +76,33 @@ const DeckMap = ({
       const { object, layer, coordinate } = deckEvent
       const [ longitude, latitude ] = coordinate
       if (object.cluster) {
-        setClickCallback({ longitude, latitude, zoom: layer.state.z + 2})
-      } else onClickHandle(deckEvent, setClickCallback)
+        setOnClickPayload({ longitude, latitude, zoom: layer.state.z + 2})
+      } else onClickHandle(deckEvent, setOnClickPayload)
     }, []
   ) 
 
-  if (deckRef.current) {
-    [width, height] = [deckRef.current.deck.width, deckRef.current.deck.height]
-  }  
+  const { width, height } = useMemo(() => {
+    // initial rendering gives deckRef.current undefined
+    return deckRef.current
+      ? deckRef.current.deck
+      : { width: 0, height: 0 }
+  }, [deckRef.current]) 
   
   // React Hook to handle setting up of initial view and layers
   useLayoutEffect(() => {
     if (poiData.length && width && height) {
-      setLayers(processLayers(layerArray, { ...mapProps, data: poiData, onClick: onClick }))
+      setLayers(processLayers(layerArray, { ...mapProps, data: poiData, onClick }))
       setInitialView()
     }
-  }, [onClick, deckRef.current])
+  }, [onClick, width, height])
 
   // React Hook to handle updating view state
   useEffect(() => {
     setViewState(prevState => ({
       ...prevState,
-      ...activePOI
+      ...onClickPayload
     }))
-  }, [layers, activePOI])
+  }, [layers, onClickPayload])
   
   return (
     <MapWrapper>
