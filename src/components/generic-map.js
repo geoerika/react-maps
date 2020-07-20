@@ -4,6 +4,16 @@ import PropTypes from 'prop-types'
 import DeckGL, { FlyToInterpolator, MapView } from 'deck.gl'
 import { StaticMap } from 'react-map-gl'
 
+import styled from 'styled-components'
+
+import Legend from './legend'
+
+
+const MapContainer = styled.div`
+  height: '100%';
+  width: '100%';
+  position: 'absolute';
+`
 
 const MAP_VIEW = new MapView({ repeat: true });
 
@@ -17,12 +27,18 @@ const INIT_VIEW_STATE = {
   zoom: 2.5,
 }
 
-const propTypes = { layers: PropTypes.array }
-const defaultProps = { layers: [] }
+const propTypes = {
+  layers: PropTypes.array,
+  showLegend: PropTypes.bool,
+}
+const defaultProps = {
+  layers: [],
+  showLegend: false,
+}
 
 // DeckGL react component
-const Map = ({ layers }) => (
-  <div style={{ height: '100%', width: '100%', position: 'absolute' }}>
+const Map = ({ layers, showLegend, ...legendProps }) => (
+  <MapContainer>
     <DeckGL
       initialViewState={ INIT_VIEW_STATE }
       views={ MAP_VIEW }
@@ -34,7 +50,8 @@ const Map = ({ layers }) => (
     >
       <StaticMap mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN } />
     </DeckGL>
-  </div>
+    {showLegend && <Legend {...legendProps} />}
+  </MapContainer>
 )
 
 Map.propTypes = propTypes

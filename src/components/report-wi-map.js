@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import { intensityByMetric, colorIntensityByMetric } from '../utils'
+import { reportWI } from '../datasets'
 
 
 const propTypes = {
@@ -36,6 +37,7 @@ const propTypes = {
     PropTypes.func,
     PropTypes.array,
   ]),
+  showLegend: PropTypes.bool,
 }
 
 const defaultProps = {
@@ -59,6 +61,7 @@ const defaultProps = {
   lineWidthUnits: 'pixels',
   getLineWidth: 2,
   getLineColor: [0, 0, 0],
+  showLegend: false,
 }
 
 // DeckGL react component
@@ -76,13 +79,42 @@ const ReportWIMap = ({
   getFillColor,
   getLineWidth,
   getLineColor,
+  showLegend,
   ...scatterLayerProps
 }) => {
   const [layers, setLayers] = useState([])
+  const [{ keyMetric, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
+    if (type === 'data') {
+      // calculate all min and max
+      // { [key]: { max, min }}
+      const metrics =  payload.reduce((agg, row) => ({
+        ...reportWI.DATA_FIELDS.reduce((rowAgg, key) => ({
+          ...rowAgg,
+          [key]: {
+            max: Math.max((agg[key] || { max: null }).max, row[key]),
+            min: Math.min((agg[key] || { min: null }).min, row[key]),
+          }
+        }), {})
+      }), {})
+      // persists old keyMetric
+      const keyMetric = state.keyMetric || 'visits'
+      return {
+        data: payload,
+        metrics,
+        keyMetric,
+      }
+    }
+    // else just change the "key metric"
+    return {
+      ...state,
+      [type]: payload,
+    }
+  }, { data: [], metrics: {} })
   useEffect(() => {
     const getData = async () => {
       // TODO properly set layers!
       const reportData = await getReport({ report_id, layer_id, map_id })
+      metricDispatch({ type: 'data', payload: reportData })
       /*
         for all `getXYZ`, can be a raw value OR computed for each element{} of data[], provided through callback,
         for onHover and onClick:
@@ -134,7 +166,13 @@ const ReportWIMap = ({
   }, [report_id, layer_id, map_id])
 
   return (
-    <Map layers={layers} />
+    <Map
+      layers={layers}
+      showLegend={showLegend}
+      max={(metrics[keyMetric] || {}).max}
+      min={(metrics[keyMetric] || {}).min}
+      label={keyMetric}
+    />
   )
 }
 
