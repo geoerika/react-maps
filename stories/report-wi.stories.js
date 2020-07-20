@@ -18,6 +18,9 @@ storiesOf('Walk-In Report', module)
   .add('Basic Report', () => (
     <ReportMap getReport={getReport} report_id={4} layer_id={1} map_id={145} />
   ))
+  .add('Report with Tooltip', () => (
+    <ReportMap getReport={getReport} report_id={4} layer_id={1} map_id={145} useTooltip />
+  ))
   .add('Radius Based On Visits', () => (
     // NOTE: large values skew this
     <ReportMap

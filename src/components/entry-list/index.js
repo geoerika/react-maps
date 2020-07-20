@@ -1,16 +1,41 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import styled from 'styled-components'
+
+
+const EntryListContainer = styled.div`
+  max-height: 150px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+`
+
+const EntryListItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  border-bottom: 1px solid black;
+`
+
+const Key = styled.div`
+  font-weight: bold;
+`
+
+const Value = styled.div``
 
 const propTypes = { object: PropTypes.object }
 const defaultProps = { object: {} }
 
 const EntryList = ({ object }) => (
-  <div>
+  <EntryListContainer>
     {Object.entries(object).map(([key, value]) => (
-      <div key={key}>{key}: {value}</div>
+      <EntryListItem key={key}>
+        <Key>{key}:</Key><Value>{value ? value.toString() : value}</Value>
+      </EntryListItem>
     ))}
-  </div>
+  </EntryListContainer>
 )
 
 EntryList.propTypes = propTypes

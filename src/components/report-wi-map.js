@@ -115,6 +115,9 @@ const ReportWIMap = ({
   const [layers, setLayers] = useState([])
   const [tooltip, tooltipDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'show') {
+      // TODO: for a click event, any movement of the map will cause the tooltip to be out of place
+      // 1) close on these events
+      // 2) keep the lat/lon and convert to x/y
       const { x, y, object } = payload
       return {
         ...state,
