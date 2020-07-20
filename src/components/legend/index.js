@@ -4,16 +4,12 @@ import styled from 'styled-components'
 
 
 const LegendContainer = styled.div`
-  width: 135px;
-  height: 92px;
-  overflow-x: 'scroll';
   position: absolute;
-  top: 1rem;
-  left: 1rem;
   z-index: 9999;
   background-color: rgba(255,255,255,0.9);
   padding: 1rem;
   border-radius: 0.5rem;
+  ${props => props.position}
 `
 
 const LegendText = styled.div`
@@ -31,20 +27,37 @@ const LegendGradient = styled.div`
   background-image: linear-gradient(rgb(21, 0, 255), rgb(1, 0, 70));
 `
 
+// height/width -> wrap
+
 // configurable
-// height/width
 // which corner
 // color
 
+const propTypes = {
+  max: PropTypes.number,
+  min: PropTypes.number,
+  label: PropTypes.string,
+  position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
+}
+
+const defaultProps = {
+  max: undefined,
+  min: undefined,
+  label: '',
+  position: 'top-left'
+}
 // EVENTUALLY: represent whichever visual elements are being used in a basedOn
-const Legend = ({ max, min, label }) => <>
+const Legend = ({ max, min, label, position }) => <>
   { max !== undefined && min !== undefined && (
-    <LegendContainer>
+    <LegendContainer position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}>
       <LegendGradient />
       <LegendText>{max.toLocaleString()} {label}</LegendText>
       <LegendText>{min.toLocaleString()} {label}</LegendText>
     </LegendContainer>
   )}
 </>
+
+Legend.propTypes = propTypes
+Legend.defaultProps = defaultProps
 
 export default Legend

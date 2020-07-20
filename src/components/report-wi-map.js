@@ -38,6 +38,7 @@ const propTypes = {
     PropTypes.array,
   ]),
   showLegend: PropTypes.bool,
+  legendPosition: PropTypes.string,
   defaultKeyMetric: PropTypes.string,
 }
 
@@ -63,6 +64,7 @@ const defaultProps = {
   getLineWidth: 2,
   getLineColor: [0, 0, 0],
   showLegend: false,
+  legendPosition: 'top-left',
   defaultKeyMetric: 'visits',
 }
 
@@ -82,6 +84,7 @@ const ReportWIMap = ({
   getLineWidth,
   getLineColor,
   showLegend,
+  legendPosition,
   defaultKeyMetric,
   ...scatterLayerProps
 }) => {
@@ -175,6 +178,7 @@ const ReportWIMap = ({
     <Map
       layers={layers}
       showLegend={showLegend}
+      position={legendPosition}
       max={(metrics[keyMetric] || {}).max}
       min={(metrics[keyMetric] || {}).min}
       label={keyMetric}
