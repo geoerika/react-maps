@@ -83,7 +83,7 @@ const ReportWIMap = ({
   ...scatterLayerProps
 }) => {
   const [layers, setLayers] = useState([])
-  const [{ keyMetric, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
+  const [{ data, keyMetric, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'data') {
       // calculate all min and max
       // { [key]: { max, min }}
@@ -115,55 +115,58 @@ const ReportWIMap = ({
       // TODO properly set layers!
       const reportData = await getReport({ report_id, layer_id, map_id })
       metricDispatch({ type: 'data', payload: reportData })
-      /*
-        for all `getXYZ`, can be a raw value OR computed for each element{} of data[], provided through callback,
-        for onHover and onClick:
-        {
-          color: Uint8Array(4) [56, 0, 0, 1]
-          coordinate: (2) [-82.33413799645352, 42.89068626794389]
-          devicePixel: (2) [581, 201]
-          index: 55
-          layer: LAYER_OBJECT
-          lngLat: (2) [-82.33413799645352, 42.89068626794389]
-          object: ORIGINAL_OBJECT
-          picked: true
-          pixel: (2) [528.1272270872279, 401.75357112382653]
-          pixelRatio: 1.099740932642487
-          x: 528.1272270872279
-          y: 401.75357112382653
-        }
-      */
-      // TODO: these values through props
-      const finalGetRadius = radiusBasedOn.length ? intensityByMetric({
-        multiplier: 40,
-        base: 8,
-        metric: radiusBasedOn,
-        data: reportData,
-      }) : getRadius
-      const finalGetFillColor = fillBasedOn.length ? colorIntensityByMetric({
-        color: [{ base: 100, multiplier: 155 }, { base: 0, multiplier: 0 }, { base: 0, multiplier: 0 }, { base: 255, multiplier: 0 }],
-        metric: fillBasedOn,
-        data: reportData,
-      }) : getFillColor
-      setLayers([
-        Scatter({
-          id: `${report_id}-report-scatterplot-layer`,
-          data: reportData,
-          getPosition: d => [d.lon, d.lat],
-          pickable: onClick || onHover,
-          onClick,
-          onHover,
-          opacity,
-          getRadius: finalGetRadius,
-          getFillColor: finalGetFillColor,
-          getLineWidth,
-          getLineColor,
-          ...scatterLayerProps,
-        })
-      ])
     }
     getData()
   }, [report_id, layer_id, map_id])
+
+  useEffect(() => {
+    /*
+      for all `getXYZ`, can be a raw value OR computed for each element{} of data[], provided through callback,
+      for onHover and onClick:
+      {
+        color: Uint8Array(4) [56, 0, 0, 1]
+        coordinate: (2) [-82.33413799645352, 42.89068626794389]
+        devicePixel: (2) [581, 201]
+        index: 55
+        layer: LAYER_OBJECT
+        lngLat: (2) [-82.33413799645352, 42.89068626794389]
+        object: ORIGINAL_OBJECT
+        picked: true
+        pixel: (2) [528.1272270872279, 401.75357112382653]
+        pixelRatio: 1.099740932642487
+        x: 528.1272270872279
+        y: 401.75357112382653
+      }
+    */
+    // TODO: these values through props
+    const finalGetRadius = radiusBasedOn.length ? intensityByMetric({
+      multiplier: 40,
+      base: 8,
+      metric: radiusBasedOn,
+      ...metrics[radiusBasedOn], // max & min
+    }) : getRadius
+    const finalGetFillColor = fillBasedOn.length ? colorIntensityByMetric({
+      color: [{ base: 100, multiplier: 155 }, { base: 0, multiplier: 0 }, { base: 0, multiplier: 0 }, { base: 255, multiplier: 0 }],
+      metric: fillBasedOn,
+      ...metrics[fillBasedOn], // max & min
+    }) : getFillColor
+    setLayers([
+      Scatter({
+        id: `${report_id}-report-scatterplot-layer`,
+        data,
+        getPosition: d => [d.lon, d.lat],
+        pickable: onClick || onHover,
+        onClick,
+        onHover,
+        opacity,
+        getRadius: finalGetRadius,
+        getFillColor: finalGetFillColor,
+        getLineWidth,
+        getLineColor,
+        ...scatterLayerProps,
+      })
+    ])
+  }, [data])
 
   return (
     <Map
