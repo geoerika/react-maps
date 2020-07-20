@@ -195,6 +195,8 @@ const getTimeStampOptions = timestamps => {
 
 export const useTimeline = (timestampInit, speedInterval) => {
   const timestamps = getTimeStampOptions(timestampInit)
+  // TODO: this assumes data is all local
+  // include async calls?
   const [timeline, timelineDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'move') {
       const activeIndex = state.activeIndex + 1 * state.direction

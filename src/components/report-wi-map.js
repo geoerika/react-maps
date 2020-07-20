@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useMemo, useCallback } from 'react'
+import React, { useEffect, useReducer, useMemo, useCallback, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
@@ -137,6 +137,8 @@ const ReportWIMap = ({
     }
   }, [onClick, useTooltip])
 
+  const [currentDuration, setCurrentDuration] = useState(false)
+  const [durationOptions, setDurationOptions] = useState([])
   const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'data') {
       // calculate all min and max
@@ -167,11 +169,13 @@ const ReportWIMap = ({
 
   useEffect(() => {
     const getData = async () => {
-      const reportData = await getReport({ report_id, layer_id, map_id })
-      metricDispatch({ type: 'data', payload: reportData })
+      // TODO properly set layers!
+      const { data, durations } = await getReport({ report_id, layer_id, map_id, currentDuration })
+      setDurationOptions(durations)
+      metricDispatch({ type: 'data', payload: data })
     }
     getData()
-  }, [getReport, report_id, layer_id, map_id])
+  }, [getReport, report_id, layer_id, map_id, currentDuration])
 
   const layers = useMemo(() => {
     let finalGetRadius = getRadius
