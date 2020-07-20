@@ -46,7 +46,11 @@ visits_hod: {0: 0, 1: 0, 2: 0, 3: 0
 // TODO: date filters (within report)
 // TODO: date filters (between report durations)
 
-export const transformReportWi = report => report.map(poi_data => {
-  // TODO process HOD and DOW into separate rows, possibly adding a new dataset entirely
-  return { ...omit(poi_data, 'visits_dow', 'visits_hod'), start_date: new Date(poi_data.start_date) }
-})
+export const transformReportWi = report => report.map(poi_data => ({
+  ...omit(poi_data, 'visits_dow', 'visits_hod'),
+  start_date: new Date(poi_data.start_date),
+  // [day]: visitCount
+  ...(poi_data.visits_dow || {}),
+  // [hour]: visitCount
+  ...(poi_data.visits_hod || {}),
+}))

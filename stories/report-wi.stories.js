@@ -40,6 +40,24 @@ storiesOf('Walk-In Report', module)
       radiusBasedOn='visits'
     />
   ))
+  .add('Radius Based On Saturday', () => (
+    <ReportMap
+      getReport={getReport}
+      report_id={4}
+      layer_id={1}
+      map_id={145}
+      radiusBasedOn='Sat'
+    />
+  ))
+  .add('Radius Based On Noon', () => (
+    <ReportMap
+      getReport={getReport}
+      report_id={4}
+      layer_id={1}
+      map_id={145}
+      radiusBasedOn='12'
+    />
+  ))
   .add('Fill Based On Visits', () => (
     // NOTE: large values skew this
     <ReportMap
