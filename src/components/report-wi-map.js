@@ -141,7 +141,7 @@ const ReportWIMap = ({
         y: 401.75357112382653
       }
     */
-    // TODO: these values through props
+    // TODO: multiplier & base values through props
     const finalGetRadius = radiusBasedOn.length ? intensityByMetric({
       multiplier: 40,
       base: 8,

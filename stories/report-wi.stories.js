@@ -38,3 +38,14 @@ storiesOf('Walk-In Report', module)
       fillBasedOn='visits'
     />
   ))
+  .add('Legend based on fill', () => (
+    <ReportMap
+      getReport={getReport}
+      report_id={4}
+      layer_id={1}
+      map_id={145}
+      fillBasedOn='visits'
+      defaultKeyMetric='visits'
+      showLegend
+    />
+  ))

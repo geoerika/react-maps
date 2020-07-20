@@ -20,7 +20,7 @@ const LegendText = styled.div`
   float: left;
   margin-left: 1rem;
   margin-bottom: 1rem;
-  font-size: 2rem;
+  font-size: 1rem;
   color: black;
 `
 
@@ -36,13 +36,15 @@ const LegendGradient = styled.div`
 // which corner
 // color
 
-// EVENTUALLY: the style...dots and the like 
-const Legend = ({ max, min, label }) => (
-  <LegendContainer>
-    <LegendGradient />
-    <LegendText>{max.toLocaleString()} {label}</LegendText>
-    <LegendText>{min.toLocaleString()} {label}</LegendText>
-  </LegendContainer>
-)
+// EVENTUALLY: represent whichever visual elements are being used in a basedOn
+const Legend = ({ max, min, label }) => <>
+  { max !== undefined && min !== undefined && (
+    <LegendContainer>
+      <LegendGradient />
+      <LegendText>{max.toLocaleString()} {label}</LegendText>
+      <LegendText>{min.toLocaleString()} {label}</LegendText>
+    </LegendContainer>
+  )}
+</>
 
 export default Legend
