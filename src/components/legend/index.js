@@ -34,7 +34,7 @@ const LegendSymbolContainer = styled.div`
 const LegendGradient = styled.div`
   width: 15px;
   height: 80px;
-  background-image: linear-gradient(rgb(21, 0, 255), rgb(1, 0, 70));
+  background-image: linear-gradient(${props => props.color}, rgb(70, 0, 1));
 `
 
 const propTypes = {
@@ -42,19 +42,21 @@ const propTypes = {
   min: PropTypes.number,
   label: PropTypes.string,
   position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
+  color: PropTypes.string,
 }
 
 const defaultProps = {
   max: undefined,
   min: undefined,
   label: '',
-  position: 'top-left'
+  position: 'top-left',
+  color: 'rgb(21, 0, 255)',
 }
 // EVENTUALLY: represent whichever visual elements are being used in a basedOn
-const Legend = ({ max, min, label, position }) => <>
+const Legend = ({ max, min, label, position, color }) => <>
   { max !== undefined && min !== undefined && (
     <LegendContainer position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}>
-      <LegendSymbolContainer><LegendGradient /></LegendSymbolContainer>
+      <LegendSymbolContainer><LegendGradient color={color} /></LegendSymbolContainer>
       <LegendTextContainer>
         <LegendText top>{max.toLocaleString()} {label}</LegendText>
         <LegendText>{min.toLocaleString()} {label}</LegendText>

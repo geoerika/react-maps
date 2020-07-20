@@ -179,6 +179,8 @@ const ReportWIMap = ({
       layers={layers}
       showLegend={showLegend}
       position={legendPosition}
+      // TODO match with configuration of fillBasedOn
+      color='rgb(255,0,0)'
       max={(metrics[keyMetric] || {}).max}
       min={(metrics[keyMetric] || {}).min}
       label={keyMetric}
