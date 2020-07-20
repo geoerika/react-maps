@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useReducer } from 'react'
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { color } from 'd3-color'
-
+import { days, hours } from './datasets'
 
 // TODO meaningful representation of elevation and radius based on given values
 export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors, radiusBasedOn = '', metrics }) => {
@@ -184,4 +184,69 @@ export const useRadius = ({
   }, [radiusBasedOn, radiusDataScale, radii, getRadius, metrics, dataPropertyAccessor])
 
   return { finalGetRadius, setRadiusBasedOn }
+}
+
+const getTimeStampOptions = timestamps => {
+  // dow, hod or [Date]
+  if (timestamps === 'days') return days
+  if (timestamps === 'hours') return hours
+  return timestamps
+}
+
+export const useTimeline = (timestampInit, speedInterval) => {
+  const timestamps = getTimeStampOptions(timestampInit)
+  const [timeline, timelineDispatch] = useReducer((state, { type, payload }) => {
+    if (type === 'move') {
+      const activeIndex = state.activeIndex + 1 * state.direction
+      if ([timestamps.length - 1, 0].includes(activeIndex)) {
+        clearInterval(player)
+      }
+      return {
+        ...state,
+        activeIndex,
+      }
+    }
+    if (type === 'speed') {
+      return {
+        ...state,
+        speed: state.speed + payload
+      }
+    }
+    return {
+      ...state,
+      [type]: payload,
+    }
+  }, { direction: 1, activeIndex: 0, speed: speedInterval })  
+
+  const [player, setPlayer] = useState(false)
+
+  const play = () => timelineDispatch({ type: 'direction', payload: 1 })
+
+  const rewind = () => timelineDispatch({ type: 'direction', payload: -1 })
+
+  const startTimeline = () => {
+    setPlayer(setInterval(() => timelineDispatch({ type: 'move' }), timeline.speed))
+  }
+
+  const stopTimeline = () => {
+    clearInterval(player)
+    setPlayer(false)
+  }
+
+  const changeSpeed = value => () => {
+    clearInterval(player)
+    timelineDispatch({ type: 'speed', payload: value })
+    // will this speed update take effect, or should it be timeline.speed + value
+    setPlayer(setInterval(() => timelineDispatch({ type: 'move' }), timeline.speed))
+  }
+
+  return {
+    play,
+    rewind,
+    startTimeline,
+    stopTimeline,
+    changeSpeed,
+    timestamps,
+    ...timeline,
+  }
 }
