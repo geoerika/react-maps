@@ -38,6 +38,7 @@ const propTypes = {
     PropTypes.array,
   ]),
   showLegend: PropTypes.bool,
+  defaultKeyMetric: PropTypes.string,
 }
 
 const defaultProps = {
@@ -62,6 +63,7 @@ const defaultProps = {
   getLineWidth: 2,
   getLineColor: [0, 0, 0],
   showLegend: false,
+  defaultKeyMetric: 'visits',
 }
 
 // DeckGL react component
@@ -80,6 +82,7 @@ const ReportWIMap = ({
   getLineWidth,
   getLineColor,
   showLegend,
+  defaultKeyMetric,
   ...scatterLayerProps
 }) => {
   const [layers, setLayers] = useState([])
@@ -97,7 +100,7 @@ const ReportWIMap = ({
         }), {})
       }), {})
       // persists old keyMetric
-      const keyMetric = state.keyMetric || 'visits'
+      const keyMetric = state.keyMetric || defaultKeyMetric
       return {
         data: payload,
         metrics,
