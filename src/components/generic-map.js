@@ -32,19 +32,19 @@ const propTypes = {
   layers: PropTypes.array,
   showLegend: PropTypes.bool,
   showTooltip: PropTypes.bool,
-  tooltip: PropTypes.node,
   tooltipProps: PropTypes.object,
+  tooltipNode: PropTypes.node,
 }
 const defaultProps = {
   layers: [],
   showLegend: false,
   showTooltip: false,
-  tooltip: undefined,
   tooltipProps: {},
 }
 
+
 // DeckGL react component
-const Map = ({ layers, showLegend, showTooltip, tooltip, tooltipProps, ...legendProps }) => {
+const Map = ({ layers, showLegend, showTooltip, tooltipNode, tooltipProps, ...legendProps }) => {
   const deckRef = useRef(null)
   const [{ h, w }, setDimensions] = useState({ h: 0, w: 0 })
   useEffect(() => {
@@ -78,7 +78,7 @@ const Map = ({ layers, showLegend, showTooltip, tooltip, tooltipProps, ...legend
           w={w}
           {...tooltipProps}
         >
-          {tooltip}
+          {tooltipNode}
         </MapTooltip>
       )}
     </MapContainer>
