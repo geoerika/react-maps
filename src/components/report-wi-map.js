@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useMemo, useCallback } from 'react'
+import React, { useEffect, useReducer, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
@@ -8,7 +8,6 @@ import { color } from 'd3-color'
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import EntryList from './entry-list'
-import { intensityByMetric, colorIntensityByMetric } from '../utils'
 import { reportWI } from '../datasets'
 
 
@@ -112,7 +111,6 @@ const ReportWIMap = ({
   useTooltip,
   ...scatterLayerProps
 }) => {
-  const [layers, setLayers] = useState([])
   const [tooltip, tooltipDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'show') {
       // TODO: for a click event, any movement of the map will cause the tooltip to be out of place
@@ -128,7 +126,7 @@ const ReportWIMap = ({
         object,
       }
     }
-   }, { show: false, translate: true })
+  }, { show: false, translate: true })
 
   const finalOnClick = useCallback((o) => {
     if (onClick) {
@@ -172,52 +170,6 @@ const ReportWIMap = ({
       // TODO properly set layers!
       const reportData = await getReport({ report_id, layer_id, map_id })
       metricDispatch({ type: 'data', payload: reportData })
-      /*
-        for all `getXYZ`, can be a raw value OR computed for each element{} of data[], provided through callback,
-        for onHover and onClick:
-        {
-          color: Uint8Array(4) [56, 0, 0, 1]
-          coordinate: (2) [-82.33413799645352, 42.89068626794389]
-          devicePixel: (2) [581, 201]
-          index: 55
-          layer: LAYER_OBJECT
-          lngLat: (2) [-82.33413799645352, 42.89068626794389]
-          object: ORIGINAL_OBJECT
-          picked: true
-          pixel: (2) [528.1272270872279, 401.75357112382653]
-          pixelRatio: 1.099740932642487
-          x: 528.1272270872279
-          y: 401.75357112382653
-        }
-      */
-      // TODO: these values through props
-      const finalGetRadius = radiusBasedOn.length ? intensityByMetric({
-        multiplier: 40,
-        base: 8,
-        metric: radiusBasedOn,
-        data: reportData,
-      }) : getRadius
-      const finalGetFillColor = fillBasedOn.length ? colorIntensityByMetric({
-        color: [{ base: 100, multiplier: 155 }, { base: 0, multiplier: 0 }, { base: 0, multiplier: 0 }, { base: 255, multiplier: 0 }],
-        metric: fillBasedOn,
-        data: reportData,
-      }) : getFillColor
-      setLayers([
-        Scatter({
-          id: `${report_id}-report-scatterplot-layer`,
-          data: reportData,
-          getPosition: d => [d.lon, d.lat],
-          pickable: (onClick || useTooltip) || onHover,
-          onClick: finalOnClick,
-          onHover,
-          opacity,
-          getRadius: finalGetRadius,
-          getFillColor: finalGetFillColor,
-          getLineWidth,
-          getLineColor,
-          ...scatterLayerProps,
-        })
-      ])
     }
     getData()
   }, [getReport, report_id, layer_id, map_id])
@@ -271,7 +223,7 @@ const ReportWIMap = ({
         data,
         getPosition: d => [d.lon, d.lat],
         pickable: onClick || onHover,
-        onClick,
+        onClick: finalOnClick,
         onHover,
         opacity,
         getRadius: finalGetRadius,
@@ -286,6 +238,7 @@ const ReportWIMap = ({
     scatterLayerProps,
     data,
     metrics,
+    finalOnClick,
     onClick,
     onHover,
     radiusBasedOn,

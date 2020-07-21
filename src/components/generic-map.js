@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 
 import DeckGL, { FlyToInterpolator, MapView } from 'deck.gl'
@@ -45,21 +45,19 @@ const defaultProps = {
 
 // DeckGL react component
 const Map = ({ layers, showLegend, showTooltip, tooltipNode, tooltipProps, ...legendProps }) => {
-  const deckRef = useRef(null)
-  const [{ h, w }, setDimensions] = useState({ h: 0, w: 0 })
-  useEffect(() => {
-    if (deckRef && deckRef.current) {
-      setDimensions({
-        h: deckRef.current.deck.height,
-        w: deckRef.current.deck.width,
-      })
-    }
-  }, [deckRef])
+  const deckRef = useRef()
+  const [{ height, width }, setDimensions] = useState({ height: 0, width: 0 })
 
   return (
     <MapContainer>
       <DeckGL
         ref={deckRef}
+        onLoad={() => {
+          const { height, width } = deckRef.current.deck
+          setDimensions({ height, width })
+        }}
+        onResize={({ height, width }) => setDimensions({ height, width })}
+        onViewStateChange={({ viewState: { width, height } }) => setDimensions({ height, width })}
         initialViewState={ INIT_VIEW_STATE }
         views={ MAP_VIEW }
         layers={layers}
@@ -74,8 +72,8 @@ const Map = ({ layers, showLegend, showTooltip, tooltipNode, tooltipProps, ...le
       {showLegend && <Legend {...legendProps} />}
       {showTooltip && (
         <MapTooltip
-          h={h}
-          w={w}
+          h={height}
+          w={width}
           {...tooltipProps}
         >
           {tooltipNode}
