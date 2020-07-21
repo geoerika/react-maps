@@ -2,6 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
+import LegendSymbol from './legend-symbol'
+
 
 const LegendContainer = styled.div`
   display: flex;
@@ -31,12 +33,6 @@ const LegendSymbolContainer = styled.div`
   align-self: flex-start;
 `
 
-const LegendGradient = styled.div`
-  width: 15px;
-  height: 80px;
-  background-image: linear-gradient(${props => props.color}, rgb(70, 0, 1));
-`
-
 const propTypes = {
   max: PropTypes.number,
   min: PropTypes.number,
@@ -50,13 +46,15 @@ const defaultProps = {
   min: undefined,
   label: '',
   position: 'top-left',
-  color: 'rgb(21, 0, 255)',
+  color: 'rgb(0, 0, 255)',
 }
 // EVENTUALLY: represent whichever visual elements are being used in a basedOn
-const Legend = ({ max, min, label, position, color }) => <>
+const Legend = ({ max, min, label, position, ...symbolProps }) => <>
   { max !== undefined && min !== undefined && (
     <LegendContainer position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}>
-      <LegendSymbolContainer><LegendGradient color={color} /></LegendSymbolContainer>
+      <LegendSymbolContainer>
+        <LegendSymbol {...symbolProps} />
+      </LegendSymbolContainer>
       <LegendTextContainer>
         <LegendText top>{max.toLocaleString()} {label}</LegendText>
         <LegendText>{min.toLocaleString()} {label}</LegendText>
