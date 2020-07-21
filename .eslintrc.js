@@ -9,17 +9,15 @@ module.exports = {
   settings: {
     react: {
       pragma: 'React',
-      version: '16.13',
+      version: 'detect',
     },
   },
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:jest/recommended',
   ],
-  globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly',
-  },
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -34,11 +32,6 @@ module.exports = {
   ],
   rules: {
     indent: ['error', 2],
-    "jest/no-disabled-tests": "warn",
-    "jest/no-focused-tests": "error",
-    "jest/no-identical-title": "error",
-    "jest/prefer-to-have-length": "warn",
-    "jest/valid-expect": "error",
     'react/display-name': 'off' // TODO: many false-positives until react eslint plugin updates
   },
 }

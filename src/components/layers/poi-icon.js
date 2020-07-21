@@ -9,7 +9,7 @@ const POI_ICON_MAPPING = { marker: { x: 0, y: 0, width: 1024, height: 1024 }}
 const defaultProps = {
   iconAtlas: poiIcon,
   iconMapping: POI_ICON_MAPPING,
-  getIcon: d => 'marker',
+  getIcon: () => 'marker',
   sizeScale: 5,
   getPosition: d => d.geometry.coordinates,
   getSize: 5,
@@ -19,7 +19,7 @@ const defaultProps = {
 /**
  * setPOIIcon - sets the poi icon layer
  * @param { object } props - props object for passing data and other attributes to POIIcon
- * @returns { instanceOf IconLayer} 
+ * @returns { instanceOf IconLayer}
  */
 const POIIcon = (props) => {
   return  new IconLayer({
