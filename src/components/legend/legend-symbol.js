@@ -12,33 +12,39 @@ const Gradient = styled.div`
 const Size = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
   width: 15px;
 `
 
 const Circle = styled.div`
+  margin: 3px;
+  box-sizing: border-box;
   width: ${({ size }) => `${size}px`};
+  height: ${({ size }) => `${size}px`};
+  border: 1px solid black;
   border-radius: ${({ size }) => `${size / 2}px`};
   background-color: ${({ color }) => color};
 `
 
 const propTypes = {
   type: PropTypes.string,
-  color: PropTypes.string,
+  color: PropTypes.array,
   dots: PropTypes.number,
   size: PropTypes.number,
 }
 const defaultProps = {
   type: 'gradient',
-  color: 'rgb(255,0,0)',
+  color: [255,0,0], // rgba array
   dots: 5,
   size: 5,
 }
 
+const arrayToRGBA = o => `rgba(${o.join(',')})`
+
 const LegendSymbol = ({ type, color, dots, size }) => {
   
   if (type === 'gradient') {
-    return <Gradient color={color} />
+    return <Gradient color={arrayToRGBA(color)} />
   }
   if (type === 'size') {
     return (
@@ -46,8 +52,8 @@ const LegendSymbol = ({ type, color, dots, size }) => {
         {new Array(dots).fill(0).map((_, i) => (
           <Circle
             key={i}
-            size={i * size + size}
-            color={color}
+            size={(dots - i) * size + size}
+            color={arrayToRGBA([...color.slice(0,3), 0.8])}
           />
         ))}
       </Size>

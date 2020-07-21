@@ -17,7 +17,6 @@ const LegendContainer = styled.div`
 
 const LegendTextContainer = styled.div`
   display: flex;
-  flex-grow: 4;
   flex-direction: column;
 `
 
@@ -28,17 +27,13 @@ const LegendText = styled.div`
   color: black;
 `
 
-const LegendSymbolContainer = styled.div`
-  flex-grow: 1;
-  align-self: flex-start;
-`
+const LegendSymbolContainer = styled.div``
 
 const propTypes = {
   max: PropTypes.number,
   min: PropTypes.number,
   label: PropTypes.string,
   position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
-  color: PropTypes.string,
 }
 
 const defaultProps = {
@@ -46,7 +41,6 @@ const defaultProps = {
   min: undefined,
   label: '',
   position: 'top-left',
-  color: 'rgb(0, 0, 255)',
 }
 // EVENTUALLY: represent whichever visual elements are being used in a basedOn
 const Legend = ({ max, min, label, position, ...symbolProps }) => <>
