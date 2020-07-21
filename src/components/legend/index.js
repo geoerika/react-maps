@@ -48,14 +48,19 @@ const defaultProps = {
     }
   ]
 }
-// EVENTUALLY: represent whichever visual elements are being used in a basedOn
+
 const Legend = ({ position, legends }) => {
   const [activeLegend, setActiveLegend] = useState(0)
+  const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
   const { max, min, label, ...symbolProps } = legends[activeLegend]
+
   return (
     <>
       { max !== undefined && min !== undefined && (
-        <LegendContainer position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}>
+        <LegendContainer
+          onClick={handleLegendChange}
+          position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}
+        >
           <LegendSymbolContainer>
             <LegendSymbol {...symbolProps} />
           </LegendSymbolContainer>
@@ -65,7 +70,7 @@ const Legend = ({ position, legends }) => {
           </LegendTextContainer>
         </LegendContainer>
       )}
-  </>
+    </>
   )
 }
 

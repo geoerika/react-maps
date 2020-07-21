@@ -61,3 +61,15 @@ storiesOf('Walk-In Report', module)
       legendPosition='bottom-right'
     />
   ))
+  .add('Multiple Legends', () => (
+    <ReportMap
+      getReport={getReport}
+      report_id={4}
+      layer_id={1}
+      map_id={145}
+      fillBasedOn='visits'
+      radiusBasedOn='visits'
+      showLegend
+      legendPosition='bottom-right'
+    />
+  ))

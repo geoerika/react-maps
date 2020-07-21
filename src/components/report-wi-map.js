@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useReducer, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import Map from './generic-map'
@@ -88,8 +88,8 @@ const ReportWIMap = ({
   defaultKeyMetric,
   ...scatterLayerProps
 }) => {
-  const [layers, setLayers] = useState([])
-  const [{ data, keyMetric, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
+  // TODO: expose some configuration of how metric/keyMetric relates to legends
+  const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'data') {
       // calculate all min and max
       // { [key]: { max, min }}
@@ -116,6 +116,7 @@ const ReportWIMap = ({
       [type]: payload,
     }
   }, { data: [], metrics: {} })
+
   useEffect(() => {
     const getData = async () => {
       // TODO properly set layers!
@@ -125,7 +126,7 @@ const ReportWIMap = ({
     getData()
   }, [report_id, layer_id, map_id])
 
-  useEffect(() => {
+  const layers = useMemo(() => {
     /*
       for all `getXYZ`, can be a raw value OR computed for each element{} of data[], provided through callback,
       for onHover and onClick:
@@ -156,7 +157,7 @@ const ReportWIMap = ({
       metric: fillBasedOn,
       ...metrics[fillBasedOn], // max & min
     }) : getFillColor
-    setLayers([
+    return [
       Scatter({
         id: `${report_id}-report-scatterplot-layer`,
         data,
@@ -171,26 +172,42 @@ const ReportWIMap = ({
         getLineColor,
         ...scatterLayerProps,
       })
-    ])
+    ]
   }, [data])
+
+  const legends = useMemo(() => {
+    const legends = []
+    if (fillBasedOn.length) {
+      legends.push({
+        color: [255,0,0],
+        type: 'gradient',
+        max: (metrics[fillBasedOn] || {}).max,
+        min: (metrics[fillBasedOn] || {}).min,
+        // TODO: readable labels
+        label: fillBasedOn,
+      })
+    }
+    if (radiusBasedOn.length) {
+      legends.push({
+        color: [255,0,0],
+        type: 'size',
+        dots: 5,
+        size: 5,
+        max: (metrics[radiusBasedOn] || {}).max,
+        min: (metrics[radiusBasedOn] || {}).min,
+        // TODO: readable labels
+        label: radiusBasedOn,
+      })
+    }
+    return legends
+  }, [radiusBasedOn, fillBasedOn, data])
 
   return (
     <Map
       layers={layers}
       showLegend={showLegend}
       position={legendPosition}
-      legends={[
-        {
-          // TODO match with configuration of fillBasedOn
-          color: [255,0,0],
-          type: 'size',
-          dots: 5,
-          size: 5,
-          max: (metrics[keyMetric] || {}).max,
-          min: (metrics[keyMetric] || {}).min,
-          label: keyMetric,
-        }
-      ]}
+      legends={legends}
     />
   )
 }
