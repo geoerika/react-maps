@@ -65,7 +65,6 @@ const defaultProps = {
   getLineColor: [0, 0, 0],
   showLegend: false,
   legendPosition: 'top-left',
-  defaultKeyMetric: 'visits',
 }
 
 // DeckGL react component
@@ -85,10 +84,9 @@ const ReportWIMap = ({
   getLineColor,
   showLegend,
   legendPosition,
-  defaultKeyMetric,
   ...scatterLayerProps
 }) => {
-  // TODO: expose some configuration of how metric/keyMetric relates to legends
+
   const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'data') {
       // calculate all min and max
@@ -102,15 +100,12 @@ const ReportWIMap = ({
           }
         }), {})
       }), {})
-      // persists old keyMetric
-      const keyMetric = state.keyMetric || defaultKeyMetric
+
       return {
         data: payload,
         metrics,
-        keyMetric,
       }
     }
-    // else just change the "key metric"
     return {
       ...state,
       [type]: payload,
