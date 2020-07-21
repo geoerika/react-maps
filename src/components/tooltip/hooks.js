@@ -11,6 +11,6 @@ export const useDimensions = (ref, w, h) => {
       })
     }
   }, [ref])
-  
+
   return dimensions
 }

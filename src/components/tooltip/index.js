@@ -10,7 +10,9 @@ const Tooltip = styled.div`
   position: absolute;
   left: ${props => props.left}px;
   top: ${props => props.top}px;
-  max-height: ${props => props.maxHeight}px;
+  max-height: ${({ maxHeight }) => maxHeight}px;
+  max-width: ${({ maxWidth }) => maxWidth}px;
+  overflow: auto;
   padding: 0em;
   background-color: white;
 `
@@ -42,17 +44,19 @@ const MapTooltipContainer = ({
   translate,
   classes,
 }) => {
-  const tooltipRef = useRef(false)
+  const tooltipRef = useRef()
   const dimensions = useDimensions(tooltipRef, w, h)
   const xOffset = w - (x + dimensions.w)
   const yOffset = h - (y + dimensions.h)
+
   return (
     <Tooltip
       ref={tooltipRef}
       className={classes}
       left={x + ((!translate || xOffset > 0) ? 0 : xOffset)}
       top={y + ((!translate || yOffset > 0) ? 0 : yOffset)}
-      maxHeight={h/2}
+      maxHeight={Math.min(dimensions.h, h/2)}
+      maxWidth={Math.min(dimensions.w, w/2)}
     >
       {children}
     </Tooltip>
