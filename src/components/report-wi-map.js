@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useMemo } from 'react'
+import React, { useEffect, useReducer, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import Map from './generic-map'
@@ -119,7 +119,7 @@ const ReportWIMap = ({
       metricDispatch({ type: 'data', payload: reportData })
     }
     getData()
-  }, [report_id, layer_id, map_id])
+  }, [getReport, report_id, layer_id, map_id])
 
   const layers = useMemo(() => {
     /*
@@ -168,7 +168,7 @@ const ReportWIMap = ({
         ...scatterLayerProps,
       })
     ]
-  }, [data])
+  }, [report_id, scatterLayerProps, data, metrics, onClick, onHover, radiusBasedOn, fillBasedOn, getFillColor, getLineColor, getLineWidth, getRadius, opacity])
 
   const legends = useMemo(() => {
     const legends = []
