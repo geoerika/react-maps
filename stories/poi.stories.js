@@ -7,7 +7,7 @@ import POIsRadiiTo from './data/pois-radiito'
 import POIsPolygonsVan from './data/pois-polygons-van'
 
 storiesOf('POI', module)
-  .add('POI map - no cluster', () => (
+  .add('POI map - icon', () => (
     <DeckMap poiData={ POIsRadii } layerArray={ ['icon'] }/>
   ))
   .add('POI map - cluster', () => (

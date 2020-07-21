@@ -7,7 +7,7 @@ const defaultProps = {
   filled: true,
   wireframe: true,
   lineWidthMinPixels: 1,
-  getPolygon: d => JSON.parse(d.properties.polygon_json.split(':')[2].split('}')[0]),
+  getPolygon: d => JSON.parse(d.properties.polygon_json).coordinates,
   opacity: 0.5,
   getFillColor: [255, 0, 0],
   getLineColor: [80, 80, 80],
