@@ -195,7 +195,7 @@ const ReportWIMap = ({
       })
     }
     return legends
-  }, [radiusBasedOn, fillBasedOn, data])
+  }, [radiusBasedOn, fillBasedOn, metrics])
 
   return (
     <Map
