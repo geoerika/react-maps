@@ -21,10 +21,10 @@ const defaultProps = {
  * @param { object } props - props object for passing data and other attributes to POIIcon
  * @returns { instanceOf IconLayer}
  */
-const POIIcon = (props) => {
-  return  new IconLayer({
+const POIIcon = (props) => 
+  new IconLayer({
     ...props,
     ...defaultProps
-  })}
+  })
 
 export default POIIcon

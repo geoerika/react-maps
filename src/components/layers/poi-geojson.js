@@ -12,7 +12,7 @@ const defaultProps = {
   lineWidthScale: 1,
   lineWidthMinPixels: 2,
   getFillColor: [225, 0, 0, 200],
-  opacity: 0.8,
+  opacity: 0.5,
   getRadius: d => d.properties.radius,
   getLineWidth: 1,
   getElevation: 30,
@@ -25,12 +25,11 @@ const defaultProps = {
  * @param { object } props - props for GeoJsonLayer
  * @returns { instanceOf GeoJsonLayer } 
  */
-const POIGeoJson = (props) => {
-  return new GeoJsonLayer({ 
+const POIGeoJson = (props) =>
+  new GeoJsonLayer({ 
     ...props,
     ...defaultProps
-  } );
-}
+  })
 
 export default POIGeoJson
   
