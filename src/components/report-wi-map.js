@@ -179,14 +179,18 @@ const ReportWIMap = ({
       layers={layers}
       showLegend={showLegend}
       position={legendPosition}
-      // TODO match with configuration of fillBasedOn
-      color={[255,0,0]}
-      type='size'
-      dots={5}
-      size={5}
-      max={(metrics[keyMetric] || {}).max}
-      min={(metrics[keyMetric] || {}).min}
-      label={keyMetric}
+      legends={[
+        {
+          // TODO match with configuration of fillBasedOn
+          color: [255,0,0],
+          type: 'size',
+          dots: 5,
+          size: 5,
+          max: (metrics[keyMetric] || {}).max,
+          min: (metrics[keyMetric] || {}).min,
+          label: keyMetric,
+        }
+      ]}
     />
   )
 }

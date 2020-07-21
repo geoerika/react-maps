@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
@@ -30,32 +30,44 @@ const LegendText = styled.div`
 const LegendSymbolContainer = styled.div``
 
 const propTypes = {
-  max: PropTypes.number,
-  min: PropTypes.number,
-  label: PropTypes.string,
   position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
+  legends: PropTypes.arrayOf(PropTypes.shape({
+    max: PropTypes.number,
+    min: PropTypes.number,
+    label: PropTypes.string,
+  }))
 }
 
 const defaultProps = {
-  max: undefined,
-  min: undefined,
-  label: '',
   position: 'top-left',
+  legends: [
+    {
+      max: undefined,
+      min: undefined,
+      label: '',
+    }
+  ]
 }
 // EVENTUALLY: represent whichever visual elements are being used in a basedOn
-const Legend = ({ max, min, label, position, ...symbolProps }) => <>
-  { max !== undefined && min !== undefined && (
-    <LegendContainer position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}>
-      <LegendSymbolContainer>
-        <LegendSymbol {...symbolProps} />
-      </LegendSymbolContainer>
-      <LegendTextContainer>
-        <LegendText top>{max.toLocaleString()} {label}</LegendText>
-        <LegendText>{min.toLocaleString()} {label}</LegendText>
-      </LegendTextContainer>
-    </LegendContainer>
-  )}
-</>
+const Legend = ({ position, legends }) => {
+  const [activeLegend, setActiveLegend] = useState(0)
+  const { max, min, label, ...symbolProps } = legends[activeLegend]
+  return (
+    <>
+      { max !== undefined && min !== undefined && (
+        <LegendContainer position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}>
+          <LegendSymbolContainer>
+            <LegendSymbol {...symbolProps} />
+          </LegendSymbolContainer>
+          <LegendTextContainer>
+            <LegendText top>{max.toLocaleString()} {label}</LegendText>
+            <LegendText>{min.toLocaleString()} {label}</LegendText>
+          </LegendTextContainer>
+        </LegendContainer>
+      )}
+  </>
+  )
+}
 
 Legend.propTypes = propTypes
 Legend.defaultProps = defaultProps

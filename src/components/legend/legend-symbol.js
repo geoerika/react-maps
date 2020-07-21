@@ -53,7 +53,7 @@ const LegendSymbol = ({ type, color, dots, size }) => {
           <Circle
             key={i}
             size={(dots - i) * size + size}
-            color={arrayToRGBA([...color.slice(0,3), 0.8])}
+            color={arrayToRGBA(color)}
           />
         ))}
       </Size>
