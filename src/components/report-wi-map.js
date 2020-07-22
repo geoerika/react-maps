@@ -116,19 +116,20 @@ const ReportWIMap = ({
       // TODO: for a click event, any movement of the map will cause the tooltip to be out of place
       // 1) close on these events
       // 2) keep the lat/lon and convert to x/y
-      const { x, y, object } = payload
+      const { x, y, object, lngLat } = payload
       return {
         ...state,
         // toggle clicked object
         show: !state.object || state.object.poi_id !== object.poi_id,
         x,
         y,
+        lngLat,
         object,
       }
     }
   }, { show: false, translate: true })
 
-  const finalOnClick = useCallback((o) => {
+  const finalOnClick = useCallback(o => {
     if (onClick) {
       onClick(o)
     }
