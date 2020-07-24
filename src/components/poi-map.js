@@ -4,19 +4,16 @@ import { FlyToInterpolator } from 'deck.gl'
 import { WebMercatorViewport } from 'deck.gl'
 import { StaticMap } from 'react-map-gl'
 
-import { getDataCoordinates } from '../shared/utils/index'
+import { getDataCoordinates, processLayers } from '../shared/utils'
 
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 
 const MapWrapper = styled.div`
   width: 100%;
   height: 100vh;
   position: 'absolute';
 `
-
-import { processLayers } from '../shared/utils/index'
-
-import PropTypes from 'prop-types'
 
 // initial map view
 const INIT_VIEW_STATE = {
@@ -32,25 +29,32 @@ const INIT_VIEW_STATE = {
 const propTypes = {
   poiData: PropTypes.array,
   layerArray: PropTypes.array,
-  onClickHandle: PropTypes.func
+  onClickHandle: PropTypes.func,
+  mode: PropTypes.string,
+  controller: PropTypes.object,
 }
 
 const defaultProps = {
   poiData: [],
   layerArray: [],
-  onClickHandle: () => {}
+  onClickHandle: () => {},
+  mode: null,
+  controller: { controller: true }
 }
 
 // DeckGL React component
-const DeckMap = ({
+const POIMap = ({
   poiData,
   layerArray,
   onClickHandle,
+  mode,
+  controller,
   ...mapProps
 }) => {
-  const [layers, setLayers] = useState([])
-  const [viewState, setViewState] = useState(INIT_VIEW_STATE)
-  const [onClickPayload, setOnClickPayload] = useState({})
+  const [ data, setData ] = useState(poiData)
+  const [ layers, setLayers ] = useState([])
+  const [ viewState, setViewState ] = useState(INIT_VIEW_STATE)
+  const [ onClickPayload, setOnClickPayload ] = useState({})
   const deckRef = useRef()
 
   // setInitialView - sets initial view based on the set of poi data
@@ -59,7 +63,6 @@ const DeckMap = ({
     const viewPort = new WebMercatorViewport({ width, height })
       .fitBounds(formattedGeoData, { padding: 100 })
     const { latitude, longitude, zoom } = viewPort
-
     setViewState({...INIT_VIEW_STATE, longitude, latitude, zoom })
   }
 
@@ -74,7 +77,7 @@ const DeckMap = ({
       if (object.cluster) {
         setOnClickPayload({ longitude, latitude, zoom: layer.state.z + 2})
       } else onClickHandle(deckEvent, setOnClickPayload)
-    }, []
+    }, [onClickHandle]
   ) 
 
   const { width, height } = useMemo(() => {
@@ -82,15 +85,14 @@ const DeckMap = ({
     return deckRef.current
       ? deckRef.current.deck
       : { width: 0, height: 0 }
-  }, [deckRef.current]) 
+  }, [deckRef.current])
   
   // React Hook to handle setting up of initial view and layers
   useLayoutEffect(() => {
     if (poiData.length && width && height) {
-      setLayers(processLayers(layerArray, { ...mapProps, data: poiData, onClick }))
       setInitialView()
     }
-  }, [onClick, width, height])
+  }, [poiData, onClick, width, height])
 
   // React Hook to handle updating view state
   useEffect(() => {
@@ -98,24 +100,34 @@ const DeckMap = ({
       ...prevState,
       ...onClickPayload
     }))
-  }, [layers, onClickPayload])
-  
+    setLayers(processLayers(layerArray, { ...mapProps, data, setData, mode, onClick }))
+  }, [mode, data, layers.length, onClickPayload])
+
+  let getCursor = ({isGrabbing}) => isGrabbing ? 'grabbing' : 'grab'
+  //set cursor for drawing mode (nebula layer)
+  if (layers.length > 0) {
+    let indexDrawLayer = layers.findIndex(layer => layer.id === 'draw layer')
+    if (indexDrawLayer >= 0)
+      getCursor = layers[indexDrawLayer].getCursor.bind(layers[indexDrawLayer])
+  }
+
   return (
     <MapWrapper>
       <DeckGL
         ref={ deckRef }
         initialViewState={ viewState }
         layers={ layers }
-        controller={ true }
+        getCursor={ getCursor }
+        controller={ controller }
       > 
         <StaticMap 
           mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN }
         />
-      </DeckGL> 
+      </DeckGL>
     </MapWrapper>
   )
 }
 
-DeckMap.propTypes = propTypes
-DeckMap.defaultProps = defaultProps
-export default DeckMap
+POIMap.propTypes = propTypes
+POIMap.defaultProps = defaultProps
+export default POIMap
