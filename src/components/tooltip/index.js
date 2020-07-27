@@ -6,7 +6,7 @@ import { useDimensions } from './hooks'
 
 
 const Tooltip = styled.div`
-  z-index: 1000;
+  z-index: 9999;
   position: absolute;
   left: ${props => props.left}px;
   top: ${props => props.top}px;

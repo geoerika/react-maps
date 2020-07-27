@@ -31,15 +31,17 @@ const INIT_VIEW_STATE = {
 const propTypes = {
   layers: PropTypes.array,
   showLegend: PropTypes.bool,
+  position: PropTypes.string,
+  legends: PropTypes.array,
   showTooltip: PropTypes.bool,
-  tooltipProps: PropTypes.object,
   tooltipNode: PropTypes.node,
 }
 const defaultProps = {
   layers: [],
   showLegend: false,
+  position: 'top-left',
+  legends: [],
   showTooltip: false,
-  tooltipProps: {},
 }
 
 const getPositionFromLngLat = ({ lngLat, ...viewState }) => new WebMercatorViewport({
@@ -47,7 +49,15 @@ const getPositionFromLngLat = ({ lngLat, ...viewState }) => new WebMercatorViewp
 }).project(lngLat)
 
 // DeckGL react component
-const Map = ({ layers, showLegend, showTooltip, tooltipNode, tooltipProps, ...legendProps }) => {
+const Map = ({
+  layers,
+  showLegend,
+  position,
+  legends,
+  showTooltip,
+  tooltipNode,
+  ...tooltipProps
+}) => {
   const deckRef = useRef()
   const [viewState, setViewState] = useState({})
   // TODO: unify management of viewState and expose as callback
@@ -95,7 +105,7 @@ const Map = ({ layers, showLegend, showTooltip, tooltipNode, tooltipProps, ...le
       >
         <StaticMap mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN } />
       </DeckGL>
-      {showLegend && <Legend {...legendProps} />}
+      {showLegend && <Legend legends={legends} position={position} />}
       {showTooltip && (
         <MapTooltip
           {...tooltipProps}

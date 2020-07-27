@@ -12,5 +12,6 @@ export const useDimensions = (ref, w, h) => {
     }
   }, [ref])
 
+  // TODO window resizing, flexbox handling and dynamic tooltip sising
   return dimensions
 }

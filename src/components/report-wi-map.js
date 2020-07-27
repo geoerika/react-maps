@@ -223,7 +223,7 @@ const ReportWIMap = ({
         id: `${report_id}-report-scatterplot-layer`,
         data,
         getPosition: d => [d.lon, d.lat],
-        pickable: onClick || onHover,
+        pickable: useTooltip || onClick || onHover,
         onClick: finalOnClick,
         onHover,
         opacity,
@@ -239,6 +239,7 @@ const ReportWIMap = ({
     scatterLayerProps,
     data,
     metrics,
+    useTooltip,
     finalOnClick,
     onClick,
     onHover,
@@ -293,6 +294,7 @@ const ReportWIMap = ({
       tooltipNode={<EntryList {...tooltip} />}
       // x, y, translate
       {...tooltip}
+
     />
   )
 }
