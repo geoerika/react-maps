@@ -44,10 +44,11 @@ const MapTooltipContainer = ({
   translate,
   classes,
 }) => {
+  // TODO anchor position configuration, currently just bottom right
   const tooltipRef = useRef()
   const dimensions = useDimensions(tooltipRef, w, h)
-  const xOffset = w - (x + dimensions.w)
-  const yOffset = h - (y + dimensions.h)
+  const xOffset = Math.max(-dimensions.w, w - (x + dimensions.w))
+  const yOffset = Math.max(-dimensions.h, h - (y + dimensions.h))
 
   return (
     <Tooltip
