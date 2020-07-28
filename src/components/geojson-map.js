@@ -1,16 +1,11 @@
-import React, { useState, useEffect, useLayoutEffect, useReducer, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useReducer, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
 
 import { GeoJsonLayer } from 'deck.gl'
 
 import Map from './generic-map'
 import { intensityByMetric, colorIntensityByMetric } from '../utils'
 
-import geoJsonData from './vwi-geojson'
-
-
-const ControlDiv = styled.div``
 
 const propTypes = {
   radiusBasedOn: PropTypes.string,
@@ -94,6 +89,20 @@ const GeoJsonMap = ({
   legendPosition,
   ...geoJsonLayerProps
 }) => {
+  const [geoJson, setGeoJson] = useState('')
+  const handleSetData = () => {
+    try {
+      const payload = JSON.parse(geoJson)
+      // basic validation
+      if (payload.type === 'FeatureCollection' && payload.features[0]) {
+        metricDispatch({ type: 'data', payload })
+      }
+    } catch (e) {
+      console.warn('Not Valid JSON')
+    }
+  }
+
+  // TODO more finely woven state to link these with data/metrics
   const [fillBasedOn, setFillBasedOn] = useState(defaultFillBasedOn)
   const [elevationBasedOn, setElevationBasedOn] = useState(defaultFillBasedOn)
   useEffect(() => {
@@ -132,17 +141,6 @@ const GeoJsonMap = ({
       [type]: payload,
     }
   }, { data: [], metrics: {} })
-
-  useEffect(() => {
-    const getData = async () => {
-      // TODO pull this data
-      // const reportData = await getReport({ report_id, layer_id, map_id })
-      // NOTE: geojson was so large it wouldn't load initially from local FS
-      await setTimeout(() => {}, 2000)
-      metricDispatch({ type: 'data', payload: geoJsonData })
-    }
-    getData()
-  }, [])
 
   // TODO: multiplier & base values through props
   const finalGetRadius = useMemo(() => radiusBasedOn.length ? intensityByMetric({
@@ -230,9 +228,9 @@ const GeoJsonMap = ({
 
   return (
     <div>
-      <ControlDiv>
-        <button>Load GeoJSON</button>
-        <textarea />
+      <div>
+        <button onClick={handleSetData}>Load GeoJSON</button>
+        <textarea onChange={e => setGeoJson(e.target.value)}/>
         <div>
           <strong>Fill Based On</strong>
           <select onChange={e => setFillBasedOn(e.target.value)}>
@@ -247,7 +245,7 @@ const GeoJsonMap = ({
             {Object.keys(metrics).map(key => <option key={key} selected={key === elevationBasedOn}>{key}</option>)}
           </select>
         </div>
-      </ControlDiv>
+      </div>
       <Map
         layers={layers}
         showLegend={showLegend}
