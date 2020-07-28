@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import axios from 'axios'
+// import axios from 'axios'
 
 // import FO from '../src/actions'
 import GeoJsonMap from '../src/components/geojson-map'
@@ -19,13 +19,13 @@ storiesOf('GeoJSON Map', module)
     <GeoJsonMap />
   ))
   .add('Dynamic Fill', () => (
-    <GeoJsonMap fillBasedOn='unique_visitors_mean' showLegend/>
+    <GeoJsonMap defaultFillBasedOn='unique_visitors_mean' showLegend/>
   ))
   .add('Dynamic Elevation', () => (
-    <GeoJsonMap extruded elevationBasedOn='unique_visitors_median' />
+    <GeoJsonMap extruded defaultElevationBasedOn='unique_visitors_median' showLegend />
   ))
   .add('Dynamic Fill & Elevation', () => (
-    <GeoJsonMap onClick={o => console.log('==== CLICK', o)} fillBasedOn='unique_visitors_mean' extruded elevationBasedOn='unique_visitors_median' />
+    <GeoJsonMap onClick={o => console.log('==== CLICK', o)} defaultFillBasedOn='unique_visitors_mean' extruded defaultElevationBasedOn='unique_visitors_median' />
   ))
 
 

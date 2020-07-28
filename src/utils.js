@@ -6,8 +6,7 @@ export const intensityByMetric = ({
   multiplier,
   base,
   metric,
-  max,
-  min,
+  metricStats: { max, min },
   getDataObject = d => d
 }) => {
   if (intensityCallback) return d => intensityCallback(d) * multiplier + base
@@ -22,8 +21,7 @@ export const colorIntensityByMetric = ({
   invert = false,
   color, // [{ base, multiplier }]
   metric,
-  max,
-  min,
+  metricStats: { max, min },
   getDataObject = d => d
 }) => {
   if (intensityCallback) return d => color.map(({ base, multiplier }) => intensityCallback(d) * multiplier + base)

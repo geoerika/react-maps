@@ -10,9 +10,9 @@ import Legend from './legend'
 
 
 const MapContainer = styled.div`
-  height: '100%';
-  width: '100%';
-  position: 'absolute';
+  height: 100%;
+  width: 100%;
+  position: absolute;
 `
 
 const MAP_VIEW = new MapView({ repeat: true });
