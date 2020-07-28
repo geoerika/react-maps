@@ -26,6 +26,22 @@ const Circle = styled.div`
   background-color: ${({ color }) => color};
 `
 
+const HeightWrapper = styled.div`
+  flex-grow: 1;
+  width: 80%;
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+  margin: 5px 0 5px 0;
+`
+
+const Height = styled.div`
+  height: ${({ height }) => height}px;
+  width: 0;
+  margin-left: auto;
+  margin-right: auto;
+  border-left: 1px solid black;
+`
+
 const propTypes = {
   type: PropTypes.string,
   color: PropTypes.array,
@@ -42,7 +58,18 @@ const defaultProps = {
 const arrayToRGBA = o => `rgba(${o.join(',')})`
 
 const LegendSymbol = ({ type, color, dots, size }) => {
-  
+  if (type === 'elevation') {
+    return (
+      <Size>
+        <HeightWrapper margin='top'>
+          <Height height={40}  />
+        </HeightWrapper>
+        <HeightWrapper margin='bottom'>
+          <Height height={10} />
+        </HeightWrapper>
+      </Size>
+    )
+  }
   if (type === 'gradient') {
     return <Gradient color={arrayToRGBA(color)} />
   }

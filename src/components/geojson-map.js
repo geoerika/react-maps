@@ -7,6 +7,8 @@ import Map from './generic-map'
 import { intensityByMetric, colorIntensityByMetric } from '../utils'
 
 
+import geoJsonData from './vwi-geojson'
+
 const propTypes = {
   radiusBasedOn: PropTypes.string,
   defaultFillBasedOn: PropTypes.string,
@@ -198,6 +200,7 @@ const GeoJsonMap = ({
 
   const legends = useMemo(() => {
     let legends = undefined
+    console.log("---> LEGENDS!", fillBasedOn)
     if (fillBasedOn.length) {
       if (!legends) legends = []
       legends.push({
@@ -223,8 +226,29 @@ const GeoJsonMap = ({
       })
     }
     // TODO: elevation legend
+    if (elevationBasedOn.length) {
+      if (!legends) legends = []
+      legends.push({
+        type: 'elevation',
+        max: (metrics[fillBasedOn] || {}).max,
+        min: (metrics[fillBasedOn] || {}).min,
+        // TODO: readable labels
+        label: elevationBasedOn,
+      })
+    }
     return legends
-  }, [radiusBasedOn, fillBasedOn, metrics])
+  }, [elevationBasedOn, radiusBasedOn, fillBasedOn, metrics])
+
+  useEffect(() => {
+    const getData = async () => {
+      // TODO pull this data
+      // const reportData = await getReport({ report_id, layer_id, map_id })
+      // NOTE: geojson was so large it wouldn't load initially from local FS
+      await setTimeout(() => {}, 2000)
+      metricDispatch({ type: 'data', payload: geoJsonData })
+    }
+    getData()
+  }, [])
 
   return (
     <div>

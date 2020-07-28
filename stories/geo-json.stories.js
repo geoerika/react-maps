@@ -25,7 +25,7 @@ storiesOf('GeoJSON Map', module)
     <GeoJsonMap extruded defaultElevationBasedOn='unique_visitors_median' showLegend />
   ))
   .add('Dynamic Fill & Elevation', () => (
-    <GeoJsonMap onClick={o => console.log('==== CLICK', o)} defaultFillBasedOn='unique_visitors_mean' extruded defaultElevationBasedOn='unique_visitors_median' />
+    <GeoJsonMap showLegend defaultFillBasedOn='unique_visitors_mean' extruded defaultElevationBasedOn='unique_visitors_median' />
   ))
 
 
