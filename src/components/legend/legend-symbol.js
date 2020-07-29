@@ -6,7 +6,7 @@ import styled from 'styled-components'
 const Gradient = styled.div`
   width: 15px;
   height: 80px;
-  background-image: linear-gradient(${({ color }) => color}, rgb(0, 0, 0));
+  background-image: linear-gradient(${({ max, min }) => `${max}, ${min}`});
 `
 
 const Size = styled.div`
@@ -44,20 +44,20 @@ const Height = styled.div`
 
 const propTypes = {
   type: PropTypes.string,
-  color: PropTypes.array,
+  minColor: PropTypes.string,
+  maxColor: PropTypes.string,
   dots: PropTypes.number,
   size: PropTypes.number,
 }
 const defaultProps = {
   type: 'gradient',
-  color: [255,0,0], // rgba array
+  minColor: 'rgb(0,0,0)',
+  maxColor: 'rgb(255,0,0)',
   dots: 5,
   size: 5,
 }
 
-const arrayToRGBA = o => `rgba(${o.join(',')})`
-
-const LegendSymbol = ({ type, color, dots, size }) => {
+const LegendSymbol = ({ type, minColor, maxColor, dots, size }) => {
   if (type === 'elevation') {
     return (
       <Size>
@@ -71,7 +71,7 @@ const LegendSymbol = ({ type, color, dots, size }) => {
     )
   }
   if (type === 'gradient') {
-    return <Gradient color={arrayToRGBA(color)} />
+    return <Gradient min={minColor} max={maxColor} />
   }
   if (type === 'size') {
     return (
@@ -80,7 +80,7 @@ const LegendSymbol = ({ type, color, dots, size }) => {
           <Circle
             key={i}
             size={(dots - i) * size + size}
-            color={arrayToRGBA(color)}
+            color={maxColor}
           />
         ))}
       </Size>

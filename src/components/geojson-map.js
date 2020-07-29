@@ -3,24 +3,23 @@ import PropTypes from 'prop-types'
 
 import { GeoJsonLayer } from 'deck.gl'
 
+import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
+import { interpolateBlues } from 'd3-scale-chromatic'
+import { color } from 'd3-color'
+
 import Map from './generic-map'
-import { intensityByMetric, colorIntensityByMetric } from '../utils'
 
-
-import geoJsonData from './vwi-geojson'
 
 const propTypes = {
-  radiusBasedOn: PropTypes.string,
   defaultFillBasedOn: PropTypes.string,
+  fillDataScale: PropTypes.string,
+  fillColors: PropTypes.array,
   defaultElevationBasedOn: PropTypes.string,
+  elevationDataScale: PropTypes.string,
+  elevations: PropTypes.array,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
   opacity: PropTypes.number,
-  getRadius: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.func,
-  ]),
-  radiusUnits: PropTypes.string,
   filled: PropTypes.bool,
   getFillColor: PropTypes.oneOfType([
     PropTypes.func,
@@ -44,29 +43,22 @@ const propTypes = {
   ]),
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
-  defaultKeyMetric: PropTypes.string,
 }
 
 const defaultProps = {
-  radiusBasedOn: '',
   defaultFillBasedOn: '',
+  fillDataScale: 'linear',
+  fillColors: [interpolateBlues(0), interpolateBlues(1)],
   defaultElevationBasedOn: '',
+  elevationDataScale: 'linear',
+  elevations: [0, 1000000],
   onClick: undefined,
   onHover: undefined,
   opacity: 0.8,
-  getRadius: 10,
-  // radiusScale: 5,
-  radiusUnits: 'pixels',
-  // radiusMinPixels: 10,
-  // radiusMaxPixels: 100,
-  // getColor: () => null,
   filled: true,
   getFillColor: [255, 140, 0],
   extruded: false,
   getElevation: 0,
-  // lineWidthUnits,
-  // lineWidthMinPixels: 1,
-  // lineWidthMaxPixels: 10,
   stroked: true,
   lineWidthUnits: 'pixels',
   getLineWidth: 2,
@@ -75,15 +67,23 @@ const defaultProps = {
   legendPosition: 'top-left',
 }
 
+const SCALES = {
+  'linear': scaleLinear,
+  'quantile': scaleQuantile,
+  'quantize': scaleQuantize,
+}
+
 const GeoJsonMap = ({
-  radiusBasedOn,
   defaultFillBasedOn,
+  fillDataScale,
+  fillColors,
   defaultElevationBasedOn,
+  elevationDataScale,
+  elevations,
   onClick,
   onHover,
   opacity,
   getElevation,
-  getRadius,
   getFillColor,
   getLineWidth,
   getLineColor,
@@ -143,29 +143,32 @@ const GeoJsonMap = ({
       [type]: payload,
     }
   }, { data: [], metrics: {} })
+  
+  const finalGetFillColor = useMemo(() => {
+    if (fillBasedOn.length) {
+      const d3Fn = SCALES[fillDataScale]([
+        (metrics[fillBasedOn] || { min: 0 }).min,
+        (metrics[fillBasedOn] || { max: 10 }).max
+      ], fillColors)
 
-  // TODO: multiplier & base values through props
-  const finalGetRadius = useMemo(() => radiusBasedOn.length ? intensityByMetric({
-    multiplier: 40,
-    base: 8,
-    metric: radiusBasedOn,
-    metricStats: metrics[radiusBasedOn] || {}, // max & min
-  }) : getRadius, [radiusBasedOn, getRadius, metrics])
+      return d => {
+        const ret = color(d3Fn(d.properties[fillBasedOn]))
+        return [ret.r, ret.g, ret.b]
+      }
+    }
+    return getFillColor
+  }, [fillBasedOn, fillDataScale, fillColors, getFillColor, metrics])
 
-  const finalGetFillColor = useMemo(() => fillBasedOn ? colorIntensityByMetric({
-    color: [{ base: 100, multiplier: 155 }, { base: 0, multiplier: 0 }, { base: 0, multiplier: 0 }, { base: 255, multiplier: 0 }],
-    metric: fillBasedOn,
-    getDataObject: d => ((d || { properties: {} }).properties || {}),
-    metricStats: metrics[fillBasedOn] || {}, // max & min
-  }) : getFillColor, [fillBasedOn, getFillColor, metrics])
-
-  const finalGetElevation = useMemo(() => elevationBasedOn.length ? intensityByMetric({
-    multiplier: 1000000,
-    base: 100000,
-    metric: elevationBasedOn,
-    getDataObject: d => d.properties,
-    metricStats: metrics[elevationBasedOn] || {}, // max & min
-  }) : getElevation, [elevationBasedOn, getElevation, metrics])
+  const finalGetElevation = useMemo(() => {
+    if (elevationBasedOn.length) {
+      const d3Fn = SCALES[elevationDataScale]([
+        (metrics[elevationBasedOn] || { min: 0 }).min,
+        (metrics[elevationBasedOn] || { max: 10 }).max
+      ], elevations)
+      return d => d3Fn(d.properties[elevationBasedOn])
+    }
+    return getElevation
+  }, [elevationBasedOn, elevationDataScale, elevations, getElevation, metrics])
 
   const layers = useMemo(() => ([
     new GeoJsonLayer({
@@ -175,13 +178,12 @@ const GeoJsonMap = ({
       onClick,
       onHover,
       opacity,
-      getRadius: finalGetRadius,
       getFillColor: finalGetFillColor,
       getElevation: finalGetElevation,
       getLineWidth,
       getLineColor,
       updateTriggers: {
-        getFillColor: [finalGetFillColor],
+        getFillColor: [finalGetFillColor, fillDataScale, fillColors],
       },
       ...geoJsonLayerProps,
     })
@@ -191,8 +193,9 @@ const GeoJsonMap = ({
     onClick,
     onHover,
     finalGetElevation,
-    finalGetRadius,
     finalGetFillColor,
+    fillColors,
+    fillDataScale,
     getLineColor,
     getLineWidth,
     opacity,
@@ -200,11 +203,13 @@ const GeoJsonMap = ({
 
   const legends = useMemo(() => {
     let legends = undefined
-    console.log("---> LEGENDS!", fillBasedOn)
     if (fillBasedOn.length) {
       if (!legends) legends = []
+      // TODO support quantile/quantize
+      // i.e. different lengths of fillColors[]
       legends.push({
-        color: [255,0,0],
+        minColor: fillColors[0],
+        maxColor: fillColors[1],
         type: 'gradient',
         max: (metrics[fillBasedOn] || {}).max,
         min: (metrics[fillBasedOn] || {}).min,
@@ -212,20 +217,7 @@ const GeoJsonMap = ({
         label: fillBasedOn,
       })
     }
-    if (radiusBasedOn.length) {
-      if (!legends) legends = []
-      legends.push({
-        color: [255,0,0],
-        type: 'size',
-        dots: 5,
-        size: 5,
-        max: (metrics[radiusBasedOn] || {}).max,
-        min: (metrics[radiusBasedOn] || {}).min,
-        // TODO: readable labels
-        label: radiusBasedOn,
-      })
-    }
-    // TODO: elevation legend
+
     if (elevationBasedOn.length) {
       if (!legends) legends = []
       legends.push({
@@ -237,7 +229,7 @@ const GeoJsonMap = ({
       })
     }
     return legends
-  }, [elevationBasedOn, radiusBasedOn, fillBasedOn, metrics])
+  }, [elevationBasedOn, fillBasedOn, fillColors, metrics])
 
   useEffect(() => {
     const getData = async () => {

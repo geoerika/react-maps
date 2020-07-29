@@ -1,9 +1,12 @@
 import React, { useEffect, useReducer, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
+import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
+import { interpolateBlues } from 'd3-scale-chromatic'
+import { color } from 'd3-color'
+
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
-import { intensityByMetric, colorIntensityByMetric } from '../utils'
 import { reportWI } from '../datasets'
 
 
@@ -13,7 +16,11 @@ const propTypes = {
   layer_id: PropTypes.number.isRequired,
   map_id: PropTypes.number.isRequired,
   radiusBasedOn: PropTypes.string,
+  radiusDataScale: PropTypes.string,
+  radii: PropTypes.array,
   fillBasedOn: PropTypes.string,
+  fillDataScale: PropTypes.string,
+  fillColors: PropTypes.array,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
   opacity: PropTypes.number,
@@ -44,7 +51,11 @@ const propTypes = {
 
 const defaultProps = {
   radiusBasedOn: '',
+  radiusDataScale: 'linear',
+  radii: [5, 50],
   fillBasedOn: '',
+  fillDataScale: 'linear',
+  fillColors: [interpolateBlues(0), interpolateBlues(1)],
   onClick: undefined,
   onHover: undefined,
   opacity: 0.8,
@@ -67,6 +78,12 @@ const defaultProps = {
   legendPosition: 'top-left',
 }
 
+const SCALES = {
+  'linear': scaleLinear,
+  'quantile': scaleQuantile,
+  'quantize': scaleQuantize,
+}
+
 // DeckGL react component
 const ReportWIMap = ({
   getReport,
@@ -74,7 +91,11 @@ const ReportWIMap = ({
   layer_id,
   map_id,
   radiusBasedOn,
+  radiusDataScale,
+  radii,
   fillBasedOn,
+  fillDataScale,
+  fillColors,
   onClick,
   onHover,
   opacity,
@@ -141,17 +162,29 @@ const ReportWIMap = ({
       }
     */
     // TODO: multiplier & base values through props
-    const finalGetRadius = radiusBasedOn.length ? intensityByMetric({
-      multiplier: 40,
-      base: 8,
-      metric: radiusBasedOn,
-      ...metrics[radiusBasedOn], // max & min
-    }) : getRadius
-    const finalGetFillColor = fillBasedOn.length ? colorIntensityByMetric({
-      color: [{ base: 100, multiplier: 155 }, { base: 0, multiplier: 0 }, { base: 0, multiplier: 0 }, { base: 255, multiplier: 0 }],
-      metric: fillBasedOn,
-      ...metrics[fillBasedOn], // max & min
-    }) : getFillColor
+    let finalGetRadius = getRadius
+    if (radiusBasedOn.length) {
+      const d3Fn = SCALES[radiusDataScale]([
+        (metrics[radiusBasedOn] || { min: 0 }).min,
+        (metrics[radiusBasedOn] || { max: 10 }).max
+      ], radii)
+
+      finalGetRadius = d => d3Fn(d[radiusBasedOn])
+    } 
+    
+    let finalGetFillColor = getFillColor
+    if (fillBasedOn.length) {
+      const d3Fn = SCALES[fillDataScale]([
+        (metrics[fillBasedOn] || { min: 0 }).min,
+        (metrics[fillBasedOn] || { max: 10 }).max
+      ], fillColors)
+
+      finalGetFillColor = d => {
+        const ret = color(d3Fn(d[fillBasedOn]))
+        return [ret.r, ret.g, ret.b]
+      }
+    } 
+
     return [
       Scatter({
         id: `${report_id}-report-scatterplot-layer`,
@@ -168,13 +201,32 @@ const ReportWIMap = ({
         ...scatterLayerProps,
       })
     ]
-  }, [report_id, scatterLayerProps, data, metrics, onClick, onHover, radiusBasedOn, fillBasedOn, getFillColor, getLineColor, getLineWidth, getRadius, opacity])
+  }, [
+    report_id,
+    scatterLayerProps,
+    data,
+    metrics,
+    onClick,
+    onHover,
+    radiusBasedOn,
+    radiusDataScale,
+    radii,
+    fillBasedOn,
+    fillColors,
+    fillDataScale,
+    getFillColor,
+    getLineColor,
+    getLineWidth,
+    getRadius,
+    opacity,
+  ])
 
   const legends = useMemo(() => {
     const legends = []
     if (fillBasedOn.length) {
       legends.push({
-        color: [255,0,0],
+        minColor: fillColors[0],
+        maxColor: fillColors[1],
         type: 'gradient',
         max: (metrics[fillBasedOn] || {}).max,
         min: (metrics[fillBasedOn] || {}).min,
@@ -184,7 +236,7 @@ const ReportWIMap = ({
     }
     if (radiusBasedOn.length) {
       legends.push({
-        color: [255,0,0],
+        maxColor: fillColors[1],
         type: 'size',
         dots: 5,
         size: 5,
@@ -195,7 +247,7 @@ const ReportWIMap = ({
       })
     }
     return legends
-  }, [radiusBasedOn, fillBasedOn, metrics])
+  }, [radiusBasedOn, fillBasedOn, fillColors, metrics])
 
   return (
     <Map
