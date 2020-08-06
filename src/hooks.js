@@ -288,8 +288,9 @@ export const useTimeline = (timestampInit, speedInterval) => {
   const [timeline, timelineDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'move') {
       const activeIndex = state.activeIndex + 1 * state.direction
+      // stop if finished
       if ([timestamps.length - 1, 0].includes(activeIndex)) {
-        clearInterval(player)
+        clearInterval(state.player)
       }
       return {
         ...state,
@@ -297,38 +298,52 @@ export const useTimeline = (timestampInit, speedInterval) => {
       }
     }
     if (type === 'speed') {
+      clearInterval(state.player)
+      const speed = state.speed + payload
       return {
         ...state,
-        speed: state.speed + payload
+        speed,
+        player: setInterval(() => timelineDispatch({ type: 'move' }), speed)
+      }
+    }
+    // reset options and stop timer
+    if (type === 'timestamps') {
+      return {
+        timestamps: payload,
+        direction: 1,
+        activeIndex: 0,
+        speed: speedInterval,
+        player: false,
+      }
+    }
+    if (type === 'start') {
+      return {
+        ...state,
+        player: setInterval(() => timelineDispatch({ type: 'move' }), state.speed)
+      }
+    }
+    if (type === 'stop') {
+      clearInterval(state.player)
+      return {
+        ...state,
+        player: false,
       }
     }
     return {
       ...state,
       [type]: payload,
     }
-  }, { direction: 1, activeIndex: 0, speed: speedInterval })  
-
-  const [player, setPlayer] = useState(false)
+  }, { player: false, direction: 1, activeIndex: 0, speed: speedInterval, timestamps })
 
   const play = () => timelineDispatch({ type: 'direction', payload: 1 })
 
   const rewind = () => timelineDispatch({ type: 'direction', payload: -1 })
 
-  const startTimeline = () => {
-    setPlayer(setInterval(() => timelineDispatch({ type: 'move' }), timeline.speed))
-  }
+  const startTimeline = () => timelineDispatch({ type: 'start' })
 
-  const stopTimeline = () => {
-    clearInterval(player)
-    setPlayer(false)
-  }
+  const stopTimeline = () => timelineDispatch({ type: 'stop' })
 
-  const changeSpeed = value => () => {
-    clearInterval(player)
-    timelineDispatch({ type: 'speed', payload: value })
-    // will this speed update take effect, or should it be timeline.speed + value
-    setPlayer(setInterval(() => timelineDispatch({ type: 'move' }), timeline.speed))
-  }
+  const changeSpeed = value => () => timelineDispatch({ type: 'speed', payload: value })
 
   return {
     play,
@@ -336,7 +351,6 @@ export const useTimeline = (timestampInit, speedInterval) => {
     startTimeline,
     stopTimeline,
     changeSpeed,
-    timestamps,
     ...timeline,
   }
 }
