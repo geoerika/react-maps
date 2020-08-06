@@ -1,11 +1,12 @@
 import React, { useEffect, useReducer, useMemo, useCallback, useState } from 'react'
 import PropTypes from 'prop-types'
 
+import styled from 'styled-components'
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
-import { useLegends } from '../hooks'
+import { useLegends, useFullReport } from '../hooks'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
@@ -88,6 +89,24 @@ const SCALES = {
   'quantile': scaleQuantile,
   'quantize': scaleQuantize,
 }
+
+const Container = styled.div`
+  padding: 5px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+`
+
+const ControlContainer = styled.div`
+  flex-grow: 1;
+  padding: 5px;
+`
+
+const MapContainer = styled.div`
+  flex-grow: 10;
+  padding: 5px;
+`
 
 // DeckGL react component
 const ReportWIMap = ({
@@ -242,17 +261,28 @@ const ReportWIMap = ({
   const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, metrics })
   
   return (
-    <Map
-      layers={layers}
-      showLegend={showLegend}
-      position={legendPosition}
-      legends={legends}
-      showTooltip={tooltip.show}
-      tooltipNode={<EntryList {...tooltip} />}
-      // x, y, translate
-      {...tooltip}
-
-    />
+    <Container>
+      <ControlContainer>
+        Current Period: {currentDuration}
+        <p>Cycle through periods - CONTROLS</p>
+        <p>Choose Metric to highlight</p>
+        <p>Cycle through for current period:</p>
+        <p>Hour of Day</p>
+        <p>Day of Week</p>
+      </ControlContainer>
+      <MapContainer>
+        <Map
+          layers={layers}
+          showLegend={showLegend}
+          position={legendPosition}
+          legends={legends}
+          showTooltip={tooltip.show}
+          tooltipNode={<EntryList {...tooltip} />}
+          // x, y, translate
+          {...tooltip}
+        />
+      </MapContainer>
+    </Container>
   )
 }
 

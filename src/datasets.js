@@ -11,6 +11,3 @@ export const reportWI = {
     'unique_visitors_hod', 'unique_visitors_multi_visit', 'unique_visitors_single_visit', 'unique_xdevice', 'visits',
   ],
 }
-
-export const hours = new Array(24).fill(0).map((_, i) => i)
-export const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']

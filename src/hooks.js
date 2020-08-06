@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useReducer } from 'react'
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { color } from 'd3-color'
 import { days, hours } from './datasets'
+import { calculateReportWIMetrics } from './utils'
+
 
 // TODO meaningful representation of elevation and radius based on given values
 export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors, radiusBasedOn = '', metrics }) => {
@@ -186,6 +188,94 @@ export const useRadius = ({
   return { finalGetRadius, setRadiusBasedOn }
 }
 
+// for manual changing of report duration
+export const useReport = ({ getReport, report_id, layer_id, map_id, currentDuration }) => {
+  const [report, reportDispatch] = useReducer((state, { type, payload }) => {
+    if (['init', 'single_period'].includes(type)) {
+      const { duration, durationKey, durations, data } = payload
+      const value = {
+        [durationKey]: {
+          data,
+          duration,
+          metrics: data.reduce(calculateReportWIMetrics, {})
+        },
+        currentDuration: durationKey,
+      }
+      // TODO is this necessary? 'durations' is sent with every request
+      if (type === 'init') {
+        value.durations = durations
+      }
+      return {
+        ...state,
+        ...value,
+      }
+    }
+    return {
+      ...state,
+      [type]: payload,
+    }
+  }, {}) // { currentDuration: durationKey, [durationKey]: { data, metric } }
+
+  useEffect(() => {
+    const getData = async () => {
+      const payload = await getReport({ report_id, layer_id, map_id, currentDuration })
+      reportDispatch({
+        type: currentDuration.length ? 'single_period' : 'init',
+        payload,
+      })
+    }
+    getData()
+  }, [getReport, report_id, layer_id, map_id, currentDuration])
+
+  return report
+}
+
+// For using all report durations
+export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {  
+  const [report, reportDispatch] = useReducer((state, { type, payload }) => {
+    if (type === 'full_report') {
+      const { currentDuration, fullReport } = payload
+      return {
+        currentDuration,
+        ...fullReport,
+      }
+    }
+    return {
+      ...state,
+      [type]: payload,
+    }
+  }, { currentDuration: '' }) // { currentDuration: durationKey, [durationKey]: { data, metric } }
+
+  // TODO make .reduce more efficient
+  // TODO don't re-use POI meta data, only report metrics
+  useEffect(() => {
+    const getData = async () => {
+      const { data, durationKey, durations } = await getReport({ report_id, layer_id, map_id })
+      const durationData = await Promise.all(durations.map(currentDuration => getReport({ report_id, layer_id, map_id, currentDuration })))
+      const fullReport = {
+        [durationKey]: { data, metrics: data.reduce(calculateReportWIMetrics, {}) },
+        ...durationData.reduce((agg, ele) => ({
+          ...agg,
+          [ele.durationKey]: {
+            ...ele,
+            metrics: ele.data.reduce(calculateReportWIMetrics, {}) // { min, max }
+          },
+        }), {})
+      }
+      reportDispatch({ type: 'full_report', payload: { currentDuration: durationKey, fullReport } })
+    }
+    getData()
+  }, [getReport, report_id, layer_id, map_id])
+
+  return report
+}
+
+// FOUR TYPES:
+// within a given duration, cycle DoW
+// within a given duration, cycle HoD
+// between durations, same DoW
+// between durations, same HoD
+
 const getTimeStampOptions = timestamps => {
   // dow, hod or [Date]
   if (timestamps === 'days') return days
@@ -195,8 +285,6 @@ const getTimeStampOptions = timestamps => {
 
 export const useTimeline = (timestampInit, speedInterval) => {
   const timestamps = getTimeStampOptions(timestampInit)
-  // TODO: this assumes data is all local
-  // include async calls?
   const [timeline, timelineDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'move') {
       const activeIndex = state.activeIndex + 1 * state.direction
