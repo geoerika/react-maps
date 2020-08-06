@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useMemo, useCallback, useState } from 'react'
+import React, { useEffect, useReducer, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import styled from 'styled-components'
@@ -6,12 +6,12 @@ import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
-import { useLegends, useFullReport } from '../hooks'
+import { useLegends, useFullReport, useTimeline } from '../hooks'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import EntryList from './entry-list'
-import { reportWI } from '../datasets'
+import TimelineControls from './controls'
 
 
 const propTypes = {
@@ -98,11 +98,6 @@ const Container = styled.div`
   flex-direction: column;
 `
 
-const ControlContainer = styled.div`
-  flex-grow: 1;
-  padding: 5px;
-`
-
 const MapContainer = styled.div`
   flex-grow: 10;
   padding: 5px;
@@ -156,45 +151,17 @@ const ReportWIMap = ({
     }
   }, [onClick, useTooltip])
 
-  const [currentDuration, setCurrentDuration] = useState(false)
-  const [durationOptions, setDurationOptions] = useState([])
-  const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
-    if (type === 'data') {
-      // calculate all min and max
-      // { [key]: { max, min }}
-      const metrics =  payload.reduce((agg, row) => ({
-        ...reportWI.DATA_FIELDS.reduce((rowAgg, key) => ({
-          ...rowAgg,
-          [key]: {
-            max: Math.max((agg[key] || { max: null }).max, row[key]),
-            min: Math.min((agg[key] || { min: null }).min, row[key]),
-          }
-        }), {})
-      }), {})
 
-      return {
-        data: payload,
-        metrics,
-      }
-    }
+  const { timelineDispatch, ...timeline } = useTimeline([], 500)
 
-    // default
-    return {
-      ...state,
-      [type]: payload,
-    }
-  }, { data: [], metrics: {} })
-
-
+  const { currentDuration, ...fullReport } = useFullReport({ getReport, report_id, layer_id, map_id })
+  const { data, metrics } = (fullReport[currentDuration] || { data: [], metrics: {}})
+  // sync timestamps with 
   useEffect(() => {
-    const getData = async () => {
-      // TODO properly set layers!
-      const { data, durations } = await getReport({ report_id, layer_id, map_id, currentDuration })
-      setDurationOptions(durations)
-      metricDispatch({ type: 'data', payload: data })
-    }
-    getData()
-  }, [getReport, report_id, layer_id, map_id, currentDuration])
+    timelineDispatch({ type: 'timestamps', payload: fullReport.durations || [] })
+  }, [timelineDispatch, fullReport.durations])
+  // TODO: manual control of timestamps to support DoW, HoD
+  // TODO: Metrics of Interest to lock while showing timeline
 
   const layers = useMemo(() => {
     let finalGetRadius = getRadius
@@ -262,14 +229,15 @@ const ReportWIMap = ({
   
   return (
     <Container>
-      <ControlContainer>
+      <div>
         Current Period: {currentDuration}
         <p>Cycle through periods - CONTROLS</p>
         <p>Choose Metric to highlight</p>
         <p>Cycle through for current period:</p>
         <p>Hour of Day</p>
         <p>Day of Week</p>
-      </ControlContainer>
+      </div>
+      {fullReport.durations && fullReport.durations.length && <TimelineControls {...timeline} />}
       <MapContainer>
         <Map
           layers={layers}

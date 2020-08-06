@@ -234,9 +234,10 @@ export const useReport = ({ getReport, report_id, layer_id, map_id, currentDurat
 export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {  
   const [report, reportDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'full_report') {
-      const { currentDuration, fullReport } = payload
+      const { currentDuration, durations, fullReport } = payload
       return {
         currentDuration,
+        durations,
         ...fullReport,
       }
     }
@@ -244,7 +245,7 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
       ...state,
       [type]: payload,
     }
-  }, { currentDuration: '' }) // { currentDuration: durationKey, [durationKey]: { data, metric } }
+  }, { currentDuration: '', durations: [] }) // { currentDuration: durationKey, [durationKey]: { data, metric } }
 
   // TODO make .reduce more efficient
   // TODO don't re-use POI meta data, only report metrics
@@ -262,7 +263,7 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
           },
         }), {})
       }
-      reportDispatch({ type: 'full_report', payload: { currentDuration: durationKey, fullReport } })
+      reportDispatch({ type: 'full_report', payload: { currentDuration: durationKey, durations, fullReport } })
     }
     getData()
   }, [getReport, report_id, layer_id, map_id])
@@ -270,40 +271,33 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
   return report
 }
 
-// FOUR TYPES:
-// within a given duration, cycle DoW
-// within a given duration, cycle HoD
-// between durations, same DoW
-// between durations, same HoD
-
-const getTimeStampOptions = timestamps => {
-  // dow, hod or [Date]
-  if (timestamps === 'days') return days
-  if (timestamps === 'hours') return hours
-  return timestamps
-}
-
 export const useTimeline = (timestampInit, speedInterval) => {
-  const timestamps = getTimeStampOptions(timestampInit)
+  // REDUCERS SHOULD 
+  const [player, setPlayer] = useState(false)
   const [timeline, timelineDispatch] = useReducer((state, { type, payload }) => {
+    console.log("-----> REDUCE!", type, payload)
     if (type === 'move') {
       const activeIndex = state.activeIndex + 1 * state.direction
-      // stop if finished
-      if ([timestamps.length - 1, 0].includes(activeIndex)) {
-        clearInterval(state.player)
+      if ((state.direction < 0 && activeIndex <= 0) ||
+      (state.direction > 0 && activeIndex >= state.timestamps.length -1)) {
+        clearInterval(player)
+        setPlayer(false)
       }
       return {
         ...state,
         activeIndex,
       }
     }
-    if (type === 'speed') {
-      clearInterval(state.player)
-      const speed = state.speed + payload
+    if (type === 'manual') {
       return {
         ...state,
-        speed,
-        player: setInterval(() => timelineDispatch({ type: 'move' }), speed)
+        activeIndex: state.activeIndex + payload
+      }
+    }
+    if (type === 'speed') {
+      return {
+        ...state,
+        speed: state.speed + payload
       }
     }
     // reset options and stop timer
@@ -313,44 +307,65 @@ export const useTimeline = (timestampInit, speedInterval) => {
         direction: 1,
         activeIndex: 0,
         speed: speedInterval,
-        player: false,
       }
     }
-    if (type === 'start') {
-      return {
-        ...state,
-        player: setInterval(() => timelineDispatch({ type: 'move' }), state.speed)
-      }
-    }
-    if (type === 'stop') {
-      clearInterval(state.player)
-      return {
-        ...state,
-        player: false,
-      }
-    }
+
     return {
       ...state,
       [type]: payload,
     }
-  }, { player: false, direction: 1, activeIndex: 0, speed: speedInterval, timestamps })
+  }, { direction: 1, activeIndex: 0, speed: speedInterval, timestamps: timestampInit })
 
-  const play = () => timelineDispatch({ type: 'direction', payload: 1 })
+  const resetPlayer = speed => oldPlayer => {
+    clearInterval(oldPlayer)
+    return setInterval(() => timelineDispatch({ type: 'move' }), speed)
+  }
 
-  const rewind = () => timelineDispatch({ type: 'direction', payload: -1 })
+  const forward = () => {
+    if (player) {
+      setPlayer(resetPlayer(timeline.speed))
+    }
+    timelineDispatch({ type: 'direction', payload: 1 })
+  }
 
-  const startTimeline = () => timelineDispatch({ type: 'start' })
+  const rewind = () => {
+    if (player) {
+      setPlayer(resetPlayer(timeline.speed))
+    }
+    timelineDispatch({ type: 'direction', payload: -1 })
+  }
 
-  const stopTimeline = () => timelineDispatch({ type: 'stop' })
+  const startTimeline = () => {
+    if(!player) {
+      setPlayer(resetPlayer(timeline.speed))
+    }
+  }
 
-  const changeSpeed = value => () => timelineDispatch({ type: 'speed', payload: value })
+  const stopTimeline = () => {
+    clearInterval(player)
+    setPlayer(false)
+  }
 
+  const changeSpeed = value => () => {
+    timelineDispatch({ type: 'speed', payload: value })
+    if (player) {
+      setPlayer(resetPlayer(timeline.speed + value))
+    }
+  }
+  
+  const reset = () => timelineDispatch({ type: 'activeIndex', payload: 0 })
+  const move = payload => () => timelineDispatch({ type: 'manual', payload })
+  console.log("---- USE TIMER", player, timeline)
   return {
-    play,
+    forward,
     rewind,
     startTimeline,
     stopTimeline,
     changeSpeed,
+    reset,
+    move,
+    player,
+    timelineDispatch,
     ...timeline,
   }
 }
