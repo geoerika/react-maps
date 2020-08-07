@@ -16,6 +16,7 @@ const FO = (api) => ({
       date_type: DATE_TYPES[duration.date_type],
       duration, 
       durationKey: genUniqueDateKey(duration),
+      // TODO review end-to-end use of durations, seems like duplicated effort
       durations: Object.values(durations).reduce((flat, dateTypeRanges) => (
         [
           ...flat,

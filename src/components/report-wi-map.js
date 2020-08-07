@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useReducer, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import styled from 'styled-components'
@@ -12,6 +12,8 @@ import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import EntryList from './entry-list'
 import TimelineControls from './controls'
+import MetricSelector from './controls/report-wi-metrics'
+import PeriodSelector from './controls/report-periods'
 
 
 const propTypes = {
@@ -109,10 +111,10 @@ const ReportWIMap = ({
   report_id,
   layer_id,
   map_id,
-  radiusBasedOn,
+  radiusBasedOn: radiusBasedOnInit,
   radiusDataScale,
   radii,
-  fillBasedOn,
+  fillBasedOn: fillBasedOnInit,
   fillDataScale,
   fillColors,
   onClick,
@@ -163,6 +165,13 @@ const ReportWIMap = ({
   // TODO: manual control of timestamps to support DoW, HoD
   // TODO: Metrics of Interest to lock while showing timeline
 
+  const [radiusBasedOn, setRadiusBasedOn] = useState(radiusBasedOnInit)
+  const [fillBasedOn, setFillBasedOn] = useState(fillBasedOnInit)
+  const [period, setPeriod] = useState({})
+  useEffect(() => {
+    setPeriod(currentDuration)
+  }, [currentDuration])
+
   const layers = useMemo(() => {
     let finalGetRadius = getRadius
     if (radiusBasedOn.length) {
@@ -198,6 +207,10 @@ const ReportWIMap = ({
         opacity,
         getRadius: finalGetRadius,
         getFillColor: finalGetFillColor,
+        updateTriggers: {
+          getRadius: [finalGetRadius, radiusBasedOn, getRadius],
+          getFillColor: [finalGetFillColor, fillBasedOn, getFillColor],
+        },
         getLineWidth,
         getLineColor,
         ...scatterLayerProps,
@@ -230,12 +243,13 @@ const ReportWIMap = ({
   return (
     <Container>
       <div>
-        Current Period: {currentDuration}
+        <label>Radius Based On:</label>
+        <MetricSelector selected={radiusBasedOn} callback={v => setRadiusBasedOn(v)} />
+        <label>Fill Based On:</label>
+        <MetricSelector selected={fillBasedOn} callback={v => setFillBasedOn(v)} />
         <p>Cycle through periods - CONTROLS</p>
-        <p>Choose Metric to highlight</p>
-        <p>Cycle through for current period:</p>
-        <p>Hour of Day</p>
-        <p>Day of Week</p>
+        <PeriodSelector selected={period} callback={v => setPeriod(v)} periods={fullReport.durations} />
+        Current Period: {period.key}
       </div>
       {fullReport.durations && fullReport.durations.length && <TimelineControls {...timeline} />}
       <MapContainer>

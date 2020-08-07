@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useReducer } from 'react'
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { color } from 'd3-color'
-import { days, hours } from './datasets'
 import { calculateReportWIMetrics } from './utils'
 
 
@@ -237,7 +236,7 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
       const { currentDuration, durations, fullReport } = payload
       return {
         currentDuration,
-        durations,
+        durations, // TODO convert into object with keys
         ...fullReport,
       }
     }
@@ -251,7 +250,7 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
   // TODO don't re-use POI meta data, only report metrics
   useEffect(() => {
     const getData = async () => {
-      const { data, durationKey, durations } = await getReport({ report_id, layer_id, map_id })
+      const { data, durationKey, duration, durations } = await getReport({ report_id, layer_id, map_id })
       const durationData = await Promise.all(durations.map(currentDuration => getReport({ report_id, layer_id, map_id, currentDuration })))
       const fullReport = {
         [durationKey]: { data, metrics: data.reduce(calculateReportWIMetrics, {}) },
@@ -263,7 +262,7 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
           },
         }), {})
       }
-      reportDispatch({ type: 'full_report', payload: { currentDuration: durationKey, durations, fullReport } })
+      reportDispatch({ type: 'full_report', payload: { currentDuration: duration, durations, fullReport } })
     }
     getData()
   }, [getReport, report_id, layer_id, map_id])

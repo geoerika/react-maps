@@ -1,10 +1,7 @@
-import React, { useEffect, useReducer, useMemo, useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
 import styled from 'styled-components'
-
-import { days, hours, DATE_TYPES } from '../../constants'
-import { reportWI } from '../../datasets'
 
 
 const ControlContainer = styled.div`
@@ -30,8 +27,20 @@ const Subtext = styled.div`
   color: rgba(0,0,0,0.7);
 `
 
-const defaultProps = {}
-const propTypes = {}
+const propTypes = {
+  forward: PropTypes.func.isRequired,
+  rewind: PropTypes.func.isRequired,
+  startTimeline: PropTypes.func.isRequired,
+  stopTimeline: PropTypes.func.isRequired,
+  changeSpeed: PropTypes.func.isRequired,
+  reset: PropTypes.func.isRequired,
+  move: PropTypes.func.isRequired,
+  player: PropTypes.number.isRequired,
+  direction: PropTypes.number.isRequired,
+  activeIndex: PropTypes.number.isRequired,
+  speed: PropTypes.number.isRequired,
+  timestamps: PropTypes.array.isRequired,
+}
 
 export const TimelineControls = ({
   forward,
@@ -39,7 +48,7 @@ export const TimelineControls = ({
   startTimeline,
   stopTimeline,
   changeSpeed, // milliseconds
-  reset,
+  // reset,
   move,
   player,
   direction,
@@ -69,7 +78,6 @@ export const TimelineControls = ({
   </ControlContainer>
 )
 
-TimelineControls.defaultProps = defaultProps
 TimelineControls.propTypes = propTypes
 
 export default TimelineControls
