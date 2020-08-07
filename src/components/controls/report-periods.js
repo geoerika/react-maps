@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
 import styled from 'styled-components'
@@ -20,7 +20,7 @@ const propTypes = {
 
 const defaultProps = { periods: [], selected: {} }
 
-const formatDate = d => `${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`
+const formatDate = d => `${d.getUTCDate()}/${d.getUTCMonth() + 1}/${d.getUTCFullYear()}`
 
 export const PeriodSelector = ({
   selectPeriod,
@@ -32,12 +32,12 @@ export const PeriodSelector = ({
     {periods.length ? (
       <>
         <label>Type</label>
-        <select defaultValue={selected.date_type} onChange={e => selectPeriodType(e.target.value)}>
+        <select value={selected.date_type} onChange={e => selectPeriodType(e.target.value)}>
           {Object.entries(DATE_TYPES).map(([key, text]) => (
             <option key={key} value={key}>{text}</option>
           ))}
         </select>
-        <select defaultValue={selected.key} onChange={e => selectPeriod(periods.find(o => o.key === e.target.value))}>
+        <select value={selected.key} onChange={e => selectPeriod(periods.find(o => o.key === e.target.value))}>
           {periods.map(({ key, start_date, end_date }) => (
             <option key={key} value={key}>
               {formatDate(new Date(start_date))} - {formatDate(new Date(end_date))}

@@ -15,34 +15,37 @@ const ControlContainer = styled.div`
 const propTypes = {
   selected: PropTypes.string.isRequired,
   callback: PropTypes.func.isRequired,
+  type: PropTypes.string.isRequired,
+  typeCallback: PropTypes.func.isRequired,
 }
 
 export const MetricSelector = ({
   selected,
   callback,
+  type,
+  typeCallback,
 }) => (
   <ControlContainer>
-    <select defaultValue={selected} onChange={e => callback(e.target.value)}>
+    <select value={type} onChange={typeCallback}>
       <option value=''>None</option>
-      <option value='Sun'>Day of Week</option>
-      <option value='0'>Hour of Day</option>
-      {reportWI.DATA_FIELDS.map(key => <option key={key} value={key}>{key}</option>)}
+      <option value='metric'>Report Metric</option>
+      <option value='dow'>Day of Week</option>
+      <option value='hod'>Hour of Day</option>
     </select>
-    {days.includes(selected) && (
-      <>
-        <label>Day:</label>
-        <select defaultValue={selected} onChange={e => callback(e.target.value)}>
-          {days.map(key => <option key={key} value={key}>{key}</option>)}
-        </select>
-      </>
+    {type === 'metric' && (
+      <select value={selected} onChange={callback}>
+        {reportWI.DATA_FIELDS.map(key => <option key={key} value={key}>{key}</option>)}
+      </select>
     )}
-    {hours.includes(selected) && (
-      <>
-        <label>Hour:</label>
-        <select defaultValue={selected} onChange={e => callback(e.target.value)}>
-          {hours.map(key => <option key={key} value={key}>{key}</option>)}
-        </select>
-      </>
+    {type === 'dow' && (
+      <select value={selected} onChange={callback}>
+        {days.map(key => <option key={key} value={key}>{key}</option>)}
+      </select>
+    )}
+    {type === 'hod' && (
+      <select value={selected} onChange={callback}>
+        {hours.map(key => <option key={key} value={key}>{key}</option>)}
+      </select>
     )}
   </ControlContainer>
 )

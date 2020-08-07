@@ -1,6 +1,5 @@
 import { transformReportWi } from './transforms'
 import { genUniqueDateKey } from './utils'
-import { DATE_TYPES } from './constants'
 
 
 const parseUrlParams = d => `&startDate=${d.start_date}&endDate=${d.end_date}&dateType=${d.date_type}`
@@ -13,7 +12,7 @@ const FO = (api) => ({
 
     return {
       data: transformReportWi(report),
-      date_type: DATE_TYPES[duration.date_type],
+      // date_type: DATE_TYPES[duration.date_type],
       duration: { ...duration, key: genUniqueDateKey(duration) }, 
       // TODO review end-to-end use of durations, seems like duplicated effort
       durations: Object.values(durations).reduce((flat, dateTypeRanges) => (

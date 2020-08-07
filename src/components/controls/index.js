@@ -59,7 +59,7 @@ export const TimelineControls = ({
   <ControlContainer>
     <div>
       <Subtext>Period {activeIndex + 1} of {timestamps.length}</Subtext>
-      <ControlButton onClick={startTimeline} disabled={player || activeIndex >= timestamps.length - 1}>Start</ControlButton>
+      <ControlButton onClick={startTimeline} disabled={player || (direction > 0 && activeIndex >= timestamps.length - 1) || (direction < 0 && activeIndex <= 0)}>Start</ControlButton>
       <ControlButton onClick={stopTimeline} disabled={!player}>Stop</ControlButton>
     </div>
     <div>

@@ -256,7 +256,7 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
         [duration.key]: { data, metrics: data.reduce(calculateReportWIMetrics, {}) },
         ...durationData.reduce((agg, ele) => ({
           ...agg,
-          [ele.key]: {
+          [ele.duration.key]: {
             ...ele,
             metrics: ele.data.reduce(calculateReportWIMetrics, {}) // { min, max }
           },

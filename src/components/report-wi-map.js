@@ -7,6 +7,8 @@ import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
 import { useLegends, useFullReport, useTimeline } from '../hooks'
+import { hours, days } from '../constants'
+import { reportWI } from '../datasets'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
@@ -155,8 +157,14 @@ const ReportWIMap = ({
 
 
   const { timelineDispatch, ...timeline } = useTimeline([], 500)
+  const [timelineType, setTimelineType] = useState('period')
+  const handleTimelineTypeChange = e => setTimelineType(e.target.value)
+  // TODO reducer for below
+  // TODO init should be accounted for
   const [radiusBasedOn, setRadiusBasedOn] = useState(radiusBasedOnInit)
+  const [radiusBasedOnType, setRadiusBasedOnType] = useState('')
   const [fillBasedOn, setFillBasedOn] = useState(fillBasedOnInit)
+  const [fillBasedOnType, setFillBasedOnType] = useState('')
   const report = useFullReport({ getReport, report_id, layer_id, map_id })
 
   
@@ -165,13 +173,13 @@ const ReportWIMap = ({
       return {
         ...state,
         period: payload.duration,
-        periods: payload.durations.filter(({ date_type }) => date_type === payload.duration.date_type),
+        periods: payload.durations.filter(({ date_type }) => date_type == payload.duration.date_type),
         durations: payload.durations,
       }
     }
     if (type === 'periodType') {
       if (payload !== state.period.date_type) {
-        const periods = state.durations.filter(({ date_type }) => date_type === payload)
+        const periods = state.durations.filter(({ date_type }) => date_type == payload)
         return {
           ...state,
           period: periods[0],
@@ -190,14 +198,40 @@ const ReportWIMap = ({
     periodDispatch({ type: 'api', payload: report })
   }, [report])
 
-  const { data, metrics } = (report[report.duration.key] || { data: [], metrics: {}})
+  // 2 way sync with timeline
+  useEffect(() => {
+    if (timelineType === 'period') {
+      timelineDispatch({ type: 'timestamps', payload: periods })
+    } else if (['hod-r', 'hod-f'].includes(timelineType)) {
+      setFillBasedOnType('hod')
+      timelineDispatch({ type: 'timestamps', payload: hours })
+    }  else if (['dow-r', 'dow-f'].includes(timelineType)) {
+      setFillBasedOnType('dow')
+      timelineDispatch({ type: 'timestamps', payload: days })
+    }
+  }, [periods, timelineDispatch, timelineType])
 
-  // sync timestamps with 
+  // TODO: the state should be a direct result of activeIndex
+  // timelineType should never change while the player is active?
+  useEffect(() => {
+    if (timelineType === 'period') {
+      periodDispatch({ type: 'period', payload: periods[timeline.activeIndex] || {} })
+    } else if (timelineType === 'hod-f') {
+      setFillBasedOn(hours[timeline.activeIndex])
+    } else if (timelineType === 'hod-r') {
+      setRadiusBasedOn(hours[timeline.activeIndex])
+    } else if (timelineType === 'dow-f') {
+      setFillBasedOn(days[timeline.activeIndex])
+    } else if (timelineType === 'dow-r') {
+      setRadiusBasedOn(days[timeline.activeIndex])
+    }
+  }, [timeline.activeIndex, periods, timelineType])
+
   useEffect(() => {
     timelineDispatch({ type: 'timestamps', payload: periods })
   }, [timelineDispatch, periods])
-  // TODO: manual control of timestamps to support DoW, HoD
-  // TODO: Metrics of Interest to lock while showing timeline
+
+  const { data, metrics } = (report[period.key] || { data: [], metrics: {}})
 
   const layers = useMemo(() => {
     let finalGetRadius = getRadius
@@ -267,13 +301,52 @@ const ReportWIMap = ({
 
   const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, metrics })
   
+  const handleRadiusBasedOnChange = e => setRadiusBasedOn(e.target.value)
+  const handleRadiusTypeChange = e => {
+    const update = e.target.value
+    let basedOn = ''
+    if (update === 'metric') {
+      basedOn = reportWI.DATA_FIELDS[0]
+    } else if (update === 'dow') {
+      basedOn = days[0]
+    } else if (update === 'hod') {
+      basedOn = hours[0]
+    }
+    setRadiusBasedOn(basedOn)
+    setRadiusBasedOnType(update)
+  }
+
+  const handleFillBasedOnChange = e => setFillBasedOn(e.target.value)
+  const handleFillTypeChange = e => {
+    const update = e.target.value
+    let basedOn = ''
+    if (update === 'metric') {
+      basedOn = reportWI.DATA_FIELDS[0]
+    } else if (update === 'dow') {
+      basedOn = days[0]
+    } else if (update === 'hod') {
+      basedOn = hours[0]
+    }
+    setFillBasedOn(basedOn)
+    setFillBasedOnType(update)
+  }
   return (
     <Container>
       <div>
         <label>Radius Based On:</label>
-        <MetricSelector selected={radiusBasedOn} callback={v => setRadiusBasedOn(v)} />
+        <MetricSelector selected={radiusBasedOn} callback={handleRadiusBasedOnChange} type={radiusBasedOnType} typeCallback={handleRadiusTypeChange}/>
         <label>Fill Based On:</label>
-        <MetricSelector selected={fillBasedOn} callback={v => setFillBasedOn(v)} />
+        <MetricSelector selected={fillBasedOn} callback={handleFillBasedOnChange} type={fillBasedOnType} typeCallback={handleFillTypeChange}/>
+        <div>
+          <label>Timeline Type</label>
+          <select onChange={handleTimelineTypeChange} disabled={timeline.player}>
+            <option value='period'>Report Period (uses current metric)</option>
+            <option value='hod-r'>Hour of Day (Radius)</option>
+            <option value='hod-f'>Hour of Day (Fill)</option>
+            <option value='dow-r'>Day of Week (Radius)</option>
+            <option value='dow-f'>Day of Week (Fill)</option>
+          </select>
+        </div>
         <label>Report Periods</label>
         <PeriodSelector
           selected={period}
