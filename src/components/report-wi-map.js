@@ -155,22 +155,49 @@ const ReportWIMap = ({
 
 
   const { timelineDispatch, ...timeline } = useTimeline([], 500)
-
-  const { currentDuration, ...fullReport } = useFullReport({ getReport, report_id, layer_id, map_id })
-  const { data, metrics } = (fullReport[currentDuration] || { data: [], metrics: {}})
-  // sync timestamps with 
-  useEffect(() => {
-    timelineDispatch({ type: 'timestamps', payload: fullReport.durations || [] })
-  }, [timelineDispatch, fullReport.durations])
-  // TODO: manual control of timestamps to support DoW, HoD
-  // TODO: Metrics of Interest to lock while showing timeline
-
   const [radiusBasedOn, setRadiusBasedOn] = useState(radiusBasedOnInit)
   const [fillBasedOn, setFillBasedOn] = useState(fillBasedOnInit)
-  const [period, setPeriod] = useState({})
+  const report = useFullReport({ getReport, report_id, layer_id, map_id })
+
+  
+  const [{ period, periods }, periodDispatch] = useReducer((state, { type, payload }) => {
+    if (type === 'api') {
+      return {
+        ...state,
+        period: payload.duration,
+        periods: payload.durations.filter(({ date_type }) => date_type === payload.duration.date_type),
+        durations: payload.durations,
+      }
+    }
+    if (type === 'periodType') {
+      if (payload !== state.period.date_type) {
+        const periods = state.durations.filter(({ date_type }) => date_type === payload)
+        return {
+          ...state,
+          period: periods[0],
+          periods,
+        }
+      }
+      return state
+    }
+    return {
+      ...state,
+      [type]: payload,
+    }
+  }, { period: {}, periods: [], durations: [], periodType: 1 })
+
   useEffect(() => {
-    setPeriod(currentDuration)
-  }, [currentDuration])
+    periodDispatch({ type: 'api', payload: report })
+  }, [report])
+
+  const { data, metrics } = (report[report.duration.key] || { data: [], metrics: {}})
+
+  // sync timestamps with 
+  useEffect(() => {
+    timelineDispatch({ type: 'timestamps', payload: periods })
+  }, [timelineDispatch, periods])
+  // TODO: manual control of timestamps to support DoW, HoD
+  // TODO: Metrics of Interest to lock while showing timeline
 
   const layers = useMemo(() => {
     let finalGetRadius = getRadius
@@ -247,11 +274,15 @@ const ReportWIMap = ({
         <MetricSelector selected={radiusBasedOn} callback={v => setRadiusBasedOn(v)} />
         <label>Fill Based On:</label>
         <MetricSelector selected={fillBasedOn} callback={v => setFillBasedOn(v)} />
-        <p>Cycle through periods - CONTROLS</p>
-        <PeriodSelector selected={period} callback={v => setPeriod(v)} periods={fullReport.durations} />
-        Current Period: {period.key}
+        <label>Report Periods</label>
+        <PeriodSelector
+          selected={period}
+          selectPeriodType={payload => periodDispatch({ type: 'periodType', payload })}
+          selectPeriod={payload => periodDispatch({ type: 'period', payload })}
+          periods={periods}
+        />
       </div>
-      {fullReport.durations && fullReport.durations.length && <TimelineControls {...timeline} />}
+      {(timeline.timestamps && timeline.timestamps.length > 0) && <TimelineControls {...timeline} />}
       <MapContainer>
         <Map
           layers={layers}

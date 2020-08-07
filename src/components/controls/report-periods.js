@@ -12,7 +12,8 @@ const ControlContainer = styled.div`
 `
 
 const propTypes = {
-  callback: PropTypes.func.isRequired,
+  selectPeriod: PropTypes.func.isRequired,
+  selectPeriodType: PropTypes.func.isRequired,
   periods: PropTypes.array,
   selected: PropTypes.object,
 }
@@ -22,35 +23,30 @@ const defaultProps = { periods: [], selected: {} }
 const formatDate = d => `${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`
 
 export const PeriodSelector = ({
-  callback,
+  selectPeriod,
+  selectPeriodType,
   selected,
   periods,
-}) => {
-  const [dateType, setDateType] = useState(selected.date_type)
-  useEffect(() => {
-    if (!dateType) {
-      setDateType(selected.date_type)
-    }
-  }, [dateType, selected])
-  console.log('----> PERIOD SELECTOR', selected, dateType, periods)
-  return (
-    <ControlContainer>
-      {periods.length ? (
-        <>
-          <label>Type</label>
-          <select defaultValue={dateType} onChange={e => setDateType(e.target.value)}>
-            {Object.entries(DATE_TYPES).map(([key, text]) => (
-              <option key={key} value={key}>{text}</option>
-            ))}
-          </select>
-          <select defaultValue={selected.key} onChange={e => callback(periods.find(o => o.key === e.target.value))}>
-            {periods.filter(({ date_type }) => dateType == date_type)
-              .map(({ key, start_date, end_date }) => <option key={key} value={key}>{formatDate(new Date(start_date))} - {formatDate(new Date(end_date))}</option>)}
-          </select>
-        </>) : (<p>No Report Data</p>)}
-    </ControlContainer>
-  )
-}
+}) => (
+  <ControlContainer>
+    {periods.length ? (
+      <>
+        <label>Type</label>
+        <select defaultValue={selected.date_type} onChange={e => selectPeriodType(e.target.value)}>
+          {Object.entries(DATE_TYPES).map(([key, text]) => (
+            <option key={key} value={key}>{text}</option>
+          ))}
+        </select>
+        <select defaultValue={selected.key} onChange={e => selectPeriod(periods.find(o => o.key === e.target.value))}>
+          {periods.map(({ key, start_date, end_date }) => (
+            <option key={key} value={key}>
+              {formatDate(new Date(start_date))} - {formatDate(new Date(end_date))}
+            </option>
+          ))}
+        </select>
+      </>) : (<p>No Report Data</p>)}
+  </ControlContainer>
+)
 
 PeriodSelector.propTypes = propTypes
 PeriodSelector.defaultProps = defaultProps

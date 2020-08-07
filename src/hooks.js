@@ -233,9 +233,9 @@ export const useReport = ({ getReport, report_id, layer_id, map_id, currentDurat
 export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {  
   const [report, reportDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'full_report') {
-      const { currentDuration, durations, fullReport } = payload
+      const { duration, durations, fullReport } = payload
       return {
-        currentDuration,
+        duration,
         durations, // TODO convert into object with keys
         ...fullReport,
       }
@@ -244,25 +244,25 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
       ...state,
       [type]: payload,
     }
-  }, { currentDuration: '', durations: [] }) // { currentDuration: durationKey, [durationKey]: { data, metric } }
+  }, { duration: {}, durations: [] }) // { currentDuration: durationKey, [durationKey]: { data, metric } }
 
   // TODO make .reduce more efficient
   // TODO don't re-use POI meta data, only report metrics
   useEffect(() => {
     const getData = async () => {
-      const { data, durationKey, duration, durations } = await getReport({ report_id, layer_id, map_id })
+      const { data, duration, durations } = await getReport({ report_id, layer_id, map_id })
       const durationData = await Promise.all(durations.map(currentDuration => getReport({ report_id, layer_id, map_id, currentDuration })))
       const fullReport = {
-        [durationKey]: { data, metrics: data.reduce(calculateReportWIMetrics, {}) },
+        [duration.key]: { data, metrics: data.reduce(calculateReportWIMetrics, {}) },
         ...durationData.reduce((agg, ele) => ({
           ...agg,
-          [ele.durationKey]: {
+          [ele.key]: {
             ...ele,
             metrics: ele.data.reduce(calculateReportWIMetrics, {}) // { min, max }
           },
         }), {})
       }
-      reportDispatch({ type: 'full_report', payload: { currentDuration: duration, durations, fullReport } })
+      reportDispatch({ type: 'full_report', payload: { duration, durations, fullReport } })
     }
     getData()
   }, [getReport, report_id, layer_id, map_id])
@@ -274,7 +274,6 @@ export const useTimeline = (timestampInit, speedInterval) => {
   // REDUCERS SHOULD 
   const [player, setPlayer] = useState(false)
   const [timeline, timelineDispatch] = useReducer((state, { type, payload }) => {
-    console.log("-----> REDUCE!", type, payload)
     if (type === 'move') {
       const activeIndex = state.activeIndex + 1 * state.direction
       if ((state.direction < 0 && activeIndex <= 0) ||
@@ -354,7 +353,7 @@ export const useTimeline = (timestampInit, speedInterval) => {
   
   const reset = () => timelineDispatch({ type: 'activeIndex', payload: 0 })
   const move = payload => () => timelineDispatch({ type: 'manual', payload })
-  console.log("---- USE TIMER", player, timeline)
+
   return {
     forward,
     rewind,
