@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { useDropzone } from 'react-dropzone'
+import styled from 'styled-components'
 
 
 export const useLoader = ({ setData, mode = 'text', accept }) => {
@@ -21,15 +22,22 @@ export const useLoader = ({ setData, mode = 'text', accept }) => {
   return useDropzone({ onDrop, accept, multiple: false })
 }
 
+const Container = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
 // TODO: style this
 const Loader = ({ setData, mode, accept, prompt, activePrompt}) => {
   const { getRootProps, getInputProps, isDragActive } = useLoader({ setData, mode, accept })
 
   return (
-    <div {...getRootProps()}>
+    <Container {...getRootProps()}>
       <input {...getInputProps()} />
       <p>{isDragActive ? activePrompt : prompt}</p>
-    </div>
+    </Container>
   )
 }
 

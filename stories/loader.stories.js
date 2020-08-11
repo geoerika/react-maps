@@ -14,7 +14,9 @@ export const normal = () => {
 
   return (
     <>
-      <Loader setData={setData} />
+      <div style={{ padding: '1rem', border: '1px dashed black' }}>
+        <Loader setData={setData} />
+      </div>
       {data && (
         <>
           <h3>Loaded data</h3>
