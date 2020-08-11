@@ -231,17 +231,6 @@ const GeoJsonMap = ({
     return legends
   }, [elevationBasedOn, fillBasedOn, fillColors, metrics])
 
-  useEffect(() => {
-    const getData = async () => {
-      // TODO pull this data
-      // const reportData = await getReport({ report_id, layer_id, map_id })
-      // NOTE: geojson was so large it wouldn't load initially from local FS
-      await setTimeout(() => {}, 2000)
-      metricDispatch({ type: 'data', payload: geoJsonData })
-    }
-    getData()
-  }, [])
-
   return (
     <div>
       <div>
