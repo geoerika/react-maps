@@ -10,9 +10,9 @@ import Legend from './legend'
 
 
 const MapContainer = styled.div`
-  height: '100%';
-  width: '100%';
-  position: 'absolute';
+  height: 100%;
+  width: 100%;
+  position: absolute;
 `
 
 const MAP_VIEW = new MapView({ repeat: true });
@@ -44,6 +44,7 @@ const Map = ({ layers, showLegend, ...legendProps }) => (
       views={ MAP_VIEW }
       layers={layers}
       controller={ true }
+      getTooltip={({object}) => object && object.properties.address_region}
       // NOTE: same structure as layer click
       // onHover={d => console.log('----> map hover', d)}
       // onClick={d => console.log('----> map click', d)}
