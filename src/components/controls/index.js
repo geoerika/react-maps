@@ -27,6 +27,19 @@ const Subtext = styled.div`
   color: rgba(0,0,0,0.7);
 `
 
+const ProgressBarContainer = styled.div`
+  width: 100px;
+  height: 15px;
+  border: 1px solid black;
+  margin: 0;
+  padding: 0;
+`
+const ProgressBar = styled.div`
+  height: 100%;
+  width: ${({ progress }) => progress}%;
+  background-color: blue;
+`
+
 const propTypes = {
   forward: PropTypes.func.isRequired,
   rewind: PropTypes.func.isRequired,
@@ -59,6 +72,7 @@ export const TimelineControls = ({
   <ControlContainer>
     <div>
       <Subtext>Period {activeIndex + 1} of {timestamps.length}</Subtext>
+      <ProgressBarContainer><ProgressBar progress={100 * (activeIndex + 1) / timestamps.length}/></ProgressBarContainer>
       <ControlButton onClick={startTimeline} disabled={player || (direction > 0 && activeIndex >= timestamps.length - 1) || (direction < 0 && activeIndex <= 0)}>Start</ControlButton>
       <ControlButton onClick={stopTimeline} disabled={!player}>Stop</ControlButton>
     </div>

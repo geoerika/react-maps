@@ -338,7 +338,7 @@ const ReportWIMap = ({
         <label>Fill Based On:</label>
         <MetricSelector selected={fillBasedOn} callback={handleFillBasedOnChange} type={fillBasedOnType} typeCallback={handleFillTypeChange}/>
         <div>
-          <label>Timeline Type</label>
+          <label>Timeline Type</label><br />
           <select onChange={handleTimelineTypeChange} disabled={timeline.player}>
             <option value='period'>Report Period (uses current metric)</option>
             <option value='hod-r'>Hour of Day (Radius)</option>
