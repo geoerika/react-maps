@@ -271,8 +271,8 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
 }
 
 export const useTimeline = (timestampInit, speedInterval) => {
-  // REDUCERS SHOULD 
   const [player, setPlayer] = useState(false)
+  // NOTE: reducers should be "pure", so can't manage the player
   const [timeline, timelineDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'move') {
       const activeIndex = state.activeIndex + 1 * state.direction

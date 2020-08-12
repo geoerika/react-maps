@@ -48,7 +48,10 @@ const propTypes = {
   changeSpeed: PropTypes.func.isRequired,
   reset: PropTypes.func.isRequired,
   move: PropTypes.func.isRequired,
-  player: PropTypes.number.isRequired,
+  player: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.bool,
+  ]).isRequired,
   direction: PropTypes.number.isRequired,
   activeIndex: PropTypes.number.isRequired,
   speed: PropTypes.number.isRequired,

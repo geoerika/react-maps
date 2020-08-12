@@ -199,14 +199,25 @@ const ReportWIMap = ({
   }, [report])
 
   // 2 way sync with timeline
+  // TODO could add logic to TURN OFF other basedOn when changes are made
+  // e.g. manually set radiusBasedOn, then when you change timelineType
+  // to fillBasedOn, radiusBasedOn is set to ''
   useEffect(() => {
     if (timelineType === 'period') {
       timelineDispatch({ type: 'timestamps', payload: periods })
     } else if (['hod-r', 'hod-f'].includes(timelineType)) {
-      setFillBasedOnType('hod')
+      if (timelineType.split('-')[1] === 'r') {
+        setRadiusBasedOnType('hod')
+      } else {
+        setFillBasedOnType('hod')
+      }
       timelineDispatch({ type: 'timestamps', payload: hours })
     }  else if (['dow-r', 'dow-f'].includes(timelineType)) {
-      setFillBasedOnType('dow')
+      if (timelineType.split('-')[1] === 'r') {
+        setRadiusBasedOnType('dow')
+      } else {
+        setFillBasedOnType('dow')
+      }
       timelineDispatch({ type: 'timestamps', payload: days })
     }
   }, [periods, timelineDispatch, timelineType])
@@ -347,7 +358,6 @@ const ReportWIMap = ({
             <option value='dow-f'>Day of Week (Fill)</option>
           </select>
         </div>
-        <label>Report Periods</label>
         <PeriodSelector
           selected={period}
           selectPeriodType={payload => periodDispatch({ type: 'periodType', payload })}

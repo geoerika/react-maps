@@ -31,7 +31,7 @@ export const PeriodSelector = ({
   <ControlContainer>
     {periods.length ? (
       <>
-        <label>Type</label>
+        <label>Report Period</label>
         <select value={selected.date_type} onChange={e => selectPeriodType(e.target.value)}>
           {Object.entries(DATE_TYPES).map(([key, text]) => (
             <option key={key} value={key}>{text}</option>

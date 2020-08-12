@@ -1,3 +1,6 @@
+import { days, hours } from './constants'
+
+
 // NOTE: predefine dataset meta & metric keys to streamline
 // grouping, filtering
 // dynamic visualizations (a la Kepler), e.g. radius based on visits
@@ -10,5 +13,7 @@ export const reportWI = {
   DATA_FIELDS: [
     'repeat_type', 'repeat_visitors', 'repeat_visitors_hh', 'repeat_visits', 'report_id', 'unique_hh', 'unique_visitors', 
     'unique_visitors_multi_visit', 'unique_visitors_single_visit', 'unique_xdevice', 'visits',
+    ...days,
+    ...hours,
   ],
 }
