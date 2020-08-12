@@ -5,13 +5,16 @@ import styled from 'styled-components'
 import { useDimensions } from './hooks'
 
 
-const Tooltip = styled.div`
+const Tooltip = styled.div.attrs(props => ({
+  style: {
+    left: `${props.left}px`,
+    top: `${props.top}px`,
+    maxHeight: `${props.maxHeight}px`,
+    maxWidth: `${props.maxWidth}px`,
+  }
+}))`
   z-index: 9999;
   position: absolute;
-  left: ${props => props.left}px;
-  top: ${props => props.top}px;
-  max-height: ${({ maxHeight }) => maxHeight}px;
-  max-width: ${({ maxWidth }) => maxWidth}px;
   overflow: auto;
   padding: 0em;
   background-color: white;

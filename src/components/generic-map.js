@@ -98,7 +98,6 @@ const Map = ({
         views={ MAP_VIEW }
         layers={layers}
         controller={ true }
-        getTooltip={({object}) => object && object.properties.address_region}
         // NOTE: same structure as layer click
         // onHover={d => console.log('----> map hover', d)}
         // onClick={d => console.log('----> map click', d)}

@@ -113,9 +113,6 @@ const ReportWIMap = ({
 }) => {
   const [tooltip, tooltipDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'show') {
-      // TODO: for a click event, any movement of the map will cause the tooltip to be out of place
-      // 1) close on these events
-      // 2) keep the lat/lon and convert to x/y
       const { x, y, object, lngLat } = payload
       return {
         ...state,
@@ -168,7 +165,6 @@ const ReportWIMap = ({
 
   useEffect(() => {
     const getData = async () => {
-      // TODO properly set layers!
       const reportData = await getReport({ report_id, layer_id, map_id })
       metricDispatch({ type: 'data', payload: reportData })
     }
@@ -176,25 +172,6 @@ const ReportWIMap = ({
   }, [getReport, report_id, layer_id, map_id])
 
   const layers = useMemo(() => {
-    /*
-      for all `getXYZ`, can be a raw value OR computed for each element{} of data[], provided through callback,
-      for onHover and onClick:
-      {
-        color: Uint8Array(4) [56, 0, 0, 1]
-        coordinate: (2) [-82.33413799645352, 42.89068626794389]
-        devicePixel: (2) [581, 201]
-        index: 55
-        layer: LAYER_OBJECT
-        lngLat: (2) [-82.33413799645352, 42.89068626794389]
-        object: ORIGINAL_OBJECT
-        picked: true
-        pixel: (2) [528.1272270872279, 401.75357112382653]
-        pixelRatio: 1.099740932642487
-        x: 528.1272270872279
-        y: 401.75357112382653
-      }
-    */
-    // TODO: multiplier & base values through props
     let finalGetRadius = getRadius
     if (radiusBasedOn.length) {
       const d3Fn = SCALES[radiusDataScale]([
