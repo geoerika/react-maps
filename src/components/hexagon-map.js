@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useReducer, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { GeoJsonLayer } from 'deck.gl'
+import { HexagonLayer } from 'deck.gl'
 
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
 import Map from './generic-map'
+import Loader from './loader'
 
 
 const propTypes = {
@@ -51,12 +52,12 @@ const defaultProps = {
   fillColors: [interpolateBlues(0), interpolateBlues(1)],
   defaultElevationBasedOn: '',
   elevationDataScale: 'linear',
-  elevations: [0, 1000000],
+  elevations: [0, 10000],
   onClick: undefined,
   onHover: undefined,
   opacity: 0.8,
   filled: true,
-  getFillColor: [255, 140, 0],
+  getFillColor: [255, 0, 0],
   extruded: false,
   getElevation: 0,
   stroked: true,
@@ -73,7 +74,7 @@ const SCALES = {
   'quantize': scaleQuantize,
 }
 
-const GeoJsonMap = ({
+const HexLayerMap = ({
   defaultFillBasedOn,
   fillDataScale,
   fillColors,
@@ -89,18 +90,21 @@ const GeoJsonMap = ({
   getLineColor,
   showLegend,
   legendPosition,
-  ...geoJsonLayerProps
+  ...hexLayerProps
 }) => {
-  const [geoJson, setGeoJson] = useState('')
-  const handleSetData = () => {
-    try {
-      const payload = JSON.parse(geoJson)
-      // basic validation
-      if (payload.type === 'FeatureCollection' && payload.features[0]) {
-        metricDispatch({ type: 'data', payload })
+  const handleSetData = d => {
+    if (Array.isArray(d)) {
+      metricDispatch({ type: 'data', payload: d })
+    } else {
+      try {
+        const payload = JSON.parse(d)
+        // basic validation
+        if (Array.isArray(payload)) {
+          metricDispatch({ type: 'data', payload })
+        }
+      } catch (e) {
+        console.warn('Not Valid JSON')
       }
-    } catch (e) {
-      console.warn('Not Valid JSON')
     }
   }
 
@@ -113,22 +117,23 @@ const GeoJsonMap = ({
   useEffect(() => {
     setElevationBasedOn(defaultElevationBasedOn)
   }, [defaultElevationBasedOn])
-  // TODO this entire file is very similar to the report-wi-map, except different data source
-  // and slightly different processing of datasets
+  // TODO unify common processing for GENERIC/INFERRED data
+  // fillBasedOn, radiusBasedOn, elevationBasedOn
+  // legends, metrics
   const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'data') {
       // calculate all min and max
       // { [key]: { max, min }}
-      const DATA_FIELDS = Object.entries(payload.features[0].properties)
-        .filter(entry => typeof entry[1] === 'number')
+      const DATA_FIELDS = Object.entries(payload[0])
+        .filter(entry => typeof entry[1] === 'number' && !['lat', 'lon'].includes(entry[0]))
         .map(([k]) => k)
-      const metrics =  payload.features.reduce((agg, { properties }) => ({
+      const metrics =  payload.reduce((agg, ele) => ({
         ...DATA_FIELDS
           .reduce((rowAgg, key) => ({
             ...rowAgg,
             [key]: {
-              max: Math.max((agg[key] || { max: null }).max, properties[key]),
-              min: Math.min((agg[key] || { min: null }).min, properties[key]),
+              max: Math.max((agg[key] || { max: null }).max, ele[key]),
+              min: Math.min((agg[key] || { min: null }).min, ele[key]),
             }
           }), {})
       }), {})
@@ -150,13 +155,14 @@ const GeoJsonMap = ({
         (metrics[fillBasedOn] || { min: 0 }).min,
         (metrics[fillBasedOn] || { max: 10 }).max
       ], fillColors)
-
       return d => {
-        const ret = color(d3Fn(d.properties[fillBasedOn]))
+        const ret = color(d3Fn(d[fillBasedOn]))
         return [ret.r, ret.g, ret.b]
       }
     }
-    return getFillColor
+    return d => {
+      return getFillColor(d)
+    }
   }, [fillBasedOn, fillDataScale, fillColors, getFillColor, metrics])
 
   const finalGetElevation = useMemo(() => {
@@ -165,40 +171,61 @@ const GeoJsonMap = ({
         (metrics[elevationBasedOn] || { min: 0 }).min,
         (metrics[elevationBasedOn] || { max: 10 }).max
       ], elevations)
-      return d => d3Fn(d.properties[elevationBasedOn])
+      return d => {
+        return d3Fn(d[elevationBasedOn])
+      }
     }
     return getElevation
   }, [elevationBasedOn, elevationDataScale, elevations, getElevation, metrics])
-
+  console.log(fillColors)
   const layers = useMemo(() => ([
-    new GeoJsonLayer({
-      id: `xyz-scatterplot-layer`,
+    new HexagonLayer({
+      id: `xyz-hex-layer`,
       data,
+      getPosition: d => [d.lon, d.lat],
       pickable: onClick || onHover,
       onClick,
       onHover,
       opacity,
-      getFillColor: finalGetFillColor,
-      getElevation: finalGetElevation,
+      extruded: true,
+      radius: 1000, // max size of each hex
+      upperPercentile: 100, // top end of data range
+      coverage: 1, // how much of the radius each hex fills
+      // NOTE: values are calculated automatically, using ranges below
+      colorRange: fillColors.map(o => {
+        const c = color(o)
+        return [c.r, c.g, c.b]
+      }),
+      elevationRange: elevations,
+      getColorWeight:d => d[fillBasedOn] || 1,
+      getElevationWeight: d => d[elevationBasedOn] || 1,
+      // getFillColor: finalGetFillColor,
+      // getElevation: finalGetElevation,
       getLineWidth,
       getLineColor,
       updateTriggers: {
-        getFillColor: [finalGetFillColor, fillDataScale, fillColors],
+        getColorWeight: [finalGetFillColor, fillDataScale, fillColors, metrics],
+        getElevationWeight: [finalGetElevation, elevationDataScale, elevations, metrics],
       },
-      ...geoJsonLayerProps,
+      ...hexLayerProps,
     })
   ]), [
-    geoJsonLayerProps,
+    hexLayerProps,
     data,
     onClick,
     onHover,
     finalGetElevation,
     finalGetFillColor,
+    elevations,
+    elevationBasedOn,
+    elevationDataScale,
     fillColors,
+    fillBasedOn,
     fillDataScale,
     getLineColor,
     getLineWidth,
     opacity,
+    metrics,
   ])
 
   const legends = useMemo(() => {
@@ -234,8 +261,9 @@ const GeoJsonMap = ({
   return (
     <div>
       <div>
-        <button onClick={handleSetData}>Load GeoJSON</button>
-        <textarea onChange={e => setGeoJson(e.target.value)}/>
+        <div style={{ padding: '1rem', border: '1px dashed black' }}>
+          <Loader setData={handleSetData} accept='text/plain, .csv, application/json' />
+        </div>
         <div>
           <strong>Fill Based On</strong>
           <select onChange={e => setFillBasedOn(e.target.value)}>
@@ -261,7 +289,7 @@ const GeoJsonMap = ({
   )
 }
 
-GeoJsonMap.propTypes = propTypes
-GeoJsonMap.defaultProps = defaultProps
+HexLayerMap.propTypes = propTypes
+HexLayerMap.defaultProps = defaultProps
 
-export default GeoJsonMap
+export default HexLayerMap
