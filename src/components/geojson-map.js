@@ -7,6 +7,7 @@ import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
+import { useLegends } from '../hooks'
 import Map from './generic-map'
 
 
@@ -201,35 +202,7 @@ const GeoJsonMap = ({
     opacity,
   ])
 
-  const legends = useMemo(() => {
-    let legends = undefined
-    if (fillBasedOn.length) {
-      if (!legends) legends = []
-      // TODO support quantile/quantize
-      // i.e. different lengths of fillColors[]
-      legends.push({
-        minColor: fillColors[0],
-        maxColor: fillColors[1],
-        type: 'gradient',
-        max: (metrics[fillBasedOn] || {}).max,
-        min: (metrics[fillBasedOn] || {}).min,
-        // TODO: readable labels
-        label: fillBasedOn,
-      })
-    }
-
-    if (elevationBasedOn.length) {
-      if (!legends) legends = []
-      legends.push({
-        type: 'elevation',
-        max: (metrics[fillBasedOn] || {}).max,
-        min: (metrics[fillBasedOn] || {}).min,
-        // TODO: readable labels
-        label: elevationBasedOn,
-      })
-    }
-    return legends
-  }, [elevationBasedOn, fillBasedOn, fillColors, metrics])
+  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, metrics })
 
   return (
     <div>

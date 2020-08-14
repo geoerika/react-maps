@@ -5,6 +5,8 @@ import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
+import { useLegends } from '../hooks'
+
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import EntryList from './entry-list'
@@ -233,34 +235,8 @@ const ReportWIMap = ({
     opacity,
   ])
 
-  const legends = useMemo(() => {
-    const legends = []
-    if (fillBasedOn.length) {
-      legends.push({
-        minColor: fillColors[0],
-        maxColor: fillColors[1],
-        type: 'gradient',
-        max: (metrics[fillBasedOn] || {}).max,
-        min: (metrics[fillBasedOn] || {}).min,
-        // TODO: readable labels
-        label: fillBasedOn,
-      })
-    }
-    if (radiusBasedOn.length) {
-      legends.push({
-        maxColor: fillColors[1],
-        type: 'size',
-        dots: 5,
-        size: 5,
-        max: (metrics[radiusBasedOn] || {}).max,
-        min: (metrics[radiusBasedOn] || {}).min,
-        // TODO: readable labels
-        label: radiusBasedOn,
-      })
-    }
-    return legends
-  }, [radiusBasedOn, fillBasedOn, fillColors, metrics])
-
+  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, metrics })
+  
   return (
     <Map
       layers={layers}
