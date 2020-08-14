@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { GeoJsonLayer } from 'deck.gl'
 
-import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
-import { color } from 'd3-color'
 
 import { useLegends, useMapData, useElevation, useFill } from '../hooks'
 import Map from './generic-map'

@@ -12,6 +12,7 @@ const LegendContainer = styled.div`
   background-color: rgba(255,255,255,0.9);
   padding: 1rem;
   border-radius: 0.5rem;
+  cursor: ${({ numLegends }) => numLegends > 1 ? 'pointer' : 'default'};
   ${props => props.position}
 `
 
@@ -58,6 +59,7 @@ const Legend = ({ position, legends }) => {
     <>
       { max !== undefined && min !== undefined && (
         <LegendContainer
+          numLegends={legends.length}
           onClick={handleLegendChange}
           position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}
         >
