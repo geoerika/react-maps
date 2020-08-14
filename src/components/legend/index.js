@@ -8,7 +8,7 @@ import LegendSymbol from './legend-symbol'
 const LegendContainer = styled.div`
   display: flex;
   position: absolute;
-  z-index: 9999;
+  z-index: 9998;
   background-color: rgba(255,255,255,0.9);
   padding: 1rem;
   border-radius: 0.5rem;

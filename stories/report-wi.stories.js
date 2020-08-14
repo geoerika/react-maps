@@ -18,6 +18,18 @@ storiesOf('Walk-In Report', module)
   .add('Basic Report', () => (
     <ReportMap getReport={getReport} report_id={4} layer_id={1} map_id={145} />
   ))
+  .add('Report with Tooltip', () => (
+    <ReportMap
+      getReport={getReport}
+      report_id={4}
+      layer_id={1}
+      map_id={145}
+      fillBasedOn='visits'
+      legendPosition='bottom-right'
+      showLegend
+      useTooltip
+    />
+  ))
   .add('Radius Based On Visits', () => (
     // NOTE: large values skew this
     <ReportMap
@@ -45,7 +57,6 @@ storiesOf('Walk-In Report', module)
       layer_id={1}
       map_id={145}
       fillBasedOn='visits'
-      defaultKeyMetric='visits'
       showLegend
     />
   ))
@@ -56,7 +67,6 @@ storiesOf('Walk-In Report', module)
       layer_id={1}
       map_id={145}
       fillBasedOn='visits'
-      defaultKeyMetric='visits'
       showLegend
       legendPosition='bottom-right'
     />
