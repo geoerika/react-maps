@@ -55,6 +55,49 @@ const SCALES = {
   'quantize': scaleQuantize,
 }
 
+export const useMapData = ({
+  dataAccessor = d => d,
+  dataPropertyAccessor = d => d,
+  keyTypes = ['number'],
+  excludeKeys = ['lat', 'lon'],
+  staticDataKeys = false,
+}) => {
+  // TODO use d3 to support multiple scales
+  const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
+    if (type === 'data') {      
+      const DATA_FIELDS = staticDataKeys || Object.entries(dataPropertyAccessor(dataAccessor(payload)[0]))
+        .filter(entry => keyTypes.includes(typeof entry[1]) && !excludeKeys.includes(entry[0]))
+        .map(([k]) => k)
+      // { [key]: { max, min }}
+      // calculate all min and max
+      const metrics =  dataAccessor(payload).reduce((agg, ele) => ({
+        ...DATA_FIELDS
+          .reduce((rowAgg, key) => ({
+            ...rowAgg,
+            [key]: {
+              max: Math.max((agg[key] || { max: null }).max, dataPropertyAccessor(ele)[key]),
+              min: Math.min((agg[key] || { min: null }).min, dataPropertyAccessor(ele)[key]),
+            }
+          }), {})
+      }), {})
+
+      return {
+        data: payload,
+        metrics,
+      }
+    }
+    return {
+      ...state,
+      [type]: payload,
+    }
+  }, { data: [], metrics: {} })
+  return {
+    data,
+    metrics,
+    metricDispatch,
+  }
+}
+
 export const useElevation = ({
   elevationBasedOnInit,
   getElevation,
