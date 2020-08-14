@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { GeoJsonLayer } from 'deck.gl'
@@ -7,15 +7,15 @@ import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
-import { useLegends } from '../hooks'
+import { useLegends, useMapData, useElevation, useFill } from '../hooks'
 import Map from './generic-map'
 
 
 const propTypes = {
-  defaultFillBasedOn: PropTypes.string,
+  fillBasedOnInit: PropTypes.string,
   fillDataScale: PropTypes.string,
   fillColors: PropTypes.array,
-  defaultElevationBasedOn: PropTypes.string,
+  elevationBasedOnInit: PropTypes.string,
   elevationDataScale: PropTypes.string,
   elevations: PropTypes.array,
   onClick: PropTypes.func,
@@ -46,10 +46,10 @@ const propTypes = {
 }
 
 const defaultProps = {
-  defaultFillBasedOn: '',
+  fillBasedOnInit: '',
   fillDataScale: 'linear',
   fillColors: [interpolateBlues(0), interpolateBlues(1)],
-  defaultElevationBasedOn: '',
+  elevationBasedOnInit: '',
   elevationDataScale: 'linear',
   elevations: [0, 1000000],
   onClick: undefined,
@@ -66,17 +66,11 @@ const defaultProps = {
   legendPosition: 'top-left',
 }
 
-const SCALES = {
-  'linear': scaleLinear,
-  'quantile': scaleQuantile,
-  'quantize': scaleQuantize,
-}
-
 const GeoJsonMap = ({
-  defaultFillBasedOn,
+  fillBasedOnInit,
   fillDataScale,
   fillColors,
-  defaultElevationBasedOn,
+  elevationBasedOnInit,
   elevationDataScale,
   elevations,
   onClick,
@@ -103,71 +97,28 @@ const GeoJsonMap = ({
     }
   }
 
-  // TODO more finely woven state to link these with data/metrics
-  const [fillBasedOn, setFillBasedOn] = useState(defaultFillBasedOn)
-  const [elevationBasedOn, setElevationBasedOn] = useState(defaultFillBasedOn)
-  useEffect(() => {
-    setFillBasedOn(defaultFillBasedOn)
-  }, [defaultFillBasedOn])
-  useEffect(() => {
-    setElevationBasedOn(defaultElevationBasedOn)
-  }, [defaultElevationBasedOn])
-  // TODO this entire file is very similar to the report-wi-map, except different data source
-  // and slightly different processing of datasets
-  const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
-    if (type === 'data') {
-      // calculate all min and max
-      // { [key]: { max, min }}
-      const DATA_FIELDS = Object.entries(payload.features[0].properties)
-        .filter(entry => typeof entry[1] === 'number')
-        .map(([k]) => k)
-      const metrics =  payload.features.reduce((agg, { properties }) => ({
-        ...DATA_FIELDS
-          .reduce((rowAgg, key) => ({
-            ...rowAgg,
-            [key]: {
-              max: Math.max((agg[key] || { max: null }).max, properties[key]),
-              min: Math.min((agg[key] || { min: null }).min, properties[key]),
-            }
-          }), {})
-      }), {})
-
-      return {
-        data: payload,
-        metrics,
-      }
-    }
-    return {
-      ...state,
-      [type]: payload,
-    }
-  }, { data: [], metrics: {} })
+  const { data, metrics, metricDispatch } = useMapData({
+    dataAccessor: d => d.features,
+    dataPropertyAccessor: d => d.properties,
+  })
   
-  const finalGetFillColor = useMemo(() => {
-    if (fillBasedOn.length) {
-      const d3Fn = SCALES[fillDataScale]([
-        (metrics[fillBasedOn] || { min: 0 }).min,
-        (metrics[fillBasedOn] || { max: 10 }).max
-      ], fillColors)
+  const { elevationBasedOn, finalGetElevation, setElevationBasedOn } = useElevation({
+    elevationBasedOnInit,
+    getElevation,
+    elevationDataScale,
+    elevations,
+    metrics,
+    dataPropertyAccessor: d => d.properties,
+  })
 
-      return d => {
-        const ret = color(d3Fn(d.properties[fillBasedOn]))
-        return [ret.r, ret.g, ret.b]
-      }
-    }
-    return getFillColor
-  }, [fillBasedOn, fillDataScale, fillColors, getFillColor, metrics])
-
-  const finalGetElevation = useMemo(() => {
-    if (elevationBasedOn.length) {
-      const d3Fn = SCALES[elevationDataScale]([
-        (metrics[elevationBasedOn] || { min: 0 }).min,
-        (metrics[elevationBasedOn] || { max: 10 }).max
-      ], elevations)
-      return d => d3Fn(d.properties[elevationBasedOn])
-    }
-    return getElevation
-  }, [elevationBasedOn, elevationDataScale, elevations, getElevation, metrics])
+  const { fillBasedOn, finalGetFillColor, setFillBasedOn } = useFill({
+    fillBasedOnInit,
+    getFillColor,
+    fillDataScale,
+    fillColors,
+    metrics,
+    dataPropertyAccessor: d => d.properties,
+  })
 
   const layers = useMemo(() => ([
     new GeoJsonLayer({
@@ -184,6 +135,7 @@ const GeoJsonMap = ({
       getLineColor,
       updateTriggers: {
         getFillColor: [finalGetFillColor, fillDataScale, fillColors],
+        getElevation: [finalGetElevation, elevationDataScale, elevations]
       },
       ...geoJsonLayerProps,
     })
@@ -193,6 +145,8 @@ const GeoJsonMap = ({
     onClick,
     onHover,
     elevationBasedOn,
+    elevationDataScale,
+    elevations,
     finalGetElevation,
     finalGetFillColor,
     fillColors,
@@ -211,16 +165,16 @@ const GeoJsonMap = ({
         <textarea onChange={e => setGeoJson(e.target.value)}/>
         <div>
           <strong>Fill Based On</strong>
-          <select onChange={e => setFillBasedOn(e.target.value)}>
+          <select value={fillBasedOn} onChange={e => setFillBasedOn(e.target.value)}>
             <option value=''>None</option>
-            {Object.keys(metrics).map(key => <option key={key} selected={key === fillBasedOn}>{key}</option>)}
+            {Object.keys(metrics).map(key => <option key={key}>{key}</option>)}
           </select>
         </div>
         <div>
           <strong>Elevation Based On</strong>
-          <select onChange={e => setElevationBasedOn(e.target.value)}>
+          <select value={elevationBasedOn} onChange={e => setElevationBasedOn(e.target.value)}>
             <option value=''>None</option>
-            {Object.keys(metrics).map(key => <option key={key} selected={key === elevationBasedOn}>{key}</option>)}
+            {Object.keys(metrics).map(key => <option key={key}>{key}</option>)}
           </select>
         </div>
       </div>

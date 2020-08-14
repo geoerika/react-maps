@@ -103,7 +103,8 @@ export const useElevation = ({
   getElevation,
   elevationDataScale,
   elevations,
-  metrics
+  metrics,
+  dataPropertyAccessor = d => d,
 }) => {
   const [elevationBasedOn, setElevationBasedOn] = useState(elevationBasedOnInit)
 
@@ -117,12 +118,12 @@ export const useElevation = ({
         (metrics[elevationBasedOn] || { min: 0 }).min,
         (metrics[elevationBasedOn] || { max: 10 }).max
       ], elevations)
-      return d => d3Fn(d[elevationBasedOn])
+      return d => d3Fn(dataPropertyAccessor(d)[elevationBasedOn])
     }
     return getElevation
-  }, [elevationBasedOn, elevationDataScale, elevations, getElevation, metrics])
+  }, [elevationBasedOn, elevationDataScale, elevations, getElevation, metrics, dataPropertyAccessor])
 
-  return { finalGetElevation, setElevationBasedOn }
+  return { elevationBasedOn, finalGetElevation, setElevationBasedOn }
 }
 
 export const useFill = ({
@@ -131,6 +132,7 @@ export const useFill = ({
   fillDataScale,
   fillColors,
   metrics,
+  dataPropertyAccessor = d => d,
 }) => {
   const [fillBasedOn, setFillBasedOn] = useState(fillBasedOnInit)
 
@@ -145,16 +147,14 @@ export const useFill = ({
         (metrics[fillBasedOn] || { max: 10 }).max
       ], fillColors)
       return d => {
-        const ret = color(d3Fn(d[fillBasedOn]))
+        const ret = color(d3Fn(dataPropertyAccessor(d)[fillBasedOn]))
         return [ret.r, ret.g, ret.b]
       }
     }
-    return d => {
-      return getFillColor(d)
-    }
-  }, [fillBasedOn, fillDataScale, fillColors, getFillColor, metrics])
+    return getFillColor
+  }, [fillBasedOn, fillDataScale, fillColors, getFillColor, metrics, dataPropertyAccessor])
 
-  return { finalGetFillColor, setFillBasedOn }
+  return { fillBasedOn, finalGetFillColor, setFillBasedOn }
 }
 
 export const useRadius = ({
@@ -163,6 +163,7 @@ export const useRadius = ({
   radiusDataScale,
   radii,
   metrics,
+  dataPropertyAccessor = d => d,
 }) => {
   const [radiusBasedOn, setRadiusBasedOn] = useState(radiusBasedOnInit)
 
@@ -177,10 +178,10 @@ export const useRadius = ({
         (metrics[radiusBasedOn] || { max: 10 }).max
       ], radii)
 
-      return d => d3Fn(d[radiusBasedOn])
+      return d => d3Fn(dataPropertyAccessor(d)[radiusBasedOn])
     }
     return getRadius
-  }, [radiusBasedOn, radiusDataScale, radii, getRadius, metrics])
+  }, [radiusBasedOn, radiusDataScale, radii, getRadius, metrics, dataPropertyAccessor])
 
   return { finalGetRadius, setRadiusBasedOn }
 }
