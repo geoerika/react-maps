@@ -8,7 +8,7 @@ import { color } from 'd3-color'
 
 import { useMapData, useLegends } from '../hooks'
 import Map from './generic-map'
-import Loader from './loader'
+import Loader, { convertCSVtoJSON } from './loader'
 
 
 const propTypes = {
@@ -68,18 +68,20 @@ const HexLayerMap = ({
   }, [fillBasedOnInit])
 
   const handleSetData = d => {
-    if (Array.isArray(d)) {
-      metricDispatch({ type: 'data', payload: d })
-    } else {
-      try {
-        const payload = JSON.parse(d)
-        // basic validation
-        if (Array.isArray(payload)) {
-          metricDispatch({ type: 'data', payload })
-        }
-      } catch (e) {
-        console.warn('Not Valid JSON')
-      }
+    let payload = []
+    try {
+      payload = JSON.parse(d)
+    } catch (_) {
+      console.warn('Not Valid JSON, attempt to parse as CSV')
+    }
+    try {
+      payload = convertCSVtoJSON(d)
+    } catch (_) {
+      console.warn('Not Valid CSV')
+    }
+    // basic validation
+    if (Array.isArray(payload)) {
+      metricDispatch({ type: 'data', payload })
     }
   }
 
