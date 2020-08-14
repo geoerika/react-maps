@@ -52,7 +52,7 @@ const defaultProps = {
 const Legend = ({ position, legends }) => {
   const [activeLegend, setActiveLegend] = useState(0)
   const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
-  const { max, min, label, ...symbolProps } = legends[activeLegend]
+  const { max, min, label, ...symbolProps } = legends[activeLegend] || {}
 
   return (
     <>

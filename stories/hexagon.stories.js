@@ -7,7 +7,7 @@ import HexagonMap from '../src/components/hexagon-map'
 
 storiesOf('Hexagon Map', module)
   .add('Basic rendering', () => (
-    <HexagonMap extruded />
+    <HexagonMap extruded showLegend />
   ))
   // .add('Dynamic Fill', () => (
   //   <GeoJsonMap defaultFillBasedOn='unique_visitors_mean' showLegend/>
