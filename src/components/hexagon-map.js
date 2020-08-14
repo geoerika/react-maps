@@ -27,7 +27,6 @@ const propTypes = {
     PropTypes.func,
     PropTypes.array,
   ]),
-  extruded: PropTypes.bool,
   getElevation: PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.func,
@@ -59,7 +58,6 @@ const defaultProps = {
   opacity: 0.8,
   filled: true,
   getFillColor: [255, 0, 0],
-  extruded: false,
   getElevation: 0,
   stroked: true,
   lineWidthUnits: 'pixels',
@@ -188,7 +186,7 @@ const HexLayerMap = ({
       onClick,
       onHover,
       opacity,
-      extruded: true,
+      extruded: elevationBasedOn.length,
       radius: 1000, // max size of each hex
       upperPercentile: 100, // top end of data range
       coverage: 1, // how much of the radius each hex fills

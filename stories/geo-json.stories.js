@@ -13,8 +13,8 @@ storiesOf('GeoJSON Map', module)
     <GeoJsonMap defaultFillBasedOn='unique_visitors_mean' showLegend/>
   ))
   .add('Dynamic Elevation', () => (
-    <GeoJsonMap extruded defaultElevationBasedOn='unique_visitors_median' showLegend />
+    <GeoJsonMap defaultElevationBasedOn='unique_visitors_median' showLegend />
   ))
   .add('Dynamic Fill & Elevation', () => (
-    <GeoJsonMap showLegend defaultFillBasedOn='unique_visitors_mean' extruded defaultElevationBasedOn='unique_visitors_median' />
+    <GeoJsonMap showLegend defaultFillBasedOn='unique_visitors_mean' defaultElevationBasedOn='unique_visitors_median' />
   ))
