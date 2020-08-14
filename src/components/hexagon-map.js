@@ -1,96 +1,72 @@
-import React, { useState, useEffect, useReducer, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { HexagonLayer } from 'deck.gl'
 
-import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
-import { useLegends } from '../hooks'
+import { useMapData, useLegends } from '../hooks'
 import Map from './generic-map'
 import Loader from './loader'
 
 
 const propTypes = {
-  defaultFillBasedOn: PropTypes.string,
-  fillDataScale: PropTypes.string,
+  fillBasedOnInit: PropTypes.string,
   fillColors: PropTypes.array,
-  defaultElevationBasedOn: PropTypes.string,
-  elevationDataScale: PropTypes.string,
+  elevationBasedOnInit: PropTypes.string,
   elevations: PropTypes.array,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
   opacity: PropTypes.number,
-  filled: PropTypes.bool,
-  getFillColor: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.array,
-  ]),
-  getElevation: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.func,
-  ]),
-  // elevationScale
-  stroked: PropTypes.bool,
-  lineWidthUnits: PropTypes.string,
-  getLineWidth: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.func,
-  ]),
-  getLineColor: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.array,
-  ]),
+  getColorWeight: PropTypes.func,
+  getElevationWeight: PropTypes.func,
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
 }
 
 const defaultProps = {
-  defaultFillBasedOn: '',
-  fillDataScale: 'linear',
+  fillBasedOnInit: '',
   fillColors: [interpolateBlues(0), interpolateBlues(1)],
-  defaultElevationBasedOn: '',
-  elevationDataScale: 'linear',
+  elevationBasedOnInit: '',
   elevations: [0, 10000],
   onClick: undefined,
   onHover: undefined,
   opacity: 0.8,
-  filled: true,
-  getFillColor: [255, 0, 0],
-  getElevation: 0,
-  stroked: true,
-  lineWidthUnits: 'pixels',
-  getLineWidth: 2,
-  getLineColor: [0, 0, 0],
+  getColorWeight: () => 1,
+  getElevationWeight: () => 1,
   showLegend: false,
   legendPosition: 'top-left',
 }
 
-const SCALES = {
-  'linear': scaleLinear,
-  'quantile': scaleQuantile,
-  'quantize': scaleQuantize,
-}
 
 const HexLayerMap = ({
-  defaultFillBasedOn,
-  fillDataScale,
+  fillBasedOnInit,
   fillColors,
-  defaultElevationBasedOn,
-  elevationDataScale,
+  elevationBasedOnInit,
   elevations,
   onClick,
   onHover,
   opacity,
-  getElevation,
-  getFillColor,
-  getLineWidth,
-  getLineColor,
+  getElevationWeight,
+  getColorWeight,
   showLegend,
   legendPosition,
   ...hexLayerProps
 }) => {
+  const { data, metrics, metricDispatch } = useMapData({})
+
+  // NOTE: HexagonLayer processes its own values based on range of elevation and fill
+  const [elevationBasedOn, setElevationBasedOn] = useState(elevationBasedOnInit)
+  useEffect(() => {
+    setElevationBasedOn(elevationBasedOnInit)
+  }, [elevationBasedOnInit])
+
+  const [fillBasedOn, setFillBasedOn] = useState(fillBasedOnInit)
+  useEffect(() => {
+    setFillBasedOn(fillBasedOnInit)
+  }, [fillBasedOnInit])
+
   const handleSetData = d => {
     if (Array.isArray(d)) {
       metricDispatch({ type: 'data', payload: d })
@@ -107,76 +83,20 @@ const HexLayerMap = ({
     }
   }
 
-  // TODO more finely woven state to link these with data/metrics
-  const [fillBasedOn, setFillBasedOn] = useState(defaultFillBasedOn)
-  const [elevationBasedOn, setElevationBasedOn] = useState(defaultFillBasedOn)
-  useEffect(() => {
-    setFillBasedOn(defaultFillBasedOn)
-  }, [defaultFillBasedOn])
-  useEffect(() => {
-    setElevationBasedOn(defaultElevationBasedOn)
-  }, [defaultElevationBasedOn])
-  // TODO unify common processing for GENERIC/INFERRED data
-  // fillBasedOn, radiusBasedOn, elevationBasedOn
-  // legends, metrics
-  const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
-    if (type === 'data') {
-      // calculate all min and max
-      // { [key]: { max, min }}
-      const DATA_FIELDS = Object.entries(payload[0])
-        .filter(entry => typeof entry[1] === 'number' && !['lat', 'lon'].includes(entry[0]))
-        .map(([k]) => k)
-      const metrics =  payload.reduce((agg, ele) => ({
-        ...DATA_FIELDS
-          .reduce((rowAgg, key) => ({
-            ...rowAgg,
-            [key]: {
-              max: Math.max((agg[key] || { max: null }).max, ele[key]),
-              min: Math.min((agg[key] || { min: null }).min, ele[key]),
-            }
-          }), {})
-      }), {})
-
-      return {
-        data: payload,
-        metrics,
-      }
-    }
-    return {
-      ...state,
-      [type]: payload,
-    }
-  }, { data: [], metrics: {} })
-  
-  const finalGetFillColor = useMemo(() => {
+  const finalGetColorWeight = useMemo(() => {
     if (fillBasedOn.length) {
-      const d3Fn = SCALES[fillDataScale]([
-        (metrics[fillBasedOn] || { min: 0 }).min,
-        (metrics[fillBasedOn] || { max: 10 }).max
-      ], fillColors)
-      return d => {
-        const ret = color(d3Fn(d[fillBasedOn]))
-        return [ret.r, ret.g, ret.b]
-      }
+      return d => d[fillBasedOn] || 1
     }
-    return d => {
-      return getFillColor(d)
-    }
-  }, [fillBasedOn, fillDataScale, fillColors, getFillColor, metrics])
+    return getColorWeight
+  }, [fillBasedOn, getColorWeight])
 
-  const finalGetElevation = useMemo(() => {
+  const finalGetElevationWeight = useMemo(() => {
     if (elevationBasedOn.length) {
-      const d3Fn = SCALES[elevationDataScale]([
-        (metrics[elevationBasedOn] || { min: 0 }).min,
-        (metrics[elevationBasedOn] || { max: 10 }).max
-      ], elevations)
-      return d => {
-        return d3Fn(d[elevationBasedOn])
-      }
+      return d => d[elevationBasedOn] || 1
     }
-    return getElevation
-  }, [elevationBasedOn, elevationDataScale, elevations, getElevation, metrics])
-  console.log(fillColors)
+    return getElevationWeight
+  }, [elevationBasedOn, getElevationWeight])
+
   const layers = useMemo(() => ([
     new HexagonLayer({
       id: `xyz-hex-layer`,
@@ -196,15 +116,11 @@ const HexLayerMap = ({
         return [c.r, c.g, c.b]
       }),
       elevationRange: elevations,
-      getColorWeight:d => d[fillBasedOn] || 1,
-      getElevationWeight: d => d[elevationBasedOn] || 1,
-      // getFillColor: finalGetFillColor,
-      // getElevation: finalGetElevation,
-      getLineWidth,
-      getLineColor,
+      getColorWeight: finalGetColorWeight,
+      getElevationWeight: finalGetElevationWeight,
       updateTriggers: {
-        getColorWeight: [finalGetFillColor, fillDataScale, fillColors, metrics],
-        getElevationWeight: [finalGetElevation, elevationDataScale, elevations, metrics],
+        getColorWeight: [fillColors, finalGetColorWeight, metrics],
+        getElevationWeight: [elevations, finalGetElevationWeight, metrics],
       },
       ...hexLayerProps,
     })
@@ -213,16 +129,11 @@ const HexLayerMap = ({
     data,
     onClick,
     onHover,
-    finalGetElevation,
-    finalGetFillColor,
+    elevationBasedOn.length,
+    finalGetElevationWeight,
+    finalGetColorWeight,
     elevations,
-    elevationBasedOn,
-    elevationDataScale,
     fillColors,
-    fillBasedOn,
-    fillDataScale,
-    getLineColor,
-    getLineWidth,
     opacity,
     metrics,
   ])
