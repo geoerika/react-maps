@@ -137,12 +137,16 @@ const ReportWIMap = ({
       return {
         ...state,
         // toggle clicked object
-        show: !state.object || state.object.poi_id !== object.poi_id,
+        show: !state.show || (state.object || {}).poi_id !== object.poi_id,
         x,
         y,
         lngLat,
         object,
       }
+    }
+    return {
+      ...state,
+      [type]: payload,
     }
   }, { show: false, translate: true })
 
