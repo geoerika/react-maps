@@ -5,6 +5,18 @@ import { useDropzone } from 'react-dropzone'
 import styled from 'styled-components'
 
 
+export const convertCSVtoJSON = f => {
+  // first row is readers
+  const rows = f.split('\n')
+  const headers = rows[0].split(',')
+
+  return rows.slice(1)
+    .filter(r => r.length)
+    .map(r => r.split(',')
+      .reduce((agg, ele, i) => ({ ...agg, [headers[i]]: parseFloat(ele) ? parseFloat(ele) : ele }), {}))
+}
+
+
 export const useLoader = ({ setData, mode = 'text', accept }) => {
   const onDrop = useCallback(([file]) => { // single file handling only for now
     if (!file) {
