@@ -41,12 +41,19 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "150 KB"
+    }
+  ],
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",
+    "@size-limit/preset-small-lib": "^4.5.7",
     "@storybook/addon-actions": "6.0.17",
     "@storybook/addon-links": "6.0.17",
     "@storybook/addons": "6.0.17",
@@ -59,7 +66,8 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^4.0.8",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "size-limit": "^4.5.7"
   },
   "bugs": {
     "url": "https://github.com/EQWorks/poi-manage/issues"
