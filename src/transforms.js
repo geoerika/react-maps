@@ -1,4 +1,4 @@
-import { omit } from 'lodash'
+import omit from 'lodash.omit'
 /*
 address_city: "Mill Bay"
 address_country: "CA"
