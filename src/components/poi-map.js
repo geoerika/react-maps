@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react'
+import PropTypes from 'prop-types'
+
 import DeckGL from 'deck.gl'
 import { FlyToInterpolator } from 'deck.gl'
 import { WebMercatorViewport } from 'deck.gl'
 import { StaticMap } from 'react-map-gl'
+import { styled, setup } from 'goober'
 
 import { getDataCoordinates, processLayers } from '../shared/utils'
 
-import styled from 'styled-components'
-import PropTypes from 'prop-types'
 
-const MapWrapper = styled.div`
+setup(React.createElement)
+
+const MapWrapper = styled('div')`
   width: 100%;
   height: 100vh;
   position: 'absolute';

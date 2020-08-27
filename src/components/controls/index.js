@@ -1,15 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 
 
-const ControlContainer = styled.div`
+setup(React.createElement)
+
+const ControlContainer = styled('div')`
   flex-grow: 1;
   padding: 5px;
 `
 
-const ControlButton = styled.button`
+const ControlButton = styled('button')`
   cursor: ${({ disabled }) => disabled ? 'default' : 'pointer'};
   border-radius: 7px;
   border: 1px solid ${({ disabled }) => disabled ? 'rgba(0,0,0,0.2)' : 'black'};
@@ -22,19 +24,19 @@ const ControlButton = styled.button`
   font-size: 10px;
 `
 
-const Subtext = styled.div`
+const Subtext = styled('div')`
   font-size: 7px;
   color: rgba(0,0,0,0.7);
 `
 
-const ProgressBarContainer = styled.div`
+const ProgressBarContainer = styled('div')`
   width: 100px;
   height: 15px;
   border: 1px solid black;
   margin: 0;
   padding: 0;
 `
-const ProgressBar = styled.div`
+const ProgressBar = styled('div')`
   height: 100%;
   width: ${({ progress }) => progress}%;
   background-color: blue;

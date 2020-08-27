@@ -1,22 +1,24 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
 
+import { styled, setup } from 'goober'
 
-const Gradient = styled.div`
+setup(React.createElement)
+
+const Gradient = styled('div')`
   width: 15px;
   height: 80px;
   background-image: linear-gradient(${({ max, min }) => `${max}, ${min}`});
 `
 
-const Size = styled.div`
+const Size = styled('div')`
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 15px;
 `
 
-const Circle = styled.div`
+const Circle = styled('div')`
   margin: 3px;
   box-sizing: border-box;
   width: ${({ size }) => `${size}px`};
@@ -26,7 +28,7 @@ const Circle = styled.div`
   background-color: ${({ color }) => color};
 `
 
-const HeightWrapper = styled.div`
+const HeightWrapper = styled('div')`
   flex-grow: 1;
   width: 80%;
   border-bottom: 1px solid black;
@@ -34,7 +36,7 @@ const HeightWrapper = styled.div`
   margin: 5px 0 5px 0;
 `
 
-const Height = styled.div`
+const Height = styled('div')`
   height: ${({ height }) => height}px;
   width: 0;
   margin-left: auto;

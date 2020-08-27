@@ -3,8 +3,8 @@
  *      https://github.com/EQWorks/flaat-dash/blob/master/src/components/layers/cluster-layer.js
  */
 
-import {CompositeLayer} from 'deck.gl'
-import {IconLayer} from 'deck.gl'
+import { CompositeLayer } from 'deck.gl'
+import { IconLayer } from 'deck.gl'
 import Supercluster from 'supercluster'
 
 import iconMapping from '../icons/cluster.json'

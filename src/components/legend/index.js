@@ -1,34 +1,36 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
 
 
-const LegendContainer = styled.div`
+setup(React.createElement)
+
+const LegendContainer = styled('div')`
   display: flex;
   position: absolute;
   z-index: 9998;
   background-color: rgba(255,255,255,0.9);
   padding: 1rem;
   border-radius: 0.5rem;
-  cursor: ${({ numLegends }) => numLegends > 1 ? 'pointer' : 'default'};
+  cursor: ${props => props['num-legends'] > 1 ? 'pointer' : 'default'};
   ${props => props.position}
 `
 
-const LegendTextContainer = styled.div`
+const LegendTextContainer = styled('div')`
   display: flex;
   flex-direction: column;
 `
 
-const LegendText = styled.div`
-  ${props => props.top ? 'flex-grow: 1;' : ''};
+const LegendText = styled('div')`
+  ${props => props['legend-text-top'] ? 'flex-grow: 1;' : ''};
   margin-left: 1rem;
   font-size: 1rem;
   color: black;
 `
 
-const LegendSymbolContainer = styled.div``
+const LegendSymbolContainer = styled('div')``
 
 const propTypes = {
   position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
@@ -59,7 +61,7 @@ const Legend = ({ position, legends }) => {
     <>
       { max !== undefined && min !== undefined && (
         <LegendContainer
-          numLegends={legends.length}
+          num-legends={legends.length}
           onClick={handleLegendChange}
           position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}
         >
@@ -67,7 +69,7 @@ const Legend = ({ position, legends }) => {
             <LegendSymbol {...symbolProps} />
           </LegendSymbolContainer>
           <LegendTextContainer>
-            <LegendText top>{max.toLocaleString()} {label}</LegendText>
+            <LegendText legend-text-top={ top }>{max.toLocaleString()} {label}</LegendText>
             <LegendText>{min.toLocaleString()} {label}</LegendText>
           </LegendTextContainer>
         </LegendContainer>

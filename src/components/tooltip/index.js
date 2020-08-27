@@ -1,24 +1,72 @@
-import React, { useRef } from 'react'
+import React, { useRef, forwardRef  } from 'react'
 import PropTypes from 'prop-types'
 
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
+
 import { useDimensions } from './hooks'
 
 
-const Tooltip = styled.div.attrs(props => ({
-  style: {
-    left: `${props.left}px`,
-    top: `${props.top}px`,
-    maxHeight: `${props.maxHeight}px`,
-    maxWidth: `${props.maxWidth}px`,
-  }
-}))`
+setup(React.createElement)
+
+const tooltipPropTypes = {
+  'max-height': PropTypes.number,
+  'max-width': PropTypes.number
+}
+
+const Tooltip = styled('div')`
+  left: ${({ left }) => left}px;
+  top: ${({ top }) => top}px;
+  max-height: ${props => props['max-height']}px;
+  max-width: ${props => props['max-width']}px;
   z-index: 9999;
   position: absolute;
   overflow: auto;
   padding: 0em;
   background-color: white;
 `
+
+// const Tooltip = forwardRef((props, ref ) => 
+//   styled('div')`
+//     ref: ${ ref }
+//     left: ${({ left }) => left}px;
+//     top: ${({ top }) => top}px;
+//     max-height: ${props['max-height']}px;
+//     max-width: ${props['max-width']}px;
+//     z-index: 9999;
+//     position: absolute;
+//     overflow: auto;
+//     padding: 0em;
+//     background-color: white;
+//   `
+// )
+
+Tooltip.propTypes = tooltipPropTypes
+
+// const TooltipDiv = forwardRef((props, ref) => 
+//   <div
+//     ref={ ref }
+//     style= {{
+//       left: `${({ left }) => left}px`,
+//       top: `${({ top }) => top}px`,
+//       maHeight: `${props['max-height']}px`,
+//       maxWidth: `${props['max-width']}px`,
+//       zIndex: 9999,
+//       position: 'absolute',
+//       overflow: 'auto',
+//       padding: '0em',
+//       backgroundColor: 'white'
+//     }}
+//   >
+//   </div>
+// )  
+
+// const Tooltip = forwardRef((props, ref) =>
+//   <TooltipDiv
+//     ref={ ref }
+//     props={props}
+//   >
+//   </TooltipDiv>
+// )  
 
 const propTypes = {
   x: PropTypes.number.isRequired,
@@ -59,8 +107,8 @@ const MapTooltipContainer = ({
       className={classes}
       left={x + ((!translate || xOffset > 0) ? 0 : xOffset)}
       top={y + ((!translate || yOffset > 0) ? 0 : yOffset)}
-      maxHeight={Math.min(dimensions.h, h/2)}
-      maxWidth={Math.min(dimensions.w, w/2)}
+      max-height={Math.min(dimensions.h, h/2)}
+      max-width={Math.min(dimensions.w, w/2)}
     >
       {children}
     </Tooltip>

@@ -1,11 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState } from 'react'
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 
 import Loader from '../src/components/loader'
 
 
-const Container = styled.div`
+setup(React.createElement)
+
+const Container = styled('div')`
   padding: 1rem;
   border: 1px dashed black;
 `

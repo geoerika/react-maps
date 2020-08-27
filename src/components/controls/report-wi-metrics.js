@@ -1,13 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 
 import { days, hours } from '../../constants'
 import { reportWI } from '../../datasets'
 
 
-const ControlContainer = styled.div`
+setup(React.createElement)
+
+const ControlContainer = styled('div')`
   flex-grow: 1;
   padding: 5px;
 `

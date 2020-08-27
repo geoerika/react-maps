@@ -1,12 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 
 import { DATE_TYPES } from '../../constants'
 
 
-const ControlContainer = styled.div`
+setup(React.createElement)
+
+const ControlContainer = styled('div')`
   flex-grow: 1;
   padding: 5px;
 `

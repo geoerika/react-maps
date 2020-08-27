@@ -2,8 +2,10 @@ import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { useDropzone } from 'react-dropzone'
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 
+
+setup(React.createElement)
 
 export const convertCSVtoJSON = f => {
   // first row is readers
@@ -35,7 +37,7 @@ export const useLoader = ({ setData, mode = 'text', accept }) => {
   return useDropzone({ onDrop, accept, multiple: false })
 }
 
-const Container = styled.div`
+const Container = styled('div')`
   width: 100%;
   display: flex;
   align-items: center;

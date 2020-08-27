@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
@@ -17,6 +17,8 @@ import TimelineControls from './controls'
 import MetricSelector from './controls/report-wi-metrics'
 import PeriodSelector from './controls/report-periods'
 
+
+setup(React.createElement)
 
 const propTypes = {
   getReport: PropTypes.func.isRequired,
@@ -94,7 +96,7 @@ const SCALES = {
   'quantize': scaleQuantize,
 }
 
-const Container = styled.div`
+const Container = styled('div')`
   padding: 5px;
   height: 100%;
   width: 100%;
@@ -102,7 +104,7 @@ const Container = styled.div`
   flex-direction: column;
 `
 
-const MapContainer = styled.div`
+const MapContainer = styled('div')`
   flex-grow: 10;
   padding: 5px;
 `

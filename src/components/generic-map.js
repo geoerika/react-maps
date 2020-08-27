@@ -4,13 +4,15 @@ import PropTypes from 'prop-types'
 import DeckGL, { FlyToInterpolator, MapView, WebMercatorViewport } from 'deck.gl'
 import { StaticMap } from 'react-map-gl'
 
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 
 import MapTooltip from './tooltip'
 import Legend from './legend'
 
 
-const MapContainer = styled.div`
+setup(React.createElement)
+
+const MapContainer = styled('div')`
   height: 100%;
   width: 100%;
   position: absolute;

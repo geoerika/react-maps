@@ -1,3 +1,4 @@
+// ref: https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
 import { EditableGeoJsonLayer, DrawPointMode, DrawPolygonMode } from 'nebula.gl'
 
 const selectedFeatureIndexes = []

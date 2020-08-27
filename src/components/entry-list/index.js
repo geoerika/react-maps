@@ -1,28 +1,30 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import styled from 'styled-components'
+import { styled, setup } from 'goober'
 
 
-const EntryListContainer = styled.div`
+setup(React.createElement)
+
+const EntryListContainer = styled('div')`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
 `
 
-const EntryListItem = styled.div`
+const EntryListItem = styled('div')`
   display: flex;
   justify-content: space-between;
   padding: 5px;
   border-bottom: 1px solid black;
 `
 
-const Key = styled.div`
+const Key = styled('div')`
   font-weight: bold;
 `
 
-const Value = styled.div``
+const Value = styled('div')``
 
 const propTypes = { object: PropTypes.object }
 const defaultProps = { object: {} }
