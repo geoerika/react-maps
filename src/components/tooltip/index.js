@@ -8,12 +8,7 @@ import { useDimensions } from './hooks'
 
 setup(React.createElement)
 
-const tooltipPropTypes = {
-  'max-height': PropTypes.number,
-  'max-width': PropTypes.number
-}
-
-const Tooltip = styled('div')`
+const Tooltip = styled('div', forwardRef)`
   left: ${({ left }) => left}px;
   top: ${({ top }) => top}px;
   max-height: ${props => props['max-height']}px;
@@ -24,49 +19,6 @@ const Tooltip = styled('div')`
   padding: 0em;
   background-color: white;
 `
-
-// const Tooltip = forwardRef((props, ref ) => 
-//   styled('div')`
-//     ref: ${ ref }
-//     left: ${({ left }) => left}px;
-//     top: ${({ top }) => top}px;
-//     max-height: ${props['max-height']}px;
-//     max-width: ${props['max-width']}px;
-//     z-index: 9999;
-//     position: absolute;
-//     overflow: auto;
-//     padding: 0em;
-//     background-color: white;
-//   `
-// )
-
-Tooltip.propTypes = tooltipPropTypes
-
-// const TooltipDiv = forwardRef((props, ref) => 
-//   <div
-//     ref={ ref }
-//     style= {{
-//       left: `${({ left }) => left}px`,
-//       top: `${({ top }) => top}px`,
-//       maHeight: `${props['max-height']}px`,
-//       maxWidth: `${props['max-width']}px`,
-//       zIndex: 9999,
-//       position: 'absolute',
-//       overflow: 'auto',
-//       padding: '0em',
-//       backgroundColor: 'white'
-//     }}
-//   >
-//   </div>
-// )  
-
-// const Tooltip = forwardRef((props, ref) =>
-//   <TooltipDiv
-//     ref={ ref }
-//     props={props}
-//   >
-//   </TooltipDiv>
-// )  
 
 const propTypes = {
   x: PropTypes.number.isRequired,
