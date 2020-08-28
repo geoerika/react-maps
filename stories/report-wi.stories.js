@@ -4,7 +4,7 @@ import { storiesOf } from '@storybook/react'
 import axios from 'axios'
 
 import FO from '../src/actions'
-import ReportMap from '../src/components/report-wi-map'
+import { ReportMap } from '../src'
 
 
 const getAxios = () => axios.create({

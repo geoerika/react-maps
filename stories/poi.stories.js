@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import POIMap from '../src/components/poi-map'
+import { POIMap } from '../src'
 import POIsRadii from './data/pois-radii'
 import POIsRadiiTo from './data/pois-radiito'
 import POIsPolygonsVan from './data/pois-polygons-van'

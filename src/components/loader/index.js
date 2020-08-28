@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 
 import { useDropzone } from 'react-dropzone'
@@ -37,7 +37,7 @@ export const useLoader = ({ setData, mode = 'text', accept }) => {
   return useDropzone({ onDrop, accept, multiple: false })
 }
 
-const Container = styled('div')`
+const Container = styled('div', forwardRef)`
   width: 100%;
   display: flex;
   align-items: center;

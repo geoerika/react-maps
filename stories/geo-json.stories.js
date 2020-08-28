@@ -2,19 +2,19 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
 
-import GeoJsonMap from '../src/components/geojson-map'
+import { GeoJSONMap } from '../src'
 
 
 storiesOf('GeoJSON Map', module)
   .add('Basic rendering', () => (
-    <GeoJsonMap />
+    <GeoJSONMap />
   ))
   .add('Dynamic Fill', () => (
-    <GeoJsonMap defaultFillBasedOn='unique_visitors_mean' showLegend/>
+    <GeoJSONMap defaultFillBasedOn='unique_visitors_mean' showLegend/>
   ))
   .add('Dynamic Elevation', () => (
-    <GeoJsonMap defaultElevationBasedOn='unique_visitors_median' showLegend />
+    <GeoJSONMap defaultElevationBasedOn='unique_visitors_median' showLegend />
   ))
   .add('Dynamic Fill & Elevation', () => (
-    <GeoJsonMap showLegend defaultFillBasedOn='unique_visitors_mean' defaultElevationBasedOn='unique_visitors_median' />
+    <GeoJSONMap showLegend defaultFillBasedOn='unique_visitors_mean' defaultElevationBasedOn='unique_visitors_median' />
   ))

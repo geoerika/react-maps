@@ -2,7 +2,7 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
 
-import HexagonMap from '../src/components/hexagon-map'
+import { HexagonMap } from '../src'
 
 
 storiesOf('Hexagon Map', module)
