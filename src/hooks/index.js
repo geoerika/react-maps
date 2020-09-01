@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useReducer } from 'react'
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { color } from 'd3-color'
-import { calculateReportWIMetrics } from './utils'
 
 
 // TODO meaningful representation of elevation and radius based on given values
@@ -65,7 +64,7 @@ export const useMapData = ({
 }) => {
   // TODO use d3 to support multiple scales
   const [{ data, metrics }, metricDispatch] = useReducer((state, { type, payload }) => {
-    if (type === 'data') {      
+    if (type === 'data') {
       const DATA_FIELDS = staticDataKeys || Object.entries(dataPropertyAccessor(dataAccessor(payload)[0]))
         .filter(entry => keyTypes.includes(typeof entry[1]) && !excludeKeys.includes(entry[0]))
         .map(([k]) => k)
@@ -187,89 +186,6 @@ export const useRadius = ({
   return { finalGetRadius, setRadiusBasedOn }
 }
 
-// for manual changing of report duration
-export const useReport = ({ getReport, report_id, layer_id, map_id, currentDuration }) => {
-  const [report, reportDispatch] = useReducer((state, { type, payload }) => {
-    if (['init', 'single_period'].includes(type)) {
-      const { duration, durationKey, durations, data } = payload
-      const value = {
-        [durationKey]: {
-          data,
-          duration,
-          metrics: data.reduce(calculateReportWIMetrics, {})
-        },
-        currentDuration: durationKey,
-      }
-      // TODO is this necessary? 'durations' is sent with every request
-      if (type === 'init') {
-        value.durations = durations
-      }
-      return {
-        ...state,
-        ...value,
-      }
-    }
-    return {
-      ...state,
-      [type]: payload,
-    }
-  }, {}) // { currentDuration: durationKey, [durationKey]: { data, metric } }
-
-  useEffect(() => {
-    const getData = async () => {
-      const payload = await getReport({ report_id, layer_id, map_id, currentDuration })
-      reportDispatch({
-        type: currentDuration.length ? 'single_period' : 'init',
-        payload,
-      })
-    }
-    getData()
-  }, [getReport, report_id, layer_id, map_id, currentDuration])
-
-  return report
-}
-
-// For using all report durations
-export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {  
-  const [report, reportDispatch] = useReducer((state, { type, payload }) => {
-    if (type === 'full_report') {
-      const { duration, durations, fullReport } = payload
-      return {
-        duration,
-        durations, // TODO convert into object with keys
-        ...fullReport,
-      }
-    }
-    return {
-      ...state,
-      [type]: payload,
-    }
-  }, { duration: {}, durations: [] }) // { currentDuration: durationKey, [durationKey]: { data, metric } }
-
-  // TODO make .reduce more efficient
-  // TODO don't re-use POI meta data, only report metrics
-  useEffect(() => {
-    const getData = async () => {
-      const { data, duration, durations } = await getReport({ report_id, layer_id, map_id })
-      const durationData = await Promise.all(durations.map(currentDuration => getReport({ report_id, layer_id, map_id, currentDuration })))
-      const fullReport = {
-        [duration.key]: { data, metrics: data.reduce(calculateReportWIMetrics, {}) },
-        ...durationData.reduce((agg, ele) => ({
-          ...agg,
-          [ele.duration.key]: {
-            ...ele,
-            metrics: ele.data.reduce(calculateReportWIMetrics, {}) // { min, max }
-          },
-        }), {})
-      }
-      reportDispatch({ type: 'full_report', payload: { duration, durations, fullReport } })
-    }
-    getData()
-  }, [getReport, report_id, layer_id, map_id])
-
-  return report
-}
-
 export const useTimeline = (timestampInit, speedInterval) => {
   const [player, setPlayer] = useState(false)
   // NOTE: reducers should be "pure", so can't manage the player
@@ -350,7 +266,7 @@ export const useTimeline = (timestampInit, speedInterval) => {
       setPlayer(resetPlayer(timeline.speed + value))
     }
   }
-  
+
   const reset = () => timelineDispatch({ type: 'activeIndex', payload: 0 })
   const move = payload => () => timelineDispatch({ type: 'manual', payload })
 
@@ -367,3 +283,5 @@ export const useTimeline = (timestampInit, speedInterval) => {
     ...timeline,
   }
 }
+
+export { useReport, useFullReport } from './report'
