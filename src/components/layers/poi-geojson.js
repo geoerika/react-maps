@@ -8,14 +8,14 @@ const defaultProps = {
   stroked: true,
   visible: true,
   filled: true,
-  extruded: true,
+  extruded: false,
   lineWidthScale: 1,
   lineWidthMinPixels: 2,
   getFillColor: [225, 0, 0, 200],
   opacity: 0.5,
   getRadius: d => d.properties.radius,
   getLineWidth: 1,
-  getElevation: 30,
+  getElevation: 0,
   pointRadiusMaxPixels: 10000,
   pointRadiusScale: 1
 }

@@ -11,7 +11,7 @@
     "properties": {
       "id": 180798,
       "name": "try again",
-      "radius": 600,
+      "radius": 200,
       "poiType": 2,
       "chainId": null,
       "address": "1140 Bloor St W",

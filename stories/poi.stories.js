@@ -6,6 +6,8 @@ import POIsRadii from './data/pois-radii'
 import POIsRadiiTo from './data/pois-radiito'
 import POIsPolygonsVan from './data/pois-polygons-van'
 
+console.log('POIsRadiiTo: ', POIsRadiiTo[0])
+
 storiesOf('POI', module)
   .add('POI map - icon', () => (
     <POIMap poiData={ POIsRadii } layerArray={ ['icon'] }/>
@@ -19,12 +21,15 @@ storiesOf('POI', module)
   .add('POI maps - radii & icons', () => (
     <POIMap poiData={ POIsRadiiTo } layerArray={ ['geojson', 'icon'] }/>
   ))
+  .add('POI maps - radii one point', () => (
+    <POIMap poiData={ [POIsRadiiTo[0]] } layerArray={ ['geojson', 'icon'] }/>
+  ))
   .add('POI maps - polygons', () => (
     <POIMap poiData={ POIsPolygonsVan } layerArray={ ['polygon'] }/>
   ))
   .add('POI maps - point drawing layer', () => (
     <POIMap 
-      poiData={ POIsRadiiTo }
+      poiData={ [] }
       layerArray={ ['poi_draw'] }
       mode={ 'point-draw'}
       controller={{ doubleClickZoom: false }}

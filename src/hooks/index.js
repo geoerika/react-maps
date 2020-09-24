@@ -285,3 +285,15 @@ export const useTimeline = (timestampInit, speedInterval) => {
 }
 
 export { useReport, useFullReport } from './report'
+
+// used in poi-map.js
+export const useRefDimensions = (ref) => {
+  const [dimensions, setDimensions] = useState({ w: 0, h: 0 })
+  useEffect(() => {
+    if (ref.current) {
+      setDimensions(ref.current.deck)
+    }
+  }, [ref])
+
+  return dimensions
+}
