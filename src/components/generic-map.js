@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 
 import DeckGL, { FlyToInterpolator, MapView, WebMercatorViewport } from 'deck.gl'
@@ -71,9 +71,9 @@ const Map = ({
 }) => {
   const deckRef = useRef()
   const [viewState, setViewState] = useState(INIT_VIEW_STATE)
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     setViewState(o => ({
+      ...INIT_VIEW_STATE,
       ...o,
       ...viewStateOverride,
     }))
@@ -95,7 +95,7 @@ const Map = ({
       setTooltip({ x, y })
     }
   }, [tooltipProps.lngLat, viewState, height, width, deckRef])
-
+  
   return (
     <MapContainer>
       <DeckGL
@@ -111,10 +111,7 @@ const Map = ({
         }}
         onViewStateChange={o => {
           const { viewState } = o
-          setViewState({
-            ...INIT_VIEW_STATE,
-            ...viewState,
-          })
+          setViewState(viewState)
         }}
         initialViewState={viewState}
         views={ MAP_VIEW }

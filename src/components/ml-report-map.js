@@ -128,6 +128,7 @@ const MLReportMap = ({
     getFillColor,
     getLineWidth,
     getLineColor,
+    getTooltip,
     scatterLayerProps,
   ])
 

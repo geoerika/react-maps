@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { storiesOf } from '@storybook/react'
 import { MLReportMap } from '../src'
 import vwiJson from './data/locus-ml-vwi.json'
-import { object } from 'prop-types'
+
 
 storiesOf('Locus ML Report', module)
   .add('VWI - basic', () => (
