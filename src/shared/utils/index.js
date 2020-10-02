@@ -34,7 +34,7 @@ export const processLayers = (layerArray, props) => {
 export const getDataCoordinates = (data) => {
   let finalCoordinateArray
 
-  if (data[0].properties.polygon) {
+  if (data[0].properties?.polygon) {
     finalCoordinateArray = data.reduce((acc, point) =>
       [...acc, JSON.parse(point.properties.polygon_json).coordinates[0]], []).flat()
   } else {
@@ -43,9 +43,9 @@ export const getDataCoordinates = (data) => {
 
   const [minCoords, maxCoords] = finalCoordinateArray.reduce(
     ([[minLng, minLat], [maxLng, maxLat]], point) => {
-      const [lng, lat] = point.geometry
-        ? point.geometry.coordinates
-        : point
+      const [lng, lat] = point.geometry ? point.geometry.coordinates
+        : point.lon ? [point.lon, point.lat]
+          : point
       return [
         [Math.min(minLng, lng), Math.min(minLat, lat)],
         [Math.max(maxLng, lng), Math.max(maxLat, lat)]
