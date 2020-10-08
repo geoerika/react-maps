@@ -2,11 +2,10 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
 import { POIMap } from '../src'
+import { POIMapActivePoi } from '../src'
 import POIsRadii from './data/pois-radii'
 import POIsRadiiTo from './data/pois-radiito'
 import POIsPolygonsVan from './data/pois-polygons-van'
-
-console.log('POIsRadiiTo: ', POIsRadiiTo[0])
 
 storiesOf('POI', module)
   .add('POI map - icon', () => (
@@ -23,6 +22,9 @@ storiesOf('POI', module)
   ))
   .add('POI maps - radii one point', () => (
     <POIMap poiData={ [POIsRadiiTo[0]] } layerArray={ ['geojson', 'icon'] }/>
+  ))
+  .add('POI maps - active POI', () => (
+    <POIMapActivePoi poiData={ POIsRadiiTo }/>
   ))
   .add('POI maps - polygons', () => (
     <POIMap poiData={ POIsPolygonsVan } layerArray={ ['polygon'] }/>

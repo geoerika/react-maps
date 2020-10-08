@@ -26,9 +26,9 @@ const defaultProps = {
  * @returns { instanceOf GeoJsonLayer } 
  */
 const POIGeoJson = (props) =>
-  new GeoJsonLayer({ 
+  new GeoJsonLayer({
+    ...defaultProps,
     ...props,
-    ...defaultProps
   })
 
 export default POIGeoJson

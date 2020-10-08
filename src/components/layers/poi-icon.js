@@ -15,6 +15,7 @@ const defaultProps = {
   getPosition: d => d.geometry.coordinates,
   getSize: 5,
   getColor: [255, 0, 0],
+  pickable: true,
 }
 
 /**
@@ -22,10 +23,10 @@ const defaultProps = {
  * @param { object } props - props object for passing data and other attributes to POIIcon
  * @returns { instanceOf IconLayer}
  */
-const POIIcon = (props) => 
-  new IconLayer({
+const POIIcon = (props) => {
+  return new IconLayer({
+    ...defaultProps,
     ...props,
-    ...defaultProps
-  })
+  })}
 
 export default POIIcon

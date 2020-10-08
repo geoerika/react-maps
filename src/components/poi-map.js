@@ -52,6 +52,8 @@ const INIT_VIEW_DRAW_STATE = {
 
 const propTypes = {
   poiData: PropTypes.array,
+  activePoi: PropTypes.object,
+  setActivePoi: PropTypes.func,
   layerArray: PropTypes.array,
   onClickHandle: PropTypes.func,
   mode: PropTypes.string,
@@ -61,6 +63,8 @@ const propTypes = {
 
 const defaultProps = {
   poiData: [],
+  activePoi: {},
+  setActivePoi: () => {},
   layerArray: [],
   onClickHandle: () => {},
   mode: '',
@@ -71,6 +75,8 @@ const defaultProps = {
 // DeckGL React component
 const POIMap = ({
   poiData,
+  activePoi,
+  setActivePoi,
   layerArray,
   onClickHandle,
   mode,
@@ -79,6 +85,7 @@ const POIMap = ({
 }) => {
   const [data, setData] = useState([])
   const [onClickPayload, setOnClickPayload] = useState({})
+  const [hoverInfo, setHoverInfo] = useState(null)
   const deckRef = useRef()
   const { width, height } = useRefDimensions(deckRef)
 
@@ -89,17 +96,43 @@ const POIMap = ({
   const onClick = useCallback(
     (deckEvent) => {
       const { object, layer, coordinate } = deckEvent
-      const [longitude, latitude] = coordinate
+      // if clicked object is a cluster, zoom in
       if (object.cluster) {
+        const [longitude, latitude] = coordinate
         setOnClickPayload({ longitude, latitude, zoom: layer.state.z + 2 })
-      } else onClickHandle(deckEvent, setOnClickPayload)
-    }, [onClickHandle]
+      // if clicked object is a point on the map, set it as activePoi and zoom in
+      } else if (object.type) {
+        const [longitude, latitude] = object.geometry.coordinates
+        setActivePoi(object)
+        setOnClickPayload({ longitude, latitude, zoom: 15 })
+      } else {
+        // custom onClick
+        onClickHandle(deckEvent, setOnClickPayload)
+      }
+    }, [setActivePoi, onClickHandle]
   )
 
-  // set layers for deck map
+  /**
+   * onHover - React hook that handles onHover event
+   * @param { object } params - object received during onHover event
+   */
+  const onHover = useCallback((info) => {
+    const { object } = info
+    if (object?.properties?.id || object?.cluster) {
+      setHoverInfo({ isHovering: true })
+      if (!object?.cluster) {
+        setHoverInfo({ ...info, isHovering: true })
+      }
+    } else  {
+      setHoverInfo(null)
+    }
+  }, [])
+
+  // set layers for deck.gl map
   const layers = useMemo(() =>
-    processLayers(layerArray, { ...mapProps, data, setData, onClick, mode})
-  , [layerArray, mapProps, data, setData, onClick, mode])
+    processLayers(layerArray, { ...mapProps, data, setData, onClick, onHover, mode})
+  , [layerArray, mapProps, data, setData, onClick, onHover, mode])
+
 
   // state viewState
   const [{ viewState }, viewStateDispatch] = useReducer((state, { type, payload }) => {
@@ -131,16 +164,18 @@ const POIMap = ({
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
-    // Need to set data here so the map renders with current poiData
-    setData(poiData)
-  }, [poiData])
+    if (activePoi.properties) {
+      setData([activePoi])
+    } else if (poiData.length)
+      setData(poiData)
+  }, [poiData, activePoi])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
     viewStateDispatch({ type: 'onClick', payload: onClickPayload })
   }, [onClickPayload])
 
-  const getCurrentCursor = getCursor({ layers, type: 'draw' })
+  const getCurrentCursor = getCursor({ layers, hoverInfo })
 
   return (
     <MapWrapper>
@@ -149,6 +184,7 @@ const POIMap = ({
         initialViewState={ viewState }
         layers={ layers }
         controller={ controller }
+        onViewStateChange={ () => setHoverInfo(null) }
         getCursor={ getCurrentCursor }
       > 
         <StaticMap 

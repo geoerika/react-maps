@@ -56,16 +56,16 @@ export const getDataCoordinates = (data) => {
 }
 
 /**
-* getCursor - sets cursor for drawing on a nebula drawing layer
-* @param { array } layers - current array of layers used in map
-* @return { function } - cursor function for nebula drawing layer
-*/
-export const getCursor = ({ layers, type }) => {
-  if (layers.length && type === 'draw') {
+ * getCursor - sets cursor for different layers and hover state
+ * @param { array } layers - current array of layers used in map
+ * @return { function } - cursor function
+ */
+export const getCursor = ({ layers, hoverInfo }) => {
+  if (layers.length) {
     const drawLayer = layers.find(layer => layer.id === 'draw layer')
     if (drawLayer) {
       return drawLayer.getCursor.bind(drawLayer)
     }
   }
-  return ({ isGrabbing }) => isGrabbing ? 'grabbing' : 'grab'
+  return ({isDragging}) => (isDragging ? 'grabbing' : (hoverInfo?.isHovering ? 'pointer' : 'grab'))
 }

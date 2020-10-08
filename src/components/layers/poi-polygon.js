@@ -17,8 +17,8 @@ const defaultProps = {
 
 const POIPolygon = (props) => 
   new PolygonLayer({
+    ...defaultProps,
     ...props,
-    ...defaultProps
   });
 
 export default POIPolygon
