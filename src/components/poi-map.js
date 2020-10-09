@@ -15,6 +15,7 @@ import { StaticMap } from 'react-map-gl'
 import { styled, setup } from 'goober'
 
 import { processLayers, setView, getCursor } from '../shared/utils'
+import POITooltip from './poi-tooltip'
 import { useRefDimensions } from '../hooks'
 
 
@@ -59,6 +60,7 @@ const propTypes = {
   mode: PropTypes.string,
   controller: PropTypes.object,
   mapProps: PropTypes.object,
+  tooltipKeys: PropTypes.array,
 }
 
 const defaultProps = {
@@ -70,6 +72,7 @@ const defaultProps = {
   mode: '',
   controller: { controller: true },
   mapProps: {},
+  tooltipKeys: ['name', 'id', 'lat', 'lon'],
 }
 
 // DeckGL React component
@@ -81,6 +84,7 @@ const POIMap = ({
   onClickHandle,
   mode,
   controller,
+  tooltipKeys,
   ...mapProps
 }) => {
   const [data, setData] = useState([])
@@ -114,7 +118,7 @@ const POIMap = ({
 
   /**
    * onHover - React hook that handles onHover event
-   * @param { object } params - object received during onHover event
+   * @param { object } info - object received during onHover event
    */
   const onHover = useCallback((info) => {
     const { object } = info
@@ -179,6 +183,12 @@ const POIMap = ({
 
   return (
     <MapWrapper>
+      { hoverInfo?.object && (
+        <POITooltip
+          info={ hoverInfo }
+          tooltipKeys={ tooltipKeys }
+        />
+      )}
       <DeckGL
         ref={ deckRef }
         initialViewState={ viewState }
@@ -186,7 +196,7 @@ const POIMap = ({
         controller={ controller }
         onViewStateChange={ () => setHoverInfo(null) }
         getCursor={ getCurrentCursor }
-      > 
+      >
         <StaticMap 
           mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN }
         />

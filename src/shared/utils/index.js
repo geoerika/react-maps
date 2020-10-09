@@ -6,7 +6,7 @@ import * as eqMapLayers from '../../components/layers/index'
  *           data coordinates and deck size
  * @return { latitude, longitude, zoom } - lat, long, and zoom for new viewState
  */
-export const setView = ({data, width, height}) => {
+export const setView = ({ data, width, height }) => {
   const formattedGeoData = getDataCoordinates(data)
   const viewPort = new WebMercatorViewport({ width, height })
     .fitBounds(formattedGeoData, { padding: 25 })
