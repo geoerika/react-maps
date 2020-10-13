@@ -12,8 +12,8 @@ import iconAtlas from '../icons/cluster.png'
 
 /**
  * getIconName - sets icon name for clusters
- * @param { array } d - poi data point
- * @returns { string } - poi or cluster icon name
+ * @param { array } d - POI data point
+ * @returns { string } - POI or cluster icon name
  */
 const getIconName = (d) => {
   let size = d.properties.point_count
@@ -25,8 +25,8 @@ const getIconName = (d) => {
 
 /**
  * getIconSize - sets the icon size for clusters
- * @param { array } d - poi data point
- * @returns { string } - poi or cluster icon size
+ * @param { array } d - POI data point
+ * @returns { string } - POI or cluster icon size
  */
 const getIconSize = () => d => {
   // if d.properties.cluster exists it is a cluster, get right size for icon
@@ -113,6 +113,7 @@ class IconClusterLayer extends CompositeLayer {
         getPosition,
         getIcon: d => getIconName(d),
         getSize: getIconSize(),
+        pickable: true,
         ...props
       })
     )

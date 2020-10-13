@@ -21,7 +21,7 @@ const defaultProps = {
 }
 
 /**
- * POIGeoJson - sets the poi icon layer
+ * POIGeoJson - sets the POI icon layer
  * @param { object } props - props for GeoJsonLayer
  * @returns { instanceOf GeoJsonLayer } 
  */

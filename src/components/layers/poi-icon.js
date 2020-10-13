@@ -1,13 +1,13 @@
 // https://deck.gl/docs/api-reference/layers/icon-layer
 
 import { IconLayer } from 'deck.gl'
-import poiIcon from '../icons/poi-location.png'
+import POIIconMarker from '../icons/poi-location.png'
 
 // icon mapping for poi icon layer
 const POI_ICON_MAPPING = { marker: { x: 0, y: 0, width: 1024, height: 1024 }}
 
 const defaultProps = {
-  iconAtlas: poiIcon,
+  iconAtlas: POIIconMarker,
   iconMapping: POI_ICON_MAPPING,
   billboard: true,
   getIcon: () => 'marker',
@@ -19,7 +19,7 @@ const defaultProps = {
 }
 
 /**
- * setPOIIcon - sets the poi icon layer
+ * setPOIIcon - sets the POI icon layer
  * @param { object } props - props object for passing data and other attributes to POIIcon
  * @returns { instanceOf IconLayer}
  */

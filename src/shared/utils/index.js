@@ -35,17 +35,17 @@ export const getDataCoordinates = (data) => {
   let finalCoordinateArray
 
   if (data[0].properties.polygon) {
-    finalCoordinateArray = data.reduce((acc, poi) =>
-      [...acc, JSON.parse(poi.properties.polygon_json).coordinates[0]], []).flat()
+    finalCoordinateArray = data.reduce((acc, point) =>
+      [...acc, JSON.parse(point.properties.polygon_json).coordinates[0]], []).flat()
   } else {
     finalCoordinateArray = data
   }
 
   const [minCoords, maxCoords] = finalCoordinateArray.reduce(
-    ([[minLng, minLat], [maxLng, maxLat]], poi) => {
-      const [lng, lat] = poi.geometry
-        ? poi.geometry.coordinates
-        : poi
+    ([[minLng, minLat], [maxLng, maxLat]], point) => {
+      const [lng, lat] = point.geometry
+        ? point.geometry.coordinates
+        : point
       return [
         [Math.min(minLng, lng), Math.min(minLat, lat)],
         [Math.max(maxLng, lng), Math.max(maxLat, lat)]
