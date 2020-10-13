@@ -16,6 +16,12 @@ import { styled, setup } from 'goober'
 
 import { processLayers, setView, getCursor } from '../shared/utils'
 import POITooltip from './poi-tooltip'
+import {
+  typographyPropTypes,
+  typographyDefaultProps,
+  tooltipProps,
+  tooltipDefaultProps
+} from '../shared/map-props'
 import { useRefDimensions } from '../hooks'
 
 
@@ -60,7 +66,6 @@ const propTypes = {
   mode: PropTypes.string,
   controller: PropTypes.object,
   mapProps: PropTypes.object,
-  tooltipKeys: PropTypes.array,
 }
 
 const defaultProps = {
@@ -72,7 +77,6 @@ const defaultProps = {
   mode: '',
   controller: { controller: true },
   mapProps: {},
-  tooltipKeys: ['name', 'id', 'lat', 'lon'],
 }
 
 // DeckGL React component
@@ -85,6 +89,7 @@ const POIMap = ({
   mode,
   controller,
   tooltipKeys,
+  typography,
   ...mapProps
 }) => {
   const [data, setData] = useState([])
@@ -186,6 +191,7 @@ const POIMap = ({
       { hoverInfo?.object && (
         <POITooltip
           info={ hoverInfo }
+          typography={ typography }
           tooltipKeys={ tooltipKeys }
         />
       )}
@@ -205,6 +211,14 @@ const POIMap = ({
   )
 }
 
-POIMap.propTypes = propTypes
-POIMap.defaultProps = defaultProps
+POIMap.propTypes = {
+  ...typographyPropTypes,
+  ...tooltipProps,
+  ...propTypes
+}
+POIMap.defaultProps = {
+  ...typographyDefaultProps,
+  ...tooltipDefaultProps,
+  ...defaultProps
+}
 export default POIMap
