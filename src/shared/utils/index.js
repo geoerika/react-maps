@@ -4,14 +4,23 @@ import * as eqMapLayers from '../../components/layers/index'
 /**
  * setView - handles calculations of viewState lat, long, and zoom, based on
  *           data coordinates and deck size
- * @return { latitude, longitude, zoom } - lat, long, and zoom for new viewState
+ * @param { object } param
+ * @param { array } param.data - data to display on the map
+ * @param { number } param.width - deck container width
+ * @param { number } param.height - deck container height
+ * @return { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
  */
 export const setView = ({ data, width, height }) => {
   const formattedGeoData = getDataCoordinates(data)
   const viewPort = new WebMercatorViewport({ width, height })
     .fitBounds(formattedGeoData, { padding: 25 })
-  const { latitude, longitude, zoom } = viewPort
-  return { latitude, longitude, zoom }
+  let { longitude, latitude, zoom } = viewPort
+  // TODO: handle zoom better, search to see if can be set by radius
+  if (data.length === 1 && data[0].geometry.type === 'Point') {
+    // zoom set so poi-manage map can fit a radius of 200m
+    zoom = 15
+  }
+  return { longitude, latitude, zoom }
 }
 
 /**
@@ -21,7 +30,7 @@ export const setView = ({ data, width, height }) => {
  * @returns { instanceOf } Deck.gl layer
  */
 export const processLayers = (layerArray, props) => {
-  return layerArray.map(layer => layer === 'cluster' 
+  return layerArray.map(layer => layer === 'POICluster' 
     ? new eqMapLayers[layer](props)
     : eqMapLayers[layer](props))
 }
@@ -29,7 +38,7 @@ export const processLayers = (layerArray, props) => {
 /**
  * getDataCoordinates - gets the coordinates that enclose all location data, including polygons
  * @param { array } data - location data array
- * @returns { array array } coordinates that define the boundary area where the data is located
+ * @returns { array } coordinates that define the boundary area where the data is located
  */
 export const getDataCoordinates = (data) => {
   let finalCoordinateArray
@@ -57,7 +66,9 @@ export const getDataCoordinates = (data) => {
 
 /**
  * getCursor - sets cursor for different layers and hover state
- * @param { array } layers - current array of layers used in map
+ * @param { object } param
+ * @param { array } param.layers - current array of layers used in map
+ * @param { object } param.hoverInfo - object supplied by onHover event
  * @return { function } - cursor function
  */
 export const getCursor = ({ layers, hoverInfo }) => {

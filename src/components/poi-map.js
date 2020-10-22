@@ -43,7 +43,6 @@ const INIT_VIEW_STATE = {
   longitude: -100,
   zoom: 2.5,
   minZoom: 0,
-  maxZoom: 15,
 }
 
 // initial map view for drawing mode
@@ -57,10 +56,16 @@ const INIT_VIEW_DRAW_STATE = {
   zoom: 4,
 }
 
+const INIT_VIEW = {
+  display: INIT_VIEW_STATE,
+  draw: INIT_VIEW_DRAW_STATE,
+}
+
 const propTypes = {
   POIData: PropTypes.array,
   activePOI: PropTypes.object,
   setActivePOI: PropTypes.func,
+  setDraftActivePOI: PropTypes.func,
   layerArray: PropTypes.array,
   onClickHandle: PropTypes.func,
   mode: PropTypes.string,
@@ -72,6 +77,7 @@ const defaultProps = {
   POIData: [],
   activePOI: {},
   setActivePOI: () => {},
+  setDraftActivePOI: () => {},
   layerArray: [],
   onClickHandle: () => {},
   mode: '',
@@ -84,6 +90,7 @@ const POIMap = ({
   POIData,
   activePOI,
   setActivePOI,
+  setDraftActivePOI,
   layerArray,
   onClickHandle,
   mode,
@@ -93,10 +100,31 @@ const POIMap = ({
   ...mapProps
 }) => {
   const [data, setData] = useState([])
+  const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([]);
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const deckRef = useRef()
   const { width, height } = useRefDimensions(deckRef)
+
+  // define mapMode to separate functionality
+  const mapMode = useMemo(() => {
+    if (mode.includes('point-draw') || mode.includes('polygon-draw')) {
+      return 'draw'
+    }
+    return 'display'
+  }, [mode])
+
+  // set viewParam for different map modes
+  // this means that we don't reset viewPort during drawing
+  const viewParam = useMemo(() => {
+    return {
+      display: {
+        type: 'data view',
+        payload: { data, height, width }
+      },
+      draw: {},
+    }  
+  }, [data, height, width])
 
   /**
    * onClick - React hook that handles various in-house and custom onClick methods
@@ -111,14 +139,20 @@ const POIMap = ({
         setOnClickPayload({ longitude, latitude, zoom: layer.state.z + 2 })
       // if clicked object is a point on the map, set it as activePOI and zoom in
       } else if (object.type) {
-        const [longitude, latitude] = object.geometry.coordinates
+        const data = [object]
+        const [longitude, latitude, zoom] = object.geometry.type === 'Point' ?
+          // TODO: set zoom depending on POI radius
+          // zoom 15 for a POI to fit radius
+          [...object.geometry.coordinates, 15] :
+          // else we can zoom so we fit in the polygon
+          [...Object.values(setView({ data, height, width }))]
         setActivePOI(object)
-        setOnClickPayload({ longitude, latitude, zoom: 15 })
+        setOnClickPayload({ longitude, latitude, zoom: zoom })
       } else {
         // custom onClick
         onClickHandle(deckEvent, setOnClickPayload)
       }
-    }, [setActivePOI, onClickHandle]
+    }, [setActivePOI, onClickHandle, height, width]
   )
 
   /**
@@ -137,11 +171,20 @@ const POIMap = ({
     }
   }, [])
 
+  /**
+   * updatePOI - React hook that updates data on the map and activePOI with the edited / drawn features
+   * @param { array } editedPOIList - updated / drawn feature list
+   */
+  const updatePOI = useCallback((editedPOIList) => {
+    setData(editedPOIList)
+    // we keep activePOI updated with edited features so we can see changes 'live' on map
+    setDraftActivePOI(editedPOIList[0])
+  }, [setDraftActivePOI])
+
   // set layers for deck.gl map
   const layers = useMemo(() =>
-    processLayers(layerArray, { ...mapProps, data, setData, onClick, onHover, mode})
-  , [layerArray, mapProps, data, setData, onClick, onHover, mode])
-
+    processLayers(layerArray, { ...mapProps, data, updatePOI, onClick, onHover, mode, selectedFeatureIndexes})
+  , [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, selectedFeatureIndexes])
 
   // state viewState
   const [{ viewState }, viewStateDispatch] = useReducer((state, { type, payload }) => {
@@ -162,28 +205,37 @@ const POIMap = ({
       }
     }
     return state
-  }, { viewState: layerArray.includes('POI_draw') ? INIT_VIEW_DRAW_STATE : INIT_VIEW_STATE})
+  }, { viewState: INIT_VIEW[mapMode] }
+  )
   
   // React Hook to handle setting up viewState based on POIs coordinates and deck map container size
   useLayoutEffect(() => {
-    if (data.length && width && height && !layerArray.includes('POI_draw')) {
-      viewStateDispatch({ type: 'data view', payload: { data, height, width } })
+    if (data.length && width && height) {
+      viewStateDispatch(viewParam[mapMode])
     }
-  }, [data, width, height, layerArray])
+  }, [data, width, height, viewParam, mapMode])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
-    if (activePOI.properties) {
+    if (activePOI?.properties) {
       setData([activePOI])
-    } else if (POIData.length)
-      setData(POIData)
+    } else if (POIData.length) {
+      if (POIData[0]?.properties?.polygon_json) {
+        setData(POIData.map((polygon) =>
+        // TODO: settle data format in poi-manage to be GeoJSON
+        // format polygon POIs into GeoJSON
+        { return { ...polygon, geometry: JSON.parse(polygon.properties.polygon_json) }}))
+      } else {
+        setData(POIData)
+      }
+    }   
   }, [POIData, activePOI])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
     viewStateDispatch({ type: 'onClick', payload: onClickPayload })
   }, [onClickPayload])
-
+  
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
   return (
@@ -200,6 +252,16 @@ const POIMap = ({
         initialViewState={ viewState }
         layers={ layers }
         controller={ controller }
+        /**
+         * onClick for edit mode to select feature for editing
+         * check that selected feature is not a 'guides' sublayer
+         * https://github.com/uber/nebula.gl/blob/master/examples/editor/example.js
+         * https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
+         */
+        onClick={ (info) => (mode.includes('poi-edit') && info?.object && !info.isGuide) ?
+          setSelectedFeatureIndexes([info.index]) :
+          setSelectedFeatureIndexes([])
+        }
         onViewStateChange={ () => setHoverInfo(null) }
         getCursor={ getCurrentCursor }
       >

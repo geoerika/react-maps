@@ -12,7 +12,7 @@ import iconAtlas from '../icons/cluster.png'
 
 /**
  * getIconName - sets icon name for clusters
- * @param { array } d - POI data point
+ * @param { object } d - POI data point
  * @returns { string } - POI or cluster icon name
  */
 const getIconName = (d) => {
@@ -25,8 +25,8 @@ const getIconName = (d) => {
 
 /**
  * getIconSize - sets the icon size for clusters
- * @param { array } d - POI data point
- * @returns { string } - POI or cluster icon size
+ * @param { object } d - POI data point
+ * @returns { number } - POI or cluster icon size
  */
 const getIconSize = () => d => {
   // if d.properties.cluster exists it is a cluster, get right size for icon

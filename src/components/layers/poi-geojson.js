@@ -2,6 +2,7 @@
 
 import { GeoJsonLayer } from 'deck.gl'
 
+
 const defaultProps = {
   id: 'geojson-layer',
   pickable: true,
@@ -17,7 +18,16 @@ const defaultProps = {
   getLineWidth: 1,
   getElevation: 0,
   pointRadiusMaxPixels: 10000,
-  pointRadiusScale: 1
+  pointRadiusScale: 1,
+  transitions: {
+    getPositions: 600,
+    getRadius: {
+      type: 'spring',
+      stiffness: 0.01,
+      damping: 0.15,
+      enter: () => [0] // grow from size 0
+    }
+  }
 }
 
 /**
