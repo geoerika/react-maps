@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 
 import DeckGL, { FlyToInterpolator, MapView, WebMercatorViewport } from 'deck.gl'
@@ -23,7 +23,7 @@ const MAP_VIEW = new MapView({ repeat: true });
 const INIT_VIEW_STATE = {
   pitch: 0,
   bearing: 0,
-  transitionDuration: 300,
+  transitionDuration: 1000,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 52,
   longitude: -100,
@@ -32,6 +32,9 @@ const INIT_VIEW_STATE = {
 
 const propTypes = {
   layers: PropTypes.array,
+  setDimensionsCb: PropTypes.func,
+  getTooltip: PropTypes.func,
+  viewStateOverride: PropTypes.object,
   showLegend: PropTypes.bool,
   position: PropTypes.string,
   legends: PropTypes.array,
@@ -40,6 +43,9 @@ const propTypes = {
 }
 const defaultProps = {
   layers: [],
+  setDimensionsCb: () => {},
+  getTooltip: () => {},
+  viewStateOverride: {},
   showLegend: false,
   position: 'top-left',
   legends: [],
@@ -53,6 +59,9 @@ const getPositionFromLngLat = ({ lngLat, ...viewState }) => new WebMercatorViewp
 // DeckGL react component
 const Map = ({
   layers,
+  setDimensionsCb,
+  getTooltip,
+  viewStateOverride,
   showLegend,
   position,
   legends,
@@ -61,7 +70,15 @@ const Map = ({
   ...tooltipProps
 }) => {
   const deckRef = useRef()
-  const [viewState, setViewState] = useState({})
+  const [viewState, setViewState] = useState(INIT_VIEW_STATE)
+  useLayoutEffect(() => {
+    setViewState(o => ({
+      ...INIT_VIEW_STATE,
+      ...o,
+      ...viewStateOverride,
+    }))
+  }, [viewStateOverride])
+
   // TODO: unify management of viewState and expose as callback
   const [{ height, width }, setDimensions] = useState({ height: 0, width: 0 })
   const [{ x, y }, setTooltip] = useState({ x: 0, y: 0 })
@@ -78,14 +95,14 @@ const Map = ({
       setTooltip({ x, y })
     }
   }, [tooltipProps.lngLat, viewState, height, width, deckRef])
-
-
+  
   return (
     <MapContainer>
       <DeckGL
         ref={deckRef}
         onLoad={() => {
           const { height, width } = deckRef.current.deck
+          setDimensionsCb({ height, width })
           setDimensions({ height, width })
         }}
         onResize={({ height, width }) => {
@@ -96,10 +113,11 @@ const Map = ({
           const { viewState } = o
           setViewState(viewState)
         }}
-        initialViewState={ INIT_VIEW_STATE }
+        initialViewState={viewState}
         views={ MAP_VIEW }
         layers={layers}
-        controller={ true }
+        controller={true}
+        getTooltip={getTooltip}
         // NOTE: same structure as layer click
         // onHover={d => console.log('----> map hover', d)}
         // onClick={d => console.log('----> map click', d)}
