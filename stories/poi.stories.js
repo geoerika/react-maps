@@ -7,58 +7,58 @@ import POIsRadiiTo from './data/pois-radiito'
 import POIsPolygonsVan from './data/pois-polygons-van'
 
 storiesOf('POI Map', module)
-  .add('Point POIs - icon layer', () => (
-    <POIMap POIData={ POIsRadii } layerArray={ ['icon'] }/>
+  .add('Point POIs - icons with POIIcon layer', () => (
+    <POIMap POIData={ POIsRadii } layerArray={ ['POIIcon'] }/>
   ))
-  .add('Point POIs - cluster layer', () => (
-    <POIMap POIData={ POIsRadii } layerArray={ ['cluster'] }/>
+  .add('Point POIs - clusters with POICluster layer', () => (
+    <POIMap POIData={ POIsRadii } layerArray={ ['POICluster'] }/>
   ))
-  .add('Point POIs - radii with geojson layer', () => (
-    <POIMap POIData={ POIsRadiiTo } layerArray={ ['geojson'] }/>
+  .add('Point POIs - radii with POIGeoJson layer', () => (
+    <POIMap POIData={ POIsRadiiTo } layerArray={ ['POIGeoJson'] }/>
   ))
   .add('Point POIs - radii & icons', () => (
-    <POIMap POIData={ POIsRadiiTo } layerArray={ ['geojson', 'icon'] }/>
+    <POIMap POIData={ POIsRadiiTo } layerArray={ ['POIGeoJson', 'POIIcon'] }/>
   ))
   .add('Point POIs - one POI to check zoom', () => (
-    <POIMap POIData={ [POIsRadiiTo[0]] } layerArray={ ['geojson', 'icon'] }/>
+    <POIMap POIData={ [POIsRadiiTo[0]] } layerArray={ ['POIGeoJson', 'POIIcon'] }/>
   ))
-  .add('Point POIs - POIManage: active POI and radius change', () => (
+  .add('Point POIs - POIManage: activePOI and radius change', () => (
     <POIMapActivePOI POIData={ POIsRadiiTo }/>
   ))
-  .add('Polygon POIs - poi-polygon layer', () => (
-    <POIMap POIData={ POIsPolygonsVan } layerArray={ ['polygon'] }/>
+  .add('Polygon POIs - POIPolygon layer', () => (
+    <POIMap POIData={ POIsPolygonsVan } layerArray={ ['POIPolygon'] }/>
   ))
-  .add('Polygon POIs - geojson layer', () => (
-    <POIMap POIData={ POIsPolygonsVan } layerArray={ ['geojson'] }/>
+  .add('Polygon POIs - POIGeoJson layer', () => (
+    <POIMap POIData={ POIsPolygonsVan } layerArray={ ['POIGeoJson'] }/>
   ))
-  .add('Edit Point POIs - geojson layer', () => (
+  .add('Edit Point POIs - POIEditDraw layer', () => (
     <POIMap
       POIData={ [POIsRadiiTo[0]] }
-      layerArray={ ['POI_edit_draw'] }
-      mode={ 'POI-edit' }
+      layerArray={ ['POIEditDraw'] }
+      mode={ 'poi-edit' }
       controller={{ doubleClickZoom: false }}
     />
   ))
-  .add('Edit Polygon POIs - geojson layer', () => (
+  .add('Edit Polygon POIs - POIEditDraw layer', () => (
     <POIMap
       POIData={ [POIsPolygonsVan[0]] }
-      layerArray={ ['POI_edit_draw'] }
-      mode={ 'POI-edit' }
+      layerArray={ ['POIEditDraw'] }
+      mode={ 'poi-edit' }
       controller={{ doubleClickZoom: false }}
     />
   ))
-  .add('Draw Point POIs - POI_edit_draw', () => (
+  .add('Draw Point POIs - POIEditDraw layer', () => (
     <POIMap 
       POIData={ [] }
-      layerArray={ ['POI_edit_draw'] }
+      layerArray={ ['POIEditDraw'] }
       mode={ 'point-draw'}
       controller={{ doubleClickZoom: false }}
     />
   ))
-  .add('Draw Polygon POIs - POI_edit_draw', () => (
+  .add('Draw Polygon POIs - POIEditDraw layer', () => (
     <POIMap 
       POIData={ [] }
-      layerArray={ ['POI_edit_draw'] }
+      layerArray={ ['POIEditDraw'] }
       mode={ 'polygon-draw'}
       controller={{ doubleClickZoom: false }}
     />

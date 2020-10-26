@@ -37,7 +37,7 @@ const POIMapActivePOI = ({
           POIData={ POIData }
           activePOI={ activePOI }
           setActivePOI={ setActivePOI }
-          layerArray={ ['geojson', 'icon'] }
+          layerArray={ ['POIGeoJson', 'POIIcon'] }
         />
       } 
     </div>
