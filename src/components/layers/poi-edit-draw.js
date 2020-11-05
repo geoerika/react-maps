@@ -1,9 +1,15 @@
 // ref: https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
-import { EditableGeoJsonLayer, DrawPointMode, DrawPolygonMode, ModifyMode } from 'nebula.gl'
+import {
+  EditableGeoJsonLayer,
+  DrawPointMode,
+  DrawPolygonMode,
+  ModifyMode,
+  TransformMode,
+} from 'nebula.gl'
 
 
 const defaultProps = {
-  id: 'draw layer',
+  id: 'edit-draw layer',
   pickingRadius: 12,
   _subLayerProps: {
     geojson: {
@@ -14,23 +20,26 @@ const defaultProps = {
   },
 }
 
-const DRAW_MODE = {
+const EDIT_DRAW_MODE = {
   'point-draw': DrawPointMode,
   'polygon-draw': DrawPolygonMode,
   'poi-edit': ModifyMode,
+  'poi-point-radius-edit': TransformMode,
 }
 
 // POIEditDraw - sets the POI editing / drawing layer
-const POIEditDraw = ({ data, updatePOI, mode, selectedFeatureIndexes }) =>
-  new EditableGeoJsonLayer({
+const POIEditDraw = ({ data, updatePOI, mode, selectedFeatureIndexes }) => {
+  const prevCoordinates = data[0]?.prevCoordinates
+  return new EditableGeoJsonLayer({
     ...defaultProps,
     data: {
       type: 'FeatureCollection',
-      features: data
+      features: data,
     },
-    mode: DRAW_MODE[mode],
+    mode: EDIT_DRAW_MODE[mode],
     selectedFeatureIndexes,
-    onEdit: ({ updatedData }) => updatePOI(updatedData.features),
+    onEdit: ({ updatedData, editType }) => updatePOI(updatedData.features, editType, prevCoordinates),
   })
+}
 
 export default POIEditDraw
