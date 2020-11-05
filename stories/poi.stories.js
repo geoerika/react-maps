@@ -39,6 +39,14 @@ storiesOf('POI Map', module)
       controller={{ doubleClickZoom: false }}
     />
   ))
+  .add('Edit Radius POIs - POIEditDraw layer', () => (
+    <POIMap
+      activePOI={ POIsRadiiTo[0] }
+      layerArray={ ['POIEditDraw'] }
+      mode={ 'poi-point-radius-edit' }
+      controller={{ doubleClickZoom: false }}
+    />
+  ))
   .add('Edit Polygon POIs - POIEditDraw layer', () => (
     <POIMap
       POIData={ [POIsPolygonsVan[0]] }

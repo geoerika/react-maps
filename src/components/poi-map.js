@@ -14,7 +14,13 @@ import { FlyToInterpolator } from 'deck.gl'
 import { StaticMap } from 'react-map-gl'
 import { styled, setup } from 'goober'
 
-import { processLayers, setView, getCursor } from '../shared/utils'
+import {
+  processLayers,
+  setView,
+  getCursor,
+  createCircleFromPointRadius,
+  getCircleRadiusCentroid,
+} from '../shared/utils'
 import POITooltip from './poi-tooltip'
 import {
   typographyPropTypes,
@@ -58,6 +64,7 @@ const INIT_VIEW_DRAW_STATE = {
 
 const INIT_VIEW = {
   display: INIT_VIEW_STATE,
+  edit: INIT_VIEW_STATE,
   draw: INIT_VIEW_DRAW_STATE,
 }
 
@@ -100,19 +107,54 @@ const POIMap = ({
   ...mapProps
 }) => {
   const [data, setData] = useState([])
-  const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([]);
+  const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const deckRef = useRef()
   const { width, height } = useRefDimensions(deckRef)
+
+  // React Hook to handle setting up data for DeckGL layers
+  useEffect(() => {
+    if (activePOI?.properties) {
+      if (mode === 'poi-point-radius-edit') {
+        /**
+         * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
+         * feature, based on the poi's coordinates and its radius
+         */
+        const { geometry: { coordinates: centre } } = activePOI
+        const { radius } = activePOI.properties
+        const createdCircle = createCircleFromPointRadius(centre, radius)
+        setData([{
+          geometry: createdCircle.geometry,
+          properties: {
+            ...activePOI.properties,
+            ...createdCircle.properties,
+          },
+          // keep previous coordinates of poi to use to edit poi radius
+          prevCoordinates: activePOI.geometry.coordinates,
+        }])
+      } else {
+        setData([activePOI])
+      }
+    } else {
+      setData(POIData)
+    }
+  }, [POIData, activePOI, layerArray, mode])
 
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
     if (mode.includes('point-draw') || mode.includes('polygon-draw')) {
       return 'draw'
     }
+    // this has to be set before editing modes, otherwise we change the map view while editing
+    if (data[0]?.properties?.isEditing) {
+      return 'isEditing'
+    }
+    if (mode.includes('poi-edit') || mode.includes('poi-point-radius-edit')) {
+      return 'edit'
+    }
     return 'display'
-  }, [mode])
+  }, [mode, data])
 
   // set viewParam for different map modes
   // this means that we don't reset viewPort during drawing
@@ -122,6 +164,12 @@ const POIMap = ({
         type: 'data view',
         payload: { data, height, width }
       },
+      edit: {
+        type: 'edit',
+        payload: { data, height, width },
+      },
+      // we don't adjust view during editing
+      isEditing: {},
       draw: {},
     }  
   }, [data, height, width])
@@ -140,12 +188,7 @@ const POIMap = ({
       // if clicked object is a point on the map, set it as activePOI and zoom in
       } else if (object.type) {
         const data = [object]
-        const [longitude, latitude, zoom] = object.geometry.type === 'Point' ?
-          // TODO: set zoom depending on POI radius
-          // zoom 15 for a POI to fit radius
-          [...object.geometry.coordinates, 15] :
-          // else we can zoom so we fit in the polygon
-          [...Object.values(setView({ data, height, width }))]
+        const [longitude, latitude, zoom] = [...Object.values(setView({ data, height, width }))]
         setActivePOI(object)
         setOnClickPayload({ longitude, latitude, zoom: zoom })
       } else {
@@ -171,24 +214,9 @@ const POIMap = ({
     }
   }, [])
 
-  /**
-   * updatePOI - React hook that updates data on the map and activePOI with the edited / drawn features
-   * @param { array } editedPOIList - updated / drawn feature list
-   */
-  const updatePOI = useCallback((editedPOIList) => {
-    setData(editedPOIList)
-    // we keep activePOI updated with edited features so we can see changes 'live' on map
-    setDraftActivePOI(editedPOIList[0])
-  }, [setDraftActivePOI])
-
-  // set layers for deck.gl map
-  const layers = useMemo(() =>
-    processLayers(layerArray, { ...mapProps, data, updatePOI, onClick, onHover, mode, selectedFeatureIndexes})
-  , [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, selectedFeatureIndexes])
-
   // state viewState
   const [{ viewState }, viewStateDispatch] = useReducer((state, { type, payload }) => {
-    if (type === 'data view') {
+    if ((type === 'data view') || (type === 'edit')) {
       return {
         viewState: {
           ...state.viewState,
@@ -218,9 +246,28 @@ const POIMap = ({
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
     if (activePOI?.properties) {
-      setData([activePOI])
-    } else if (POIData.length) {
-      if (POIData[0]?.properties?.polygon_json) {
+      if (mode === 'poi-point-radius-edit') {
+        /**
+         * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
+         * feature, based on the poi coordinates and its radius
+         */
+        const { geometry: { coordinates: centre } } = activePOI
+        const { radius } = activePOI.properties
+        const createdCircle = createCircleFromPointRadius(centre, radius)
+        setData([{
+          geometry: createdCircle.geometry,
+          properties: {
+            ...activePOI.properties,
+            ...createdCircle.properties,
+          },
+          // keep previous coordinates in order to edit radius based on the centroid of poi
+          prevCoordinates: activePOI.geometry.coordinates,
+        }])
+      } else {
+        setData([activePOI])
+      }
+    } else {
+      if (POIData[0]?.properties?.poiType === 1) {
         setData(POIData.map((polygon) =>
         // TODO: settle data format in poi-manage to be GeoJSON
         // format polygon POIs into GeoJSON
@@ -229,13 +276,65 @@ const POIMap = ({
         setData(POIData)
       }
     }   
-  }, [POIData, activePOI])
+  }, [POIData, activePOI, layerArray, mode])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
     viewStateDispatch({ type: 'onClick', payload: onClickPayload })
   }, [onClickPayload])
-  
+
+  /**
+   * updatePOI - React hook that updates data on the map and activePOI with the edited / drawn features
+   * @param { array } editedPOIList - updated / drawn feature list
+   */
+  const updatePOI = useCallback((editedPOIList, editType, prevCoordinates) => {
+    // we signal the map that we are actively editing so the map doesn't adjust view
+    editedPOIList[0].properties.isEditing = true
+    let editedRadius = null
+    let editedCoordinates = null
+    let editedPOI = editedPOIList[0]
+    /**
+     * If we change radius of a poi, we keep previous coordinates of the edited circle and calculate
+     * new circle coordinates based on the edited radius. We do this because nebula.gl TransformMode
+     * scales objects relative to a point of a surrounding box and not relative to the object's centroid.
+     * https://nebula.gl/geojson-editor/
+     */
+    // case: scale
+    if (editType.includes('scal')) {
+      // change only radius, not coordinates; recalculate circle points for new radius to show on the map
+      editedPOI = activePOI
+      editedRadius = getCircleRadiusCentroid(editedPOIList[0]).radius
+      const createdCircle = createCircleFromPointRadius(prevCoordinates, editedRadius)
+      editedPOIList = [{
+        geometry: createdCircle.geometry,
+        properties: {
+          ...editedPOIList[0].properties,
+          editradius: editedRadius,
+          radius: editedRadius,
+        },
+        prevCoordinates: prevCoordinates,
+      }]
+    }
+    // case: translate
+    if (editType.includes('transl')) {
+      const { coordinates } = getCircleRadiusCentroid(editedPOIList[0])
+      editedPOI = activePOI
+      editedCoordinates = coordinates
+      editedPOIList[0].prevCoordinates = coordinates
+    }
+    // case: rotate
+    if (editType.includes('rot')) {
+      editedPOI = activePOI
+    }
+    setData(editedPOIList)
+    setDraftActivePOI({ editedPOI, editedRadius, editedCoordinates })
+  }, [activePOI, setDraftActivePOI])
+
+  // set layers for deck.gl map
+  const layers = useMemo(() =>
+    processLayers(layerArray, { ...mapProps, data, updatePOI, onClick, onHover, mode, selectedFeatureIndexes})
+  , [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, selectedFeatureIndexes])
+
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
   return (
@@ -258,7 +357,10 @@ const POIMap = ({
          * https://github.com/uber/nebula.gl/blob/master/examples/editor/example.js
          * https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
          */
-        onClick={ (info) => (mode.includes('poi-edit') && info?.object && !info.isGuide) ?
+        onClick={ (info) => (
+          (mapMode === 'edit' || mapMode === 'isEditing') &&
+          info?.object &&
+          !info.isGuide) ?
           setSelectedFeatureIndexes([info.index]) :
           setSelectedFeatureIndexes([])
         }
