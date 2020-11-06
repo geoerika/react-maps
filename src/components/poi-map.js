@@ -233,8 +233,7 @@ const POIMap = ({
       }
     }
     return state
-  }, { viewState: INIT_VIEW[mapMode] }
-  )
+  }, { viewState: INIT_VIEW[mapMode] })
   
   // React Hook to handle setting up viewState based on POIs coordinates and deck map container size
   useLayoutEffect(() => {
@@ -267,15 +266,8 @@ const POIMap = ({
         setData([activePOI])
       }
     } else {
-      if (POIData[0]?.properties?.poiType === 1) {
-        setData(POIData.map((polygon) =>
-        // TODO: settle data format in poi-manage to be GeoJSON
-        // format polygon POIs into GeoJSON
-        { return { ...polygon, geometry: JSON.parse(polygon.properties.polygon_json) }}))
-      } else {
-        setData(POIData)
-      }
-    }   
+      setData(POIData)
+    }
   }, [POIData, activePOI, layerArray, mode])
 
   // React Hook to update viewState for onClick events
