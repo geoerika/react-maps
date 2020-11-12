@@ -319,13 +319,13 @@ const POIMap = ({
          * https://github.com/uber/nebula.gl/blob/master/examples/editor/example.js
          * https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
          */
-        onClick={ (info) => (
-          (mapMode === 'edit' || mapMode === 'isEditing') &&
-          info?.object &&
-          !info.isGuide) ?
-          setSelectedFeatureIndexes([info.index]) :
-          setSelectedFeatureIndexes([])
-        }
+        onClick={ (info) => {
+          const index = []
+          if (['edit', 'isEditing'].includes(mapMode) && info?.object && !info.isGuide) {
+            index.push(info.index)
+          }
+          setSelectedFeatureIndexes(index)
+        }}
         onViewStateChange={ () => setHoverInfo(null) }
         getCursor={ getCurrentCursor }
       >
