@@ -1,7 +1,7 @@
 import { WebMercatorViewport } from 'deck.gl'
 import * as eqMapLayers from '../../components/layers/index'
 import circle from '@turf/circle'
-import  { point } from '@turf/helpers'
+import { point } from '@turf/helpers'
 import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
@@ -34,7 +34,7 @@ export const setView = ({ data, width, height }) => {
   }
   const formattedGeoData = getDataCoordinates(viewData)
   const viewPort = new WebMercatorViewport({ width, height })
-    .fitBounds(formattedGeoData, { padding: padding })
+    .fitBounds(formattedGeoData, { padding })
   let { longitude, latitude, zoom } = viewPort
   if (dataIsOnePoint && !data[0].properties.radius) {
     // default zoom for one point POI with no radius
