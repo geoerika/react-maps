@@ -115,42 +115,40 @@ const POIMap = ({
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
-    if (activePOI?.properties) {
-      if (mode === 'poi-point-radius-edit') {
-        /**
-         * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
-         * feature, based on the poi's coordinates and its radius
-         */
-        const { geometry: { coordinates: centre } } = activePOI
-        const { radius } = activePOI.properties
-        const createdCircle = createCircleFromPointRadius(centre, radius)
-        setData([{
-          geometry: createdCircle.geometry,
-          properties: {
-            ...activePOI.properties,
-            ...createdCircle.properties,
-          },
-          // keep previous coordinates of poi to use to edit poi radius
-          prevCoordinates: activePOI.geometry.coordinates,
-        }])
-      } else {
-        setData([activePOI])
-      }
-    } else {
-      setData(POIData)
+    if (!activePOI?.properties) {
+      return setData(POIData)
     }
+    if (mode !== 'poi-point-radius-edit') {
+      return setData([activePOI])
+    }
+    /**
+     * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
+     * feature, based on the poi coordinates and its radius
+     */
+    const { geometry: { coordinates: centre } } = activePOI
+    const { radius } = activePOI.properties
+    const createdCircle = createCircleFromPointRadius(centre, radius)
+    setData([{
+      geometry: createdCircle.geometry,
+      properties: {
+        ...activePOI.properties,
+        ...createdCircle.properties,
+      },
+      // keep previous coordinates in order to edit radius based on the centroid of poi
+      prevCoordinates: activePOI.geometry.coordinates,
+    }])
   }, [POIData, activePOI, layerArray, mode])
 
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
-    if (mode.includes('point-draw') || mode.includes('polygon-draw')) {
+    if (mode.endsWith('-draw')) {
       return 'draw'
     }
     // this has to be set before editing modes, otherwise we change the map view while editing
     if (data[0]?.properties?.isEditing) {
       return 'isEditing'
     }
-    if (mode.includes('poi-edit') || mode.includes('poi-point-radius-edit')) {
+    if (mode.endsWith('-edit')) {
       return 'edit'
     }
     return 'display'
@@ -241,34 +239,6 @@ const POIMap = ({
       viewStateDispatch(viewParam[mapMode])
     }
   }, [data, width, height, viewParam, mapMode])
-
-  // React Hook to handle setting up data for DeckGL layers
-  useEffect(() => {
-    if (activePOI?.properties) {
-      if (mode === 'poi-point-radius-edit') {
-        /**
-         * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
-         * feature, based on the poi coordinates and its radius
-         */
-        const { geometry: { coordinates: centre } } = activePOI
-        const { radius } = activePOI.properties
-        const createdCircle = createCircleFromPointRadius(centre, radius)
-        setData([{
-          geometry: createdCircle.geometry,
-          properties: {
-            ...activePOI.properties,
-            ...createdCircle.properties,
-          },
-          // keep previous coordinates in order to edit radius based on the centroid of poi
-          prevCoordinates: activePOI.geometry.coordinates,
-        }])
-      } else {
-        setData([activePOI])
-      }
-    } else {
-      setData(POIData)
-    }
-  }, [POIData, activePOI, layerArray, mode])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
