@@ -38,7 +38,15 @@ const POIEditDraw = ({ data, updatePOI, mode, selectedFeatureIndexes }) => {
     },
     mode: EDIT_DRAW_MODE[mode],
     selectedFeatureIndexes,
-    onEdit: ({ updatedData, editType }) => updatePOI(updatedData.features, editType, prevCoordinates),
+    onEdit: ({ updatedData, editType }) => {
+      /**
+       * need condition here otherwise we get errors when we draw as updatedData.features is updated
+       * only when we finish drawing a point or an entire polygon
+       */
+      if (updatedData?.features.length) {
+        return updatePOI(updatedData.features, editType, prevCoordinates)
+      }
+    },
   })
 }
 
