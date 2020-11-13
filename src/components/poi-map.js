@@ -145,8 +145,8 @@ const POIMap = ({
       return 'draw'
     }
     // this has to be set before editing modes, otherwise we change the map view while editing
-    if (data[0]?.properties?.isEditing) {
-      return 'isEditing'
+    if (data[0]?.properties?.isOnMapEditing) {
+      return 'isOnMapEditing'
     }
     if (mode.endsWith('-edit')) {
       return 'edit'
@@ -167,7 +167,7 @@ const POIMap = ({
         payload: { data, height, width },
       },
       // we don't adjust view during editing
-      isEditing: {},
+      isOnMapEditing: {},
       draw: {},
     }  
   }, [data, height, width])
@@ -251,7 +251,7 @@ const POIMap = ({
    */
   const updatePOI = useCallback((editedPOIList, editType, prevCoordinates) => {
     // we signal the map that we are actively editing so the map doesn't adjust view
-    editedPOIList[0].properties.isEditing = true
+    editedPOIList[0].properties.isOnMapEditing = true
     let editedRadius = null
     let editedCoordinates = null
     let editedPOI = editedPOIList[0]
@@ -321,7 +321,7 @@ const POIMap = ({
          */
         onClick={ (info) => {
           const index = []
-          if (['edit', 'isEditing'].includes(mapMode) && info?.object && !info.isGuide) {
+          if (['edit', 'isOnMapEditing'].includes(mapMode) && info?.object && !info.isGuide) {
             index.push(info.index)
           }
           setSelectedFeatureIndexes(index)
