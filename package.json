@@ -23,6 +23,10 @@
     "url": "git+https://github.com/EQWorks/react-maps.git"
   },
   "dependencies": {
+    "@eqworks/react-labs": "^1.12.0",
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "@turf/bbox": "^6.0.1",
     "@turf/centroid": "^6.0.2",
     "@turf/circle": "^6.0.1",
