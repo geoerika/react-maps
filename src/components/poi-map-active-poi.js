@@ -14,7 +14,7 @@ const defaultProps = {
 const POIMapActivePOI = ({
   POIData
 }) => {
-  const [activePOI, setActivePOI] = useState({})
+  const [activePOI, setActivePOI] = useState(null)
 
   const changeRadius = () => {
     let radius = 100
