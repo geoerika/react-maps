@@ -83,6 +83,7 @@ const INIT_VIEW = {
   display: INIT_VIEW_STATE,
   edit: INIT_VIEW_STATE,
   draw: INIT_VIEW_DRAW_STATE,
+  emptyMap: INIT_VIEW_STATE,
 }
 
 const propTypes = {
@@ -184,12 +185,16 @@ const POIMap = ({
 
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
+    // drawing mode has an empty data set, so we need to set mapMode for drawing before the next case
+    if (mode.endsWith('-draw')) {
+      return 'draw'
+    }
+    if (!data.length) {
+      return 'emptyMap'
+    }
     // this has to be set before editing modes, otherwise we change the map view while editing
     if (data[0]?.properties?.isOnMapEditing) {
       return 'isOnMapEditing'
-    }
-    if (mode.endsWith('-draw')) {
-      return 'draw'
     }
     return mode
   }, [mode, data])
@@ -209,6 +214,7 @@ const POIMap = ({
       // we don't adjust view during editing
       isOnMapEditing: {},
       draw: {},
+      emptyMap: {},
     }  
   }, [data, height, width])
 
