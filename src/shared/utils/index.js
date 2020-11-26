@@ -19,12 +19,13 @@ export const setView = ({ data, width, height }) => {
   const dataIsOnePoint = (data.length === 1 && data[0].geometry.type === 'Point')
   let viewData = data
   let padding = 25
-  // set padding larger when we edit one POI
-  if (data.length === 1) {
-    padding = 50
+  // set padding larger when we edit one radii POI
+  if (data.length === 1 && !data[0].properties.polygon) {
+    padding = 100
   }
   if (dataIsOnePoint && data[0].properties.radius) {
-    /** if data is one point POI with radius, we create a circle feature around the POI with the
+    /**
+     * if data is one point POI with radius, we create a circle feature around the POI with the
      * radius of the point, which we use to determine the right zoom that would fit the radius in
      * the map view
      */
