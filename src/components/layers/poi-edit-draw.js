@@ -7,6 +7,10 @@ import {
   TransformMode,
 } from 'nebula.gl'
 
+import {
+  TYPE_RADIUS
+} from '../../constants'
+
 
 const defaultProps = {
   id: 'edit-draw layer',
@@ -24,19 +28,23 @@ const EDIT_DRAW_MODE = {
   'point-draw': DrawPointMode,
   'polygon-draw': DrawPolygonMode,
   'poi-edit': ModifyMode,
-  'poi-point-radius-edit': TransformMode,
+  'poi-radius-edit': TransformMode,
 }
 
 // POIEditDraw - sets the POI editing / drawing layer
-const POIEditDraw = ({ data, updatePOI, mode, selectedFeatureIndexes }) => {
+const POIEditDraw = ({ data, updatePOI, mode, POIType, selectedFeatureIndexes }) => {
   const prevCoordinates = data[0]?.prevCoordinates
+  const editDrawMode = mode === 'edit' ?
+    (POIType === TYPE_RADIUS.code ? 'poi-radius-edit' : 'poi-edit') :
+    mode
+
   return new EditableGeoJsonLayer({
     ...defaultProps,
     data: {
       type: 'FeatureCollection',
       features: data,
     },
-    mode: EDIT_DRAW_MODE[mode],
+    mode: EDIT_DRAW_MODE[editDrawMode],
     selectedFeatureIndexes,
     onEdit: ({ updatedData, editType }) => {
       /**
