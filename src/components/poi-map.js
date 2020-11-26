@@ -31,6 +31,10 @@ import {
   tooltipDefaultProps
 } from '../shared/map-props'
 import { useRefDimensions } from '../hooks'
+import {
+  TYPE_POLYGON,
+  TYPE_RADIUS
+} from '../constants'
 
 
 setup(React.createElement)
@@ -86,9 +90,9 @@ const propTypes = {
   activePOI: PropTypes.object,
   setActivePOI: PropTypes.func,
   setDraftActivePOI: PropTypes.func,
-  layerArray: PropTypes.array,
   onClickHandle: PropTypes.func,
   mode: PropTypes.string,
+  cluster: PropTypes.bool,
   controller: PropTypes.object,
   mapProps: PropTypes.object,
 }
@@ -98,9 +102,9 @@ const defaultProps = {
   activePOI: null,
   setActivePOI: () => {},
   setDraftActivePOI: () => {},
-  layerArray: [],
   onClickHandle: () => {},
   mode: '',
+  cluster: false,
   controller: { controller: true },
   mapProps: {},
 }
@@ -111,9 +115,9 @@ const POIMap = ({
   activePOI,
   setActivePOI,
   setDraftActivePOI,
-  layerArray,
   onClickHandle,
   mode,
+  cluster,
   controller,
   tooltipKeys,
   typography,
@@ -127,12 +131,37 @@ const POIMap = ({
   const deckRef = useRef()
   const { width, height } = useRefDimensions(deckRef)
 
+  const POIType = useMemo(() =>
+    activePOI?.properties ? activePOI?.properties.poiType : POIData[0]?.properties?.poiType
+  , [activePOI, POIData])
+
+  // React hook that sets layerArray
+  const layerArray = useMemo(() => {
+    if (mode === 'edit' || mode.endsWith('-draw')) {
+      return ['POIEditDraw']
+    }
+    if (POIType === TYPE_RADIUS.code) {
+      if (showRadius) {
+        return ['POIGeoJson', 'POIIcon']
+      }
+      if (cluster) {
+        return ['POICluster']
+      }
+      return ['POIIcon']
+    }
+    if (POIType === TYPE_POLYGON.code) {
+      return ['POIGeoJson']
+    }
+    return []
+  }, [mode, cluster, POIType, showRadius])
+
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
     if (!activePOI?.properties) {
       return setData(POIData)
     }
-    if (mode !== 'poi-point-radius-edit') {
+    if ((mode === 'display' && activePOI?.properties) ||
+        (mode === 'edit' && POIType === TYPE_POLYGON.code)) {
       return setData([activePOI])
     }
     /**
@@ -151,21 +180,18 @@ const POIMap = ({
       // keep previous coordinates in order to edit radius based on the centroid of poi
       prevCoordinates: activePOI.geometry.coordinates,
     }])
-  }, [POIData, activePOI, layerArray, mode])
+  }, [POIData, activePOI, mode, POIType, layerArray])
 
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
-    if (mode.endsWith('-draw')) {
-      return 'draw'
-    }
     // this has to be set before editing modes, otherwise we change the map view while editing
     if (data[0]?.properties?.isOnMapEditing) {
       return 'isOnMapEditing'
     }
-    if (mode.endsWith('-edit')) {
-      return 'edit'
+    if (mode.endsWith('-draw')) {
+      return 'draw'
     }
-    return 'display'
+    return mode
   }, [mode, data])
 
   // set viewParam for different map modes
@@ -308,8 +334,8 @@ const POIMap = ({
 
   // set layers for deck.gl map
   const layers = useMemo(() =>
-    processLayers(layerArray, { ...mapProps, data, updatePOI, onClick, onHover, mode, selectedFeatureIndexes})
-  , [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, selectedFeatureIndexes])
+    processLayers(layerArray, { ...mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes})
+  , [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   /**
    * toggleRadius - React hook that toggles showRadius state
@@ -325,7 +351,7 @@ const POIMap = ({
   return (
     <ThemeProvider>
       <MapWrapper>
-        { activePOI && (
+        { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && (
           <SwitchContainer>
             <FormControlLabel
               control={
