@@ -1,6 +1,9 @@
 // https://deck.gl/docs/api-reference/layers/geojson-layer
 
 import { GeoJsonLayer } from 'deck.gl'
+import {
+  TYPE_RADIUS
+} from '../../constants'
 
 
 const defaultProps = {
@@ -14,7 +17,6 @@ const defaultProps = {
   lineWidthMinPixels: 2,
   getFillColor: [225, 0, 0, 200],
   opacity: 0.5,
-  getRadius: d => d.properties.radius,
   getLineWidth: 1,
   getElevation: 0,
   pointRadiusMaxPixels: 10000,
@@ -38,6 +40,11 @@ const defaultProps = {
 const POIGeoJson = (props) =>
   new GeoJsonLayer({
     ...defaultProps,
+    getRadius: d => {
+      if (props.POIType === TYPE_RADIUS.code) {
+        return d.properties.radius
+      }
+    },
     ...props,
   })
 
