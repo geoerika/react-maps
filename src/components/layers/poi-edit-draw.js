@@ -19,7 +19,11 @@ const defaultProps = {
     geojson: {
       getFillColor: () => [225, 0, 0],
       getLineColor: () => [0, 0, 0],
+      getLineWidth: 3,
       opacity: 0.2,
+      lineWidthScale: 1,
+      lineWidthMinPixels: 0,
+      lineWidthUnits: 'pixels',
     }
   },
 }
@@ -55,6 +59,16 @@ const POIEditDraw = ({ data, updatePOI, mode, POIType, selectedFeatureIndexes })
         return updatePOI(updatedData.features, editType, prevCoordinates)
       }
     },
+    _subLayerProps: {
+      geojson: {
+        ...defaultProps._subLayerProps.geojson,
+        getRadius: d => {
+          if (POIType === TYPE_RADIUS.code) {
+            return d.properties.radius
+          }
+        },
+      }
+    }
   })
 }
 
