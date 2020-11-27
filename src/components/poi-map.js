@@ -132,6 +132,7 @@ const POIMap = ({
   const deckRef = useRef()
   const { width, height } = useRefDimensions(deckRef)
 
+  // React hook that sets POIType
   const POIType = useMemo(() =>
     activePOI?.properties ? activePOI?.properties.poiType : POIData[0]?.properties?.poiType
   , [activePOI, POIData])
@@ -217,6 +218,13 @@ const POIMap = ({
       emptyMap: {},
     }  
   }, [data, height, width])
+
+  // React hook that selects feature when map is in editing mode
+  useEffect(() => {
+    if (['edit', 'isOnMapEditing'].includes(mapMode)) {
+      setSelectedFeatureIndexes([0])
+    }
+  }, [mapMode])
 
   /**
    * onClick - React hook that handles various in-house and custom onClick methods
@@ -340,7 +348,16 @@ const POIMap = ({
 
   // set layers for deck.gl map
   const layers = useMemo(() =>
-    processLayers(layerArray, { ...mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes})
+    processLayers(layerArray, {
+      ...mapProps,
+      data,
+      updatePOI,
+      onClick,
+      onHover,
+      mode,
+      POIType,
+      selectedFeatureIndexes
+    })
   , [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   /**
@@ -393,8 +410,13 @@ const POIMap = ({
               const index = []
               if (['edit', 'isOnMapEditing'].includes(mapMode) && info?.object && !info.isGuide) {
                 index.push(info.index)
+                setSelectedFeatureIndexes(index)
               }
-              setSelectedFeatureIndexes(index)
+              // we deselect feature during editing when we click outside its limits
+              if (!info?.object && data[0]) {
+                setSelectedFeatureIndexes([])
+                data[0].properties.isOnMapEditing = false
+              }
             }}
             onViewStateChange={ () => setHoverInfo(null) }
             getCursor={ getCurrentCursor }
