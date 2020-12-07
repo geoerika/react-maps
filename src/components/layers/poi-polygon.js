@@ -1,5 +1,12 @@
 // ref: https://deck.gl/docs/api-reference/layers/polygon-layer
-import {PolygonLayer} from 'deck.gl';
+import { PolygonLayer } from 'deck.gl'
+import {
+  POI_FILL_COLOUR,
+  POI_LINE_COLOUR,
+  POI_LINE_WIDTH,
+  POI_OPACITY,
+} from '../../constants'
+
 
 
 const defaultProps = {
@@ -10,10 +17,10 @@ const defaultProps = {
   wireframe: true,
   lineWidthMinPixels: 1,
   getPolygon: d => d.geometry.coordinates,
-  opacity: 0.5,
-  getFillColor: [255, 0, 0],
-  getLineColor: [80, 80, 80],
-  getLineWidth: 1
+  opacity: POI_OPACITY,
+  getFillColor: POI_FILL_COLOUR,
+  getLineColor: POI_LINE_COLOUR,
+  getLineWidth: POI_LINE_WIDTH,
 }
 
 /**

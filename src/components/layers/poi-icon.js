@@ -14,7 +14,6 @@ const defaultProps = {
   sizeScale: 5,
   getPosition: d => d.geometry.coordinates,
   getSize: 5,
-  getColor: [255, 0, 0],
   pickable: true,
 }
 

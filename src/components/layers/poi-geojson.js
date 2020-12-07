@@ -2,7 +2,11 @@
 
 import { GeoJsonLayer } from 'deck.gl'
 import {
-  TYPE_RADIUS
+  TYPE_RADIUS,
+  POI_FILL_COLOUR,
+  POI_LINE_COLOUR,
+  POI_LINE_WIDTH,
+  POI_OPACITY,
 } from '../../constants'
 
 
@@ -16,9 +20,10 @@ const defaultProps = {
   lineWidthScale: 1,
   lineWidthMinPixels: 0,
   lineWidthUnits: 'pixels',
-  getFillColor: [225, 0, 0, 200],
-  opacity: 0.5,
-  getLineWidth: 3,
+  getFillColor: POI_FILL_COLOUR,
+  getLineColor: POI_LINE_COLOUR,
+  opacity: POI_OPACITY,
+  getLineWidth: POI_LINE_WIDTH,
   getElevation: 0,
   pointRadiusScale: 1,
   transitions: {

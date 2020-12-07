@@ -8,7 +8,11 @@ import {
 } from 'nebula.gl'
 
 import {
-  TYPE_RADIUS
+  TYPE_RADIUS,
+  POI_FILL_COLOUR,
+  POI_LINE_COLOUR,
+  POI_LINE_WIDTH,
+  POI_OPACITY,
 } from '../../constants'
 
 
@@ -17,10 +21,10 @@ const defaultProps = {
   pickingRadius: 12,
   _subLayerProps: {
     geojson: {
-      getFillColor: () => [225, 0, 0],
-      getLineColor: () => [0, 0, 0],
-      getLineWidth: 3,
-      opacity: 0.2,
+      getFillColor: () => POI_FILL_COLOUR,
+      getLineColor: () => POI_LINE_COLOUR,
+      getLineWidth: POI_LINE_WIDTH,
+      opacity: POI_OPACITY,
       lineWidthScale: 1,
       lineWidthMinPixels: 0,
       lineWidthUnits: 'pixels',
