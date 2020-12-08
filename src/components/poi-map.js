@@ -58,8 +58,8 @@ const MapContainer = styled('div')`
 
 // initial map view
 const INIT_VIEW_STATE = {
-  pitch: 0,
-  bearing: 0,
+  pitch: 25,
+  bearing: 15,
   transitionDuration: 3000,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 52,
@@ -70,8 +70,8 @@ const INIT_VIEW_STATE = {
 
 // initial map view for drawing mode
 const INIT_VIEW_DRAW_STATE = {
-  pitch: 0,
-  bearing: 0,
+  pitch: 25,
+  bearing: 15,
   transitionDuration: 300,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 43.661539,
@@ -242,7 +242,7 @@ const POIMap = ({
         const data = [object]
         const [longitude, latitude, zoom] = [...Object.values(setView({ data, height, width }))]
         setActivePOI(object)
-        setOnClickPayload({ longitude, latitude, zoom: zoom })
+        setOnClickPayload({ longitude, latitude, zoom })
       } else {
         // custom onClick
         onClickHandle(deckEvent, setOnClickPayload)
