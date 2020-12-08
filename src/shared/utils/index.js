@@ -5,6 +5,7 @@ import { point } from '@turf/helpers'
 import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
+import { TYPE_RADIUS } from '../../constants'
 
 /**
  * setView - handles calculations of viewState lat, long, and zoom, based on
@@ -18,10 +19,10 @@ import tDistance from '@turf/distance'
 export const setView = ({ data, width, height }) => {
   const dataIsOnePoint = (data.length === 1 && data[0].geometry.type === 'Point')
   let viewData = data
-  let padding = 25
+  let padding = 100
   // set padding larger when we edit one radii POI
   if (data.length === 1 && !data[0].properties.polygon) {
-    padding = 100
+    padding = 125
   }
   if (dataIsOnePoint && data[0].properties.radius) {
     /**
@@ -37,7 +38,7 @@ export const setView = ({ data, width, height }) => {
   const viewPort = new WebMercatorViewport({ width, height })
     .fitBounds(formattedGeoData, { padding })
   let { longitude, latitude, zoom } = viewPort
-  if (dataIsOnePoint && !data[0].properties.radius) {
+  if (dataIsOnePoint && !data[0].properties.radius && data[0].poiType === TYPE_RADIUS.code) {
     // default zoom for one point POI with no radius
     zoom = 16
   }
@@ -111,7 +112,7 @@ export const getCursor = ({ layers, hoverInfo }) => {
  */
 export const createCircleFromPointRadius = (centre, radius) => {
   // ToDo: research how large our radius can get and if can make a formula to set better step number
-  const options = { steps: 50, units: 'meters' }
+  const options = { steps: radius < 500 ? 50 : 100, units: 'meters' }
   let createdCircle = circle(centre, radius, options)
   createdCircle.properties.polygon_json = JSON.stringify(createdCircle.geometry)
   createdCircle.properties.poiType = 1
