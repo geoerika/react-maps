@@ -4,6 +4,7 @@ import { GeoJsonLayer } from 'deck.gl'
 import {
   TYPE_RADIUS,
   POI_FILL_COLOUR,
+  POI_POLYGON_FILL_COLOUR,
   POI_LINE_COLOUR,
   POI_LINE_WIDTH,
   POI_OPACITY,
@@ -20,7 +21,6 @@ const defaultProps = {
   lineWidthScale: 1,
   lineWidthMinPixels: 0,
   lineWidthUnits: 'pixels',
-  getFillColor: POI_FILL_COLOUR,
   getLineColor: POI_LINE_COLOUR,
   opacity: POI_OPACITY,
   getLineWidth: POI_LINE_WIDTH,
@@ -50,6 +50,13 @@ const POIGeoJson = (props) =>
         return d.properties.radius
       }
     },
+    getFillColor: () => {
+      if (props.POIType === TYPE_RADIUS.code) {
+        return POI_FILL_COLOUR
+      }
+      return POI_POLYGON_FILL_COLOUR
+    },
+    transitions: props.data.length === 1 ? { ...defaultProps.transitions } : {},
     ...props,
   })
 
