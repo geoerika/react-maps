@@ -4,7 +4,7 @@ import { IconLayer } from 'deck.gl'
 import POIIconMarker from '../icons/poi-location.png'
 
 // icon mapping for poi icon layer
-const POI_ICON_MAPPING = { marker: { x: 0, y: 0, width: 1024, height: 1024 }}
+const POI_ICON_MAPPING = { marker: { x: 0, y: 0, width: 1024, height: 1024, anchorY: 1024 }}
 
 const defaultProps = {
   iconAtlas: POIIconMarker,
@@ -25,6 +25,7 @@ const defaultProps = {
 const POIIcon = (props) =>
   new IconLayer({
     ...defaultProps,
+    sizeScale: props.data.length === 1 ? 15 : 5,
     ...props,
   })
 
