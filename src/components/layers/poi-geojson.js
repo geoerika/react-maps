@@ -1,14 +1,7 @@
 // https://deck.gl/docs/api-reference/layers/geojson-layer
 
 import { GeoJsonLayer } from 'deck.gl'
-import {
-  TYPE_RADIUS,
-  POI_FILL_COLOUR,
-  POI_POLYGON_FILL_COLOUR,
-  POI_LINE_COLOUR,
-  POI_LINE_WIDTH,
-  POI_OPACITY,
-} from '../../constants'
+import { TYPE_RADIUS } from '../../constants'
 
 
 const defaultProps = {
@@ -21,9 +14,6 @@ const defaultProps = {
   lineWidthScale: 1,
   lineWidthMinPixels: 0,
   lineWidthUnits: 'pixels',
-  getLineColor: POI_LINE_COLOUR,
-  opacity: POI_OPACITY,
-  getLineWidth: POI_LINE_WIDTH,
   getElevation: 0,
   pointRadiusScale: 1,
   transitions: {
@@ -39,25 +29,32 @@ const defaultProps = {
 
 /**
  * POIGeoJson - sets the POI icon layer
- * @param { object } props - props for GeoJsonLayer
+ * @param { object } param - props for GeoJsonLayer
+ * @param { object } param.mapProps - object of map properties
+ * @param { array } param.data - data array
+ * @param { number } param.POIType - POI type
  * @returns { instanceOf GeoJsonLayer } 
  */
-const POIGeoJson = (props) =>
+const POIGeoJson = ({ data, mapProps, POIType }) =>
   new GeoJsonLayer({
+    data,
     ...defaultProps,
     getRadius: d => {
-      if (props.POIType === TYPE_RADIUS.code) {
+      if (POIType === TYPE_RADIUS.code) {
         return d.properties.radius
       }
+      return null
     },
     getFillColor: () => {
-      if (props.POIType === TYPE_RADIUS.code) {
-        return POI_FILL_COLOUR
+      if (POIType === TYPE_RADIUS.code) {
+        return mapProps.fillColour
       }
-      return POI_POLYGON_FILL_COLOUR
+      return mapProps.polygonFillColour
     },
-    transitions: props.data.length === 1 ? { ...defaultProps.transitions } : {},
-    ...props,
+    getLineColor: () => mapProps.lineColour,
+    getLineWidth: () => mapProps.lineWidth,
+    opacity: mapProps.opacity,
+    transitions: data.length === 1 ? { ...defaultProps.transitions } : {},
   })
 
 export default POIGeoJson

@@ -7,13 +7,7 @@ import {
   TransformMode,
 } from 'nebula.gl'
 
-import {
-  TYPE_RADIUS,
-  POI_FILL_COLOUR,
-  POI_LINE_COLOUR,
-  POI_LINE_WIDTH,
-  POI_OPACITY,
-} from '../../constants'
+import { TYPE_RADIUS } from '../../constants'
 
 
 const defaultProps = {
@@ -21,10 +15,6 @@ const defaultProps = {
   pickingRadius: 12,
   _subLayerProps: {
     geojson: {
-      getFillColor: () => POI_FILL_COLOUR,
-      getLineColor: () => POI_LINE_COLOUR,
-      getLineWidth: POI_LINE_WIDTH,
-      opacity: POI_OPACITY,
       lineWidthScale: 1,
       lineWidthMinPixels: 0,
       lineWidthUnits: 'pixels',
@@ -39,8 +29,18 @@ const EDIT_DRAW_MODE = {
   'poi-radius-edit': TransformMode,
 }
 
-// POIEditDraw - sets the POI editing / drawing layer
-const POIEditDraw = ({ data, updatePOI, mode, POIType, selectedFeatureIndexes }) => {
+/**
+ * POIEditDraw - sets the POI editing / drawing layer
+ * @param { object } param - props for EditableGeoJsonLayer
+ * @param { object } param.mapProps - object of map properties
+ * @param { array } param.data - data array
+ * @param { function } param.updatePOI - function to update POI during editing
+ * @param { string } param.mode - editing / drawing mode
+ * @param { number } param.POIType - POI type
+ * @param { array } param.selectedFeatureIndexes - array of selected feature indexes
+ * @return { instanceOf EditableGeoJsonLayer}
+ */
+const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeatureIndexes }) => {
   const prevCoordinates = data[0]?.prevCoordinates
   const editDrawMode = mode === 'edit' ?
     (POIType === TYPE_RADIUS.code ? 'poi-radius-edit' : 'poi-edit') :
@@ -64,12 +64,18 @@ const POIEditDraw = ({ data, updatePOI, mode, POIType, selectedFeatureIndexes })
       }
     },
     _subLayerProps: {
+      ...defaultProps._subLayerProps,
       geojson: {
         ...defaultProps._subLayerProps.geojson,
+        getFillColor: () => mapProps.fillColour,
+        getLineColor: () => mapProps.lineColour,
+        getLineWidth: () => mapProps.lineWidth,
+        opacity: mapProps.opacity,
         getRadius: d => {
           if (POIType === TYPE_RADIUS.code) {
             return d.properties.radius
           }
+          return null
         },
       }
     }

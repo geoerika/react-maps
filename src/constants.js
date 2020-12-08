@@ -11,9 +11,3 @@ export const TYPE_RADIUS = {
   name: 'radius',
   plural: 'radii',
 }
-
-export const POI_FILL_COLOUR = [239, 95, 102]
-export const POI_POLYGON_FILL_COLOUR = [0,136,136]
-export const POI_LINE_COLOUR = [0, 0, 0]
-export const POI_LINE_WIDTH = 2
-export const POI_OPACITY = 0.3

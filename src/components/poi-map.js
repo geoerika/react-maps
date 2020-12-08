@@ -28,7 +28,9 @@ import {
   typographyPropTypes,
   typographyDefaultProps,
   tooltipProps,
-  tooltipDefaultProps
+  tooltipDefaultProps,
+  POIMapProps,
+  POIMapDefaultProps,
 } from '../shared/map-props'
 import { useRefDimensions } from '../hooks'
 import {
@@ -95,7 +97,6 @@ const propTypes = {
   mode: PropTypes.string,
   cluster: PropTypes.bool,
   controller: PropTypes.object,
-  mapProps: PropTypes.object,
 }
 
 const defaultProps = {
@@ -107,7 +108,6 @@ const defaultProps = {
   mode: '',
   cluster: false,
   controller: { controller: true },
-  mapProps: {},
 }
 
 // DeckGL React component
@@ -122,7 +122,7 @@ const POIMap = ({
   controller,
   tooltipKeys,
   typography,
-  ...mapProps
+  mapProps,
 }) => {
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
@@ -349,7 +349,7 @@ const POIMap = ({
   // set layers for deck.gl map
   const layers = useMemo(() =>
     processLayers(layerArray, {
-      ...mapProps,
+      mapProps,
       data,
       updatePOI,
       onClick,
@@ -434,11 +434,13 @@ const POIMap = ({
 POIMap.propTypes = {
   ...typographyPropTypes,
   ...tooltipProps,
+  ...POIMapProps,
   ...propTypes
 }
 POIMap.defaultProps = {
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
+  ...POIMapDefaultProps,
   ...defaultProps
 }
 export default POIMap

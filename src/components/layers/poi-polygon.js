@@ -1,12 +1,5 @@
 // ref: https://deck.gl/docs/api-reference/layers/polygon-layer
 import { PolygonLayer } from 'deck.gl'
-import {
-  POI_FILL_COLOUR,
-  POI_LINE_COLOUR,
-  POI_LINE_WIDTH,
-  POI_OPACITY,
-} from '../../constants'
-
 
 
 const defaultProps = {
@@ -17,21 +10,23 @@ const defaultProps = {
   wireframe: true,
   lineWidthMinPixels: 1,
   getPolygon: d => d.geometry.coordinates,
-  opacity: POI_OPACITY,
-  getFillColor: POI_FILL_COLOUR,
-  getLineColor: POI_LINE_COLOUR,
-  getLineWidth: POI_LINE_WIDTH,
 }
 
 /**
  * POIPolygon - sets the POI polygon layer
- * @param { object } props - props for PolygonLayer
+ * @param { object } param - props for PolygonLayer
+ * @param { object } param.mapProps - object of map properties
+ * @param { array } param.data - data array
  * @returns { instanceOf PolygonLayer } 
  */
-const POIPolygon = (props) => 
+const POIPolygon = ({ mapProps, data }) =>
   new PolygonLayer({
+    data,
     ...defaultProps,
-    ...props,
+    getFillColor: () => mapProps.polygonFillColour,
+    getLineColor: () => mapProps.lineColour,
+    getLineWidth: () => mapProps.lineWidth,
+    opacity: mapProps.opacity,
   });
 
 export default POIPolygon
