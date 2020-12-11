@@ -374,7 +374,7 @@ const POIMap = ({
   return (
     <ThemeProvider>
       <MapWrapper>
-        { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && (
+        { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && activePOI && (
           <SwitchContainer>
             <FormControlLabel
               control={
