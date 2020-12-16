@@ -15,6 +15,9 @@ const defaultProps = {
   lineWidthMinPixels: 0,
   lineWidthUnits: 'pixels',
   getElevation: 0,
+  parameters: {
+    depthTest: false,
+  },
   pointRadiusScale: 1,
   transitions: {
     getPositions: 600,
@@ -22,9 +25,9 @@ const defaultProps = {
       type: 'spring',
       stiffness: 0.01,
       damping: 0.15,
-      enter: () => [0] // grow from size 0
-    }
-  }
+      enter: () => [0], // grow from size 0
+    },
+  },
 }
 
 /**
@@ -35,7 +38,7 @@ const defaultProps = {
  * @param { number } param.POIType - POI type
  * @returns { instanceOf GeoJsonLayer } 
  */
-const POIGeoJson = ({ data, mapProps, POIType }) =>
+const POIGeoJson = ({ data, mapProps, POIType, ...props }) =>
   new GeoJsonLayer({
     data,
     ...defaultProps,
@@ -55,7 +58,7 @@ const POIGeoJson = ({ data, mapProps, POIType }) =>
     getLineWidth: () => mapProps.lineWidth,
     opacity: mapProps.opacity,
     transitions: data.length === 1 ? { ...defaultProps.transitions } : {},
+    ...props,
   })
 
 export default POIGeoJson
-  

@@ -18,7 +18,15 @@ const defaultProps = {
       lineWidthScale: 1,
       lineWidthMinPixels: 0,
       lineWidthUnits: 'pixels',
-    }
+      parameters: {
+        depthTest: false,
+      },
+    },
+    guides: {
+      parameters: {
+        depthTest: false,
+      },
+    },
   },
 }
 
@@ -77,8 +85,8 @@ const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeature
           }
           return null
         },
-      }
-    }
+      },
+    },
   })
 }
 
