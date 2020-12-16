@@ -19,7 +19,7 @@ const defaultProps = {
  * @param { array } param.data - data array
  * @returns { instanceOf PolygonLayer } 
  */
-const POIPolygon = ({ mapProps, data }) =>
+const POIPolygon = ({ mapProps, data, ...props }) =>
   new PolygonLayer({
     data,
     ...defaultProps,
@@ -27,6 +27,7 @@ const POIPolygon = ({ mapProps, data }) =>
     getLineColor: () => mapProps.lineColour,
     getLineWidth: () => mapProps.lineWidth,
     opacity: mapProps.opacity,
-  });
+    ...props,
+  })
 
 export default POIPolygon
