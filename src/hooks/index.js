@@ -77,8 +77,8 @@ export const useMapData = ({
             [key]: {
               max: Math.max((agg[key] || { max: null }).max, dataPropertyAccessor(ele)[key]),
               min: Math.min((agg[key] || { min: null }).min, dataPropertyAccessor(ele)[key]),
-            }
-          }), {})
+            },
+          }), {}),
       }), {})
 
       return {
@@ -116,7 +116,7 @@ export const useElevation = ({
     if (elevationBasedOn.length) {
       const d3Fn = SCALES[elevationDataScale]([
         (metrics[elevationBasedOn] || { min: 0 }).min,
-        (metrics[elevationBasedOn] || { max: 10 }).max
+        (metrics[elevationBasedOn] || { max: 10 }).max,
       ], elevations)
       return d => d3Fn(dataPropertyAccessor(d)[elevationBasedOn])
     }
@@ -144,7 +144,7 @@ export const useFill = ({
     if (fillBasedOn.length) {
       const d3Fn = SCALES[fillDataScale]([
         (metrics[fillBasedOn] || { min: 0 }).min,
-        (metrics[fillBasedOn] || { max: 10 }).max
+        (metrics[fillBasedOn] || { max: 10 }).max,
       ], fillColors)
       return d => {
         const ret = color(d3Fn(dataPropertyAccessor(d)[fillBasedOn]))
@@ -175,7 +175,7 @@ export const useRadius = ({
     if (radiusBasedOn.length) {
       const d3Fn = SCALES[radiusDataScale]([
         (metrics[radiusBasedOn] || { min: 0 }).min,
-        (metrics[radiusBasedOn] || { max: 10 }).max
+        (metrics[radiusBasedOn] || { max: 10 }).max,
       ], radii)
 
       return d => d3Fn(dataPropertyAccessor(d)[radiusBasedOn])
@@ -205,13 +205,13 @@ export const useTimeline = (timestampInit, speedInterval) => {
     if (type === 'manual') {
       return {
         ...state,
-        activeIndex: state.activeIndex + payload
+        activeIndex: state.activeIndex + payload,
       }
     }
     if (type === 'speed') {
       return {
         ...state,
-        speed: state.speed + payload
+        speed: state.speed + payload,
       }
     }
     // reset options and stop timer
@@ -286,14 +286,26 @@ export const useTimeline = (timestampInit, speedInterval) => {
 
 export { useReport, useFullReport } from './report'
 
-// used in poi-map.js
-export const useRefDimensions = (ref) => {
-  const [dimensions, setDimensions] = useState({ w: 0, h: 0 })
+/**
+ * useResizeObserver - returns the dimensions of a changing HTML element
+ * based on: https://github.com/plouc/nivo/blob/7d52c07/packages/core/src/hooks/useMeasure.js &
+ *           https://github.com/EQWorks/snoke-builder-viz/pull/21/files
+ * @param { object } ref - React ref
+ * @returns { object } - dimensions { width, height } of an HTML element
+ */
+export const useResizeObserver = (ref) => {
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+  const observer = useMemo(() =>
+    new ResizeObserver(([entry]) => setDimensions(entry.contentRect))
+  ,[])
+
   useEffect(() => {
     if (ref.current) {
-      setDimensions(ref.current.deck)
+      observer.observe(ref.current)
     }
-  }, [ref])
+
+    return () => observer.disconnect()
+  }, [ref, observer])
 
   return dimensions
 }

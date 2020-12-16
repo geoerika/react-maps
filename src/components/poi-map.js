@@ -1,11 +1,12 @@
-import React, { 
+import React, {
+  forwardRef,
   useState,
   useEffect,
   useLayoutEffect,
   useMemo,
   useCallback,
-  useRef,
   useReducer,
+  useRef,
 } from 'react'
 import PropTypes from 'prop-types'
 
@@ -23,6 +24,7 @@ import {
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
 } from '../shared/utils'
+import { useResizeObserver } from '../hooks'
 import POITooltip from './poi-tooltip'
 import {
   typographyPropTypes,
@@ -32,10 +34,9 @@ import {
   POIMapProps,
   POIMapDefaultProps,
 } from '../shared/map-props'
-import { useRefDimensions } from '../hooks'
 import {
   TYPE_POLYGON,
-  TYPE_RADIUS
+  TYPE_RADIUS,
 } from '../constants'
 
 
@@ -52,7 +53,7 @@ const SwitchContainer = styled('div')`
   padding: 5px;
 `
 
-const MapContainer = styled('div')`
+const MapContainer = styled('div', forwardRef)`
   width: 100%;
   height: 100%;
   position: absolute;
@@ -129,8 +130,8 @@ const POIMap = ({
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
-  const deckRef = useRef()
-  const { width, height } = useRefDimensions(deckRef)
+  const mapContainerRef = useRef()
+  const { width, height } = useResizeObserver(mapContainerRef)
 
   // React hook that sets POIType
   const POIType = useMemo(() =>
@@ -206,7 +207,7 @@ const POIMap = ({
     return {
       display: {
         type: 'data view',
-        payload: { data, height, width }
+        payload: { data, height, width },
       },
       edit: {
         type: 'edit',
@@ -247,7 +248,7 @@ const POIMap = ({
         // custom onClick
         onClickHandle(deckEvent, setOnClickPayload)
       }
-    }, [setActivePOI, onClickHandle, height, width]
+    }, [setActivePOI, onClickHandle, height, width],
   )
 
   /**
@@ -273,7 +274,7 @@ const POIMap = ({
         viewState: {
           ...state.viewState,
           ...setView(payload),
-        }
+        },
       }  
     }
     if (type === 'onClick') {
@@ -281,7 +282,7 @@ const POIMap = ({
         viewState: {
           ...state.viewState,
           ...payload,
-        }
+        },
       }
     }
     return state
@@ -356,7 +357,7 @@ const POIMap = ({
       onHover,
       mode,
       POIType,
-      selectedFeatureIndexes
+      selectedFeatureIndexes,
     })
   , [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
@@ -366,15 +367,14 @@ const POIMap = ({
   const toggleRadius = useCallback(
     () => {
       setShowRadius(!showRadius)
-    }, [showRadius]
-  )
+    }, [showRadius])
 
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
   return (
     <ThemeProvider>
       <MapWrapper>
-        { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && activePOI && (
+        { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && (
           <SwitchContainer>
             <FormControlLabel
               control={
@@ -387,16 +387,15 @@ const POIMap = ({
             />
           </SwitchContainer>
         )}
-        <MapContainer>
+        <MapContainer ref={ mapContainerRef }>
           { hoverInfo?.object && (
             <POITooltip
               info={ hoverInfo }
               typography={ typography }
               tooltipKeys={ tooltipKeys }
             />
-          )}
+          ) }
           <DeckGL
-            ref={ deckRef }
             initialViewState={ viewState }
             layers={ layers }
             controller={ controller }
@@ -435,12 +434,12 @@ POIMap.propTypes = {
   ...typographyPropTypes,
   ...tooltipProps,
   ...POIMapProps,
-  ...propTypes
+  ...propTypes,
 }
 POIMap.defaultProps = {
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
   ...POIMapDefaultProps,
-  ...defaultProps
+  ...defaultProps,
 }
 export default POIMap
