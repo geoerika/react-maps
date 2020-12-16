@@ -336,7 +336,7 @@ const POIMap = ({
     if (editType.includes('transl')) {
       const { coordinates } = getCircleRadiusCentroid(editedPOIList[0])
       editedPOI = activePOI
-      editedCoordinates = coordinates
+      editedCoordinates = { editedlon: coordinates[0], editedlat: coordinates[1] }
       editedPOIList[0].prevCoordinates = coordinates
     }
     // case: rotate
