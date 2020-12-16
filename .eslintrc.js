@@ -4,7 +4,7 @@ module.exports = {
     browser: true,
     es6: true,
     node: true,
-    jest: true
+    jest: true,
   },
   settings: {
     react: {
@@ -28,10 +28,15 @@ module.exports = {
   plugins: [
     'react',
     'react-hooks',
-    'jest'
+    'jest',
   ],
   rules: {
+    'comma-dangle': ['error', 'always-multiline'],
+    'eol-last': ['error', 'always'],
     indent: ['error', 2],
-    'react/display-name': 'off' // TODO: many false-positives until react eslint plugin updates
+    'object-curly-spacing': ['error', 'always'],
+    quotes: ['error', 'single', { 'avoidEscape': true }],
+    'react/display-name': 'off', // TODO: many false-positives until react eslint plugin updates
+    semi: ['error', 'never'],
   },
 }
