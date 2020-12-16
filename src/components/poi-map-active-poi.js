@@ -12,7 +12,7 @@ const defaultProps = {
 } 
 
 const POIMapActivePOI = ({
-  POIData
+  POIData,
 }) => {
   const [activePOI, setActivePOI] = useState(null)
 
@@ -22,8 +22,8 @@ const POIMapActivePOI = ({
       geometry: activePOI.geometry,
       properties: {
         ...activePOI.properties,
-        radius
-      }
+        radius,
+      },
     }
     setActivePOI(newActivePOI)
   }

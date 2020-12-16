@@ -18,7 +18,7 @@ const MapContainer = styled('div')`
   position: absolute;
 `
 
-const MAP_VIEW = new MapView({ repeat: true });
+const MAP_VIEW = new MapView({ repeat: true })
 
 const INIT_VIEW_STATE = {
   pitch: 0,

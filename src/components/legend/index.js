@@ -38,7 +38,7 @@ const propTypes = {
     max: PropTypes.number,
     min: PropTypes.number,
     label: PropTypes.string,
-  }))
+  })),
 }
 
 const defaultProps = {
@@ -48,8 +48,8 @@ const defaultProps = {
       max: undefined,
       min: undefined,
       label: '',
-    }
-  ]
+    },
+  ],
 }
 
 const Legend = ({ position, legends }) => {

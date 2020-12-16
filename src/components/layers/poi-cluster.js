@@ -47,40 +47,40 @@ class IconClusterLayer extends CompositeLayer {
     sizeScale: 60,
     superclusterZoom: 20,
     getSuperclusterRadius: (viewportZoom, sizeScale) => 
-      viewportZoom > 15 ? sizeScale / 3 : sizeScale
+      viewportZoom > 15 ? sizeScale / 3 : sizeScale,
   }
   
-  shouldUpdateState({changeFlags}) {
+  shouldUpdateState({ changeFlags }) {
     return changeFlags.somethingChanged
   }
 
-  updateState({props, oldProps, changeFlags}) {
+  updateState({ props, oldProps, changeFlags }) {
     const rebuildIndex = changeFlags.dataChanged || props.sizeScale !== oldProps.sizeScale
 
     if (rebuildIndex) {
       const index = new Supercluster({
         maxZoom: props.superclusterZoom,
-        radius: props.getSuperclusterRadius(this.context.viewport.zoom, props.sizeScale)
+        radius: props.getSuperclusterRadius(this.context.viewport.zoom, props.sizeScale),
       })
       index.load(
         props.data.map(d => ({
-          geometry: {coordinates: props.getPosition(d)},
-          properties: d
-        }))
+          geometry: { coordinates: props.getPosition(d) },
+          properties: d,
+        })),
       )
-      this.setState({index})
+      this.setState({ index })
     }
 
     const z = Math.floor(this.context.viewport.zoom)
     if (rebuildIndex || z !== this.state.z) {
       this.setState({
         data: this.state.index.getClusters([-180, -85, 180, 85], z),
-        z
+        z,
       })
     }
   }
 
-  getPickingInfo({info, mode}) {
+  getPickingInfo({ info, mode }) {
     const pickedObject = info.object && info.object.properties
     if (pickedObject) {
       if (pickedObject.cluster && mode !== 'hover') {
@@ -114,8 +114,8 @@ class IconClusterLayer extends CompositeLayer {
         getIcon: d => getIconName(d),
         getSize: getIconSize(),
         pickable: true,
-        ...props
-      })
+        ...props,
+      }),
     )
   }
 }

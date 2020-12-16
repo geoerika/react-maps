@@ -45,7 +45,7 @@ const Container = styled('div', forwardRef)`
 `
 
 // TODO: style this
-const Loader = ({ setData, mode, accept, children, prompt, activePrompt}) => {
+const Loader = ({ setData, mode, accept, children, prompt, activePrompt }) => {
   const { getRootProps, getInputProps, isDragActive } = useLoader({ setData, mode, accept })
 
   return (

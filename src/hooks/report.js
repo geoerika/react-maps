@@ -23,7 +23,7 @@ export const useReport = ({ getReport, report_id, layer_id, map_id, currentDurat
         [durationKey]: {
           data,
           duration,
-          metrics: data.reduce(calculateReportWIMetrics, {})
+          metrics: data.reduce(calculateReportWIMetrics, {}),
         },
         currentDuration: durationKey,
       }
@@ -98,9 +98,9 @@ export const useFullReport = ({ getReport, report_id, layer_id, map_id }) => {
           ...agg,
           [ele.duration.key]: {
             ...ele,
-            metrics: ele.data.reduce(calculateReportWIMetrics, {}) // { min, max }
+            metrics: ele.data.reduce(calculateReportWIMetrics, {}), // { min, max }
           },
-        }), {})
+        }), {}),
       }
       reportDispatch({ type: 'full_report', payload: { duration, durations, fullReport } })
     }

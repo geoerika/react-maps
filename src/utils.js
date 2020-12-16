@@ -10,7 +10,7 @@ export const intensityByMetric = ({
   base,
   metric,
   metricStats: { max, min },
-  getDataObject = d => d
+  getDataObject = d => d,
 }) => {
   if (intensityCallback) return d => intensityCallback(d) * multiplier + base
   let intensity = v => (v - min) / (max - min)
@@ -25,7 +25,7 @@ export const colorIntensityByMetric = ({
   color, // [{ base, multiplier }]
   metric,
   metricStats: { max, min },
-  getDataObject = d => d
+  getDataObject = d => d,
 }) => {
   if (intensityCallback) return d => color.map(({ base, multiplier }) => intensityCallback(d) * multiplier + base)
   let intensity = v => (v - min) / (max - min)
@@ -42,6 +42,6 @@ export const calculateReportWIMetrics = (agg, row) => ({
     [key]: {
       max: Math.max((agg[key] || { max: null }).max, row[key]),
       min: Math.min((agg[key] || { min: null }).min, row[key]),
-    }
-  }), {})
+    },
+  }), {}),
 })

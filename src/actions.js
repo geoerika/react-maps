@@ -22,7 +22,7 @@ const FO = (api) => ({
       durations: Object.values(durations).reduce((flat, dateTypeRanges) => (
         [
           ...flat,
-          ...dateTypeRanges.map(o => ({ ...o, key: genUniqueDateKey(o) }))
+          ...dateTypeRanges.map(o => ({ ...o, key: genUniqueDateKey(o) })),
         ]
       ), []),
     }

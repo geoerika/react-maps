@@ -116,7 +116,7 @@ const MLReportMap = ({
           getLineColor: [getLineColor],
         },
         ...scatterLayerProps,
-      })
+      }),
     ]
   }, [
     reportData,

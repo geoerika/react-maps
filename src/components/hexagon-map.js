@@ -101,7 +101,7 @@ const HexLayerMap = ({
 
   const layers = useMemo(() => ([
     new HexagonLayer({
-      id: `xyz-hex-layer`,
+      id: 'xyz-hex-layer',
       data,
       getPosition: d => [d.lon, d.lat],
       pickable: onClick || onHover,
@@ -125,7 +125,7 @@ const HexLayerMap = ({
         getElevationWeight: [elevations, finalGetElevationWeight, metrics],
       },
       ...hexLayerProps,
-    })
+    }),
   ]), [
     hexLayerProps,
     data,

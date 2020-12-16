@@ -82,8 +82,8 @@ export const TimelineControls = ({
       <ControlButton onClick={stopTimeline} disabled={!player}>Stop</ControlButton>
     </div>
     <div>
-      <ControlButton onClick={move(-1)} disabled={!activeIndex}>{`<<`} Step</ControlButton>
-      <ControlButton onClick={move(1)} disabled={activeIndex === timestamps.length - 1}>Step {`>>`}</ControlButton>
+      <ControlButton onClick={move(-1)} disabled={!activeIndex}>{'<<'} Step</ControlButton>
+      <ControlButton onClick={move(1)} disabled={activeIndex === timestamps.length - 1}>Step {'>>'}</ControlButton>
     </div>
     <div>
       <ControlButton onClick={forward} disabled={direction > 0}>Forward</ControlButton>

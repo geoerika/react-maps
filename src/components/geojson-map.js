@@ -120,7 +120,7 @@ const GeoJsonMap = ({
 
   const layers = useMemo(() => ([
     new GeoJsonLayer({
-      id: `xyz-scatterplot-layer`,
+      id: 'xyz-scatterplot-layer',
       data,
       pickable: onClick || onHover,
       onClick,
@@ -133,10 +133,10 @@ const GeoJsonMap = ({
       getLineColor,
       updateTriggers: {
         getFillColor: [finalGetFillColor, fillDataScale, fillColors],
-        getElevation: [finalGetElevation, elevationDataScale, elevations]
+        getElevation: [finalGetElevation, elevationDataScale, elevations],
       },
       ...geoJsonLayerProps,
-    })
+    }),
   ]), [
     geoJsonLayerProps,
     data,

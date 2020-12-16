@@ -248,14 +248,14 @@ const ReportWIMap = ({
     timelineDispatch({ type: 'timestamps', payload: periods })
   }, [timelineDispatch, periods])
 
-  const { data, metrics } = (report[period.key] || { data: [], metrics: {}})
+  const { data, metrics } = (report[period.key] || { data: [], metrics: {} })
 
   const layers = useMemo(() => {
     let finalGetRadius = getRadius
     if (radiusBasedOn.length) {
       const d3Fn = SCALES[radiusDataScale]([
         (metrics[radiusBasedOn] || { min: 0 }).min,
-        (metrics[radiusBasedOn] || { max: 10 }).max
+        (metrics[radiusBasedOn] || { max: 10 }).max,
       ], radii)
 
       finalGetRadius = d => d3Fn(d[radiusBasedOn])
@@ -265,7 +265,7 @@ const ReportWIMap = ({
     if (fillBasedOn.length) {
       const d3Fn = SCALES[fillDataScale]([
         (metrics[fillBasedOn] || { min: 0 }).min,
-        (metrics[fillBasedOn] || { max: 10 }).max
+        (metrics[fillBasedOn] || { max: 10 }).max,
       ], fillColors)
 
       finalGetFillColor = d => {
@@ -292,7 +292,7 @@ const ReportWIMap = ({
         getLineWidth,
         getLineColor,
         ...scatterLayerProps,
-      })
+      }),
     ]
   }, [
     report_id,

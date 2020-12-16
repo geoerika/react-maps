@@ -31,7 +31,7 @@ export const POIMapProps = {
     lineColour: PropTypes.array.isRequired,
     lineWidth: PropTypes.number.isRequired,
     opacity: PropTypes.number.isRequired,
-  })
+  }),
 }
 
 export const POIMapDefaultProps = {
@@ -41,5 +41,5 @@ export const POIMapDefaultProps = {
     lineColour: [0, 0, 0],
     lineWidth: 2,
     opacity: 0.3,
-  }
+  },
 }
