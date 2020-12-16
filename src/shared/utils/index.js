@@ -22,7 +22,7 @@ export const setView = ({ data, width, height }) => {
   let padding = 100
   // set padding larger when we edit one radii POI
   if (data.length === 1 && !data[0].properties.polygon) {
-    padding = 125
+    padding = 75
   }
   if (dataIsOnePoint && data[0].properties.radius) {
     /**
@@ -35,7 +35,7 @@ export const setView = ({ data, width, height }) => {
     viewData= [createCircleFromPointRadius(pointCoord, pointRadius)]
   }
   const formattedGeoData = getDataCoordinates(viewData)
-  const viewPort = new WebMercatorViewport({ width, height })
+  const viewPort = new WebMercatorViewport({ width, height, pitch: 25 })
     .fitBounds(formattedGeoData, { padding })
   let { longitude, latitude, zoom } = viewPort
   if (dataIsOnePoint && !data[0].properties.radius && data[0].poiType === TYPE_RADIUS.code) {
@@ -79,7 +79,7 @@ export const getDataCoordinates = (data) => {
           : point
       return [
         [Math.min(minLng, lng), Math.min(minLat, lat)],
-        [Math.max(maxLng, lng), Math.max(maxLat, lat)]
+        [Math.max(maxLng, lng), Math.max(maxLat, lat)],
       ]
     }, [[180, 90], [-180, -90]])
 
@@ -100,7 +100,7 @@ export const getCursor = ({ layers, hoverInfo }) => {
       return drawLayer.getCursor.bind(drawLayer)
     }
   }
-  return ({isDragging}) => (isDragging ? 'grabbing' : (hoverInfo?.isHovering ? 'pointer' : 'grab'))
+  return ({ isDragging }) => (isDragging ? 'grabbing' : (hoverInfo?.isHovering ? 'pointer' : 'grab'))
 }
 
 /**

@@ -62,7 +62,7 @@ const MapContainer = styled('div', forwardRef)`
 // initial map view
 const INIT_VIEW_STATE = {
   pitch: 25,
-  bearing: 15,
+  bearing: 0,
   transitionDuration: 3000,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 52,
@@ -74,7 +74,7 @@ const INIT_VIEW_STATE = {
 // initial map view for drawing mode
 const INIT_VIEW_DRAW_STATE = {
   pitch: 25,
-  bearing: 15,
+  bearing: 0,
   transitionDuration: 300,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 43.661539,
