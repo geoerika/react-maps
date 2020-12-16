@@ -5,10 +5,13 @@ import { POIMap, POIMapActivePOI } from '../src'
 import POIsRadii from './data/pois-radii'
 import POIsRadiiTo from './data/pois-radii-to'
 import POIsPolygonsVanData from './data/pois-polygons-van'
+import POIsPolygonTorontoData from './data/pois-polygon-toronto.json'
 
 
 // create GeoJSON format for polygon data
 const POIsPolygonsVan = POIsPolygonsVanData.map((polygon) =>
+  ({ ...polygon, geometry: JSON.parse(polygon.properties.polygon_json) }))
+const POIsPolygonToronto = POIsPolygonTorontoData.map((polygon) =>
   ({ ...polygon, geometry: JSON.parse(polygon.properties.polygon_json) }))
 
 storiesOf('POI Map', module)
@@ -36,7 +39,7 @@ storiesOf('POI Map', module)
   ))
   .add('Edit Polygon POIs - POIEditDraw layer', () => (
     <POIMap
-      activePOI={ POIsPolygonsVan[1] }
+      activePOI={ POIsPolygonToronto[0] }
       mode='edit'
       controller={{ doubleClickZoom: false }}
     />
