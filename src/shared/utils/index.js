@@ -18,12 +18,8 @@ import { TYPE_RADIUS } from '../../constants'
  */
 export const setView = ({ data, width, height }) => {
   const dataIsOnePoint = (data.length === 1 && data[0].geometry.type === 'Point')
+
   let viewData = data
-  let padding = 100
-  // set padding larger when we edit one radii POI
-  if (data.length === 1 && !data[0].properties.polygon) {
-    padding = 75
-  }
   if (dataIsOnePoint && data[0].properties.radius) {
     /**
      * if data is one point POI with radius, we create a circle feature around the POI with the
@@ -34,14 +30,40 @@ export const setView = ({ data, width, height }) => {
     const pointRadius = data[0].properties.radius
     viewData= [createCircleFromPointRadius(pointCoord, pointRadius)]
   }
+
   const formattedGeoData = getDataCoordinates(viewData)
-  const viewPort = new WebMercatorViewport({ width, height, pitch: 25 })
+  const dataLonDiff = formattedGeoData[0][0] - formattedGeoData[1][0]
+
+  /**
+   * -120 is the diff in longitude between the westernmost and easternmost points of
+   * North America: (-172 - (-52)) = -120
+   * Compare to the diff in longitude between westernmost point of NA and easternmost point of
+   * Australia: -172 - (+153) = -325
+   * Because we deal with a pitch, the distortion in map requires more padding between so extreme
+   * points. We also need to reduce padding with map container shrinking size,
+   * otherwise fitBounds breaks when padding is greater than map dimensions.
+   */
+  let padding = dataLonDiff > -120 ?
+    Math.min(width, height) / 10 :
+    Math.min(width, height) / 2 > 75 ?
+      75 :
+      Math.min(width, height) / 4
+
+  // set padding larger when we edit one radii POI
+  if (data.length === 1 && !data[0].properties.polygon) {
+    padding = Math.min(width, height) / 8
+  }
+
+  const viewPort = new WebMercatorViewport({ width, height })
     .fitBounds(formattedGeoData, { padding })
+
   let { longitude, latitude, zoom } = viewPort
+
   if (dataIsOnePoint && !data[0].properties.radius && data[0].poiType === TYPE_RADIUS.code) {
     // default zoom for one point POI with no radius
     zoom = 16
   }
+
   return { longitude, latitude, zoom }
 }
 
