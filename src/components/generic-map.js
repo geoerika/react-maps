@@ -67,6 +67,7 @@ const Map = ({
   legends,
   showTooltip,
   tooltipNode,
+  mapboxApiAccessToken,
   ...tooltipProps
 }) => {
   const deckRef = useRef()
@@ -122,7 +123,7 @@ const Map = ({
         // onHover={d => console.log('----> map hover', d)}
         // onClick={d => console.log('----> map click', d)}
       >
-        <StaticMap mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN } />
+        <StaticMap mapboxApiAccessToken={ mapboxApiAccessToken } />
       </DeckGL>
       {showLegend && <Legend legends={legends} position={position} />}
       {showTooltip && (
@@ -141,7 +142,7 @@ const Map = ({
 }
 
 
-Map.propTypes = propTypes
-Map.defaultProps = defaultProps
+Map.propTypes = { ...propTypes, ...StaticMap.propTypes }
+Map.defaultProps = { ...defaultProps, ...StaticMap.defaultProps }
 
 export default Map

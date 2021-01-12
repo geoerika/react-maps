@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useReducer, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
+import { commonProps, commonDefaultProps } from '../shared/map-props'
+
 import { styled, setup } from 'goober'
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
@@ -131,6 +133,7 @@ const ReportWIMap = ({
   showLegend,
   legendPosition,
   useTooltip,
+  mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
   const [tooltip, tooltipDispatch] = useReducer((state, { type, payload }) => {
@@ -382,13 +385,14 @@ const ReportWIMap = ({
           tooltipNode={<EntryList {...tooltip} />}
           // x, y, translate
           {...tooltip}
+          mapboxApiAccessToken={mapboxApiAccessToken}
         />
       </MapContainer>
     </Container>
   )
 }
 
-ReportWIMap.propTypes = propTypes
-ReportWIMap.defaultProps = defaultProps
+ReportWIMap.propTypes = { ...propTypes, ...commonProps }
+ReportWIMap.defaultProps = { ...defaultProps, ...commonDefaultProps }
 
 export default ReportWIMap

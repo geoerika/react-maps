@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
+import { commonProps, commonDefaultProps } from '../shared/map-props'
+
 import { HexagonLayer } from 'deck.gl'
 
 import { interpolateBlues } from 'd3-scale-chromatic'
@@ -52,6 +54,7 @@ const HexLayerMap = ({
   getColorWeight,
   showLegend,
   legendPosition,
+  mapboxApiAccessToken,
   ...hexLayerProps
 }) => {
   const { data, metrics, metricDispatch } = useMapData({})
@@ -168,12 +171,13 @@ const HexLayerMap = ({
         showLegend={showLegend}
         position={legendPosition}
         legends={legends}
+        mapboxApiAccessToken={mapboxApiAccessToken}
       />
     </div>
   )
 }
 
-HexLayerMap.propTypes = propTypes
-HexLayerMap.defaultProps = defaultProps
+HexLayerMap.propTypes = { ...propTypes, ...commonProps }
+HexLayerMap.defaultProps = { ...defaultProps, ...commonDefaultProps }
 
 export default HexLayerMap

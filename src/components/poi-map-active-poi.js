@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import POIMap from './poi-map'
 import PropTypes from 'prop-types'
 
+import { commonProps } from '../shared/map-props'
+
 
 const propTypes = {
   POIData: PropTypes.array,
@@ -13,6 +15,7 @@ const defaultProps = {
 
 const POIMapActivePOI = ({
   POIData,
+  ...commonProps
 }) => {
   const [activePOI, setActivePOI] = useState(null)
 
@@ -38,12 +41,13 @@ const POIMapActivePOI = ({
           activePOI={ activePOI }
           setActivePOI={ setActivePOI }
           mode='display'
+          { ...commonProps }
         />
       } 
     </div>
   )
 }
 
-POIMapActivePOI.propTypes = propTypes
+POIMapActivePOI.propTypes = { ...propTypes, ...commonProps }
 POIMapActivePOI.defaultProps = defaultProps
 export default POIMapActivePOI

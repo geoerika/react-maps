@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
+import { commonProps, commonDefaultProps } from '../shared/map-props'
+
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import { setView } from '../shared/utils'
@@ -67,6 +69,7 @@ const MLReportMap = ({
   getFillColor,
   getLineWidth,
   getLineColor,
+  mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
 
@@ -138,12 +141,13 @@ const MLReportMap = ({
       setDimensionsCb={(o) => setDimensions(o)}
       getTooltip={getTooltip}
       viewStateOverride={viewStateOverride}
+      mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate
     />
   )
 }
 
-MLReportMap.propTypes = propTypes
-MLReportMap.defaultProps = defaultProps
+MLReportMap.propTypes = { ...propTypes, ...commonProps }
+MLReportMap.defaultProps = { ...defaultProps, ...commonDefaultProps }
 
 export default MLReportMap

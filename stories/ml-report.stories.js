@@ -5,9 +5,11 @@ import { MLReportMap } from '../src'
 import vwiJson from './data/locus-ml-vwi.json'
 
 
+const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN
+
 storiesOf('Locus ML Report', module)
   .add('VWI - basic', () => (
-    <MLReportMap reportData={vwiJson} />
+    <MLReportMap reportData={vwiJson} mapboxApiAccessToken={mapboxApiAccessToken}/>
   ))
   .add('VWI - zoom to point', () => {
     const [centerMap, setCenterMap] = useState()
@@ -24,6 +26,7 @@ storiesOf('Locus ML Report', module)
           centerMap={centerMap}
           highlightId={highlightId}
           getTooltip={o => o.object?.name}
+          mapboxApiAccessToken={mapboxApiAccessToken}
         />
       </div>
     )

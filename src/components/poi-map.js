@@ -124,6 +124,7 @@ const POIMap = ({
   tooltipKeys,
   typography,
   mapProps,
+  mapboxApiAccessToken,
 }) => {
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
@@ -421,7 +422,7 @@ const POIMap = ({
             getCursor={ getCurrentCursor }
           >
             <StaticMap
-              mapboxApiAccessToken={ process.env.MAPBOX_ACCESS_TOKEN }
+              mapboxApiAccessToken={ mapboxApiAccessToken }
             />
           </DeckGL>
         </MapContainer>
@@ -435,11 +436,13 @@ POIMap.propTypes = {
   ...tooltipProps,
   ...POIMapProps,
   ...propTypes,
+  ...StaticMap.propTypes,
 }
 POIMap.defaultProps = {
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
   ...POIMapDefaultProps,
   ...defaultProps,
+  ...StaticMap.defaultProps,
 }
 export default POIMap

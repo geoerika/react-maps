@@ -1,5 +1,13 @@
 import PropTypes from 'prop-types'
 
+export const commonProps = {
+  mapboxApiAccessToken: PropTypes.string.isRequired,
+}
+
+export const commonDefaultProps = {
+  mapboxApiAccessToken:'no-token',
+}
+
 export const typographyPropTypes = {
   typography: PropTypes.shape({
     fontFamily: PropTypes.string.isRequired,

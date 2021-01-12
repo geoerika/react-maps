@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
+import { commonProps, commonDefaultProps } from '../shared/map-props'
+
 import { GeoJsonLayer } from 'deck.gl'
 
 import { interpolateBlues } from 'd3-scale-chromatic'
@@ -80,6 +82,7 @@ const GeoJsonMap = ({
   getLineColor,
   showLegend,
   legendPosition,
+  mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
   const [geoJson, setGeoJson] = useState('')
@@ -181,12 +184,13 @@ const GeoJsonMap = ({
         showLegend={showLegend}
         position={legendPosition}
         legends={legends}
+        mapboxApiAccessToken={ mapboxApiAccessToken }
       />
     </div>
   )
 }
 
-GeoJsonMap.propTypes = propTypes
-GeoJsonMap.defaultProps = defaultProps
+GeoJsonMap.propTypes = { ...propTypes, ...commonProps }
+GeoJsonMap.defaultProps = { ...defaultProps, ...commonDefaultProps }
 
 export default GeoJsonMap

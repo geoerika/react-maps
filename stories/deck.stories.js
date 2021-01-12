@@ -4,11 +4,12 @@ import { storiesOf } from '@storybook/react'
 import POIMap from '../src/components/poi-map'
 import Map from '../src/components/generic-map'
 
+const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN
 
 storiesOf('Deck', module)
   .add('POIMap empty', () => (
-    <POIMap/>
+    <POIMap mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }/>
   ))
   .add('Generic Map', () => (
-    <Map />
+    <Map mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }/>
   ))
