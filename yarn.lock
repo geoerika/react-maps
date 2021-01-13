@@ -1275,8 +1275,8 @@
 
 "@eqworks/react-labs@^1.12.0":
   version "1.12.0"
-  resolved "https://npm.pkg.github.com/download/@eqworks/react-labs/1.12.0/895c4ed0bd89c744ce0df77d1676125ebb9eef67c9beff45d9ed77b0b55137c3#fc19a559e33f4c48c99e1fc7102bdba596d3e24f"
-  integrity sha512-o9MJ93PIn2tApwYP7K2WSZSbiAtB3og3wgoUJk+2hZ8yRqlE9aFHO8amDuQ+IVcJqXGCxRKkke52St+YqmkRjA==
+  resolved "https://registry.yarnpkg.com/@eqworks/react-labs/-/react-labs-1.12.0.tgz#5083a8a357f81820357d7c6cfdf1a4e79448a074"
+  integrity sha512-iramCt4xOjR4s6TIzRQLg+AutUzOnRnRvrffdX5fDiiQL1oFWARFSf5TtzHvmGKSL4wDnSRLIOogg37dfxuRVA==
   dependencies:
     axios "^0.20.0"
     clsx "^1.1.1"
@@ -6325,9 +6325,9 @@ follow-redirects@1.5.10:
     debug "=3.1.0"
 
 follow-redirects@^1.10.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.0.tgz#b42e8d93a2a7eea5ed88633676d6597bc8e384db"
-  integrity sha512-aq6gF1BEKje4a9i9+5jimNFIpq4Q1WiwBToeRK5NvZBd/TRsmW8BsJfOEGkr76TbOyPVD3OVDN910EcUNtRYEA==
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.1.tgz#5f69b813376cee4fd0474a3aba835df04ab763b7"
+  integrity sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
 
 for-in@^0.1.3:
   version "0.1.8"
@@ -9991,9 +9991,9 @@ react-syntax-highlighter@^12.2.1:
     refractor "^2.4.1"
 
 react-table@^7.6.0:
-  version "7.6.2"
-  resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.6.2.tgz#b60932fa6d457c2bca0da49815cd6a8fe9451f77"
-  integrity sha512-urwNZTieb+xg/+BITUIrqdH5jZfJlw7rKVAAq25iXpBPwbQojLCEKJuGycLbVwn8fzU+Ovly3y8HHNaLNrPCvQ==
+  version "7.6.3"
+  resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.6.3.tgz#76434392b3f62344bdb704f5b227c2f29c1ffb14"
+  integrity sha512-hfPF13zDLxPMpLKzIKCE8RZud9T/XrRTsaCIf8zXpWZIZ2juCl7qrGpo3AQw9eAetXV5DP7s2GDm+hht7qq5Dw==
 
 react-textarea-autosize@^8.1.1:
   version "8.2.0"
