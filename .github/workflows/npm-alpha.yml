@@ -13,12 +13,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
-          registry-url: https://npm.pkg.github.com/
-          scope: '@eqworks'
-          always-auth: true
       - run: yarn install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
       - run: yarn publish --tag alpha
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
