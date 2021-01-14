@@ -22,7 +22,6 @@ jobs:
           node-version: 12.x
           registry-url: https://npm.pkg.github.com/
           scope: '@eqworks'
-          always-auth: true
 
       - name: Cache Node Modules
         uses: actions/cache@v2
