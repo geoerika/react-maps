@@ -372,6 +372,16 @@ const POIMap = ({
 
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
+  /**
+   * mapCanRender - conditions to render the map
+   */
+  const mapCanRender = Boolean(useMemo(() =>
+    (layerArray.includes('POIEditDraw') && data[0]?.properties?.poiType === TYPE_POLYGON.code) ||
+    (!layerArray.includes('POIEditDraw') && data.length) ||
+    // case for empty map
+    !POIData.length
+  ,[data, layerArray, POIData]))
+
   return (
     <ThemeProvider>
       <MapWrapper>
@@ -396,35 +406,37 @@ const POIMap = ({
               tooltipKeys={ tooltipKeys }
             />
           ) }
-          <DeckGL
-            initialViewState={ viewState }
-            layers={ layers }
-            controller={ controller }
-            /**
-             * onClick for edit mode to select feature for editing
-             * check that selected feature is not a 'guides' sublayer
-             * https://github.com/uber/nebula.gl/blob/master/examples/editor/example.js
-             * https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
-             */
-            onClick={ (info) => {
-              const index = []
-              if (['edit', 'isOnMapEditing'].includes(mapMode) && info?.object && !info.isGuide) {
-                index.push(info.index)
-                setSelectedFeatureIndexes(index)
-              }
-              // we deselect feature during editing when we click outside its limits
-              if (!info?.object && data[0]) {
-                setSelectedFeatureIndexes([])
-                data[0].properties.isOnMapEditing = false
-              }
-            }}
-            onViewStateChange={ () => setHoverInfo(null) }
-            getCursor={ getCurrentCursor }
-          >
-            <StaticMap
-              mapboxApiAccessToken={ mapboxApiAccessToken }
-            />
-          </DeckGL>
+          { mapCanRender && (
+            <DeckGL
+              initialViewState={ viewState }
+              layers={ layers }
+              controller={ controller }
+              /**
+               * onClick for edit mode to select feature for editing
+               * check that selected feature is not a 'guides' sublayer
+               * https://github.com/uber/nebula.gl/blob/master/examples/editor/example.js
+               * https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
+               */
+              onClick={ (info) => {
+                const index = []
+                if (['edit', 'isOnMapEditing'].includes(mapMode) && info?.object && !info.isGuide) {
+                  index.push(info.index)
+                  setSelectedFeatureIndexes(index)
+                }
+                // we deselect feature during editing when we click outside its limits
+                if (!info?.object && data[0]) {
+                  setSelectedFeatureIndexes([])
+                  data[0].properties.isOnMapEditing = false
+                }
+              }}
+              onViewStateChange={ () => setHoverInfo(null) }
+              getCursor={ getCurrentCursor }
+            >
+              <StaticMap
+                mapboxApiAccessToken={ mapboxApiAccessToken }
+              />
+            </DeckGL>
+          ) }
         </MapContainer>
       </MapWrapper>
     </ThemeProvider>

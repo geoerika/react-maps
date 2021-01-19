@@ -1,6 +1,6 @@
 {
   "name": "@eqworks/react-maps",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "React maps",
   "author": "EQ Inc.",
   "license": "UNLICENSED",
@@ -33,7 +33,7 @@
     "d3-color": "^2.0.0",
     "d3-scale": "^3.2.1",
     "d3-scale-chromatic": "^1.5.0",
-    "deck.gl": "^8.3.13",
+    "deck.gl": "^8.3.14",
     "goober": "^2.0.5",
     "lodash.omit": "^4.5.0",
     "nebula.gl": "0.21.1",
