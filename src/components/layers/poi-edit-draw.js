@@ -1,11 +1,11 @@
 // ref: https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
+import { EditableGeoJsonLayer } from '@nebula.gl/layers'
 import {
-  EditableGeoJsonLayer,
   DrawPointMode,
   DrawPolygonMode,
   ModifyMode,
   TransformMode,
-} from 'nebula.gl'
+} from '@nebula.gl/edit-modes'
 
 import { TYPE_RADIUS } from '../../constants'
 

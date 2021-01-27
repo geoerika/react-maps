@@ -349,18 +349,24 @@ const POIMap = ({
   }, [activePOI, setDraftActivePOI])
 
   // set layers for deck.gl map
-  const layers = useMemo(() =>
-    processLayers(layerArray, {
-      mapProps,
-      data,
-      updatePOI,
-      onClick,
-      onHover,
-      mode,
-      POIType,
-      selectedFeatureIndexes,
-    })
-  , [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
+  // don't set layers for display and edit modes unless we have POIs in data
+  const layers = useMemo(() => {
+    if ((data?.length && ((mode === 'display') ||
+      (mode === 'edit' && selectedFeatureIndexes.length))) ||
+      mode.endsWith('-draw')) {
+      return processLayers(layerArray, {
+        mapProps,
+        data,
+        updatePOI,
+        onClick,
+        onHover,
+        mode,
+        POIType,
+        selectedFeatureIndexes,
+      })
+    }
+    return []
+  }, [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   /**
    * toggleRadius - React hook that toggles showRadius state
