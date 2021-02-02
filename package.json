@@ -23,7 +23,7 @@
     "url": "git+https://github.com/EQWorks/react-maps.git"
   },
   "dependencies": {
-    "@eqworks/lumen-ui": "^1.0.0",
+    "@eqworks/lumen-ui": "^1.0.1",
     "@nebula.gl/edit-modes": "^0.22.1",
     "@nebula.gl/layers": "^0.22.1",
     "@turf/bbox": "^6.0.1",
@@ -45,9 +45,9 @@
     "supercluster": "^7.1.0"
   },
   "peerDependencies": {
-    "@material-ui/core": "^4.11.0",
-    "@material-ui/icons": "^4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
@@ -66,9 +66,9 @@
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",
-    "@material-ui/core": "^4.11.0",
-    "@material-ui/icons": "^4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "@size-limit/preset-small-lib": "^4.5.7",
     "@storybook/addon-actions": "6.0.17",
     "@storybook/addon-links": "6.0.17",
