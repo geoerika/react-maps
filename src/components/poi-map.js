@@ -15,7 +15,7 @@ import { FlyToInterpolator } from 'deck.gl'
 import { StaticMap } from 'react-map-gl'
 import { styled, setup } from 'goober'
 import { FormControlLabel } from '@material-ui/core'
-import { Switch, ThemeProvider } from '@eqworks/react-labs'
+import { Switch } from '@eqworks/lumen-ui'
 
 import {
   processLayers,
@@ -389,63 +389,61 @@ const POIMap = ({
   ,[data, layerArray, POIData]))
 
   return (
-    <ThemeProvider>
-      <MapWrapper>
-        { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && (
-          <SwitchContainer>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={ showRadius }
-                  onChange={ () => toggleRadius() }
-                />
-              }
-              label='Show Radius'
-            />
-          </SwitchContainer>
-        )}
-        <MapContainer ref={ mapContainerRef }>
-          { hoverInfo?.object && (
-            <POITooltip
-              info={ hoverInfo }
-              typography={ typography }
-              tooltipKeys={ tooltipKeys }
-            />
-          ) }
-          { mapCanRender && (
-            <DeckGL
-              initialViewState={ viewState }
-              layers={ layers }
-              controller={ controller }
-              /**
-               * onClick for edit mode to select feature for editing
-               * check that selected feature is not a 'guides' sublayer
-               * https://github.com/uber/nebula.gl/blob/master/examples/editor/example.js
-               * https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
-               */
-              onClick={ (info) => {
-                const index = []
-                if (['edit', 'isOnMapEditing'].includes(mapMode) && info?.object && !info.isGuide) {
-                  index.push(info.index)
-                  setSelectedFeatureIndexes(index)
-                }
-                // we deselect feature during editing when we click outside its limits
-                if (!info?.object && data[0]) {
-                  setSelectedFeatureIndexes([])
-                  data[0].properties.isOnMapEditing = false
-                }
-              }}
-              onViewStateChange={ () => setHoverInfo(null) }
-              getCursor={ getCurrentCursor }
-            >
-              <StaticMap
-                mapboxApiAccessToken={ mapboxApiAccessToken }
+    <MapWrapper>
+      { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && (
+        <SwitchContainer>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={ showRadius }
+                onChange={ () => toggleRadius() }
               />
-            </DeckGL>
-          ) }
-        </MapContainer>
-      </MapWrapper>
-    </ThemeProvider>
+            }
+            label='Show Radius'
+          />
+        </SwitchContainer>
+      )}
+      <MapContainer ref={ mapContainerRef }>
+        { hoverInfo?.object && (
+          <POITooltip
+            info={ hoverInfo }
+            typography={ typography }
+            tooltipKeys={ tooltipKeys }
+          />
+        ) }
+        { mapCanRender && (
+          <DeckGL
+            initialViewState={ viewState }
+            layers={ layers }
+            controller={ controller }
+            /**
+             * onClick for edit mode to select feature for editing
+             * check that selected feature is not a 'guides' sublayer
+             * https://github.com/uber/nebula.gl/blob/master/examples/editor/example.js
+             * https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
+             */
+            onClick={ (info) => {
+              const index = []
+              if (['edit', 'isOnMapEditing'].includes(mapMode) && info?.object && !info.isGuide) {
+                index.push(info.index)
+                setSelectedFeatureIndexes(index)
+              }
+              // we deselect feature during editing when we click outside its limits
+              if (!info?.object && data[0]) {
+                setSelectedFeatureIndexes([])
+                data[0].properties.isOnMapEditing = false
+              }
+            }}
+            onViewStateChange={ () => setHoverInfo(null) }
+            getCursor={ getCurrentCursor }
+          >
+            <StaticMap
+              mapboxApiAccessToken={ mapboxApiAccessToken }
+            />
+          </DeckGL>
+        ) }
+      </MapContainer>
+    </MapWrapper>
   )
 }
 

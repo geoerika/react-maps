@@ -23,7 +23,7 @@
     "url": "git+https://github.com/EQWorks/react-maps.git"
   },
   "dependencies": {
-    "@eqworks/react-labs": "^1.12.0",
+    "@eqworks/lumen-ui": "^1.0.0",
     "@nebula.gl/edit-modes": "^0.22.1",
     "@nebula.gl/layers": "^0.22.1",
     "@turf/bbox": "^6.0.1",
