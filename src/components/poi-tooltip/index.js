@@ -24,13 +24,14 @@ const TooltipWrapper = styled('div')(({ info, typography }) =>`
   font-size: ${typography.fontSize};
   font-weight: ${typography.fontWeight};
   color: ${typography.color};
-  backgroundColor: rgb(0, 181, 173, 0.8);
+  backgroundColor: rgb(0, 181, 173, 0.7);
+  border-radius: 3px;
   padding: 8px;
   position: absolute;
   zIndex: 1;
   pointerEvents: none;
-  left: ${info.x}px;
-  top: ${info.y}px;
+  left: calc(${info.x}px + 10px);
+  top: calc(${info.y}px + 10px);
 `)
 
 // POITooltip component - tooltip for POIMap

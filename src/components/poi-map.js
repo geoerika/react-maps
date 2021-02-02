@@ -50,6 +50,7 @@ const SwitchContainer = styled('div')`
   margin: 20px;
   z-index: 1;
   background-color: white;
+  border-radius: 3px;
   padding: 5px;
 `
 
