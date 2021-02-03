@@ -28,7 +28,8 @@ const POITooltipItems = ({ tooltipKeys, params }) => (
       <div key={ key }>
         { tooltipKeys.includes(key) && (
           <div>
-            <Key>{`${key}: `}</Key><Value>{ value }</Value>
+            <Key>{`${key}: `}</Key>
+            <Value>{ ['lon', 'lat'].includes(key) ? Math.round(value * 100) / 100 : value }</Value>
           </div>
         ) }
       </div>
