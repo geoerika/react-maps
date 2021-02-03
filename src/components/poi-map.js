@@ -418,23 +418,24 @@ const POIMap = ({
             layers={ layers }
             controller={ controller }
             /**
+             * USE once nebula.gl fixes selectedFeatureIndex out of range value cases (ie [], null)
              * onClick for edit mode to select feature for editing
              * check that selected feature is not a 'guides' sublayer
              * https://github.com/uber/nebula.gl/blob/master/examples/editor/example.js
              * https://nebula.gl/docs/api-reference/layers/editable-geojson-layer
              */
-            onClick={ (info) => {
-              const index = []
-              if (['edit', 'isOnMapEditing'].includes(mapMode) && info?.object && !info.isGuide) {
-                index.push(info.index)
-                setSelectedFeatureIndexes(index)
-              }
-              // we deselect feature during editing when we click outside its limits
-              if (!info?.object && data[0]) {
-                setSelectedFeatureIndexes([])
-                data[0].properties.isOnMapEditing = false
-              }
-            }}
+            // onClick={ (info) => {
+            //   const index = []
+            //   if (['edit', 'isOnMapEditing'].includes(mapMode) && info?.object && !info.isGuide) {
+            //     index.push(info.index)
+            //     setSelectedFeatureIndexes(index)
+            //   }
+            //   // we deselect feature during editing when we click outside its limits
+            //   if (!info?.object && data[0]) {
+            //     setSelectedFeatureIndexes([])
+            //     data[0].properties.isOnMapEditing = false
+            //   }
+            // }}
             onViewStateChange={ () => setHoverInfo(null) }
             getCursor={ getCurrentCursor }
           >
