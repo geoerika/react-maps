@@ -13,6 +13,10 @@ import PropTypes from 'prop-types'
 import DeckGL from '@deck.gl/react'
 import { FlyToInterpolator } from '@deck.gl/core'
 import { StaticMap } from 'react-map-gl'
+import Geocoder from 'react-map-gl-geocoder'
+
+import 'react-map-gl-geocoder/dist/mapbox-gl-geocoder.css'
+
 import { styled, setup } from 'goober'
 import { FormControlLabel } from '@material-ui/core'
 import { Switch } from '@eqworks/lumen-ui'
@@ -55,6 +59,7 @@ const SwitchContainer = styled('div')`
 `
 
 const MapContainer = styled('div', forwardRef)`
+  padding: 10px;
   width: 100%;
   height: 100%;
   position: absolute;
@@ -133,6 +138,7 @@ const POIMap = ({
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
   const mapContainerRef = useRef()
+  const mapRef = useRef()
   const { width, height } = useResizeObserver(mapContainerRef)
 
   // React hook that sets POIType
@@ -459,8 +465,18 @@ const POIMap = ({
             getCursor={ getCurrentCursor }
           >
             <StaticMap
+              ref={ mapRef }
               mapboxApiAccessToken={ mapboxApiAccessToken }
-            />
+            >
+              { mode.endsWith('-draw') && (
+                <Geocoder
+                  mapRef={ mapRef }
+                  containerRef={ mapContainerRef }
+                  mapboxApiAccessToken={ mapboxApiAccessToken }
+                  position='top-left'
+                />
+              ) }
+            </StaticMap>
           </DeckGL>
         ) }
       </MapContainer>
