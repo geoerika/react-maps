@@ -48,6 +48,7 @@
     "prop-types": "^15.7.2",
     "react-dropzone": "^11.0.2",
     "react-map-gl": "^5.2.11",
+    "react-map-gl-geocoder": "^2.1.6",
     "react-query": "^2.12.1",
     "supercluster": "^7.1.0"
   },
