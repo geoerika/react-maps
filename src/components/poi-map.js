@@ -27,6 +27,7 @@ import {
   getCursor,
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
+  forwardGeocoder,
 } from '../shared/utils'
 import { useResizeObserver } from '../hooks'
 import POITooltip from './poi-tooltip'
@@ -474,6 +475,8 @@ const POIMap = ({
                   containerRef={ mapContainerRef }
                   mapboxApiAccessToken={ mapboxApiAccessToken }
                   position='top-left'
+                  countries= { 'ca, us' }
+                  localGeocoder= { forwardGeocoder }
                 />
               ) }
             </StaticMap>
