@@ -1,11 +1,12 @@
 import { WebMercatorViewport } from '@deck.gl/core'
-import * as eqMapLayers from '../../components/layers/index'
+import * as eqMapLayers from '../../components/layers'
 import circle from '@turf/circle'
 import { point } from '@turf/helpers'
 import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
 import { TYPE_RADIUS } from '../../constants'
+import fsaFeatures from './../../fsa-features'
 
 /**
  * setView - handles calculations of viewState lat, long, and zoom, based on
@@ -157,4 +158,15 @@ export const getCircleRadiusCentroid = (polygon) => {
   let coordinates = centroid.geometry.coordinates
   radius = Math.round(radius * 1000000) / 1000
   return { radius, coordinates }
+}
+
+export const forwardGeocoder = (query) => {
+  const q = query.toLowerCase()
+
+  return fsaFeatures.features.filter(f => f.properties.title.toLowerCase().search(q) !== -1)
+    .map(f => ({
+      ...f,
+      place_name: f.properties.title,
+      center: f.geometry.coordinates,
+    }))
 }
