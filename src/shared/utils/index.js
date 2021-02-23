@@ -1,12 +1,17 @@
 import { WebMercatorViewport } from '@deck.gl/core'
 import * as eqMapLayers from '../../components/layers'
+import axios from 'axios'
+
 import circle from '@turf/circle'
 import { point } from '@turf/helpers'
 import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
-import { TYPE_RADIUS } from '../../constants'
+
+import { TYPE_RADIUS, TYPE_POLYGON } from '../../constants'
+import { poiCategory } from './../../poi-category'
 import fsaFeatures from './../../fsa-features'
+import FO from './../../actions'
 
 /**
  * setView - handles calculations of viewState lat, long, and zoom, based on
@@ -55,7 +60,7 @@ export const setView = ({ data, width, height }) => {
       Math.min(width, height) / 4
 
   // set padding larger when we edit one radii POI
-  if (data.length === 1 && !data[0].properties.polygon) {
+  if (data.length === 1 && !data[0].properties?.polygon) {
     padding = Math.min(width, height) / 8
   }
 
@@ -90,6 +95,8 @@ export const getDataCoordinates = (data) => {
   if (data[0]?.properties?.polygon_json) {
     finalCoordinateArray = data.reduce((acc, point) =>
       [...acc, JSON.parse(point.properties.polygon_json).coordinates[0]], []).flat()
+  } else if (['Polygon', 'MultiPolygon'].includes(data[0]?.geometry?.type)) {
+    finalCoordinateArray = data[0].geometry.coordinates[0]
   } else {
     finalCoordinateArray = data
   }
@@ -160,6 +167,11 @@ export const getCircleRadiusCentroid = (polygon) => {
   return { radius, coordinates }
 }
 
+/**
+ * forwardGeocoder - searches for and returns an fsa feature
+ * @param { string } query - fsa search key (ie. postal code, province..)
+ * @return { object } - fsa feature
+ */
 export const forwardGeocoder = (query) => {
   const q = query.toLowerCase()
 
@@ -169,4 +181,125 @@ export const forwardGeocoder = (query) => {
       place_name: f.properties.title,
       center: f.geometry.coordinates,
     }))
+}
+
+
+/**
+ * geocoderOnResult - searches for and returns an fsa feature
+ * @param { string } param
+ * @param { string } param.result - the result field of an object resulting from a geocoder search
+ * @param { string } param.POIType - POI type of geocoder result
+ * @return { object } - POI feature
+ */
+export const geocoderOnResult = async ({ result, POIType }) => {
+  const properties = {
+    lat: result.center[1],
+    lon: result.center[0],
+    address: result.place_name,
+    addressLine1: '',
+    unit: '',
+    postcode: '',
+    city: '',
+    province: '',
+    country: '',
+  }
+
+  if (result.text) {
+    properties.addressLine1 = result.address ? `${result.address} ${result.text}`
+      : result.text
+
+    properties.name = result.text
+  }
+
+  if (result.place_name) {
+    properties.name = result.place_name
+  }
+
+  const placeInfo = {}
+  const contextData = [{
+    id: result.id,
+    text: result.text,
+    short_code: result.properties.short_code,
+  }, ...(result.context ? result.context : [])]
+
+  contextData.forEach(({ id, text, short_code: shortCode }) => {
+    if (id.includes('postcode')) {
+      properties.postcode = text
+      placeInfo.postcode = text
+    }
+    if (id.includes('place')) {
+      properties.city = text
+      placeInfo.place = text
+    }
+    if (id.includes('region')) {
+      properties.province = text
+      placeInfo.region = shortCode.toUpperCase()
+    }
+    if (id.includes('country')) {
+      properties.country = text
+      placeInfo.country = shortCode.toUpperCase()
+    }
+  })
+
+  if (POIType === TYPE_POLYGON.code) {
+    const [placeType] = result.place_type
+
+    placeInfo.placeType = placeType
+    // auto insert place polygon and type
+    if (['country', 'region', 'place', 'postcode'].includes(placeType)) {
+      if (placeInfo.region) {
+        placeInfo.region = placeInfo.region.replace(`${placeInfo.country}-`, '')
+      }
+
+      properties.category = poiCategory.find(val =>
+        (val.key === placeType) ||
+        (val.key === 'fsa' && placeType === 'postcode' && placeInfo.postcode.length === 3)).value
+
+      properties.businessType = 3
+      return await getPlaceGeo(placeInfo, properties)
+    }
+  }
+  if (POIType === TYPE_RADIUS.code) {
+    return {
+      type: result.type,
+      geometry: result. geometry,
+      properties: {
+        ...properties,
+      },
+    }
+  }
+}
+
+// create instance of axios with our configuration
+const api = axios.create({
+  baseURL: `${process.env.API_HOST}/${process.env.API_STAGE}`,
+  headers: { 'eq-api-jwt': process.env.JWT },
+})
+
+/**
+ * getPlaceGeo - returns the full geometry of a polygon POI
+ * @param { string } param
+ * @param { string } param.result - the result field of an object resulting from a geocoder search
+ * @param { string } param.POIType - POI type of geocoder result
+ * @return { object } - POI feature
+ */
+const getPlaceGeo = async (data, properties) => {
+  try {
+    const placeGeometry = await FO(api).getGeoPlacePolygon(data)
+    if (placeGeometry?.length) {
+      const { geometry } = placeGeometry[0]
+
+      const source = {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: geometry.coordinates[0],
+        },
+        properties: properties,
+      }
+      return source
+    }
+  } catch (error) {
+    console.error(error)
+  }
 }
