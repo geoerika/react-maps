@@ -15,8 +15,6 @@ import { FlyToInterpolator } from '@deck.gl/core'
 import { StaticMap } from 'react-map-gl'
 import Geocoder from 'react-map-gl-geocoder'
 
-import 'react-map-gl-geocoder/dist/mapbox-gl-geocoder.css'
-
 import { styled, setup } from 'goober'
 import { FormControlLabel } from '@material-ui/core'
 import { Switch } from '@eqworks/lumen-ui'
@@ -28,6 +26,7 @@ import {
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
   forwardGeocoder,
+  geocoderOnResult,
 } from '../shared/utils'
 import { useResizeObserver } from '../hooks'
 import POITooltip from './poi-tooltip'
@@ -79,20 +78,21 @@ const INIT_VIEW_STATE = {
 }
 
 // initial map view for drawing mode
-const INIT_VIEW_DRAW_STATE = {
+const INIT_VIEW_CREATE_STATE = {
   pitch: 25,
   bearing: 0,
-  transitionDuration: 300,
+  transitionDuration: 2000,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 43.661539,
   longitude: -79.361079,
-  zoom: 4,
+  zoom: 5,
 }
 
 const INIT_VIEW = {
   display: INIT_VIEW_STATE,
   edit: INIT_VIEW_STATE,
-  draw: INIT_VIEW_DRAW_STATE,
+  create: INIT_VIEW_CREATE_STATE,
+  draw: INIT_VIEW_CREATE_STATE,
   emptyMap: INIT_VIEW_STATE,
 }
 
@@ -143,9 +143,16 @@ const POIMap = ({
   const { width, height } = useResizeObserver(mapContainerRef)
 
   // React hook that sets POIType
-  const POIType = useMemo(() =>
-    activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
-  , [activePOI, POIData])
+  const POIType = useMemo(() => {
+    if (mode === 'create-point') {
+      setShowRadius(true)
+      return TYPE_RADIUS.code
+    }
+    if (mode === 'create-polygon') {
+      return TYPE_POLYGON.code
+    }
+    return activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
+  }, [mode, activePOI, POIData])
 
   // React hook that sets layerArray
   const layerArray = useMemo(() => {
@@ -206,6 +213,9 @@ const POIMap = ({
     if (mode.endsWith('-draw')) {
       return 'draw'
     }
+    if (mode.startsWith('create-')) {
+      return 'create'
+    }
     if (mode === 'empty' || !mode) {
       return 'emptyMap'
     }
@@ -226,6 +236,10 @@ const POIMap = ({
       },
       edit: {
         type: 'edit',
+        payload: { data, height, width },
+      },
+      create: {
+        type: 'create',
         payload: { data, height, width },
       },
       // we don't adjust view during editing
@@ -287,7 +301,7 @@ const POIMap = ({
 
   // state viewState
   const [{ viewState }, viewStateDispatch] = useReducer((state, { type, payload }) => {
-    if ((type === 'data view') || (type === 'edit')) {
+    if (['data view', 'edit', 'create'].includes(type)) {
       return {
         viewState: {
           ...state.viewState,
@@ -379,7 +393,7 @@ const POIMap = ({
   const layers = useMemo(() => {
     if ((data?.length && ((mode === 'display') ||
       (mode === 'edit' && selectedFeatureIndexes.length))) ||
-      mode.endsWith('-draw')) {
+      mode.endsWith('-draw') || mode.startsWith('create-')) {
       return processLayers(layerArray, {
         mapProps,
         data,
@@ -405,6 +419,18 @@ const POIMap = ({
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
   /**
+   * geocoderOnResultHandle - React hook that retrives the geometry of a POI using the geocoder
+   *                          search result and sets data for map with this POI
+   * @param { object } param
+   * @param { object } param.result - the result object of a geocoder search
+   * @param { object } param.result.result - the result field of an object resulting from a geocoder search
+   */
+  const geocoderOnResultHandle = useCallback(async ({ result: { result } }) => {
+    const feature = await geocoderOnResult({ result, POIType })
+    setData([feature])
+  }, [POIType, setData])
+
+  /**
    * mapCanRender - conditions to render the map
    */
   const mapCanRender = Boolean(useMemo(() =>
@@ -417,7 +443,7 @@ const POIMap = ({
 
   return (
     <MapWrapper>
-      { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && (
+      { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
         <SwitchContainer>
           <FormControlLabel
             control={
@@ -469,14 +495,17 @@ const POIMap = ({
               ref={ mapRef }
               mapboxApiAccessToken={ mapboxApiAccessToken }
             >
-              { mode.endsWith('-draw') && (
+              { mode.startsWith('create-') && (
                 <Geocoder
                   mapRef={ mapRef }
                   containerRef={ mapContainerRef }
                   mapboxApiAccessToken={ mapboxApiAccessToken }
+                  inputValue=''
+                  marker={ false }
                   position='top-left'
                   countries= { 'ca, us' }
                   localGeocoder= { forwardGeocoder }
+                  onResult= { (result) => geocoderOnResultHandle({ result, POIType }) }
                 />
               ) }
             </StaticMap>
