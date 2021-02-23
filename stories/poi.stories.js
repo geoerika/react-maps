@@ -77,7 +77,7 @@ storiesOf('POI Map', module)
     />
   ))
   .add('Draw Point POIs - POIEditDraw layer', () => (
-    <POIMap 
+    <POIMap
       POIData={ [] }
       mode={ 'point-draw'}
       controller={{ doubleClickZoom: false }}
@@ -85,9 +85,25 @@ storiesOf('POI Map', module)
     />
   ))
   .add('Draw Polygon POIs - POIEditDraw layer', () => (
-    <POIMap 
+    <POIMap
       POIData={ [] }
       mode={ 'polygon-draw'}
+      controller={{ doubleClickZoom: false }}
+      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
+    />
+  ))
+  .add('Create Point POIs', () => (
+    <POIMap
+      POIData={ [] }
+      mode={ 'create-point' }
+      controller={{ doubleClickZoom: false }}
+      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
+    />
+  ))
+  .add('Create Polygon POIs', () => (
+    <POIMap
+      POIData={ [] }
+      mode={ 'create-polygon' }
       controller={{ doubleClickZoom: false }}
       mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
     />
