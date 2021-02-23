@@ -10,8 +10,8 @@ import { ReportMap } from '../src'
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN
 
 const getAxios = () => axios.create({
-  baseURL: process.env.API_URL,
-  headers: { 'eq-api-jwt': process.env.FO_TOKEN },
+  baseURL: `${process.env.API_HOST}/${process.env.API_STAGE}`,
+  headers: { 'eq-api-jwt': process.env.JWT },
 })
 
 const getReport = FO(getAxios()).getReportWi
