@@ -219,7 +219,7 @@ const POIMap = ({
       isOnMapEditing: {},
       draw: {},
       emptyMap: {},
-    }  
+    }
   }, [data, height, width])
 
   // React hook that selects feature when map is in editing mode

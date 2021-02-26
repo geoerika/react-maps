@@ -12,23 +12,27 @@ import { TYPE_RADIUS } from '../../constants'
  *           data coordinates and deck size
  * @param { object } param
  * @param { array } param.data - data to display on the map
+ * @param { boolean } param.showRadius - to display or not POI radius
  * @param { number } param.width - deck container width
  * @param { number } param.height - deck container height
  * @return { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
  */
 export const setView = ({ data, width, height }) => {
-  const dataIsOnePoint = (data.length === 1 && data[0].geometry.type === 'Point')
-
   let viewData = data
-  if (dataIsOnePoint && data[0].properties.radius) {
-    /**
-     * if data is one point POI with radius, we create a circle feature around the POI with the
-     * radius of the point, which we use to determine the right zoom that would fit the radius in
-     * the map view
-     */
-    const pointCoord = data[0].geometry.coordinates
-    const pointRadius = data[0].properties.radius
-    viewData= [createCircleFromPointRadius(pointCoord, pointRadius)]
+
+  // for lists <100 radii, set viewport to fit radius for all POIs
+  if (data[0]?.properties?.poiType === TYPE_RADIUS.code && data?.length < 100) {
+    viewData = []
+    data.forEach(point => {
+      if (point?.properties?.radius) {
+        const pointCoord = point.geometry.coordinates
+        const pointRadius = point.properties.radius
+        viewData.push(createCircleFromPointRadius(pointCoord, pointRadius))
+      } else {
+        // cover case for a POI without a radius
+        viewData.push(point)
+      }
+    })
   }
 
   const formattedGeoData = getDataCoordinates(viewData)
@@ -58,11 +62,6 @@ export const setView = ({ data, width, height }) => {
     .fitBounds(formattedGeoData, { padding })
 
   let { longitude, latitude, zoom } = viewPort
-
-  if (dataIsOnePoint && !data[0].properties.radius && data[0].poiType === TYPE_RADIUS.code) {
-    // default zoom for one point POI with no radius
-    zoom = 16
-  }
 
   return { longitude, latitude, zoom }
 }
