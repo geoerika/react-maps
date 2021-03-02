@@ -1,4 +1,4 @@
-import { WebMercatorViewport } from 'deck.gl'
+import { WebMercatorViewport } from '@deck.gl/core'
 import * as eqMapLayers from '../../components/layers/index'
 import circle from '@turf/circle'
 import { point } from '@turf/helpers'

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { commonProps, commonDefaultProps } from '../shared/map-props'
 
-import { GeoJsonLayer } from 'deck.gl'
+import { GeoJsonLayer } from '@deck.gl/layers'
 
 import { interpolateBlues } from 'd3-scale-chromatic'
 

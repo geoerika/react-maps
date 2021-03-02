@@ -1,6 +1,6 @@
 // https://deck.gl/docs/api-reference/layers/geojson-layer
 
-import { GeoJsonLayer } from 'deck.gl'
+import { GeoJsonLayer } from '@deck.gl/layers'
 import { TYPE_RADIUS } from '../../constants'
 
 
