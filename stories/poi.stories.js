@@ -4,6 +4,7 @@ import { storiesOf } from '@storybook/react'
 import { POIMap, POIMapActivePOI } from '../src'
 import POIsRadii from './data/pois-radii'
 import POIsRadiiTo from './data/pois-radii-to'
+import POIsRadii6 from './data/pois-radii-6.json'
 import POIsPolygonsVanData from './data/pois-polygons-van'
 import POIsPolygonTorontoData from './data/pois-polygon-toronto.json'
 
@@ -35,6 +36,13 @@ storiesOf('POI Map', module)
   .add('Point POIs - one POI to check zoom', () => (
     <POIMap
       POIData={ [POIsRadiiTo[0]] }
+      mode='display'
+      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
+    />
+  ))
+  .add('Point POIs - check icon size and zoom for 6 POIs', () => (
+    <POIMap
+      POIData={ POIsRadii6 }
       mode='display'
       mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
     />
