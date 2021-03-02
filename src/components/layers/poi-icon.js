@@ -24,7 +24,7 @@ const defaultProps = {
 const POIIcon = (props) =>
   new IconLayer({
     ...defaultProps,
-    sizeScale: props.data.length === 1 ? 15 : 5,
+    sizeScale: props.data.length === 1 ? 15 : (props.data.length < 10 ? 10 : 5),
     ...props,
   })
 
