@@ -1,5 +1,5 @@
 // https://deck.gl/docs/api-reference/layers/scatterplot-layer
-import { ScatterplotLayer } from 'deck.gl'
+import { ScatterplotLayer } from '@deck.gl/layers'
 
 
 const Scatterplot = props => (

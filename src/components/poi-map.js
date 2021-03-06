@@ -10,8 +10,8 @@ import React, {
 } from 'react'
 import PropTypes from 'prop-types'
 
-import DeckGL from 'deck.gl'
-import { FlyToInterpolator } from 'deck.gl'
+import DeckGL from '@deck.gl/react'
+import { FlyToInterpolator } from '@deck.gl/core'
 import { StaticMap } from 'react-map-gl'
 import { styled, setup } from 'goober'
 import { FormControlLabel } from '@material-ui/core'
@@ -219,7 +219,7 @@ const POIMap = ({
       isOnMapEditing: {},
       draw: {},
       emptyMap: {},
-    }  
+    }
   }, [data, height, width])
 
   // React hook that selects feature when map is in editing mode

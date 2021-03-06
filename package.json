@@ -23,9 +23,17 @@
     "url": "git+https://github.com/EQWorks/react-maps.git"
   },
   "dependencies": {
+    "@deck.gl/aggregation-layers": "^8.0.3",
+    "@deck.gl/core": "^8.0.3",
+    "@deck.gl/geo-layers": "^8.0.3",
+    "@deck.gl/layers": "^8.0.3",
+    "@deck.gl/mesh-layers": "^8.0.3",
+    "@deck.gl/react": "^8.0.3",
     "@eqworks/lumen-ui": "^1.0.1",
-    "@nebula.gl/edit-modes": "^0.22.1",
-    "@nebula.gl/layers": "^0.22.1",
+    "@luma.gl/constants": "^8.0.1",
+    "@luma.gl/core": "^8.0.1",
+    "@nebula.gl/edit-modes": "^0.22.3",
+    "@nebula.gl/layers": "^0.22.3",
     "@turf/bbox": "^6.0.1",
     "@turf/centroid": "^6.0.2",
     "@turf/circle": "^6.0.1",
@@ -35,7 +43,6 @@
     "d3-color": "^2.0.0",
     "d3-scale": "^3.2.1",
     "d3-scale-chromatic": "^1.5.0",
-    "deck.gl": "^8.3.14",
     "goober": "^2.0.5",
     "lodash.omit": "^4.5.0",
     "prop-types": "^15.7.2",
@@ -70,10 +77,10 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@size-limit/preset-small-lib": "^4.5.7",
-    "@storybook/addon-actions": "6.0.17",
-    "@storybook/addon-links": "6.0.17",
-    "@storybook/addons": "6.0.17",
-    "@storybook/react": "6.0.17",
+    "@storybook/addon-actions": "^6.1.20",
+    "@storybook/addon-links": "^6.1.20",
+    "@storybook/addons": "^6.1.20",
+    "@storybook/react": "^6.1.20",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.1",
     "babel-loader": "^8.1.0",
@@ -83,7 +90,7 @@
     "eslint-plugin-react-hooks": "^4.0.8",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "size-limit": "^4.5.7"
+    "size-limit": "^4.9.2"
   },
   "homepage": "https://github.com/EQWorks/react-maps#readme"
 }

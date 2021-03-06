@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { commonProps, commonDefaultProps } from '../shared/map-props'
 
-import { HexagonLayer } from 'deck.gl'
+import { HexagonLayer } from '@deck.gl/aggregation-layers'
 
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
