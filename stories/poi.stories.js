@@ -40,7 +40,7 @@ storiesOf('POI Map', module)
       mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
     />
   ))
-  .add('Point POIs - check icon size and zoom for 6 POIs', () => (
+  .add('Point POIs - check icon size and zoom for lists with < 10 POIs', () => (
     <POIMap
       POIData={ POIsRadii6 }
       mode='display'
