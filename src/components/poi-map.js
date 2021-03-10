@@ -137,11 +137,14 @@ const POIMap = ({
 
   // React hook that sets POIType
   const POIType = useMemo(() =>
-    activePOI?.properties ? activePOI?.properties.poiType : POIData[0]?.properties?.poiType
+    activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
   , [activePOI, POIData])
 
   // React hook that sets layerArray
   const layerArray = useMemo(() => {
+    if (mode === 'empty') {
+      return []
+    }
     if (mode === 'edit' || mode.endsWith('-draw')) {
       return ['POIEditDraw']
     }
@@ -162,6 +165,9 @@ const POIMap = ({
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
+    if (mode === 'empty' || !mode) {
+      return setData([])
+    }
     if (!activePOI?.properties) {
       return setData(POIData)
     }
@@ -193,7 +199,7 @@ const POIMap = ({
     if (mode.endsWith('-draw')) {
       return 'draw'
     }
-    if (!data.length) {
+    if (mode === 'empty' || !mode) {
       return 'emptyMap'
     }
     // this has to be set before editing modes, otherwise we change the map view while editing
@@ -218,9 +224,12 @@ const POIMap = ({
       // we don't adjust view during editing
       isOnMapEditing: {},
       draw: {},
-      emptyMap: {},
+      emptyMap: {
+        type: 'empty map',
+        payload: INIT_VIEW[mapMode],
+      },
     }
-  }, [data, height, width])
+  }, [data, height, width, mapMode])
 
   // React hook that selects feature when map is in editing mode
   useEffect(() => {
@@ -287,15 +296,24 @@ const POIMap = ({
         },
       }
     }
+    if (type === 'empty map') {
+      return {
+        viewState: payload,
+      }
+    }
     return state
   }, { viewState: INIT_VIEW[mapMode] })
   
+
+  // FIX: FlyToInterpolator doesn't seem to be trigerred when transitioning from empty map to some data
   // React Hook to handle setting up viewState based on POIs coordinates and deck map container size
   useLayoutEffect(() => {
-    if (data.length && width && height) {
+    if (((data?.length && layerArray.length) ||
+        (mapMode === 'emptyMap' && !data?.length && !layerArray.length)) &&
+        width && height) {
       viewStateDispatch(viewParam[mapMode])
     }
-  }, [data, width, height, viewParam, mapMode])
+  }, [data, layerArray, width, height, viewParam, mapMode])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
@@ -385,9 +403,10 @@ const POIMap = ({
   const mapCanRender = Boolean(useMemo(() =>
     (layerArray.includes('POIEditDraw') && data[0]?.properties?.poiType === TYPE_POLYGON.code) ||
     (!layerArray.includes('POIEditDraw') && data.length) ||
-    // case for empty map
+    // cases for empty map
+    mode === 'empty' ||
     !POIData.length
-  ,[data, layerArray, POIData]))
+  ,[data, POIData, layerArray, mode]))
 
   return (
     <MapWrapper>
