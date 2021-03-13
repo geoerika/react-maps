@@ -29,12 +29,8 @@ const FO = (api) => ({
   },
 
   // gets geometry for polygon features
-  getGeoPlacePolygon: async (params) => {
-    const url = `/poi/geo-place?${Object.keys(params).map(key => key + '=' + params[key]).join('&')}`
-    const { data = {} } = await api.get(url, params)
-    return data || {}
-  },
-
+  getGeoPlacePolygon: (params) => 
+    api.get('/poi/geo-place', { params }).then(({ data }) => data || {}),
 })
 
 export default FO
