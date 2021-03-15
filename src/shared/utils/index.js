@@ -183,7 +183,6 @@ export const forwardGeocoder = (query) => {
     }))
 }
 
-
 /**
  * geocoderOnResult - searches for and returns an fsa feature
  * @param { string } param
@@ -256,7 +255,7 @@ export const geocoderOnResult = async ({ result, POIType }) => {
         (val.key === 'fsa' && placeType === 'postcode' && placeInfo.postcode.length === 3)).value
 
       properties.businessType = 3
-      return await getPlaceGeo(placeInfo, properties)
+      return await getPlaceGeo(FOApi)(placeInfo, properties)
     }
   }
   if (POIType === TYPE_RADIUS.code) {
@@ -270,11 +269,11 @@ export const geocoderOnResult = async ({ result, POIType }) => {
   }
 }
 
-// create instance of axios with our configuration
-const api = axios.create({
+// create instance of FO object with our axios configuration
+const FOApi = FO(axios.create({
   baseURL: `${process.env.API_HOST}/${process.env.API_STAGE}`,
   headers: { 'eq-api-jwt': process.env.JWT },
-})
+}))
 
 /**
  * getPlaceGeo - returns the full geometry of a polygon POI
@@ -283,9 +282,9 @@ const api = axios.create({
  * @param { string } param.POIType - POI type of geocoder result
  * @return { object } - POI feature
  */
-const getPlaceGeo = async (data, properties) => {
+const getPlaceGeo = (api) => async (data, properties) => {
   try {
-    const placeGeometry = await FO(api).getGeoPlacePolygon(data)
+    const placeGeometry = await api.getGeoPlacePolygon(data)
     if (placeGeometry?.length) {
       const { geometry } = placeGeometry[0]
 
