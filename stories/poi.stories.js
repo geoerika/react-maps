@@ -8,6 +8,8 @@ import POIsRadii6 from './data/pois-radii-6.json'
 import POIsPolygonsVanData from './data/pois-polygons-van'
 import POIsPolygonTorontoData from './data/pois-polygon-toronto.json'
 
+import { forwardGeocoder, geocoderOnResult } from '../src/shared/utils'
+
 
 const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN
 
@@ -98,6 +100,8 @@ storiesOf('POI Map', module)
       mode={ 'create-point' }
       controller={{ doubleClickZoom: false }}
       mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
+      forwardGeocoder={ forwardGeocoder }
+      geocoderOnResult= { geocoderOnResult }
     />
   ))
   .add('Create Polygon POIs', () => (
@@ -106,5 +110,7 @@ storiesOf('POI Map', module)
       mode={ 'create-polygon' }
       controller={{ doubleClickZoom: false }}
       mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
+      forwardGeocoder={ forwardGeocoder }
+      geocoderOnResult= { geocoderOnResult }
     />
   ))

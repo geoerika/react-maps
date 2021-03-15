@@ -25,8 +25,6 @@ import {
   getCursor,
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
-  forwardGeocoder,
-  geocoderOnResult,
 } from '../shared/utils'
 import { useResizeObserver } from '../hooks'
 import POITooltip from './poi-tooltip'
@@ -105,6 +103,8 @@ const propTypes = {
   mode: PropTypes.string,
   cluster: PropTypes.bool,
   controller: PropTypes.object,
+  forwardGeocoder: PropTypes.func,
+  geocoderOnResult: PropTypes.func,
 }
 
 const defaultProps = {
@@ -116,6 +116,8 @@ const defaultProps = {
   mode: '',
   cluster: false,
   controller: { controller: true },
+  forwardGeocoder: () => {},
+  geocoderOnResult: () => {},
 }
 
 // DeckGL React component
@@ -132,6 +134,8 @@ const POIMap = ({
   typography,
   mapProps,
   mapboxApiAccessToken,
+  forwardGeocoder,
+  geocoderOnResult,
 }) => {
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
@@ -428,7 +432,7 @@ const POIMap = ({
   const geocoderOnResultHandle = useCallback(async ({ result: { result } }) => {
     const feature = await geocoderOnResult({ result, POIType })
     setData([feature])
-  }, [POIType, setData])
+  }, [POIType, geocoderOnResult, setData])
 
   /**
    * mapCanRender - conditions to render the map
