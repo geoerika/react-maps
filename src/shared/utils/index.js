@@ -87,25 +87,26 @@ export const processLayers = (layerArray, props) => {
 /**
  * getDataCoordinates - gets the coordinates that enclose all location data, including polygons
  * @param { array } data - location data array
- * @returns { array } coordinates that define the boundary area where the data is located
+ * @returns { array } - coordinates that define the boundary area where the data is located
  */
 export const getDataCoordinates = (data) => {
-  let finalCoordinateArray
-
-  if (data[0]?.properties?.polygon_json) {
-    finalCoordinateArray = data.reduce((acc, point) =>
-      [...acc, JSON.parse(point.properties.polygon_json).coordinates[0]], []).flat()
-  } else if (['Polygon', 'MultiPolygon'].includes(data[0]?.geometry?.type)) {
-    finalCoordinateArray = data[0].geometry.coordinates[0]
+  let POIType
+  let coordinateArray
+  if (data[0]?.geometry?.type) {
+    POIType = data[0]?.geometry?.type
+    coordinateArray = data.reduce((acc, point) => [...acc, point?.geometry?.coordinates], [])
   } else {
-    finalCoordinateArray = data
+    coordinateArray = data.reduce((acc, point) => [...acc, [point?.lon, point?.lat]], [])
   }
-
-  const [minCoords, maxCoords] = finalCoordinateArray.reduce(
+  if (POIType === 'Polygon') {
+    coordinateArray = coordinateArray.flat().flat()
+  }
+  if (POIType === 'MultiPolygon') {
+    coordinateArray = coordinateArray.flat().flat().flat()
+  }
+  const [minCoords, maxCoords] = coordinateArray.reduce(
     ([[minLng, minLat], [maxLng, maxLat]], point) => {
-      const [lng, lat] = point.geometry ? point.geometry.coordinates
-        : point.lon ? [point.lon, point.lat]
-          : point
+      const [lng, lat] = point
       return [
         [Math.min(minLng, lng), Math.min(minLat, lat)],
         [Math.max(maxLng, lng), Math.max(maxLat, lat)],
@@ -276,7 +277,7 @@ const FOApi = FO(axios.create({
 }))
 
 /**
- * getPlaceGeo - returns the full geometry of a polygon POI
+ * getPlaceGeo - returns the full geometry of a polygon/multipolygon POI
  * @param { string } param
  * @param { string } param.result - the result field of an object resulting from a geocoder search
  * @param { string } param.POIType - POI type of geocoder result
@@ -285,18 +286,12 @@ const FOApi = FO(axios.create({
 const getPlaceGeo = (api) => async (data, properties) => {
   try {
     const placeGeometry = await api.getGeoPlacePolygon(data)
-    if (placeGeometry?.length) {
-      const { geometry } = placeGeometry[0]
+    const { geometry } = placeGeometry[0]
 
-      const source = {
-        type: 'Feature',
-        geometry: {
-          type: 'Polygon',
-          coordinates: geometry.coordinates[0],
-        },
-        properties: properties,
-      }
-      return source
+    return {
+      type: 'Feature',
+      geometry,
+      properties,
     }
   } catch (error) {
     console.error(error)
