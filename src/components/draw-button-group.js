@@ -10,35 +10,45 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline'
 
 import { Button } from '@eqworks/lumen-ui'
 
+const basicIconButtonStyle = {
+  paddingLeft: '20px',
+  maxWidth: '35px',
+  minWidth: '35px',
+  maxHeight: '30px',
+  minHeight: '30px',
+}
 
-const StyledButton = withStyles({
-  root: {
-    paddingLeft: '20px',
-    maxWidth: '35px',
-    minWidth: '35px',
-    maxHeight: '30px',
-    minHeight: '30px',
-  },
+const StyledButtonDraw = withStyles({
+  root: basicIconButtonStyle,
 })(Button)
 
-const DrawButtonGroup = ({ mode, toggleDrawMode, onErase }) => (
-  <ButtonGroup orientation='vertical'>
-    <StyledButton
-      startIcon={ mode === 'create-point' ? <AddLocationOutlinedIcon/> : <AddBoxOutlinedIcon/> }
-      size='small'
-      type='secondary'
-      color='primary'
-      onClick={ toggleDrawMode }
-    />
-    <StyledButton
-      startIcon={ <DeleteOutlineIcon/> }
-      size='small'
-      type='secondary'
-      color='secondary'
-      onClick={ () => onErase() }
-    />
-  </ButtonGroup>
-)
+const StyledButtonDelete = withStyles(theme => ({
+  root: {
+    ...basicIconButtonStyle,
+    color: `${theme.palette.error.main}`,
+    borderColor: `${theme.palette.error.main}`,
+  },
+}))(Button)
+
+const DrawButtonGroup = ({ mode, toggleDrawMode, onErase }) => {
+  return (
+    <ButtonGroup orientation='vertical'>
+      <StyledButtonDraw
+        startIcon={ mode === 'create-point' ? <AddLocationOutlinedIcon/> : <AddBoxOutlinedIcon/> }
+        size='small'
+        type='secondary'
+        color='primary'
+        onClick={ toggleDrawMode }
+      />
+      <StyledButtonDelete
+        startIcon={ <DeleteOutlineIcon/> }
+        size='small'
+        type='secondary'
+        onClick={ () => onErase() }
+      />
+    </ButtonGroup>
+  )
+}
 
 DrawButtonGroup.propTypes = {
   mode: PropTypes.string.isRequired,
