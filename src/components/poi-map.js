@@ -139,6 +139,7 @@ const POIMap = ({
 }) => {
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
+  const [showIcon, setShowIcon] = useState(false)
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
@@ -176,10 +177,14 @@ const POIMap = ({
       return ['POIIcon']
     }
     if (POIType === TYPE_POLYGON.code) {
+      // we show an icon when the geocoder finds only a 'Point' feature and want to display location on map
+      if (showIcon) {
+        return ['POIGeoJson', 'POIIcon']
+      }
       return ['POIGeoJson']
     }
     return []
-  }, [mode, cluster, POIType, showRadius])
+  }, [mode, cluster, POIType, showRadius, showIcon])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -431,8 +436,14 @@ const POIMap = ({
    */
   const geocoderOnResultHandle = useCallback(async ({ result: { result } }) => {
     const feature = await geocoderOnResult({ result, POIType })
+    // particular case when we only find a 'Point' feature and not a 'Polygon' and want to show location on map
+    if (POIType === 1 && feature?.geometry?.type === 'Point') {
+      setShowIcon(true)
+      // don't understand why I need to setData here; if not, it will be []; Leo?
+      setData([feature])
+    }
     setData([feature])
-  }, [POIType, geocoderOnResult, setData])
+  }, [POIType, geocoderOnResult, setShowIcon, setData])
 
   /**
    * mapCanRender - conditions to render the map
