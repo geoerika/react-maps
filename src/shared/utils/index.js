@@ -256,17 +256,16 @@ export const geocoderOnResult = async ({ result, POIType }) => {
         (val.key === 'fsa' && placeType === 'postcode' && placeInfo.postcode.length === 3)).value
 
       properties.businessType = 3
-      return await getPlaceGeo(FOApi)(placeInfo, properties)
+      const featureGeometry = await getPlaceGeo(FOApi)(placeInfo, properties)
+      if (featureGeometry?.geometry?.type) {
+        return featureGeometry
+      }
     }
   }
-  if (POIType === TYPE_RADIUS.code) {
-    return {
-      type: result.type,
-      geometry: result. geometry,
-      properties: {
-        ...properties,
-      },
-    }
+  return {
+    type: result.type,
+    geometry: result.geometry,
+    properties,
   }
 }
 
