@@ -28,6 +28,7 @@ import {
 } from '../shared/utils'
 import { useResizeObserver } from '../hooks'
 import POITooltip from './poi-tooltip'
+import DrawButtonGroup from './draw-button-group'
 import {
   typographyPropTypes,
   typographyDefaultProps,
@@ -49,15 +50,23 @@ const MapWrapper = styled('div')`
 
 const SwitchContainer = styled('div')`
   position: absolute;
-  margin: 20px;
+  margin: 15px;
   z-index: 1;
   background-color: white;
   border-radius: 3px;
   padding: 5px;
 `
 
+const DrawButtonContainer = styled('div')`
+  position: absolute;
+  right: 15px;
+  z-index: 1;
+  background-color: white;
+  border-radius: 3px;
+`
+
 const MapContainer = styled('div', forwardRef)`
-  padding: 10px;
+  padding: 15px;
   width: 100%;
   height: 100%;
   position: absolute;
@@ -460,6 +469,11 @@ const POIMap = ({
             typography={ typography }
             tooltipKeys={ tooltipKeys }
           />
+        ) }
+        { mode.startsWith('create-') && (
+          <DrawButtonContainer>
+            <DrawButtonGroup mode={ mode }/>
+          </DrawButtonContainer>
         ) }
         { mapCanRender && (
           <DeckGL
