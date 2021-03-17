@@ -52,7 +52,7 @@ const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeature
   const prevCoordinates = data[0]?.prevCoordinates
   const editDrawMode = mode === 'edit' ?
     (POIType === TYPE_RADIUS.code ? 'poi-radius-edit' : 'poi-edit') :
-    mode
+    ['create-point', 'point-draw'].includes(mode) ? 'point-draw' : 'polygon-draw'
 
   return new EditableGeoJsonLayer({
     ...defaultProps,
