@@ -149,6 +149,7 @@ const POIMap = ({
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [showIcon, setShowIcon] = useState(false)
+  const [createDrawMode, setCreateDrawMode] = useState(false)
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
@@ -173,7 +174,7 @@ const POIMap = ({
     if (mode === 'empty') {
       return []
     }
-    if (mode === 'edit' || mode.endsWith('-draw')) {
+    if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
       return ['POIEditDraw']
     }
     if (POIType === TYPE_RADIUS.code) {
@@ -193,7 +194,7 @@ const POIMap = ({
       return ['POIGeoJson']
     }
     return []
-  }, [mode, cluster, POIType, showRadius, showIcon])
+  }, [mode, cluster, POIType, createDrawMode, showRadius, showIcon])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -228,7 +229,7 @@ const POIMap = ({
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
     // drawing mode has an empty data set, so we need to set mapMode for drawing before the next case
-    if (mode.endsWith('-draw')) {
+    if (mode.endsWith('-draw') || createDrawMode) {
       return 'draw'
     }
     if (mode.startsWith('create-')) {
@@ -242,7 +243,7 @@ const POIMap = ({
       return 'isOnMapEditing'
     }
     return mode
-  }, [mode, data])
+  }, [mode, createDrawMode, data])
 
   // set viewParam for different map modes
   // this means that we don't reset viewPort during drawing
@@ -472,7 +473,11 @@ const POIMap = ({
         ) }
         { mode.startsWith('create-') && (
           <DrawButtonContainer>
-            <DrawButtonGroup mode={ mode }/>
+            <DrawButtonGroup
+              mode={ mode }
+              setDrawModeOn={ () => setCreateDrawMode(true) }
+              onErase={ () => setData([]) }
+            />
           </DrawButtonContainer>
         ) }
         { mapCanRender && (
@@ -517,6 +522,7 @@ const POIMap = ({
                   countries='ca, us'
                   localGeocoder= { forwardGeocoder }
                   onResult= { (result) => {
+                    setCreateDrawMode(false)
                     const poiResult = result.result
                     geocoderOnResult(poiResult, POIType).then((feature) => {
                       setData([feature])

@@ -30,7 +30,7 @@ const StyledButtonDelete = withStyles(theme => ({
   },
 }))(Button)
 
-const DrawButtonGroup = ({ mode, toggleDrawMode, onErase }) => {
+const DrawButtonGroup = ({ mode, setDrawModeOn, onErase }) => {
   return (
     <ButtonGroup orientation='vertical'>
       <StyledButtonDraw
@@ -38,13 +38,13 @@ const DrawButtonGroup = ({ mode, toggleDrawMode, onErase }) => {
         size='small'
         type='secondary'
         color='primary'
-        onClick={ toggleDrawMode }
+        onClick={ setDrawModeOn }
       />
       <StyledButtonDelete
         startIcon={ <DeleteOutlineIcon/> }
         size='small'
         type='secondary'
-        onClick={ () => onErase() }
+        onClick={ onErase }
       />
     </ButtonGroup>
   )
@@ -52,7 +52,7 @@ const DrawButtonGroup = ({ mode, toggleDrawMode, onErase }) => {
 
 DrawButtonGroup.propTypes = {
   mode: PropTypes.string.isRequired,
-  toggleDrawMode: PropTypes.func.isRequired,
+  setDrawModeOn: PropTypes.func.isRequired,
   onErase: PropTypes.func.isRequired,
 }
 
