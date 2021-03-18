@@ -8,6 +8,8 @@ import POIsRadii6 from './data/pois-radii-6.json'
 import POIsPolygonsVanData from './data/pois-polygons-van'
 import POIsPolygonTorontoData from './data/pois-polygon-toronto.json'
 
+import { forwardGeocoder, geocoderOnResult } from '../src/shared/utils'
+
 
 const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN
 
@@ -77,7 +79,7 @@ storiesOf('POI Map', module)
     />
   ))
   .add('Draw Point POIs - POIEditDraw layer', () => (
-    <POIMap 
+    <POIMap
       POIData={ [] }
       mode={ 'point-draw'}
       controller={{ doubleClickZoom: false }}
@@ -85,10 +87,30 @@ storiesOf('POI Map', module)
     />
   ))
   .add('Draw Polygon POIs - POIEditDraw layer', () => (
-    <POIMap 
+    <POIMap
       POIData={ [] }
       mode={ 'polygon-draw'}
       controller={{ doubleClickZoom: false }}
       mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
+    />
+  ))
+  .add('Create Point POIs', () => (
+    <POIMap
+      POIData={ [] }
+      mode={ 'create-point' }
+      controller={{ doubleClickZoom: false }}
+      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
+      forwardGeocoder={ forwardGeocoder }
+      geocoderOnResult= { geocoderOnResult }
+    />
+  ))
+  .add('Create Polygon POIs', () => (
+    <POIMap
+      POIData={ [] }
+      mode={ 'create-polygon' }
+      controller={{ doubleClickZoom: false }}
+      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
+      forwardGeocoder={ forwardGeocoder }
+      geocoderOnResult= { geocoderOnResult }
     />
   ))

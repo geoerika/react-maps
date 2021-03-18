@@ -13,6 +13,8 @@ import PropTypes from 'prop-types'
 import DeckGL from '@deck.gl/react'
 import { FlyToInterpolator } from '@deck.gl/core'
 import { StaticMap } from 'react-map-gl'
+import Geocoder from 'react-map-gl-geocoder'
+
 import { styled, setup } from 'goober'
 import { FormControlLabel } from '@material-ui/core'
 import { Switch } from '@eqworks/lumen-ui'
@@ -55,6 +57,7 @@ const SwitchContainer = styled('div')`
 `
 
 const MapContainer = styled('div', forwardRef)`
+  padding: 10px;
   width: 100%;
   height: 100%;
   position: absolute;
@@ -73,20 +76,21 @@ const INIT_VIEW_STATE = {
 }
 
 // initial map view for drawing mode
-const INIT_VIEW_DRAW_STATE = {
+const INIT_VIEW_CREATE_STATE = {
   pitch: 25,
   bearing: 0,
-  transitionDuration: 300,
+  transitionDuration: 2000,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 43.661539,
   longitude: -79.361079,
-  zoom: 4,
+  zoom: 5,
 }
 
 const INIT_VIEW = {
   display: INIT_VIEW_STATE,
   edit: INIT_VIEW_STATE,
-  draw: INIT_VIEW_DRAW_STATE,
+  create: INIT_VIEW_CREATE_STATE,
+  draw: INIT_VIEW_CREATE_STATE,
   emptyMap: INIT_VIEW_STATE,
 }
 
@@ -99,6 +103,8 @@ const propTypes = {
   mode: PropTypes.string,
   cluster: PropTypes.bool,
   controller: PropTypes.object,
+  forwardGeocoder: PropTypes.func,
+  geocoderOnResult: PropTypes.func,
 }
 
 const defaultProps = {
@@ -110,6 +116,8 @@ const defaultProps = {
   mode: '',
   cluster: false,
   controller: { controller: true },
+  forwardGeocoder: () => {},
+  geocoderOnResult: () => {},
 }
 
 // DeckGL React component
@@ -126,19 +134,30 @@ const POIMap = ({
   typography,
   mapProps,
   mapboxApiAccessToken,
+  forwardGeocoder,
+  geocoderOnResult,
 }) => {
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
+  const [showIcon, setShowIcon] = useState(false)
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
   const mapContainerRef = useRef()
+  const mapRef = useRef()
   const { width, height } = useResizeObserver(mapContainerRef)
 
   // React hook that sets POIType
-  const POIType = useMemo(() =>
-    activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
-  , [activePOI, POIData])
+  const POIType = useMemo(() => {
+    if (mode === 'create-point') {
+      setShowRadius(true)
+      return TYPE_RADIUS.code
+    }
+    if (mode === 'create-polygon') {
+      return TYPE_POLYGON.code
+    }
+    return activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
+  }, [mode, activePOI, POIData])
 
   // React hook that sets layerArray
   const layerArray = useMemo(() => {
@@ -158,10 +177,14 @@ const POIMap = ({
       return ['POIIcon']
     }
     if (POIType === TYPE_POLYGON.code) {
+      // we show an icon when the geocoder finds only a 'Point' feature and want to display location on map
+      if (showIcon) {
+        return ['POIGeoJson', 'POIIcon']
+      }
       return ['POIGeoJson']
     }
     return []
-  }, [mode, cluster, POIType, showRadius])
+  }, [mode, cluster, POIType, showRadius, showIcon])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -199,6 +222,9 @@ const POIMap = ({
     if (mode.endsWith('-draw')) {
       return 'draw'
     }
+    if (mode.startsWith('create-')) {
+      return 'create'
+    }
     if (mode === 'empty' || !mode) {
       return 'emptyMap'
     }
@@ -219,6 +245,10 @@ const POIMap = ({
       },
       edit: {
         type: 'edit',
+        payload: { data, height, width },
+      },
+      create: {
+        type: 'create',
         payload: { data, height, width },
       },
       // we don't adjust view during editing
@@ -280,7 +310,7 @@ const POIMap = ({
 
   // state viewState
   const [{ viewState }, viewStateDispatch] = useReducer((state, { type, payload }) => {
-    if ((type === 'data view') || (type === 'edit')) {
+    if (['data view', 'edit', 'create'].includes(type)) {
       return {
         viewState: {
           ...state.viewState,
@@ -372,7 +402,7 @@ const POIMap = ({
   const layers = useMemo(() => {
     if ((data?.length && ((mode === 'display') ||
       (mode === 'edit' && selectedFeatureIndexes.length))) ||
-      mode.endsWith('-draw')) {
+      mode.endsWith('-draw') || mode.startsWith('create-')) {
       return processLayers(layerArray, {
         mapProps,
         data,
@@ -410,7 +440,7 @@ const POIMap = ({
 
   return (
     <MapWrapper>
-      { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && (
+      { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
         <SwitchContainer>
           <FormControlLabel
             control={
@@ -459,8 +489,37 @@ const POIMap = ({
             getCursor={ getCurrentCursor }
           >
             <StaticMap
+              ref={ mapRef }
               mapboxApiAccessToken={ mapboxApiAccessToken }
-            />
+            >
+              { mode.startsWith('create-') && (
+                <Geocoder
+                  mapRef={ mapRef }
+                  containerRef={ mapContainerRef }
+                  mapboxApiAccessToken={ mapboxApiAccessToken }
+                  inputValue=''
+                  marker={ false }
+                  position='top-left'
+                  countries='ca, us'
+                  localGeocoder= { forwardGeocoder }
+                  onResult= { (result) => {
+                    const poiResult = result.result
+                    geocoderOnResult(poiResult, POIType).then((feature) => {
+                      setData([feature])
+                      /**
+                       * particular case when we only find a 'Point' feature and not a 'Polygon'
+                       * and we want to display location on the map
+                       */
+                      if (POIType === 1 && feature?.geometry?.type === 'Point') {
+                        setShowIcon(true)
+                        // FIX state in the next PR so we don't have to setData twice here
+                        setData([feature])
+                      }
+                    })
+                  } }
+                />
+              ) }
+            </StaticMap>
           </DeckGL>
         ) }
       </MapContainer>

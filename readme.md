@@ -39,10 +39,10 @@ A react map component for ATOM and Locus.
     Here is the sample of `.env`
     ```
     MAPBOX_ACCESS_TOKEN="your mapbox key"
-    API_URL=https://localhost:3000 (or production)
-    FO_TOKEN=(api token to match API_URL)
+    API_HOST=
+    API_STAGE=
+    JWT=(api token)
     ```
-    Make sure you setup `.env` before you run it on storybook. Otherwise there will be no data showing there.
 
 3. Storybook:
 
