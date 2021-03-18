@@ -191,7 +191,7 @@ export const forwardGeocoder = (query) => {
  * @param { string } param.POIType - POI type of geocoder result
  * @return { object } - POI feature
  */
-export const geocoderOnResult = async ({ result, POIType }) => {
+export const geocoderOnResult = async (result, POIType) => {
   const properties = {
     lat: result.center[1],
     lon: result.center[0],

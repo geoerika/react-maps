@@ -428,24 +428,6 @@ const POIMap = ({
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
   /**
-   * geocoderOnResultHandle - React hook that retrives the geometry of a POI using the geocoder
-   *                          search result and sets data for map with this POI
-   * @param { object } param
-   * @param { object } param.result - the result object of a geocoder search
-   * @param { object } param.result.result - the result field of an object resulting from a geocoder search
-   */
-  const geocoderOnResultHandle = useCallback(async ({ result: { result } }) => {
-    const feature = await geocoderOnResult({ result, POIType })
-    // particular case when we only find a 'Point' feature and not a 'Polygon' and want to show location on map
-    if (POIType === 1 && feature?.geometry?.type === 'Point') {
-      setShowIcon(true)
-      // don't understand why I need to setData here; if not, it will be []; Leo?
-      setData([feature])
-    }
-    setData([feature])
-  }, [POIType, geocoderOnResult, setShowIcon, setData])
-
-  /**
    * mapCanRender - conditions to render the map
    */
   const mapCanRender = Boolean(useMemo(() =>
@@ -518,9 +500,23 @@ const POIMap = ({
                   inputValue=''
                   marker={ false }
                   position='top-left'
-                  countries= { 'ca, us' }
+                  countries='ca, us'
                   localGeocoder= { forwardGeocoder }
-                  onResult= { (result) => geocoderOnResultHandle({ result, POIType }) }
+                  onResult= { (result) => {
+                    const poiResult = result.result
+                    geocoderOnResult(poiResult, POIType).then((feature) => {
+                      setData([feature])
+                      /**
+                       * particular case when we only find a 'Point' feature and not a 'Polygon'
+                       * and we want to display location on the map
+                       */
+                      if (POIType === 1 && feature?.geometry?.type === 'Point') {
+                        setShowIcon(true)
+                        // FIX state in the next PR so we don't have to setData twice here
+                        setData([feature])
+                      }
+                    })
+                  } }
                 />
               ) }
             </StaticMap>
