@@ -403,9 +403,13 @@ const POIMap = ({
     if (editType.includes('rot')) {
       editedPOI = activePOI
     }
+    // allow only one POI to be drawn in POI create modes; keep last drawn point
+    if (mode.startsWith('create-')) {
+      editedPOIList = [editedPOIList.pop()]
+    }
     setData(editedPOIList)
     setDraftActivePOI({ editedPOI, editedRadius, editedCoordinates })
-  }, [activePOI, setDraftActivePOI])
+  }, [activePOI, mode, setDraftActivePOI])
 
   // set layers for deck.gl map
   // don't set layers for display and edit modes unless we have POIs in data
