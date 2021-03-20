@@ -8,7 +8,7 @@ import POIsRadii6 from './data/pois-radii-6.json'
 import POIsPolygonsVanData from './data/pois-polygons-van'
 import POIsPolygonTorontoData from './data/pois-polygon-toronto.json'
 
-import { forwardGeocoder, geocoderOnResult } from '../src/shared/utils'
+import { forwardGeocoder, geocoderOnResult } from './poi-manage'
 
 
 const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN
