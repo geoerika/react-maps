@@ -199,32 +199,34 @@ const POIMap = ({
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
     if (mode === 'empty' || !mode) {
-      return setData([])
+      setData([])
     }
-    if (!activePOI?.properties) {
-      return setData(POIData)
+    if (!activePOI?.properties && !showIcon) {
+      setData(POIData)
     }
     if ((mode === 'display' && activePOI?.properties) ||
         (mode === 'edit' && POIType === TYPE_POLYGON.code)) {
-      return setData([activePOI])
+      setData([activePOI])
     }
-    /**
-     * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
-     * feature, based on the poi coordinates and its radius
-     */
-    const { geometry: { coordinates: centre } } = activePOI
-    const { radius } = activePOI.properties
-    const createdCircle = createCircleFromPointRadius(centre, radius)
-    setData([{
-      geometry: createdCircle.geometry,
-      properties: {
-        ...activePOI.properties,
-        ...createdCircle.properties,
-      },
-      // keep previous coordinates in order to edit radius based on the centroid of poi
-      prevCoordinates: activePOI.geometry.coordinates,
-    }])
-  }, [POIData, activePOI, mode, POIType, layerArray])
+    if (mode === 'edit' && POIType === TYPE_RADIUS.code) {
+      /**
+       * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
+       * feature, based on the poi coordinates and its radius
+       */
+      const { geometry: { coordinates: centre } } = activePOI
+      const { radius } = activePOI.properties
+      const createdCircle = createCircleFromPointRadius(centre, radius)
+      setData([{
+        geometry: createdCircle.geometry,
+        properties: {
+          ...activePOI.properties,
+          ...createdCircle.properties,
+        },
+        // keep previous coordinates in order to edit radius based on the centroid of poi
+        prevCoordinates: activePOI.geometry.coordinates,
+      }])
+    }
+  }, [POIData, activePOI, mode, POIType, showIcon, layerArray])
 
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
@@ -411,7 +413,7 @@ const POIMap = ({
     setDraftActivePOI({ editedPOI, editedRadius, editedCoordinates })
   }, [activePOI, mode, setDraftActivePOI])
 
-  // set layers for deck.gl map
+  // set layers for DeckGL map
   // don't set layers for display and edit modes unless we have POIs in data
   const layers = useMemo(() => {
     if ((data?.length && ((mode === 'display') ||
@@ -431,14 +433,6 @@ const POIMap = ({
     return []
   }, [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
-  /**
-   * toggleRadius - React hook that toggles showRadius state
-   */
-  const toggleRadius = useCallback(
-    () => {
-      setShowRadius(!showRadius)
-    }, [showRadius])
-
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
   /**
@@ -451,7 +445,6 @@ const POIMap = ({
     mode === 'empty' ||
     !POIData.length
   ,[data, POIData, layerArray, mode]))
-
   return (
     <MapWrapper>
       { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
@@ -460,7 +453,7 @@ const POIMap = ({
             control={
               <Switch
                 checked={ showRadius }
-                onChange={ () => toggleRadius() }
+                onChange={ () => setShowRadius(!showRadius) }
               />
             }
             label='Show Radius'
@@ -536,8 +529,6 @@ const POIMap = ({
                        */
                       if (POIType === 1 && feature?.geometry?.type === 'Point') {
                         setShowIcon(true)
-                        // FIX state in the next PR so we don't have to setData twice here
-                        setData([feature])
                       }
                     })
                   } }
