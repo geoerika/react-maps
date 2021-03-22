@@ -11,6 +11,21 @@ import { TYPE_RADIUS } from '../../constants'
 
 
 /**
+ * processLayers - choses a layer based on type parameter
+ * @param { array } layerArray - array of layers to show on map
+ * @param { object } props - layers' props
+ * @returns { instanceOf } Deck.gl layer
+ */
+export const processLayers = (mapLayers, layerPool, props) =>
+  layerPool.map(layer => mapLayers.includes(layer) ?
+    (layer === 'POICluster' ?
+      new eqMapLayers[layer]({ ...props, visible: true }) :
+      eqMapLayers[layer]({ ...props, visible: true })) :
+    (layer === 'POICluster' ?
+      new eqMapLayers[layer]({ ...props, visible: false }) :
+      eqMapLayers[layer]({ ...props, visible: false })))
+
+/**
  * setView - handles calculations of viewState lat, long, and zoom, based on
  *           data coordinates and deck size
  * @param { object } param
@@ -70,18 +85,6 @@ export const setView = ({ data, width, height }) => {
 }
 
 /**
- * processLayers - choses a layer based on type parameter
- * @param { array } layerArray - array of layers to show on map
- * @param { object } props - layers' props
- * @returns { instanceOf } Deck.gl layer
- */
-export const processLayers = (layerArray, props) => {
-  return layerArray.map(layer => layer === 'POICluster' 
-    ? new eqMapLayers[layer](props)
-    : eqMapLayers[layer](props))
-}
-
-/**
  * getDataCoordinates - gets the coordinates that enclose all location data, including polygons
  * @param { array } data - location data array
  * @returns { array } - coordinates that define the boundary area where the data is located
@@ -121,9 +124,9 @@ export const getDataCoordinates = (data) => {
  * @return { function } - cursor function
  */
 export const getCursor = ({ layers, hoverInfo }) => {
-  if (layers.length) {
+  if (layers?.length) {
     const drawLayer = layers.find(layer => layer.id === 'edit-draw layer')
-    if (drawLayer) {
+    if (drawLayer?.props?.visible) {
       return drawLayer.getCursor.bind(drawLayer)
     }
   }
