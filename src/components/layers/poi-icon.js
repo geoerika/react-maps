@@ -14,6 +14,7 @@ const defaultProps = {
   getPosition: d => d.geometry.coordinates,
   getSize: 4,
   pickable: true,
+  visible: false,
 }
 
 /**
