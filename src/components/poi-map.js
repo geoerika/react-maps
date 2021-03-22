@@ -178,6 +178,10 @@ const POIMap = ({
       return []
     }
     if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
+      // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
+      if (mode.startsWith('create-') && createDrawMode) {
+        return ['POIEditDraw', 'POIIcon']
+      }
       return ['POIEditDraw']
     }
     if (POIType === TYPE_RADIUS.code) {
@@ -190,9 +194,9 @@ const POIMap = ({
       return ['POIIcon']
     }
     if (POIType === TYPE_POLYGON.code) {
-      // we show an icon when the geocoder finds only a 'Point' feature and want to display location on map
+      // we show an icon when the geocoder finds only a 'Point' feature and wants to display location on map
       if (showIcon) {
-        return ['POIGeoJson', 'POIIcon']
+        return ['POIIcon']
       }
       return ['POIGeoJson']
     }
