@@ -169,6 +169,9 @@ const POIMap = ({
     return activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
   }, [mode, activePOI, POIData])
 
+  // React hook that sets layerPool = all layers used in POIMap component
+  const layerPool = useMemo(() => ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster'], [])
+
   // React hook that sets layerArray
   const layerArray = useMemo(() => {
     if (mode === 'empty') {
@@ -419,7 +422,7 @@ const POIMap = ({
     if ((data?.length && ((mode === 'display') ||
       (mode === 'edit' && selectedFeatureIndexes.length))) ||
       mode.endsWith('-draw') || mode.startsWith('create-')) {
-      return processLayers(layerArray, {
+      return processLayers(layerArray, layerPool, {
         mapProps,
         data,
         updatePOI,
@@ -431,7 +434,7 @@ const POIMap = ({
       })
     }
     return []
-  }, [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
+  }, [layerArray, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
@@ -445,6 +448,7 @@ const POIMap = ({
     mode === 'empty' ||
     !POIData.length
   ,[data, POIData, layerArray, mode]))
+
   return (
     <MapWrapper>
       { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
