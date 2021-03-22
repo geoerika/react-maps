@@ -8,7 +8,7 @@ import {
   typographyDefaultProps,
   tooltipProps,
   tooltipDefaultProps,
-} from '../../shared/map-props'
+} from '../../../shared/map-props'
 
 setup(React.createElement)
 

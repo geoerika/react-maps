@@ -25,8 +25,8 @@ import {
   getCursor,
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
-} from '../shared/utils'
-import { useResizeObserver } from '../hooks'
+} from '../../shared/utils'
+import { useResizeObserver } from '../../hooks'
 import POITooltip from './poi-tooltip'
 import DrawButtonGroup from './draw-button-group'
 import {
@@ -36,11 +36,11 @@ import {
   tooltipDefaultProps,
   POIMapProps,
   POIMapDefaultProps,
-} from '../shared/map-props'
+} from '../../shared/map-props'
 import {
   TYPE_POLYGON,
   TYPE_RADIUS,
-} from '../constants'
+} from '../../constants'
 
 
 setup(React.createElement)

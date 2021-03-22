@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { tooltipProps, tooltipDefaultProps } from '../../shared/map-props'
+import { tooltipProps, tooltipDefaultProps } from '../../../shared/map-props'
 import { styled, setup } from 'goober'
 
 
