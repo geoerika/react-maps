@@ -11,19 +11,30 @@ import { TYPE_RADIUS } from '../../constants'
 
 
 /**
- * processLayers - choses a layer based on type parameter
- * @param { array } layerArray - array of layers to show on map
+ * processLayers - returns layers used by a map
+ * @param { array } mapLayers - array of layers to show on map
+ * @param { array } layerPool - array of all layers used by map in general
  * @param { object } props - layers' props
- * @returns { instanceOf } Deck.gl layer
+ * @returns { array } - array of Deck.gl and Nebula.gl layers used by a map
  */
 export const processLayers = (mapLayers, layerPool, props) =>
-  layerPool.map(layer => mapLayers.includes(layer) ?
-    (layer === 'POICluster' ?
-      new eqMapLayers[layer]({ ...props, visible: true }) :
-      eqMapLayers[layer]({ ...props, visible: true })) :
-    (layer === 'POICluster' ?
-      new eqMapLayers[layer]({ ...props, visible: false }) :
-      eqMapLayers[layer]({ ...props, visible: false })))
+  layerPool.map(layer =>
+    mapLayers.includes(layer) ?
+      setLayer(layer, props, true) :
+      setLayer(layer, props, false),
+  )
+
+/**
+ * setLayer - sets a map layer
+ * @param { string } layer - name of a layer found in src/components/layers/index.js
+ * @param { object } props - object of layer props
+ * @param { boolean } visible - boolean to be used to set a certain layer visible or not on the map
+ * @returns { instanceOf } - Deck.gl or Nebula.gl layer
+ */
+const setLayer = (layer, props, visible) =>
+  layer === 'POICluster' ?
+    new eqMapLayers[layer]({ ...props, visible }) :
+    eqMapLayers[layer]({ ...props, visible })
 
 /**
  * setView - handles calculations of viewState lat, long, and zoom, based on
