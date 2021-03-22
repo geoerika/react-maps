@@ -172,8 +172,8 @@ const POIMap = ({
   // React hook that sets layerPool = all layers used in POIMap component
   const layerPool = useMemo(() => ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster'], [])
 
-  // React hook that sets layerArray
-  const layerArray = useMemo(() => {
+  // React hook that sets mapLayers - the layers used by POIMap during various map modes
+  const mapLayers = useMemo(() => {
     if (mode === 'empty') {
       return []
     }
@@ -233,7 +233,7 @@ const POIMap = ({
         prevCoordinates: activePOI.geometry.coordinates,
       }])
     }
-  }, [POIData, activePOI, mode, POIType, showIcon, layerArray])
+  }, [POIData, activePOI, mode, POIType, showIcon])
 
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
@@ -357,12 +357,12 @@ const POIMap = ({
   // FIX: FlyToInterpolator doesn't seem to be trigerred when transitioning from empty map to some data
   // React Hook to handle setting up viewState based on POIs coordinates and deck map container size
   useLayoutEffect(() => {
-    if (((data?.length && layerArray.length) ||
-        (mapMode === 'emptyMap' && !data?.length && !layerArray.length)) &&
+    if (((data?.length && mapLayers.length) ||
+        (mapMode === 'emptyMap' && !data?.length && !mapLayers.length)) &&
         width && height) {
       viewStateDispatch(viewParam[mapMode])
     }
-  }, [data, layerArray, width, height, viewParam, mapMode])
+  }, [data, mapLayers, width, height, viewParam, mapMode])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
@@ -426,7 +426,7 @@ const POIMap = ({
     if ((data?.length && ((mode === 'display') ||
       (mode === 'edit' && selectedFeatureIndexes.length))) ||
       mode.endsWith('-draw') || mode.startsWith('create-')) {
-      return processLayers(layerArray, layerPool, {
+      return processLayers(mapLayers, layerPool, {
         mapProps,
         data,
         updatePOI,
@@ -438,7 +438,7 @@ const POIMap = ({
       })
     }
     return []
-  }, [layerArray, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
+  }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
@@ -446,12 +446,12 @@ const POIMap = ({
    * mapCanRender - conditions to render the map
    */
   const mapCanRender = Boolean(useMemo(() =>
-    (layerArray.includes('POIEditDraw') && data[0]?.properties?.poiType === TYPE_POLYGON.code) ||
-    (!layerArray.includes('POIEditDraw') && data.length) ||
+    (mapLayers.includes('POIEditDraw') && data[0]?.properties?.poiType === TYPE_POLYGON.code) ||
+    (!mapLayers.includes('POIEditDraw') && data.length) ||
     // cases for empty map
     mode === 'empty' ||
     !POIData.length
-  ,[data, POIData, layerArray, mode]))
+  ,[data, POIData, mapLayers, mode]))
 
   return (
     <MapWrapper>
