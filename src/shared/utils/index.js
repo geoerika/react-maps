@@ -92,6 +92,12 @@ export const setView = ({ data, width, height }) => {
 
   let { longitude, latitude, zoom } = viewPort
 
+  // set a lower value zoom for a point with small or inexistent radius to have better map perspective
+  if (data?.length === 1 && data[0].geometry?.type === 'Point' &&
+      (!data[0].properties?.radius || data[0].properties?.radius < 10)) {
+    zoom = Math.min(zoom, 18)
+  }
+
   return { longitude, latitude, zoom }
 }
 
