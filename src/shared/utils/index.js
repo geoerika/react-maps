@@ -12,26 +12,28 @@ import { TYPE_RADIUS } from '../../constants'
 
 /**
  * processLayers - returns layers used by a map
- * @param { array } mapLayers - array of layers to show on map
- * @param { array } layerPool - array of all layers used by map in general
- * @param { object } props - layers' props
+ * @param { object } param
+ * @param { array } param.mapLayers - array of layers to show on map
+ * @param { array } param.layerPool - array of all layers used by map in general
+ * @param { object } param.props - layers' props
  * @returns { array } - array of Deck.gl and Nebula.gl layers used by a map
  */
-export const processLayers = (mapLayers, layerPool, props) =>
+export const processLayers = ({ mapLayers, layerPool, props }) =>
   layerPool.map(layer =>
     mapLayers.includes(layer) ?
-      setLayer(layer, props, true) :
-      setLayer(layer, props, false),
+      setLayer({ layer, props, visible: true }) :
+      setLayer({ layer, props, visible: false }),
   )
 
 /**
  * setLayer - sets a map layer
- * @param { string } layer - name of a layer found in src/components/layers/index.js
- * @param { object } props - object of layer props
- * @param { boolean } visible - boolean to be used to set a certain layer visible or not on the map
+ * @param { object } param
+ * @param { string } param.layer - name of a layer found in src/components/layers/index.js
+ * @param { object } param.props - object of layer props
+ * @param { boolean } param.visible - boolean to be used to set a certain layer visible or not on the map
  * @returns { instanceOf } - Deck.gl or Nebula.gl layer
  */
-const setLayer = (layer, props, visible) =>
+const setLayer = ({ layer, props, visible }) =>
   layer === 'POICluster' ?
     new eqMapLayers[layer]({ ...props, visible }) :
     eqMapLayers[layer]({ ...props, visible })
@@ -41,7 +43,6 @@ const setLayer = (layer, props, visible) =>
  *           data coordinates and deck size
  * @param { object } param
  * @param { array } param.data - data to display on the map
- * @param { boolean } param.showRadius - to display or not POI radius
  * @param { number } param.width - deck container width
  * @param { number } param.height - deck container height
  * @return { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
@@ -56,7 +57,7 @@ export const setView = ({ data, width, height }) => {
       if (point?.properties?.radius) {
         const pointCoord = point.geometry.coordinates
         const pointRadius = point.properties.radius
-        viewData.push(createCircleFromPointRadius(pointCoord, pointRadius))
+        viewData.push(createCircleFromPointRadius({ centre: pointCoord, radius: pointRadius }))
       } else {
         // cover case for a POI without a radius
         viewData.push(point)
@@ -64,7 +65,7 @@ export const setView = ({ data, width, height }) => {
     })
   }
 
-  const formattedGeoData = getDataCoordinates(viewData)
+  const formattedGeoData = getDataCoordinates({ data: viewData })
   const dataLonDiff = formattedGeoData[0][0] - formattedGeoData[1][0]
 
   /**
@@ -103,10 +104,11 @@ export const setView = ({ data, width, height }) => {
 
 /**
  * getDataCoordinates - gets the coordinates that enclose all location data, including polygons
- * @param { array } data - location data array
+ * @param { object } param
+ * @param { array } param.data - location data array
  * @returns { array } - coordinates that define the boundary area where the data is located
  */
-export const getDataCoordinates = (data) => {
+export const getDataCoordinates = ({ data }) => {
   let POIType
   let coordinateArray
   if (data[0]?.geometry?.type) {
@@ -153,11 +155,12 @@ export const getCursor = ({ layers, hoverInfo }) => {
 /**
  * createCircleFromPointRadius - creates a circle / polygon GeoJSON feature from a radius and a set
  *                               of coordinates
- * @param { array } centre - array of coordinates for circle centroid [lon, lat]
- * @param { number } radius - radius value
+ * @param { object } param
+ * @param { array } param.centre - array of coordinates for circle centroid [lon, lat]
+ * @param { number } param.radius - radius value
  * @return { object } - GeoJSON object of created circle / polygon
  */
-export const createCircleFromPointRadius = (centre, radius) => {
+export const createCircleFromPointRadius = ({ centre, radius }) => {
   // ToDo: research how large our radius can get and if can make a formula to set better step number
   const options = { steps: radius < 500 ? 50 : 100, units: 'meters' }
   let createdCircle = circle(centre, radius, options)
@@ -171,7 +174,7 @@ export const createCircleFromPointRadius = (centre, radius) => {
  * @param { object } polygon - GeoJSON polygon object
  * @return { object } - the values of the circle's radius and centroid coordinates
  */
-export const getCircleRadiusCentroid = (polygon) => {
+export const getCircleRadiusCentroid = ({ polygon }) => {
   polygon = {
     ...polygon,
     type: 'Feature',

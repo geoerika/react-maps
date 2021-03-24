@@ -222,7 +222,7 @@ const POIMap = ({
        */
       const { geometry: { coordinates: centre } } = activePOI
       const { radius } = activePOI.properties
-      const createdCircle = createCircleFromPointRadius(centre, radius)
+      const createdCircle = createCircleFromPointRadius({ centre, radius })
       setData([{
         geometry: createdCircle.geometry,
         properties: {
@@ -289,27 +289,27 @@ const POIMap = ({
 
   /**
    * onClick - React hook that handles various in-house and custom onClick methods
-   * @param { object } deckEvent - current deck properties
+   * @param { object } param - object of deck.gl click event
+   * @param { object } param.object - clicked object on map
+   * @param { object } param.layer - deck.gl layer
+   * @param { array } param.coordinate - coordinates of the clicked object
    */
-  const onClick = useCallback(
-    (deckEvent) => {
-      const { object, layer, coordinate } = deckEvent
-      // if clicked object is a cluster, zoom in
-      if (object.cluster) {
-        const [longitude, latitude] = coordinate
-        setOnClickPayload({ longitude, latitude, zoom: layer.state.z + 2 })
-      // if clicked object is a point on the map, set it as activePOI and zoom in
-      } else if (object.type) {
-        const data = [object]
-        const [longitude, latitude, zoom] = [...Object.values(setView({ data, height, width }))]
-        setActivePOI(object)
-        setOnClickPayload({ longitude, latitude, zoom })
-      } else {
-        // custom onClick
-        onClickHandle(deckEvent, setOnClickPayload)
-      }
-    }, [setActivePOI, onClickHandle, height, width],
-  )
+  const onClick = useCallback(({ object, layer, coordinate }) => {
+    // if clicked object is a cluster, zoom in
+    if (object?.cluster) {
+      const [longitude, latitude] = coordinate
+      setOnClickPayload({ longitude, latitude, zoom: layer.state.z + 2 })
+    // if clicked object is a point on the map, set it as activePOI and zoom in
+    } else if (object?.type) {
+      const data = [object]
+      const [longitude, latitude, zoom] = [...Object.values(setView({ data, height, width }))]
+      setActivePOI(object)
+      setOnClickPayload({ longitude, latitude, zoom })
+    } else {
+      // custom onClick
+      onClickHandle({ object, layer, coordinate }, setOnClickPayload)
+    }
+  }, [setActivePOI, onClickHandle, height, width])
 
   /**
    * onHover - React hook that handles onHover event
@@ -353,7 +353,6 @@ const POIMap = ({
     return state
   }, { viewState: INIT_VIEW[mapMode] })
   
-
   // FIX: FlyToInterpolator doesn't seem to be trigerred when transitioning from empty map to some data
   // React Hook to handle setting up viewState based on POIs coordinates and deck map container size
   useLayoutEffect(() => {
@@ -372,8 +371,10 @@ const POIMap = ({
   /**
    * updatePOI - React hook that updates data on the map and activePOI with the edited / drawn features
    * @param { array } editedPOIList - updated / drawn feature list
+   * @param { string } editType - type of edit
+   * @param { array } prevCoordinates - previous coordinates of a POI
    */
-  const updatePOI = useCallback((editedPOIList, editType, prevCoordinates) => {
+  const updatePOI = useCallback(({ editedPOIList, editType, prevCoordinates }) => {
     // we signal the map that we are actively editing so the map doesn't adjust view
     editedPOIList[0].properties.isOnMapEditing = true
     let editedRadius = null
@@ -389,8 +390,8 @@ const POIMap = ({
     if (editType.includes('scal')) {
       // change only radius, not coordinates; recalculate circle points for new radius to show on the map
       editedPOI = activePOI
-      editedRadius = getCircleRadiusCentroid(editedPOIList[0]).radius
-      const createdCircle = createCircleFromPointRadius(prevCoordinates, editedRadius)
+      editedRadius = getCircleRadiusCentroid({ polygon: editedPOIList[0] }).radius
+      const createdCircle = createCircleFromPointRadius({ centre: prevCoordinates, radius: editedRadius })
       editedPOIList = [{
         geometry: createdCircle.geometry,
         properties: {
@@ -403,7 +404,7 @@ const POIMap = ({
     }
     // case: translate
     if (editType.includes('transl')) {
-      const { coordinates } = getCircleRadiusCentroid(editedPOIList[0])
+      const { coordinates } = getCircleRadiusCentroid({ polygon: editedPOIList[0] })
       editedPOI = activePOI
       editedCoordinates = { editedlon: coordinates[0], editedlat: coordinates[1] }
       editedPOIList[0].prevCoordinates = coordinates
@@ -426,7 +427,7 @@ const POIMap = ({
     if ((data?.length && ((mode === 'display') ||
       (mode === 'edit' && selectedFeatureIndexes.length))) ||
       mode.endsWith('-draw') || mode.startsWith('create-')) {
-      return processLayers(mapLayers, layerPool, {
+      return processLayers({ mapLayers, layerPool, props: {
         mapProps,
         data,
         updatePOI,
@@ -435,7 +436,7 @@ const POIMap = ({
         mode,
         POIType,
         selectedFeatureIndexes,
-      })
+      } })
     }
     return []
   }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])

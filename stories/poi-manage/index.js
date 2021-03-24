@@ -22,13 +22,13 @@ export const forwardGeocoder = (query) => {
 }
 
 /**
- * geocoderOnResult - searches for and returns an fsa feature
+ * geocoderOnResult - sets properties of fsa or other geometries found by Geocoder
  * @param { string } param
- * @param { string } param.result - the result field of an object resulting from a geocoder search
- * @param { string } param.POIType - POI type of geocoder result
+ * @param { string } param.result - the result field of an object resulting from a Geocoder search
+ * @param { string } param.POIType - POI type of Geocoder result
  * @return { object } - POI feature
  */
-export const geocoderOnResult = async (result, POIType) => {
+export const geocoderOnResult = async ({ result, POIType }) => {
   const properties = {
     lat: result.center[1],
     lon: result.center[0],
@@ -93,15 +93,17 @@ export const geocoderOnResult = async (result, POIType) => {
         (val.key === 'fsa' && placeType === 'postcode' && placeInfo.postcode.length === 3)).value
 
       properties.businessType = 3
-      const featureGeometry = await getPlaceGeo(FOApi)(placeInfo, properties)
+      const featureGeometry = await getPlaceGeo(FOApi)({ data: placeInfo })
       if (featureGeometry?.geometry?.type) {
-        return featureGeometry
+        return {
+          ...featureGeometry,
+          properties,
+        }
       }
     }
   }
   return {
-    type: result.type,
-    geometry: result.geometry,
+    ...result,
     properties,
   }
 }
@@ -115,11 +117,10 @@ const FOApi = FO(axios.create({
 /**
  * getPlaceGeo - returns the full geometry of a polygon/multipolygon POI
  * @param { string } param
- * @param { string } param.result - the result field of an object resulting from a geocoder search
- * @param { string } param.POIType - POI type of geocoder result
- * @return { object } - POI feature
+ * @param { string } param.data - object properties needed to retrieve geometry of fsa polygon
+ * @return { object } - polygon POI feature
  */
-const getPlaceGeo = (api) => async (data, properties) => {
+const getPlaceGeo = (api) => async ({ data }) => {
   try {
     const placeGeometry = await api.getGeoPlacePolygon(data)
     const { geometry } = placeGeometry[0]
@@ -127,7 +128,6 @@ const getPlaceGeo = (api) => async (data, properties) => {
     return {
       type: 'Feature',
       geometry,
-      properties,
     }
   } catch (error) {
     console.error(error)
