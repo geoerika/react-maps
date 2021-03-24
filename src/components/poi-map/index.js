@@ -526,10 +526,10 @@ const POIMap = ({
                   position='top-left'
                   countries='ca, us'
                   localGeocoder= { forwardGeocoder }
-                  onResult= { (result) => {
+                  onResult= { ({ result: result }) => {
                     setCreateDrawMode(false)
-                    const poiResult = result.result
-                    geocoderOnResult(poiResult, POIType).then((feature) => {
+                    setShowIcon(false)
+                    geocoderOnResult({ result, POIType }).then((feature) => {
                       setData([feature])
                       /**
                        * particular case when we only find a 'Point' feature and not a 'Polygon'
