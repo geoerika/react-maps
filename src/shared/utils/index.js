@@ -1,6 +1,5 @@
 import { WebMercatorViewport } from '@deck.gl/core'
 import * as eqMapLayers from '../../components/layers'
-import axios from 'axios'
 
 import circle from '@turf/circle'
 import { point } from '@turf/helpers'
@@ -8,17 +7,42 @@ import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
 
-import { TYPE_RADIUS, TYPE_POLYGON } from '../../constants'
-import { poiCategory } from './../../poi-category'
-import fsaFeatures from './../../fsa-features'
-import FO from './../../actions'
+import { TYPE_RADIUS } from '../../constants'
+
+
+/**
+ * processLayers - returns layers used by a map
+ * @param { object } param
+ * @param { array } param.mapLayers - array of layers to show on map
+ * @param { array } param.layerPool - array of all layers used by map in general
+ * @param { object } param.props - layers' props
+ * @returns { array } - array of Deck.gl and Nebula.gl layers used by a map
+ */
+export const processLayers = ({ mapLayers, layerPool, props }) =>
+  layerPool.map(layer =>
+    mapLayers.includes(layer) ?
+      setLayer({ layer, props, visible: true }) :
+      setLayer({ layer, props, visible: false }),
+  )
+
+/**
+ * setLayer - sets a map layer
+ * @param { object } param
+ * @param { string } param.layer - name of a layer found in src/components/layers/index.js
+ * @param { object } param.props - object of layer props
+ * @param { boolean } param.visible - boolean to be used to set a certain layer visible or not on the map
+ * @returns { instanceOf } - Deck.gl or Nebula.gl layer
+ */
+const setLayer = ({ layer, props, visible }) =>
+  layer === 'POICluster' ?
+    new eqMapLayers[layer]({ ...props, visible }) :
+    eqMapLayers[layer]({ ...props, visible })
 
 /**
  * setView - handles calculations of viewState lat, long, and zoom, based on
  *           data coordinates and deck size
  * @param { object } param
  * @param { array } param.data - data to display on the map
- * @param { boolean } param.showRadius - to display or not POI radius
  * @param { number } param.width - deck container width
  * @param { number } param.height - deck container height
  * @return { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
@@ -33,7 +57,7 @@ export const setView = ({ data, width, height }) => {
       if (point?.properties?.radius) {
         const pointCoord = point.geometry.coordinates
         const pointRadius = point.properties.radius
-        viewData.push(createCircleFromPointRadius(pointCoord, pointRadius))
+        viewData.push(createCircleFromPointRadius({ centre: pointCoord, radius: pointRadius }))
       } else {
         // cover case for a POI without a radius
         viewData.push(point)
@@ -41,7 +65,7 @@ export const setView = ({ data, width, height }) => {
     })
   }
 
-  const formattedGeoData = getDataCoordinates(viewData)
+  const formattedGeoData = getDataCoordinates({ data: viewData })
   const dataLonDiff = formattedGeoData[0][0] - formattedGeoData[1][0]
 
   /**
@@ -69,27 +93,22 @@ export const setView = ({ data, width, height }) => {
 
   let { longitude, latitude, zoom } = viewPort
 
+  // set a lower value zoom for a point with small or inexistent radius to have better map perspective
+  if (data?.length === 1 && data[0].geometry?.type === 'Point' &&
+      (!data[0].properties?.radius || data[0].properties?.radius < 10)) {
+    zoom = Math.min(zoom, 18)
+  }
+
   return { longitude, latitude, zoom }
 }
 
 /**
- * processLayers - choses a layer based on type parameter
- * @param { array } layerArray - array of layers to show on map
- * @param { object } props - layers' props
- * @returns { instanceOf } Deck.gl layer
- */
-export const processLayers = (layerArray, props) => {
-  return layerArray.map(layer => layer === 'POICluster' 
-    ? new eqMapLayers[layer](props)
-    : eqMapLayers[layer](props))
-}
-
-/**
  * getDataCoordinates - gets the coordinates that enclose all location data, including polygons
- * @param { array } data - location data array
+ * @param { object } param
+ * @param { array } param.data - location data array
  * @returns { array } - coordinates that define the boundary area where the data is located
  */
-export const getDataCoordinates = (data) => {
+export const getDataCoordinates = ({ data }) => {
   let POIType
   let coordinateArray
   if (data[0]?.geometry?.type) {
@@ -124,9 +143,9 @@ export const getDataCoordinates = (data) => {
  * @return { function } - cursor function
  */
 export const getCursor = ({ layers, hoverInfo }) => {
-  if (layers.length) {
+  if (layers?.length) {
     const drawLayer = layers.find(layer => layer.id === 'edit-draw layer')
-    if (drawLayer) {
+    if (drawLayer?.props?.visible) {
       return drawLayer.getCursor.bind(drawLayer)
     }
   }
@@ -136,11 +155,12 @@ export const getCursor = ({ layers, hoverInfo }) => {
 /**
  * createCircleFromPointRadius - creates a circle / polygon GeoJSON feature from a radius and a set
  *                               of coordinates
- * @param { array } centre - array of coordinates for circle centroid [lon, lat]
- * @param { number } radius - radius value
+ * @param { object } param
+ * @param { array } param.centre - array of coordinates for circle centroid [lon, lat]
+ * @param { number } param.radius - radius value
  * @return { object } - GeoJSON object of created circle / polygon
  */
-export const createCircleFromPointRadius = (centre, radius) => {
+export const createCircleFromPointRadius = ({ centre, radius }) => {
   // ToDo: research how large our radius can get and if can make a formula to set better step number
   const options = { steps: radius < 500 ? 50 : 100, units: 'meters' }
   let createdCircle = circle(centre, radius, options)
@@ -154,7 +174,7 @@ export const createCircleFromPointRadius = (centre, radius) => {
  * @param { object } polygon - GeoJSON polygon object
  * @return { object } - the values of the circle's radius and centroid coordinates
  */
-export const getCircleRadiusCentroid = (polygon) => {
+export const getCircleRadiusCentroid = ({ polygon }) => {
   polygon = {
     ...polygon,
     type: 'Feature',
@@ -166,133 +186,4 @@ export const getCircleRadiusCentroid = (polygon) => {
   let coordinates = centroid.geometry.coordinates
   radius = Math.round(radius * 1000000) / 1000
   return { radius, coordinates }
-}
-
-/**
- * forwardGeocoder - searches for and returns an fsa feature
- * @param { string } query - fsa search key (ie. postal code, province..)
- * @return { object } - fsa feature
- */
-export const forwardGeocoder = (query) => {
-  const q = query.toLowerCase()
-
-  return fsaFeatures.features.filter(f => f.properties.title.toLowerCase().search(q) !== -1)
-    .map(f => ({
-      ...f,
-      place_name: f.properties.title,
-      center: f.geometry.coordinates,
-    }))
-}
-
-/**
- * geocoderOnResult - searches for and returns an fsa feature
- * @param { string } param
- * @param { string } param.result - the result field of an object resulting from a geocoder search
- * @param { string } param.POIType - POI type of geocoder result
- * @return { object } - POI feature
- */
-export const geocoderOnResult = async (result, POIType) => {
-  const properties = {
-    lat: result.center[1],
-    lon: result.center[0],
-    address: result.place_name,
-    addressLine1: '',
-    unit: '',
-    postcode: '',
-    city: '',
-    province: '',
-    country: '',
-  }
-
-  if (result.text) {
-    properties.addressLine1 = result.address ? `${result.address} ${result.text}`
-      : result.text
-
-    properties.name = result.text
-  }
-
-  if (result.place_name) {
-    properties.name = result.place_name
-  }
-
-  const placeInfo = {}
-  const contextData = [{
-    id: result.id,
-    text: result.text,
-    short_code: result.properties.short_code,
-  }, ...(result.context ? result.context : [])]
-
-  contextData.forEach(({ id, text, short_code: shortCode }) => {
-    if (id.includes('postcode')) {
-      properties.postcode = text
-      placeInfo.postcode = text
-    }
-    if (id.includes('place')) {
-      properties.city = text
-      placeInfo.place = text
-    }
-    if (id.includes('region')) {
-      properties.province = text
-      placeInfo.region = shortCode.toUpperCase()
-    }
-    if (id.includes('country')) {
-      properties.country = text
-      placeInfo.country = shortCode.toUpperCase()
-    }
-  })
-
-  if (POIType === TYPE_POLYGON.code) {
-    const [placeType] = result.place_type
-
-    placeInfo.placeType = placeType
-    // auto insert place polygon and type
-    if (['country', 'region', 'place', 'postcode'].includes(placeType)) {
-      if (placeInfo.region) {
-        placeInfo.region = placeInfo.region.replace(`${placeInfo.country}-`, '')
-      }
-
-      properties.category = poiCategory.find(val =>
-        (val.key === placeType) ||
-        (val.key === 'fsa' && placeType === 'postcode' && placeInfo.postcode.length === 3)).value
-
-      properties.businessType = 3
-      const featureGeometry = await getPlaceGeo(FOApi)(placeInfo, properties)
-      if (featureGeometry?.geometry?.type) {
-        return featureGeometry
-      }
-    }
-  }
-  return {
-    type: result.type,
-    geometry: result.geometry,
-    properties,
-  }
-}
-
-// create instance of FO object with our axios configuration
-const FOApi = FO(axios.create({
-  baseURL: `${process.env.API_HOST}/${process.env.API_STAGE}`,
-  headers: { 'eq-api-jwt': process.env.JWT },
-}))
-
-/**
- * getPlaceGeo - returns the full geometry of a polygon/multipolygon POI
- * @param { string } param
- * @param { string } param.result - the result field of an object resulting from a geocoder search
- * @param { string } param.POIType - POI type of geocoder result
- * @return { object } - POI feature
- */
-const getPlaceGeo = (api) => async (data, properties) => {
-  try {
-    const placeGeometry = await api.getGeoPlacePolygon(data)
-    const { geometry } = placeGeometry[0]
-
-    return {
-      type: 'Feature',
-      geometry,
-      properties,
-    }
-  } catch (error) {
-    console.error(error)
-  }
 }

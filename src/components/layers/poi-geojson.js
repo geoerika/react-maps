@@ -8,7 +8,7 @@ const defaultProps = {
   id: 'geojson-layer',
   pickable: true,
   stroked: true,
-  visible: true,
+  visible: false,
   filled: true,
   extruded: false,
   lineWidthScale: 1,

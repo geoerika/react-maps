@@ -25,9 +25,10 @@ import {
   getCursor,
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
-} from '../shared/utils'
-import { useResizeObserver } from '../hooks'
+} from '../../shared/utils'
+import { useResizeObserver } from '../../hooks'
 import POITooltip from './poi-tooltip'
+import DrawButtonGroup from './draw-button-group'
 import {
   typographyPropTypes,
   typographyDefaultProps,
@@ -35,11 +36,11 @@ import {
   tooltipDefaultProps,
   POIMapProps,
   POIMapDefaultProps,
-} from '../shared/map-props'
+} from '../../shared/map-props'
 import {
   TYPE_POLYGON,
   TYPE_RADIUS,
-} from '../constants'
+} from '../../constants'
 
 
 setup(React.createElement)
@@ -49,15 +50,23 @@ const MapWrapper = styled('div')`
 
 const SwitchContainer = styled('div')`
   position: absolute;
-  margin: 20px;
+  margin: 15px;
   z-index: 1;
   background-color: white;
   border-radius: 3px;
   padding: 5px;
 `
 
+const DrawButtonContainer = styled('div')`
+  position: absolute;
+  right: 15px;
+  z-index: 1;
+  background-color: white;
+  border-radius: 3px;
+`
+
 const MapContainer = styled('div', forwardRef)`
-  padding: 10px;
+  padding: 15px;
   width: 100%;
   height: 100%;
   position: absolute;
@@ -140,6 +149,7 @@ const POIMap = ({
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [showIcon, setShowIcon] = useState(false)
+  const [createDrawMode, setCreateDrawMode] = useState(false)
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
@@ -159,12 +169,19 @@ const POIMap = ({
     return activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
   }, [mode, activePOI, POIData])
 
-  // React hook that sets layerArray
-  const layerArray = useMemo(() => {
+  // React hook that sets layerPool = all layers used in POIMap component
+  const layerPool = useMemo(() => ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster'], [])
+
+  // React hook that sets mapLayers - the layers used by POIMap during various map modes
+  const mapLayers = useMemo(() => {
     if (mode === 'empty') {
       return []
     }
-    if (mode === 'edit' || mode.endsWith('-draw')) {
+    if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
+      // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
+      if (mode.startsWith('create-') && createDrawMode) {
+        return ['POIEditDraw', 'POIIcon']
+      }
       return ['POIEditDraw']
     }
     if (POIType === TYPE_RADIUS.code) {
@@ -177,49 +194,51 @@ const POIMap = ({
       return ['POIIcon']
     }
     if (POIType === TYPE_POLYGON.code) {
-      // we show an icon when the geocoder finds only a 'Point' feature and want to display location on map
+      // we show an icon when the geocoder finds only a 'Point' feature and wants to display location on map
       if (showIcon) {
-        return ['POIGeoJson', 'POIIcon']
+        return ['POIIcon']
       }
       return ['POIGeoJson']
     }
     return []
-  }, [mode, cluster, POIType, showRadius, showIcon])
+  }, [mode, cluster, POIType, createDrawMode, showRadius, showIcon])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
     if (mode === 'empty' || !mode) {
-      return setData([])
+      setData([])
     }
-    if (!activePOI?.properties) {
-      return setData(POIData)
+    if (!activePOI?.properties && !showIcon) {
+      setData(POIData)
     }
     if ((mode === 'display' && activePOI?.properties) ||
         (mode === 'edit' && POIType === TYPE_POLYGON.code)) {
-      return setData([activePOI])
+      setData([activePOI])
     }
-    /**
-     * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
-     * feature, based on the poi coordinates and its radius
-     */
-    const { geometry: { coordinates: centre } } = activePOI
-    const { radius } = activePOI.properties
-    const createdCircle = createCircleFromPointRadius(centre, radius)
-    setData([{
-      geometry: createdCircle.geometry,
-      properties: {
-        ...activePOI.properties,
-        ...createdCircle.properties,
-      },
-      // keep previous coordinates in order to edit radius based on the centroid of poi
-      prevCoordinates: activePOI.geometry.coordinates,
-    }])
-  }, [POIData, activePOI, mode, POIType, layerArray])
+    if (mode === 'edit' && POIType === TYPE_RADIUS.code) {
+      /**
+       * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
+       * feature, based on the poi coordinates and its radius
+       */
+      const { geometry: { coordinates: centre } } = activePOI
+      const { radius } = activePOI.properties
+      const createdCircle = createCircleFromPointRadius({ centre, radius })
+      setData([{
+        geometry: createdCircle.geometry,
+        properties: {
+          ...activePOI.properties,
+          ...createdCircle.properties,
+        },
+        // keep previous coordinates in order to edit radius based on the centroid of poi
+        prevCoordinates: activePOI.geometry.coordinates,
+      }])
+    }
+  }, [POIData, activePOI, mode, POIType, showIcon])
 
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
     // drawing mode has an empty data set, so we need to set mapMode for drawing before the next case
-    if (mode.endsWith('-draw')) {
+    if (mode.endsWith('-draw') || createDrawMode) {
       return 'draw'
     }
     if (mode.startsWith('create-')) {
@@ -233,7 +252,7 @@ const POIMap = ({
       return 'isOnMapEditing'
     }
     return mode
-  }, [mode, data])
+  }, [mode, createDrawMode, data])
 
   // set viewParam for different map modes
   // this means that we don't reset viewPort during drawing
@@ -270,27 +289,27 @@ const POIMap = ({
 
   /**
    * onClick - React hook that handles various in-house and custom onClick methods
-   * @param { object } deckEvent - current deck properties
+   * @param { object } param - object of deck.gl click event
+   * @param { object } param.object - clicked object on map
+   * @param { object } param.layer - deck.gl layer
+   * @param { array } param.coordinate - coordinates of the clicked object
    */
-  const onClick = useCallback(
-    (deckEvent) => {
-      const { object, layer, coordinate } = deckEvent
-      // if clicked object is a cluster, zoom in
-      if (object.cluster) {
-        const [longitude, latitude] = coordinate
-        setOnClickPayload({ longitude, latitude, zoom: layer.state.z + 2 })
-      // if clicked object is a point on the map, set it as activePOI and zoom in
-      } else if (object.type) {
-        const data = [object]
-        const [longitude, latitude, zoom] = [...Object.values(setView({ data, height, width }))]
-        setActivePOI(object)
-        setOnClickPayload({ longitude, latitude, zoom })
-      } else {
-        // custom onClick
-        onClickHandle(deckEvent, setOnClickPayload)
-      }
-    }, [setActivePOI, onClickHandle, height, width],
-  )
+  const onClick = useCallback(({ object, layer, coordinate }) => {
+    // if clicked object is a cluster, zoom in
+    if (object?.cluster) {
+      const [longitude, latitude] = coordinate
+      setOnClickPayload({ longitude, latitude, zoom: layer.state.z + 2 })
+    // if clicked object is a point on the map, set it as activePOI and zoom in
+    } else if (object?.type) {
+      const data = [object]
+      const [longitude, latitude, zoom] = [...Object.values(setView({ data, height, width }))]
+      setActivePOI(object)
+      setOnClickPayload({ longitude, latitude, zoom })
+    } else {
+      // custom onClick
+      onClickHandle({ object, layer, coordinate }, setOnClickPayload)
+    }
+  }, [setActivePOI, onClickHandle, height, width])
 
   /**
    * onHover - React hook that handles onHover event
@@ -334,16 +353,15 @@ const POIMap = ({
     return state
   }, { viewState: INIT_VIEW[mapMode] })
   
-
   // FIX: FlyToInterpolator doesn't seem to be trigerred when transitioning from empty map to some data
   // React Hook to handle setting up viewState based on POIs coordinates and deck map container size
   useLayoutEffect(() => {
-    if (((data?.length && layerArray.length) ||
-        (mapMode === 'emptyMap' && !data?.length && !layerArray.length)) &&
+    if (((data?.length && mapLayers.length) ||
+        (mapMode === 'emptyMap' && !data?.length && !mapLayers.length)) &&
         width && height) {
       viewStateDispatch(viewParam[mapMode])
     }
-  }, [data, layerArray, width, height, viewParam, mapMode])
+  }, [data, mapLayers, width, height, viewParam, mapMode])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
@@ -353,8 +371,10 @@ const POIMap = ({
   /**
    * updatePOI - React hook that updates data on the map and activePOI with the edited / drawn features
    * @param { array } editedPOIList - updated / drawn feature list
+   * @param { string } editType - type of edit
+   * @param { array } prevCoordinates - previous coordinates of a POI
    */
-  const updatePOI = useCallback((editedPOIList, editType, prevCoordinates) => {
+  const updatePOI = useCallback(({ editedPOIList, editType, prevCoordinates }) => {
     // we signal the map that we are actively editing so the map doesn't adjust view
     editedPOIList[0].properties.isOnMapEditing = true
     let editedRadius = null
@@ -370,8 +390,8 @@ const POIMap = ({
     if (editType.includes('scal')) {
       // change only radius, not coordinates; recalculate circle points for new radius to show on the map
       editedPOI = activePOI
-      editedRadius = getCircleRadiusCentroid(editedPOIList[0]).radius
-      const createdCircle = createCircleFromPointRadius(prevCoordinates, editedRadius)
+      editedRadius = getCircleRadiusCentroid({ polygon: editedPOIList[0] }).radius
+      const createdCircle = createCircleFromPointRadius({ centre: prevCoordinates, radius: editedRadius })
       editedPOIList = [{
         geometry: createdCircle.geometry,
         properties: {
@@ -384,7 +404,7 @@ const POIMap = ({
     }
     // case: translate
     if (editType.includes('transl')) {
-      const { coordinates } = getCircleRadiusCentroid(editedPOIList[0])
+      const { coordinates } = getCircleRadiusCentroid({ polygon: editedPOIList[0] })
       editedPOI = activePOI
       editedCoordinates = { editedlon: coordinates[0], editedlat: coordinates[1] }
       editedPOIList[0].prevCoordinates = coordinates
@@ -393,17 +413,21 @@ const POIMap = ({
     if (editType.includes('rot')) {
       editedPOI = activePOI
     }
+    // allow only one POI to be drawn in POI create modes; keep last drawn point
+    if (mode.startsWith('create-')) {
+      editedPOIList = [editedPOIList.pop()]
+    }
     setData(editedPOIList)
     setDraftActivePOI({ editedPOI, editedRadius, editedCoordinates })
-  }, [activePOI, setDraftActivePOI])
+  }, [activePOI, mode, setDraftActivePOI])
 
-  // set layers for deck.gl map
+  // set layers for DeckGL map
   // don't set layers for display and edit modes unless we have POIs in data
   const layers = useMemo(() => {
     if ((data?.length && ((mode === 'display') ||
       (mode === 'edit' && selectedFeatureIndexes.length))) ||
       mode.endsWith('-draw') || mode.startsWith('create-')) {
-      return processLayers(layerArray, {
+      return processLayers({ mapLayers, layerPool, props: {
         mapProps,
         data,
         updatePOI,
@@ -412,18 +436,10 @@ const POIMap = ({
         mode,
         POIType,
         selectedFeatureIndexes,
-      })
+      } })
     }
     return []
-  }, [layerArray, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
-
-  /**
-   * toggleRadius - React hook that toggles showRadius state
-   */
-  const toggleRadius = useCallback(
-    () => {
-      setShowRadius(!showRadius)
-    }, [showRadius])
+  }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   const getCurrentCursor = getCursor({ layers, hoverInfo })
 
@@ -431,12 +447,12 @@ const POIMap = ({
    * mapCanRender - conditions to render the map
    */
   const mapCanRender = Boolean(useMemo(() =>
-    (layerArray.includes('POIEditDraw') && data[0]?.properties?.poiType === TYPE_POLYGON.code) ||
-    (!layerArray.includes('POIEditDraw') && data.length) ||
+    (mapLayers.includes('POIEditDraw') && data[0]?.properties?.poiType === TYPE_POLYGON.code) ||
+    (!mapLayers.includes('POIEditDraw') && data.length) ||
     // cases for empty map
     mode === 'empty' ||
     !POIData.length
-  ,[data, POIData, layerArray, mode]))
+  ,[data, POIData, mapLayers, mode]))
 
   return (
     <MapWrapper>
@@ -446,7 +462,7 @@ const POIMap = ({
             control={
               <Switch
                 checked={ showRadius }
-                onChange={ () => toggleRadius() }
+                onChange={ () => setShowRadius(!showRadius) }
               />
             }
             label='Show Radius'
@@ -460,6 +476,15 @@ const POIMap = ({
             typography={ typography }
             tooltipKeys={ tooltipKeys }
           />
+        ) }
+        { mode.startsWith('create-') && (
+          <DrawButtonContainer>
+            <DrawButtonGroup
+              mode={ mode }
+              setDrawModeOn={ () => setCreateDrawMode(true) }
+              onErase={ () => setData([]) }
+            />
+          </DrawButtonContainer>
         ) }
         { mapCanRender && (
           <DeckGL
@@ -502,9 +527,10 @@ const POIMap = ({
                   position='top-left'
                   countries='ca, us'
                   localGeocoder= { forwardGeocoder }
-                  onResult= { (result) => {
-                    const poiResult = result.result
-                    geocoderOnResult(poiResult, POIType).then((feature) => {
+                  onResult= { ({ result: result }) => {
+                    setCreateDrawMode(false)
+                    setShowIcon(false)
+                    geocoderOnResult({ result, POIType }).then((feature) => {
                       setData([feature])
                       /**
                        * particular case when we only find a 'Point' feature and not a 'Polygon'
@@ -512,8 +538,6 @@ const POIMap = ({
                        */
                       if (POIType === 1 && feature?.geometry?.type === 'Point') {
                         setShowIcon(true)
-                        // FIX state in the next PR so we don't have to setData twice here
-                        setData([feature])
                       }
                     })
                   } }

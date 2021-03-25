@@ -13,6 +13,7 @@ import { TYPE_RADIUS } from '../../constants'
 const defaultProps = {
   id: 'edit-draw layer',
   pickingRadius: 12,
+  visible: false,
   _subLayerProps: {
     geojson: {
       lineWidthScale: 1,
@@ -48,11 +49,11 @@ const EDIT_DRAW_MODE = {
  * @param { array } param.selectedFeatureIndexes - array of selected feature indexes
  * @return { instanceOf EditableGeoJsonLayer}
  */
-const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeatureIndexes }) => {
+const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeatureIndexes, visible }) => {
   const prevCoordinates = data[0]?.prevCoordinates
   const editDrawMode = mode === 'edit' ?
     (POIType === TYPE_RADIUS.code ? 'poi-radius-edit' : 'poi-edit') :
-    mode
+    ['create-point', 'point-draw'].includes(mode) ? 'point-draw' : 'polygon-draw'
 
   return new EditableGeoJsonLayer({
     ...defaultProps,
@@ -67,10 +68,11 @@ const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeature
        * need condition here otherwise we get errors when we draw as updatedData.features is updated
        * only when we finish drawing a point or an entire polygon
        */
-      if (updatedData?.features.length) {
-        return updatePOI(updatedData.features, editType, prevCoordinates)
+      if (updatedData?.features?.length && visible) {
+        return updatePOI({ editedPOIList: updatedData.features, editType, prevCoordinates })
       }
     },
+    visible,
     _subLayerProps: {
       ...defaultProps._subLayerProps,
       geojson: {

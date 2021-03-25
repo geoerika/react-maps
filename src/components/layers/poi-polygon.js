@@ -10,6 +10,7 @@ const defaultProps = {
   wireframe: true,
   lineWidthMinPixels: 1,
   getPolygon: d => d.geometry.coordinates,
+  visible: false,
 }
 
 /**
@@ -29,5 +30,4 @@ const POIPolygon = ({ mapProps, data, ...props }) =>
     opacity: mapProps.opacity,
     ...props,
   })
-
 export default POIPolygon

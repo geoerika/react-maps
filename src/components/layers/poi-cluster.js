@@ -48,6 +48,7 @@ class IconClusterLayer extends CompositeLayer {
     superclusterZoom: 20,
     getSuperclusterRadius: (viewportZoom, sizeScale) => 
       viewportZoom > 15 ? sizeScale / 3 : sizeScale,
+    visible: false,
   }
   
   shouldUpdateState({ changeFlags }) {
@@ -100,6 +101,8 @@ class IconClusterLayer extends CompositeLayer {
       iconMapping,
       sizeScale,
       getPosition,
+      pickable,
+      visible,
       ...props
     } = this.props
 
@@ -113,7 +116,8 @@ class IconClusterLayer extends CompositeLayer {
         getPosition,
         getIcon: d => getIconName(d),
         getSize: getIconSize(),
-        pickable: true,
+        pickable,
+        visible,
         ...props,
       }),
     )
