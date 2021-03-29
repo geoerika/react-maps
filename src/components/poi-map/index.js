@@ -179,10 +179,10 @@ const POIMap = ({
     }
     if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
       // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
-      if (mode.startsWith('create-polygon') && createDrawMode) {
+      if (mode.startsWith('create-polygon')) {
         return ['POIEditDraw', 'POIIcon']
       }
-      if (mode.startsWith('create-point') && createDrawMode) {
+      if (mode.startsWith('create-point')) {
         // disable drawing layer when we have edited radius while creating a POI, so we can display radius
         if (activePOI?.properties?.radius) {
           return ['POIGeoJson', 'POIIcon']
@@ -425,7 +425,8 @@ const POIMap = ({
     }
     // allow only one POI to be drawn in POI create modes; keep last drawn point
     if (mode.startsWith('create-')) {
-      editedPOIList = [editedPOIList.pop()]
+      editedPOI = editedPOIList.pop()
+      editedPOIList = [editedPOI]
     }
     setData(editedPOIList)
     setDraftActivePOI({ editedPOI, editedRadius, editedCoordinates })
