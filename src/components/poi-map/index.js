@@ -179,8 +179,15 @@ const POIMap = ({
     }
     if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
       // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
-      if (mode.startsWith('create-') && createDrawMode) {
+      if (mode.startsWith('create-polygon') && createDrawMode) {
         return ['POIEditDraw', 'POIIcon']
+      }
+      if (mode.startsWith('create-point') && createDrawMode) {
+        // disable drawing layer when we have edited radius while creating a POI, so we can display radius
+        if (activePOI?.properties?.radius) {
+          return ['POIGeoJson', 'POIIcon']
+        }
+        return ['POIGeoJson', 'POIEditDraw', 'POIIcon']
       }
       return ['POIEditDraw']
     }
@@ -201,7 +208,7 @@ const POIMap = ({
       return ['POIGeoJson']
     }
     return []
-  }, [mode, cluster, POIType, createDrawMode, showRadius, showIcon])
+  }, [mode, activePOI, cluster, POIType, createDrawMode, showRadius, showIcon])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -212,8 +219,11 @@ const POIMap = ({
       setData(POIData)
     }
     if ((mode === 'display' && activePOI?.properties) ||
-        (mode === 'edit' && POIType === TYPE_POLYGON.code)) {
+        (mode === 'edit' && POIType === TYPE_POLYGON.code) ||
+        (mode === 'create-point' && activePOI?.properties?.radius)) {
       setData([activePOI])
+      // disable drawing mode when we have edited radius so we can display radius on map
+      setCreateDrawMode(false)
     }
     if (mode === 'edit' && POIType === TYPE_RADIUS.code) {
       /**
