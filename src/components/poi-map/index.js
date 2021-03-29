@@ -491,8 +491,8 @@ const POIMap = ({
           <DrawButtonContainer>
             <DrawButtonGroup
               mode={ mode }
-              setDrawModeOn={ () => setCreateDrawMode(true) }
-              onErase={ () => setData([]) }
+              setDrawModeOn={ () => { setCreateDrawMode(true); setActivePOI(null) } }
+              onErase={ () => { setData([]); setDraftActivePOI({ editedPOI: null }) } }
             />
           </DrawButtonContainer>
         ) }
