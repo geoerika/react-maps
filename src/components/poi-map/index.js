@@ -225,6 +225,10 @@ const POIMap = ({
       // disable drawing mode when we have edited radius so we can display radius on map
       setCreateDrawMode(false)
     }
+    // remove created activePOI from data list if it was added to POI list in poi-manage
+    if (mode === 'create-polygon' && activePOI?.added) {
+      setData([])
+    }
     if (mode === 'edit' && POIType === TYPE_RADIUS.code) {
       /**
        * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
