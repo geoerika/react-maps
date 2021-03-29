@@ -50,6 +50,7 @@ const EDIT_DRAW_MODE = {
  * @return { instanceOf EditableGeoJsonLayer}
  */
 const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeatureIndexes, visible }) => {
+
   const prevCoordinates = data[0]?.prevCoordinates
   const editDrawMode = mode === 'edit' ?
     (POIType === TYPE_RADIUS.code ? 'poi-radius-edit' : 'poi-edit') :
@@ -68,8 +69,10 @@ const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeature
        * need condition here otherwise we get errors when we draw as updatedData.features is updated
        * only when we finish drawing a point or an entire polygon
        */
-      if (updatedData?.features?.length && visible) {
-        return updatePOI({ editedPOIList: updatedData.features, editType, prevCoordinates })
+      if (visible && updatedData?.features?.length && (!data.length ||
+        // these conditions are for calling updatePOI only when we have new edited / created geometries
+        (data.length && !data.includes(updatedData.features[updatedData.features.length - 1])))) {
+        updatePOI({ editedPOIList: updatedData.features, editType, prevCoordinates })
       }
     },
     visible,
