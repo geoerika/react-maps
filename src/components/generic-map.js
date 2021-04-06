@@ -35,6 +35,7 @@ const propTypes = {
   layers: PropTypes.array,
   setDimensionsCb: PropTypes.func,
   getTooltip: PropTypes.func,
+  getCursor: PropTypes.func,
   viewStateOverride: PropTypes.object,
   showLegend: PropTypes.bool,
   position: PropTypes.string,
@@ -46,6 +47,7 @@ const defaultProps = {
   layers: [],
   setDimensionsCb: () => {},
   getTooltip: () => {},
+  getCursor: () => {},
   viewStateOverride: {},
   showLegend: false,
   position: 'top-left',
@@ -62,6 +64,7 @@ const Map = ({
   layers,
   setDimensionsCb,
   getTooltip,
+  getCursor,
   viewStateOverride,
   showLegend,
   position,
@@ -120,6 +123,7 @@ const Map = ({
         layers={layers}
         controller={true}
         getTooltip={getTooltip}
+        getCursor={getCursor}
         // NOTE: same structure as layer click
         // onHover={d => console.log('----> map hover', d)}
         // onClick={d => console.log('----> map click', d)}

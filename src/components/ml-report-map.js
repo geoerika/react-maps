@@ -15,6 +15,7 @@ const propTypes = {
   getTooltip: PropTypes.func,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
+  getCursor: PropTypes.func,
   opacity: PropTypes.number,
   getRadius: PropTypes.oneOfType([
     PropTypes.number,
@@ -44,6 +45,7 @@ const defaultProps = {
   getTooltip: undefined,
   onClick: undefined,
   onHover: undefined,
+  getCursor: undefined,
   opacity: 0.8,
   getRadius: 10,
   radiusUnits: 'pixels',
@@ -64,6 +66,7 @@ const MLReportMap = ({
   // Deck Layer Props
   onClick,
   onHover,
+  getCursor,
   opacity,
   getRadius,
   getFillColor,
@@ -103,7 +106,7 @@ const MLReportMap = ({
         id: `${reportData[0]?.report_id || 'generic'}-report-scatterplot-layer`,
         data: reportData,
         getPosition: d => [d.lon, d.lat],
-        pickable: onClick || onHover || getTooltip,
+        pickable: Boolean(onClick || onHover || getTooltip || getCursor),
         onClick,
         onHover,
         opacity,
@@ -126,6 +129,7 @@ const MLReportMap = ({
     highlightId,
     onClick,
     onHover,
+    getCursor,
     opacity,
     getRadius,
     getFillColor,
@@ -140,6 +144,7 @@ const MLReportMap = ({
       layers={layers}
       setDimensionsCb={(o) => setDimensions(o)}
       getTooltip={getTooltip}
+      getCursor={getCursor}
       viewStateOverride={viewStateOverride}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate

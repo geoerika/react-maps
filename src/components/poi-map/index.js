@@ -22,10 +22,10 @@ import { Switch } from '@eqworks/lumen-ui'
 import {
   processLayers,
   setView,
-  getCursor,
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
 } from '../../shared/utils'
+import { getCursor } from '../../utils'
 import { useResizeObserver } from '../../hooks'
 import POITooltip from './poi-tooltip'
 import DrawButtonGroup from './draw-button-group'
@@ -456,7 +456,7 @@ const POIMap = ({
     return []
   }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
-  const getCurrentCursor = getCursor({ layers, hoverInfo })
+  const getCurrentCursor = getCursor({ layers })
 
   /**
    * mapCanRender - conditions to render the map
