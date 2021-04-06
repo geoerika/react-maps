@@ -134,23 +134,6 @@ export const getDataCoordinates = ({ data }) => {
 }
 
 /**
- * getCursor - sets cursor for different layers and hover state
- * @param { object } param
- * @param { array } param.layers - current array of layers used in map
- * @param { object } param.hoverInfo - object supplied by onHover event
- * @return { function } - cursor function
- */
-export const getCursor = ({ layers, hoverInfo }) => {
-  if (layers?.length) {
-    const drawLayer = layers.find(layer => layer.id === 'edit-draw layer')
-    if (drawLayer?.props?.visible) {
-      return drawLayer.getCursor.bind(drawLayer)
-    }
-  }
-  return ({ isDragging }) => (isDragging ? 'grabbing' : (hoverInfo?.isHovering ? 'pointer' : 'grab'))
-}
-
-/**
  * createCircleFromPointRadius - creates a circle / polygon GeoJSON feature from a radius and a set
  *                               of coordinates
  * @param { object } param

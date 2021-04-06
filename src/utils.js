@@ -45,3 +45,19 @@ export const calculateReportWIMetrics = (agg, row) => ({
     },
   }), {}),
 })
+
+/**
+ * getCursor - sets cursor for different layers and hover state
+ * @param { object } params
+ * @param { array } param.layers - current array of layers used in map
+ * @return { function } - cursor function
+ */
+export const getCursor = ({ layers } = {}) => {
+  if (layers?.length) {
+    const drawLayer = layers.find(layer => layer.id === 'edit-draw layer')
+    if (drawLayer?.props?.visible) {
+      return drawLayer.getCursor.bind(drawLayer)
+    }
+  }
+  return ({ isDragging, isHovering }) => (isDragging ? 'grabbing' : (isHovering ? 'pointer' : 'grab'))
+}
