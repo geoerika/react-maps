@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { commonProps, commonDefaultProps } from '../shared/map-props'
@@ -41,16 +41,16 @@ const propTypes = {
 
 const defaultProps = {
   centerMap: {}, // { lat, lon }
-  highlightId: undefined,
+  // highlightId: undefined,
   getTooltip: undefined,
-  onClick: undefined,
+  customOnClick: undefined,
   onHover: undefined,
   getCursor: undefined,
   opacity: 0.8,
   getRadius: 10,
   radiusUnits: 'pixels',
   filled: true,
-  getFillColor: highlight_id => d => d.poi_id === highlight_id ? [0, 0, 255] : [0, 0, 150],
+  getFillColor: highlight_id => d => d.poi_id === highlight_id ? [221, 25, 107] : [0, 98, 217],
   stroked: true,
   lineWidthUnits: 'pixels',
   getLineWidth: 2,
@@ -60,7 +60,7 @@ const defaultProps = {
 const MLReportMap = ({
   reportData,
   centerMap,
-  highlightId,
+  // highlightId,
   // Deck Map props
   getTooltip,
   // Deck Layer Props
@@ -75,8 +75,8 @@ const MLReportMap = ({
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
-
   const [viewStateOverride, setViewOverride] = useState({})
+  const [highlightId, setHighlightId] = useState(0)
   const [{ height, width }, setDimensions] = useState({})
 
   useEffect(() => {
@@ -100,6 +100,23 @@ const MLReportMap = ({
     }
   }, [centerMap, height, width])
 
+  /**
+   * finalOnClick - React hook that handles default onClick event
+   * @param { object } param - object of deck.gl click event
+   * @param { object } param.object - clicked object on map
+   */
+  const finalOnClick = useCallback(({ object }) => {
+    if (onClick) {
+      onClick(object)
+    } else if (object) {
+      const { lat, lon } = object
+      // correct way to center map on clicked point; don't use 'coordinate' from onClick event
+      const [longitude, latitude] = [lon, lat]
+      setHighlightId(object.poi_id)
+      setViewOverride({ longitude, latitude, zoom: 15 })
+    }
+  }, [onClick])
+
   const layers = useMemo(() => {
     return [
       Scatter({
@@ -107,7 +124,7 @@ const MLReportMap = ({
         data: reportData,
         getPosition: d => [d.lon, d.lat],
         pickable: Boolean(onClick || onHover || getTooltip || getCursor),
-        onClick,
+        onClick: finalOnClick,
         onHover,
         opacity,
         getRadius,
@@ -128,6 +145,7 @@ const MLReportMap = ({
     reportData,
     highlightId,
     onClick,
+    finalOnClick,
     onHover,
     getCursor,
     opacity,
