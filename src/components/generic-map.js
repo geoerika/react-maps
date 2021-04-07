@@ -113,6 +113,7 @@ const Map = ({
         onResize={({ height, width }) => {
           // viewState doesn't update dimensions correctly
           setDimensions({ height, width })
+          setDimensionsCb({ height, width })
         }}
         onViewStateChange={o => {
           const { viewState } = o
