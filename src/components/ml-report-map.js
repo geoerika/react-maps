@@ -19,7 +19,7 @@ const propTypes = {
   opacity: PropTypes.number,
   getRadius: PropTypes.oneOfType([
     PropTypes.number,
-    PropTypes.array,
+    PropTypes.func,
   ]),
   radiusUnits: PropTypes.string,
   filled: PropTypes.bool,
