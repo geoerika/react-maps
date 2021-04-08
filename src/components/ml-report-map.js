@@ -5,7 +5,7 @@ import { commonProps, commonDefaultProps } from '../shared/map-props'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
-import { setView, getFinalFillColor } from '../shared/utils'
+import { setView, getFinalRadius, getFinalFillColor } from '../shared/utils'
 import { useMapData } from '../hooks'
 
 
@@ -18,6 +18,9 @@ const propTypes = {
   onHover: PropTypes.func,
   getCursor: PropTypes.func,
   opacity: PropTypes.number,
+  radiusBasedOn: PropTypes.string,
+  radiusDataScale: PropTypes.string,
+  radii: PropTypes.array,
   getRadius: PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.func,
@@ -51,6 +54,9 @@ const defaultProps = {
   onHover: undefined,
   getCursor: undefined,
   opacity: 1,
+  radiusBasedOn: '',
+  radiusDataScale: 'linear',
+  radii: [5, 50],
   getRadius: 10,
   radiusUnits: 'pixels',
   filled: true,
@@ -75,6 +81,9 @@ const MLReportMap = ({
   onHover,
   getCursor,
   opacity,
+  radiusBasedOn,
+  radiusDataScale,
+  radii,
   getRadius,
   getFillColor,
   fillBasedOn,
@@ -138,7 +147,6 @@ const MLReportMap = ({
     dataPropertyAccessor: d => d,
   })
 
-  console.log('metrics: ', metrics)
   const layers = useMemo(() => {
     return [
       Scatter({
@@ -149,7 +157,14 @@ const MLReportMap = ({
         onClick: finalOnClick,
         onHover,
         opacity,
-        getRadius,
+        getRadius: getFinalRadius({
+          radiusBasedOn,
+          getRadius,
+          radiusDataScale,
+          radii,
+          metrics,
+          dataPropertyAccessor: d => d,
+        }),
         getFillColor: getFinalFillColor({
           fillBasedOn,
           getFillColor,
@@ -179,6 +194,9 @@ const MLReportMap = ({
     onHover,
     getCursor,
     opacity,
+    radiusBasedOn,
+    radiusDataScale,
+    radii,
     getRadius,
     fillBasedOn,
     getFillColor,
