@@ -1,7 +1,9 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react'
 import { storiesOf } from '@storybook/react'
+
 import { MLReportMap } from '../src'
+import { getCursor } from '../src/utils'
 import vwiJson from './data/locus-ml-vwi.json'
 
 
@@ -9,7 +11,41 @@ const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN
 
 storiesOf('Locus ML Report', module)
   .add('VWI - basic', () => (
-    <MLReportMap reportData={vwiJson} mapboxApiAccessToken={mapboxApiAccessToken}/>
+    <MLReportMap
+      reportData={vwiJson}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
+  .add('VWI - default cursor on hover and default zoom on click', () => (
+    <MLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
+  .add('VWI - disable default onClick and cursor', () => (
+    <MLReportMap
+      reportData={vwiJson}
+      onClick={() => {}}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
+  .add('VWI - data-based radius', () => (
+    <MLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      radiusBasedOn={'converted_visits'}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
+  .add('VWI - data-based colour fill and radius', () => (
+    <MLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      radiusBasedOn={'converted_visits'}
+      fillBasedOn={'converted_unique_visitors'}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
   ))
   .add('VWI - zoom to point', () => {
     const [centerMap, setCenterMap] = useState()
