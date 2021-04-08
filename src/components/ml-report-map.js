@@ -5,7 +5,8 @@ import { commonProps, commonDefaultProps } from '../shared/map-props'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
-import { setView } from '../shared/utils'
+import { setView, getFinalFillColor } from '../shared/utils'
+import { useMapData } from '../hooks'
 
 
 const propTypes = {
@@ -23,6 +24,9 @@ const propTypes = {
   ]),
   radiusUnits: PropTypes.string,
   filled: PropTypes.bool,
+  fillBasedOn: PropTypes.string,
+  fillDataScale: PropTypes.string,
+  fillColors: PropTypes.array,
   getFillColor: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.array,
@@ -46,11 +50,14 @@ const defaultProps = {
   customOnClick: undefined,
   onHover: undefined,
   getCursor: undefined,
-  opacity: 0.8,
+  opacity: 1,
   getRadius: 10,
   radiusUnits: 'pixels',
   filled: true,
-  getFillColor: highlight_id => d => d.poi_id === highlight_id ? [221, 25, 107] : [0, 98, 217],
+  fillBasedOn: '',
+  fillDataScale: 'linear',
+  fillColors: [[221, 25, 107], [0, 98, 217]],
+  getFillColor: highlightId => d => d.poi_id === highlightId ? [221, 25, 107] : [0, 98, 217],
   stroked: true,
   lineWidthUnits: 'pixels',
   getLineWidth: 2,
@@ -70,6 +77,9 @@ const MLReportMap = ({
   opacity,
   getRadius,
   getFillColor,
+  fillBasedOn,
+  fillDataScale,
+  fillColors,
   getLineWidth,
   getLineColor,
   mapboxApiAccessToken,
@@ -113,10 +123,22 @@ const MLReportMap = ({
       // correct way to center map on clicked point; don't use 'coordinate' from onClick event
       const [longitude, latitude] = [lon, lat]
       setHighlightId(object.poi_id)
-      setViewOverride({ longitude, latitude, zoom: 15 })
+      setViewOverride({ longitude, latitude, zoom: 14 })
     }
   }, [onClick])
 
+  useEffect(() => {
+    if (reportData.length) {
+      metricDispatch({ type: 'data', payload : reportData })
+    }
+  }, [metricDispatch, reportData])
+
+  const { metrics, metricDispatch } = useMapData({
+    dataAccessor: d => d,
+    dataPropertyAccessor: d => d,
+  })
+
+  console.log('metrics: ', metrics)
   const layers = useMemo(() => {
     return [
       Scatter({
@@ -128,7 +150,15 @@ const MLReportMap = ({
         onHover,
         opacity,
         getRadius,
-        getFillColor: getFillColor(highlightId),
+        getFillColor: getFinalFillColor({
+          fillBasedOn,
+          getFillColor,
+          fillDataScale,
+          fillColors,
+          metrics,
+          highlightId,
+          dataPropertyAccessor: d => d,
+        }),
         getLineWidth,
         getLineColor,
         getTooltip,
@@ -150,7 +180,11 @@ const MLReportMap = ({
     getCursor,
     opacity,
     getRadius,
+    fillBasedOn,
     getFillColor,
+    fillDataScale,
+    fillColors,
+    metrics,
     getLineWidth,
     getLineColor,
     getTooltip,
