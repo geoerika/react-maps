@@ -6,6 +6,7 @@ import { point } from '@turf/helpers'
 import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
+import { SCALES } from '../../constants'
 
 
 /**
@@ -167,4 +168,35 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
   let coordinates = centroid.geometry.coordinates
   radius = Math.round(radius * 1000000) / 1000
   return { radius, coordinates }
+}
+
+/**
+ * getFinalFillColor - calculates fill colour based on data values and custom colour hues
+ * @param { object } param
+ * @param { string } param.fillBasedOn - data attribute key
+ * @param { function || array } param.getFillColor - custom function or array of rgb(a) colours to set fill colour
+ * @param { function } param.fillDataScale - D3 scale function
+ * @param { array } param.fillColors - array of rgb(a) colours for colour fill
+ * @param { number } param.metrics - radius value
+ * @param { number } param.highlightId - id of selected POI
+ * @param { function } param.dataPropertyAccessor - function to help accessing attribute data
+ * @return { function || array } - calculated function or array of rgb(a) colours for fill colour for a certain POI
+ */
+export const getFinalFillColor = ({
+  fillBasedOn,
+  getFillColor,
+  fillDataScale,
+  fillColors,
+  metrics,
+  highlightId,
+  dataPropertyAccessor,
+}) => {
+  if (fillBasedOn.length) {
+    const d3Fn = SCALES[fillDataScale]([
+      (metrics[fillBasedOn] || { min: 0 }).min,
+      (metrics[fillBasedOn] || { max: 10 }).max,
+    ], fillColors)
+    return (d) => d3Fn(dataPropertyAccessor(d)[fillBasedOn])
+  }
+  return getFillColor(highlightId)
 }
