@@ -5,7 +5,7 @@ import { commonProps, commonDefaultProps } from '../shared/map-props'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
-import { setView, getFinalRadius, getFinalFillColor } from '../shared/utils'
+import { setView, setFinalLayerDataAccessor } from '../shared/utils'
 import { useMapData } from '../hooks'
 
 
@@ -157,22 +157,20 @@ const MLReportMap = ({
         onClick: finalOnClick,
         onHover,
         opacity,
-        getRadius: getFinalRadius({
-          radiusBasedOn,
-          getRadius,
-          radiusDataScale,
-          radii,
+        getRadius: setFinalLayerDataAccessor({
+          dataKey: radiusBasedOn,
+          getLayerProp: getRadius,
+          layerDataScale: radiusDataScale,
+          layerPropRange: radii,
           metrics,
-          dataPropertyAccessor: d => d,
         }),
-        getFillColor: getFinalFillColor({
-          fillBasedOn,
-          getFillColor,
-          fillDataScale,
-          fillColors,
+        getFillColor: setFinalLayerDataAccessor({
+          dataKey: fillBasedOn,
+          getLayerProp: getFillColor,
+          layerDataScale: fillDataScale,
+          layerPropRange: fillColors,
           metrics,
           highlightId,
-          dataPropertyAccessor: d => d,
         }),
         getLineWidth,
         getLineColor,

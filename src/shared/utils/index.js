@@ -171,62 +171,31 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
 }
 
 /**
- * getFinalFillColor - calculates fill colour based on data values and custom colour hues
+ * setFinalLayerDataAccsessor - returns function or values to set deck.gl layer property (ex: fill colour, radius)
  * @param { object } param
- * @param { string } param.fillBasedOn - data attribute key
- * @param { function || array } param.getFillColor - custom function or array of rgb(a) colours to set fill colour
- * @param { function } param.fillDataScale - D3 scale function
- * @param { array } param.fillColors - array of rgb(a) colours for colour fill
+ * @param { string } param.dataKey - data attribute key
+ * @param { function || number || array } param.getLayerProp - deck.gl layer data accessor
+ * @param { function } param.layerDataScale - D3 scale function
+ * @param { array } param.layerPropRange - array of range values for the deck.gl layer property
  * @param { object } param.metrics - object of {max, min} values of all data attribute keys
- * @param { number } param.highlightId - id of selected POI
- * @param { function } param.dataPropertyAccessor - function to help accessing attribute data
- * @return { function || array } - function or array of rgb(a) colours for fill colour for a certain POI
+ * @param { function } param.dataPropertyAccessor - function to help access attribute data
+ * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
  */
-export const getFinalFillColor = ({
-  fillBasedOn,
-  getFillColor,
-  fillDataScale,
-  fillColors,
+export const setFinalLayerDataAccessor = ({
+  dataKey,
+  getLayerProp,
+  layerDataScale,
+  layerPropRange,
   metrics,
-  highlightId,
-  dataPropertyAccessor,
+  dataPropertyAccessor = d => d,
+  highlightId = null,
 }) => {
-  if (fillBasedOn.length) {
-    const d3Fn = SCALES[fillDataScale]([
-      (metrics[fillBasedOn] || { min: 0 }).min,
-      (metrics[fillBasedOn] || { max: 10 }).max,
-    ], fillColors)
-    return (d) => d3Fn(dataPropertyAccessor(d)[fillBasedOn])
+  if (dataKey.length) {
+    const d3Fn = SCALES[layerDataScale]([
+      (metrics[dataKey] || { min: 0 }).min,
+      (metrics[dataKey] || { max: 10 }).max,
+    ], layerPropRange)
+    return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
   }
-  return getFillColor(highlightId)
-}
-
-/**
- * getFinalRadius - calculates radius size based on data attribute values
- * @param { object } param
- * @param { string } param.radiusBasedOn - data attribute key
- * @param { function || number } param.getRadius - custom function or number to set radius size
- * @param { function } param.radiusDataScale - D3 scale function
- * @param { array } param.radii - array of radius size range; ex: [1, 50]
- * @param { number } param.metrics - object of {max, min} values of all data attribute keys
- * @param { function } param.dataPropertyAccessor - function to help accessing attribute data
- * @return { function || number } - function or number to set radius size for a certain POI
- */
-export const getFinalRadius = ({
-  radiusBasedOn,
-  getRadius,
-  radiusDataScale,
-  radii,
-  metrics,
-  dataPropertyAccessor,
-}) => {
-  if (radiusBasedOn.length) {
-    const d3Fn = SCALES[radiusDataScale]([
-      (metrics[radiusBasedOn] || { min: 0 }).min,
-      (metrics[radiusBasedOn] || { max: 10 }).max,
-    ], radii)
-
-    return d => d3Fn(dataPropertyAccessor(d)[radiusBasedOn])
-  }
-  return getRadius
+  return typeof getLayerProp === 'function' ? getLayerProp(highlightId) : getLayerProp
 }
