@@ -177,10 +177,10 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
  * @param { function || array } param.getFillColor - custom function or array of rgb(a) colours to set fill colour
  * @param { function } param.fillDataScale - D3 scale function
  * @param { array } param.fillColors - array of rgb(a) colours for colour fill
- * @param { number } param.metrics - radius value
+ * @param { object } param.metrics - object of {max, min} values of all data attribute keys
  * @param { number } param.highlightId - id of selected POI
  * @param { function } param.dataPropertyAccessor - function to help accessing attribute data
- * @return { function || array } - calculated function or array of rgb(a) colours for fill colour for a certain POI
+ * @return { function || array } - function or array of rgb(a) colours for fill colour for a certain POI
  */
 export const getFinalFillColor = ({
   fillBasedOn,
@@ -199,4 +199,34 @@ export const getFinalFillColor = ({
     return (d) => d3Fn(dataPropertyAccessor(d)[fillBasedOn])
   }
   return getFillColor(highlightId)
+}
+
+/**
+ * getFinalRadius - calculates radius size based on data attribute values
+ * @param { object } param
+ * @param { string } param.radiusBasedOn - data attribute key
+ * @param { function || number } param.getRadius - custom function or number to set radius size
+ * @param { function } param.radiusDataScale - D3 scale function
+ * @param { array } param.radii - array of radius size range; ex: [1, 50]
+ * @param { number } param.metrics - object of {max, min} values of all data attribute keys
+ * @param { function } param.dataPropertyAccessor - function to help accessing attribute data
+ * @return { function || number } - function or number to set radius size for a certain POI
+ */
+export const getFinalRadius = ({
+  radiusBasedOn,
+  getRadius,
+  radiusDataScale,
+  radii,
+  metrics,
+  dataPropertyAccessor,
+}) => {
+  if (radiusBasedOn.length) {
+    const d3Fn = SCALES[radiusDataScale]([
+      (metrics[radiusBasedOn] || { min: 0 }).min,
+      (metrics[radiusBasedOn] || { max: 10 }).max,
+    ], radii)
+
+    return d => d3Fn(dataPropertyAccessor(d)[radiusBasedOn])
+  }
+  return getRadius
 }
