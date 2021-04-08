@@ -179,8 +179,15 @@ const POIMap = ({
     }
     if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
       // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
-      if (mode.startsWith('create-') && createDrawMode) {
+      if (mode.startsWith('create-polygon')) {
         return ['POIEditDraw', 'POIIcon']
+      }
+      if (mode.startsWith('create-point')) {
+        // disable drawing layer when we have edited radius while creating a POI, so we can display radius
+        if (activePOI?.properties?.radius) {
+          return ['POIGeoJson', 'POIIcon']
+        }
+        return ['POIGeoJson', 'POIEditDraw', 'POIIcon']
       }
       return ['POIEditDraw']
     }
@@ -201,7 +208,7 @@ const POIMap = ({
       return ['POIGeoJson']
     }
     return []
-  }, [mode, cluster, POIType, createDrawMode, showRadius, showIcon])
+  }, [mode, activePOI, cluster, POIType, createDrawMode, showRadius, showIcon])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -212,8 +219,15 @@ const POIMap = ({
       setData(POIData)
     }
     if ((mode === 'display' && activePOI?.properties) ||
-        (mode === 'edit' && POIType === TYPE_POLYGON.code)) {
+        (mode === 'edit' && POIType === TYPE_POLYGON.code) ||
+        (mode === 'create-point' && activePOI?.properties?.radius)) {
       setData([activePOI])
+      // disable drawing mode when we have edited radius so we can display radius on map
+      setCreateDrawMode(false)
+    }
+    // remove created activePOI from data list if it was added to POI list in poi-manage
+    if (mode === 'create-polygon' && activePOI?.added) {
+      setData([])
     }
     if (mode === 'edit' && POIType === TYPE_RADIUS.code) {
       /**
@@ -415,7 +429,8 @@ const POIMap = ({
     }
     // allow only one POI to be drawn in POI create modes; keep last drawn point
     if (mode.startsWith('create-')) {
-      editedPOIList = [editedPOIList.pop()]
+      editedPOI = editedPOIList.pop()
+      editedPOIList = [editedPOI]
     }
     setData(editedPOIList)
     setDraftActivePOI({ editedPOI, editedRadius, editedCoordinates })
@@ -481,8 +496,8 @@ const POIMap = ({
           <DrawButtonContainer>
             <DrawButtonGroup
               mode={ mode }
-              setDrawModeOn={ () => setCreateDrawMode(true) }
-              onErase={ () => setData([]) }
+              setDrawModeOn={ () => { setCreateDrawMode(true); setActivePOI(null) } }
+              onErase={ () => { setData([]); setDraftActivePOI({ editedPOI: null }) } }
             />
           </DrawButtonContainer>
         ) }

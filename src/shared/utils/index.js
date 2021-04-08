@@ -7,8 +7,6 @@ import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
 
-import { TYPE_RADIUS } from '../../constants'
-
 
 /**
  * processLayers - returns layers used by a map
@@ -51,7 +49,7 @@ export const setView = ({ data, width, height }) => {
   let viewData = data
 
   // for lists <100 radii, set viewport to fit radius for all POIs
-  if (data[0]?.properties?.poiType === TYPE_RADIUS.code && data?.length < 100) {
+  if (data[0]?.geometry?.type === 'Point' && data?.length < 100) {
     viewData = []
     data.forEach(point => {
       if (point?.properties?.radius) {
