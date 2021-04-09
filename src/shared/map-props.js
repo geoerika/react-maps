@@ -24,12 +24,40 @@ export const typographyDefaultProps = {
   },
 }
 
-export const tooltipProps = {
-  tooltipKeys: PropTypes.array,
-}  
+export const tooltipPropTypes = {
+  tooltipKeys: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.array,
+  ]),
+  tooltipProps: PropTypes.shape({
+    backgroundColor: PropTypes.string.isRequired,
+    border: PropTypes.string.isRequired,
+    padding: PropTypes.string.isRequired,
+  }),
+}
 
 export const tooltipDefaultProps = {
+  tooltipKeys: {
+    name: 'name',
+    id: 'poi_id',
+    metricKeys: [],
+  },
+  tooltipProps: {
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #0062d9',
+    borderRadius: '3px',
+    padding: '8px',
+  },  
+}
+
+export const POITooltipDefaultProps = {
   tooltipKeys: ['name', 'id', 'lat', 'lon'],
+  tooltipProps: {
+    backgroundColor: 'rgb(0, 181, 173, 0.7)',
+    border: '1px solid rgb(0, 181, 173, 0.7)',
+    borderRadius: '3px',
+    padding: '8px',
+  },  
 }
 
 export const POIMapProps = {
