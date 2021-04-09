@@ -1,7 +1,16 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useState, useCallback, useLayoutEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 
-import { FlyToInterpolator, MapView, WebMercatorViewport } from '@deck.gl/core'
+import {
+  commonProps,
+  commonDefaultProps,
+  typographyPropTypes,
+  typographyDefaultProps,
+  tooltipPropTypes,
+  tooltipDefaultProps,
+} from '../shared/map-props'
+
+import { FlyToInterpolator, MapView } from '@deck.gl/core'
 import { DeckGL } from '@deck.gl/react'
 import { StaticMap } from 'react-map-gl'
 
@@ -55,10 +64,6 @@ const defaultProps = {
   showTooltip: false,
 }
 
-const getPositionFromLngLat = ({ lngLat, ...viewState }) => new WebMercatorViewport({
-  ...viewState,
-}).project(lngLat)
-
 // DeckGL react component
 const Map = ({
   layers,
@@ -69,13 +74,16 @@ const Map = ({
   showLegend,
   position,
   legends,
+  onHover,
   showTooltip,
-  tooltipNode,
+  // tooltipNode,
+  tooltipProps,
+  typography,
   mapboxApiAccessToken,
-  ...tooltipProps
 }) => {
   const deckRef = useRef()
   const [viewState, setViewState] = useState(INIT_VIEW_STATE)
+  const [hoverInfo, setHoverInfo] = useState({})
   useLayoutEffect(() => {
     setViewState(o => ({
       ...INIT_VIEW_STATE,
@@ -84,22 +92,21 @@ const Map = ({
     }))
   }, [viewStateOverride])
 
-  // TODO: unify management of viewState and expose as callback
-  const [{ height, width }, setDimensions] = useState({ height: 0, width: 0 })
-  const [{ x, y }, setTooltip] = useState({ x: 0, y: 0 })
-  // NOTE: keep tooltip x/y consistent with viewport movement
-  useEffect(() => {
-    if (tooltipProps.lngLat && deckRef && deckRef.current) {
-      const [x, y] = getPositionFromLngLat({
-        ...deckRef.current.deck.viewState,
-        ...viewState,
-        height,
-        width,
-        lngLat: tooltipProps.lngLat,
-      })
-      setTooltip({ x, y })
+  /**
+   * finalOnHover - React hook that handles the onHover event for deck.gl map
+   * @param { object } param - object of deck.gl onHover event
+   * @param { object } param.hoverInfo - info of hovered object on map
+   */
+  const finalOnHover = useCallback(hoverInfo => {
+    if (onHover) {
+      onHover(hoverInfo)
     }
-  }, [tooltipProps.lngLat, viewState, height, width, deckRef])
+    if (showTooltip && hoverInfo?.object) {
+      setHoverInfo(hoverInfo)
+    } else {
+      setHoverInfo(null)
+    }
+  }, [onHover, showTooltip])
   
   return (
     <MapContainer>
@@ -108,11 +115,8 @@ const Map = ({
         onLoad={() => {
           const { height, width } = deckRef.current.deck
           setDimensionsCb({ height, width })
-          setDimensions({ height, width })
         }}
         onResize={({ height, width }) => {
-          // viewState doesn't update dimensions correctly
-          setDimensions({ height, width })
           setDimensionsCb({ height, width })
         }}
         onViewStateChange={o => {
@@ -123,24 +127,20 @@ const Map = ({
         views={ MAP_VIEW }
         layers={layers}
         controller={true}
+        onHover={finalOnHover}
         getTooltip={getTooltip}
         getCursor={getCursor}
-        // NOTE: same structure as layer click
-        // onHover={d => console.log('----> map hover', d)}
-        // onClick={d => console.log('----> map click', d)}
       >
         <StaticMap mapboxApiAccessToken={ mapboxApiAccessToken } />
       </DeckGL>
       {showLegend && <Legend legends={legends} position={position} />}
-      {showTooltip && (
+      {showTooltip && hoverInfo?.object && (
         <MapTooltip
-          {...tooltipProps}
-          x={x}
-          y={y}
-          h={height}
-          w={width}
+          info={hoverInfo}
+          tooltipProps={tooltipProps}
+          typography={typography}
         >
-          {tooltipNode}
+          {/* {tooltipNode} */}
         </MapTooltip>
       )}
     </MapContainer>
@@ -148,7 +148,19 @@ const Map = ({
 }
 
 
-Map.propTypes = { ...propTypes, ...StaticMap.propTypes }
-Map.defaultProps = { ...defaultProps, ...StaticMap.defaultProps }
+Map.propTypes = {
+  ...propTypes,
+  ...StaticMap.propTypes,
+  ...commonProps,
+  ...typographyPropTypes,
+  ...tooltipPropTypes,
+}
+Map.defaultProps = {
+  ...defaultProps,
+  ...StaticMap.defaultProps,
+  ...commonDefaultProps,
+  ...typographyDefaultProps,
+  ...tooltipDefaultProps,
+}
 
 export default Map
