@@ -7,7 +7,7 @@ import { StaticMap } from 'react-map-gl'
 
 import { styled, setup } from 'goober'
 
-import MapTooltip from './old-tooltip'
+import MapTooltip from './full-tooltip'
 import Legend from './legend'
 
 
