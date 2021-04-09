@@ -9,7 +9,7 @@ import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
 import { useMapData, useLegends } from '../hooks'
-import Map from './generic-map'
+import Map from './old-generic-map'
 import Loader, { convertCSVtoJSON } from './loader'
 
 
