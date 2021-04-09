@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import { commonProps, commonDefaultProps } from '../shared/map-props'
+import {
+  commonProps,
+  commonDefaultProps,
+  typographyPropTypes,
+  typographyDefaultProps,
+  tooltipPropTypes,
+  tooltipDefaultProps,
+} from '../shared/map-props'
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
@@ -44,6 +51,7 @@ const propTypes = {
     PropTypes.func,
     PropTypes.array,
   ]),
+  showTooltip: PropTypes.bool,
 }
 
 const defaultProps = {
@@ -68,11 +76,12 @@ const defaultProps = {
   lineWidthUnits: 'pixels',
   getLineWidth: 2,
   getLineColor: [255, 255, 255],
+  showTooltip: false,
 }
 
 const MLReportMap = ({
   reportData,
-  centerMap,
+  // centerMap,
   // highlightId,
   // Deck Map props
   getTooltip,
@@ -91,6 +100,9 @@ const MLReportMap = ({
   fillColors,
   getLineWidth,
   getLineColor,
+  showTooltip,
+  tooltipProps,
+  typography,
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
@@ -109,15 +121,15 @@ const MLReportMap = ({
     }
   }, [reportData, height, width])
 
-  useEffect(() => {
-    // zoom to a point
-    if (width && height) {
-      setViewOverride(o => ({
-        ...o,
-        ...centerMap,
-      }))
-    }
-  }, [centerMap, height, width])
+  // useEffect(() => {
+  //   // zoom to a point
+  //   if (width && height) {
+  //     setViewOverride(o => ({
+  //       ...o,
+  //       ...centerMap,
+  //     }))
+  //   }
+  // }, [centerMap, height, width])
 
   /**
    * finalOnClick - React hook that handles default onClick event
@@ -155,7 +167,6 @@ const MLReportMap = ({
         getPosition: d => [d.lon, d.lat],
         pickable: Boolean(onClick || onHover || getTooltip || getCursor),
         onClick: finalOnClick,
-        onHover,
         opacity,
         getRadius: setFinalLayerDataAccessor({
           dataKey: radiusBasedOn,
@@ -213,14 +224,29 @@ const MLReportMap = ({
       setDimensionsCb={(o) => setDimensions(o)}
       getTooltip={getTooltip}
       getCursor={getCursor}
+      onHover={onHover}
       viewStateOverride={viewStateOverride}
+      showTooltip={showTooltip}
+      tooltipProps={tooltipProps}
+      // tooltipNode={<EntryList {...tooltip} />}
+      typography={typography}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate
     />
   )
 }
 
-MLReportMap.propTypes = { ...propTypes, ...commonProps }
-MLReportMap.defaultProps = { ...defaultProps, ...commonDefaultProps }
+MLReportMap.propTypes = {
+  ...propTypes,
+  ...commonProps,
+  ...typographyPropTypes,
+  ...tooltipPropTypes,
+}
+MLReportMap.defaultProps = {
+  ...defaultProps,
+  ...commonDefaultProps,
+  ...typographyDefaultProps,
+  ...tooltipDefaultProps,
+}
 
 export default MLReportMap
