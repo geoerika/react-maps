@@ -47,6 +47,16 @@ storiesOf('Locus ML Report', module)
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
+  .add('VWI - tooltip', () => (
+    <MLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      showTooltip={true}
+      radiusBasedOn={'converted_visits'}
+      fillBasedOn={'converted_unique_visitors'}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
   .add('VWI - zoom to point', () => {
     const [centerMap, setCenterMap] = useState()
     const [highlightId, setHighlightId] = useState()
