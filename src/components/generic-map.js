@@ -17,6 +17,7 @@ import { StaticMap } from 'react-map-gl'
 import { styled, setup } from 'goober'
 
 import MapTooltip from './tooltip'
+import tooltipNode from './tooltip/tooltip-node'
 import Legend from './legend'
 
 
@@ -62,6 +63,7 @@ const defaultProps = {
   position: 'top-left',
   legends: [],
   showTooltip: false,
+  tooltipNode: tooltipNode,
 }
 
 // DeckGL react component
@@ -76,14 +78,16 @@ const Map = ({
   legends,
   onHover,
   showTooltip,
-  // tooltipNode,
+  tooltipNode,
   tooltipProps,
+  tooltipKeys,
   typography,
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
   const [viewState, setViewState] = useState(INIT_VIEW_STATE)
   const [hoverInfo, setHoverInfo] = useState({})
+
   useLayoutEffect(() => {
     setViewState(o => ({
       ...INIT_VIEW_STATE,
@@ -122,6 +126,8 @@ const Map = ({
         onViewStateChange={o => {
           const { viewState } = o
           setViewState(viewState)
+          // makes tooltip info disappear when we click and zoom in on a location
+          setHoverInfo(null)
         }}
         initialViewState={viewState}
         views={ MAP_VIEW }
@@ -131,7 +137,7 @@ const Map = ({
         getTooltip={getTooltip}
         getCursor={getCursor}
       >
-        <StaticMap mapboxApiAccessToken={ mapboxApiAccessToken } />
+        <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
       </DeckGL>
       {showLegend && <Legend legends={legends} position={position} />}
       {showTooltip && hoverInfo?.object && (
@@ -140,7 +146,7 @@ const Map = ({
           tooltipProps={tooltipProps}
           typography={typography}
         >
-          {/* {tooltipNode} */}
+          {tooltipNode({ tooltipKeys, params: hoverInfo.object })}
         </MapTooltip>
       )}
     </MapContainer>
