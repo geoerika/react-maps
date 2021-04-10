@@ -52,13 +52,14 @@ const propTypes = {
     PropTypes.array,
   ]),
   showTooltip: PropTypes.bool,
+  tooltipNode: PropTypes.node,
 }
 
 const defaultProps = {
   centerMap: {}, // { lat, lon }
   // highlightId: undefined,
   getTooltip: undefined,
-  customOnClick: undefined,
+  onClick: undefined,
   onHover: undefined,
   getCursor: undefined,
   opacity: 1,
@@ -70,13 +71,14 @@ const defaultProps = {
   filled: true,
   fillBasedOn: '',
   fillDataScale: 'linear',
-  fillColors: [[221, 25, 107], [0, 98, 217]],
+  fillColors: [[0, 98, 217], [221, 25, 107]],
   getFillColor: highlightId => d => d.poi_id === highlightId ? [221, 25, 107] : [0, 98, 217],
   stroked: true,
   lineWidthUnits: 'pixels',
   getLineWidth: 2,
   getLineColor: [255, 255, 255],
   showTooltip: false,
+  tooltipNode: undefined,
 }
 
 const MLReportMap = ({
@@ -102,6 +104,8 @@ const MLReportMap = ({
   getLineColor,
   showTooltip,
   tooltipProps,
+  tooltipNode,
+  tooltipKeys,
   typography,
   mapboxApiAccessToken,
   ...scatterLayerProps
@@ -132,9 +136,9 @@ const MLReportMap = ({
   // }, [centerMap, height, width])
 
   /**
-   * finalOnClick - React hook that handles default onClick event
-   * @param { object } param - object of deck.gl click event
-   * @param { object } param.object - clicked object on map
+   * finalOnClick - React hook that handles layer's onClick events
+   * @param { object } param
+   * @param { object } param.object - clicked object on the map
    */
   const finalOnClick = useCallback(({ object }) => {
     if (onClick) {
@@ -158,6 +162,26 @@ const MLReportMap = ({
     dataAccessor: d => d,
     dataPropertyAccessor: d => d,
   })
+
+  /**
+   * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
+   * @returns { Node } - obect of keys { name, id, metricKeys }
+   */
+  const finalTooltipKeys = useMemo(() => {
+    let metricKeysArray = []
+    // set metricKeys array if no custom keys are given
+    if (!tooltipKeys?.metricKeys?.length) {
+      ([radiusBasedOn, fillBasedOn]).forEach((key) => {
+        if (key) {
+          metricKeysArray.push(key)
+        }
+      })
+    }
+    return {
+      ...tooltipKeys,
+      metricKeys: metricKeysArray,
+    }
+  }, [tooltipKeys, radiusBasedOn, fillBasedOn])
 
   const layers = useMemo(() => {
     return [
@@ -228,8 +252,9 @@ const MLReportMap = ({
       viewStateOverride={viewStateOverride}
       showTooltip={showTooltip}
       tooltipProps={tooltipProps}
-      // tooltipNode={<EntryList {...tooltip} />}
+      tooltipNode={tooltipNode}
       typography={typography}
+      tooltipKeys={finalTooltipKeys}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate
     />
