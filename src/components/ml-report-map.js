@@ -13,7 +13,7 @@ import {
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData } from '../hooks'
+import { useMapData, useLegends } from '../hooks'
 
 
 const propTypes = {
@@ -74,6 +74,8 @@ const defaultProps = {
   fillBasedOn: '',
   fillDataScale: 'linear',
   fillColors: [[0, 98, 217], [221, 25, 107]],
+  // legend only works with string colour format at the moment
+  // fillColors: ['#0062d9', '#dd196b'],
   getFillColor: highlightId => d => d.poi_id === highlightId ? [221, 25, 107] : [0, 98, 217],
   stroked: true,
   lineWidthUnits: 'pixels',
@@ -248,6 +250,8 @@ const MLReportMap = ({
     scatterLayerProps,
   ])
 
+  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, metrics })
+
   return (
     <Map
       layers={layers}
@@ -263,6 +267,7 @@ const MLReportMap = ({
       tooltipKeys={finalTooltipKeys}
       showLegend={showLegend}
       legendPosition={legendPosition}
+      legends={legends}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate
     />
