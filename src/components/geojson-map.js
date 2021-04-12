@@ -8,7 +8,7 @@ import { GeoJsonLayer } from '@deck.gl/layers'
 import { interpolateBlues } from 'd3-scale-chromatic'
 
 import { useLegends, useMapData, useElevation, useFill } from '../hooks'
-import Map from './generic-map'
+import Map from './old-generic-map'
 
 
 const propTypes = {

@@ -22,18 +22,19 @@ import { Switch } from '@eqworks/lumen-ui'
 import {
   processLayers,
   setView,
-  getCursor,
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
 } from '../../shared/utils'
+import { getCursor } from '../../utils'
 import { useResizeObserver } from '../../hooks'
-import POITooltip from './poi-tooltip'
+import POITooltip from '../tooltip'
+import POITooltipNode from './poi-tooltip-node'
 import DrawButtonGroup from './draw-button-group'
 import {
   typographyPropTypes,
   typographyDefaultProps,
-  tooltipProps,
-  tooltipDefaultProps,
+  tooltipPropTypes,
+  POITooltipDefaultProps,
   POIMapProps,
   POIMapDefaultProps,
 } from '../../shared/map-props'
@@ -140,8 +141,9 @@ const POIMap = ({
   cluster,
   controller,
   tooltipKeys,
-  typography,
+  tooltipProps,
   mapProps,
+  typography,
   mapboxApiAccessToken,
   forwardGeocoder,
   geocoderOnResult,
@@ -456,7 +458,7 @@ const POIMap = ({
     return []
   }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
-  const getCurrentCursor = getCursor({ layers, hoverInfo })
+  const getCurrentCursor = getCursor({ layers })
 
   /**
    * mapCanRender - conditions to render the map
@@ -489,8 +491,13 @@ const POIMap = ({
           <POITooltip
             info={ hoverInfo }
             typography={ typography }
-            tooltipKeys={ tooltipKeys }
-          />
+            tooltipProps={ tooltipProps }
+          >
+            {<POITooltipNode
+              tooltipKeys={ tooltipKeys }
+              params = { hoverInfo.object.properties }
+            />}
+          </POITooltip>
         ) }
         { mode.startsWith('create-') && (
           <DrawButtonContainer>
@@ -568,14 +575,14 @@ const POIMap = ({
 
 POIMap.propTypes = {
   ...typographyPropTypes,
-  ...tooltipProps,
+  ...tooltipPropTypes,
   ...POIMapProps,
   ...propTypes,
   ...StaticMap.propTypes,
 }
 POIMap.defaultProps = {
   ...typographyDefaultProps,
-  ...tooltipDefaultProps,
+  ...POITooltipDefaultProps,
   ...POIMapDefaultProps,
   ...defaultProps,
   ...StaticMap.defaultProps,

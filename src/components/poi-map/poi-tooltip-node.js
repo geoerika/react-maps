@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { tooltipProps, tooltipDefaultProps } from '../../../shared/map-props'
+import { tooltipPropTypes, tooltipDefaultProps } from '../../shared/map-props'
 import { styled, setup } from 'goober'
 
 
@@ -17,12 +17,12 @@ const Value = styled('span')``
 const propTypes = { 
   params: PropTypes.object,
 }
-const defaultProps = { 
+const defaultProps = {
   params: {},
 }
 
-// POITooltipItems component - returns React element with "key: value" pairs for POITooltip 
-const POITooltipItems = ({ tooltipKeys, params }) => (
+// POITooltipNode component - returns React element with "key: value" pairs for POITooltip 
+const POITooltipNode = ({ tooltipKeys, params }) => (
   <>
     { Object.entries(params).map(([key, value]) => (
       <div key={ key }>
@@ -37,7 +37,7 @@ const POITooltipItems = ({ tooltipKeys, params }) => (
   </>
 )
 
-POITooltipItems.propTypes = { ...tooltipProps, ...propTypes }
-POITooltipItems.defaultProps = { ...tooltipDefaultProps, ...defaultProps }
+POITooltipNode.propTypes = { ...tooltipPropTypes, ...propTypes }
+POITooltipNode.defaultProps = { ...tooltipDefaultProps, ...defaultProps }
 
-export default POITooltipItems
+export default POITooltipNode

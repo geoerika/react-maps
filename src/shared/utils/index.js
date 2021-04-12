@@ -6,6 +6,7 @@ import { point } from '@turf/helpers'
 import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
+import { SCALES } from '../../constants'
 
 
 /**
@@ -134,23 +135,6 @@ export const getDataCoordinates = ({ data }) => {
 }
 
 /**
- * getCursor - sets cursor for different layers and hover state
- * @param { object } param
- * @param { array } param.layers - current array of layers used in map
- * @param { object } param.hoverInfo - object supplied by onHover event
- * @return { function } - cursor function
- */
-export const getCursor = ({ layers, hoverInfo }) => {
-  if (layers?.length) {
-    const drawLayer = layers.find(layer => layer.id === 'edit-draw layer')
-    if (drawLayer?.props?.visible) {
-      return drawLayer.getCursor.bind(drawLayer)
-    }
-  }
-  return ({ isDragging }) => (isDragging ? 'grabbing' : (hoverInfo?.isHovering ? 'pointer' : 'grab'))
-}
-
-/**
  * createCircleFromPointRadius - creates a circle / polygon GeoJSON feature from a radius and a set
  *                               of coordinates
  * @param { object } param
@@ -184,4 +168,34 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
   let coordinates = centroid.geometry.coordinates
   radius = Math.round(radius * 1000000) / 1000
   return { radius, coordinates }
+}
+
+/**
+ * setFinalLayerDataAccsessor - returns function or values to set deck.gl layer property (ex: fill colour, radius)
+ * @param { object } param
+ * @param { string } param.dataKey - data attribute key
+ * @param { function || number || array } param.getLayerProp - deck.gl layer data accessor
+ * @param { function } param.layerDataScale - D3 scale function
+ * @param { array } param.layerPropRange - array of range values for the deck.gl layer property
+ * @param { object } param.metrics - object of {max, min} values of all data attribute keys
+ * @param { function } param.dataPropertyAccessor - function to help access attribute data
+ * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
+ */
+export const setFinalLayerDataAccessor = ({
+  dataKey,
+  getLayerProp,
+  layerDataScale,
+  layerPropRange,
+  metrics,
+  dataPropertyAccessor = d => d,
+  highlightId = null,
+}) => {
+  if (dataKey.length) {
+    const d3Fn = SCALES[layerDataScale]([
+      (metrics[dataKey] || { min: 0 }).min,
+      (metrics[dataKey] || { max: 10 }).max,
+    ], layerPropRange)
+    return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
+  }
+  return typeof getLayerProp === 'function' ? getLayerProp(highlightId) : getLayerProp
 }

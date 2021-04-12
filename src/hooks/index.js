@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useReducer } from 'react'
-import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { color } from 'd3-color'
+import { SCALES } from '../constants'
 
 
 // TODO meaningful representation of elevation and radius based on given values
@@ -49,17 +49,11 @@ export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors
   return legends
 }
 
-const SCALES = {
-  'linear': scaleLinear,
-  'quantile': scaleQuantile,
-  'quantize': scaleQuantize,
-}
-
 export const useMapData = ({
   dataAccessor = d => d,
   dataPropertyAccessor = d => d,
   keyTypes = ['number'],
-  excludeKeys = ['lat', 'lon'],
+  excludeKeys = ['lat', 'lon', 'poi_id', 'chain_id', 'report_id'],
   staticDataKeys = false,
 }) => {
   // TODO use d3 to support multiple scales

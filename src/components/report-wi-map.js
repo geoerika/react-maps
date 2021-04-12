@@ -12,7 +12,7 @@ import { useLegends, useFullReport, useTimeline } from '../hooks'
 import { hours, days } from '../constants'
 import { reportWI } from '../datasets'
 
-import Map from './generic-map'
+import Map from './old-generic-map'
 import Scatter from './layers/scatter-plot'
 import EntryList from './entry-list'
 import TimelineControls from './controls'

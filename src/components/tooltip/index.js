@@ -1,73 +1,52 @@
-import React, { useRef, forwardRef  } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
-import { useDimensions } from './hooks'
-
+import {
+  typographyPropTypes,
+  typographyDefaultProps,
+  tooltipPropTypes,
+  tooltipDefaultProps,
+} from '../../shared/map-props'
 
 setup(React.createElement)
 
-const Tooltip = styled('div', forwardRef)`
-  left: ${({ left }) => left}px;
-  top: ${({ top }) => top}px;
-  max-height: ${props => props['max-height']}px;
-  max-width: ${props => props['max-width']}px;
-  z-index: 9999;
-  position: absolute;
-  overflow: auto;
-  padding: 0em;
-  background-color: white;
-`
-
 const propTypes = {
-  x: PropTypes.number.isRequired,
-  y: PropTypes.number.isRequired,
-  w: PropTypes.number.isRequired,
-  h: PropTypes.number.isRequired,
-  children: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.element,
-  ]).isRequired,
-  translate: PropTypes.bool,
-  classes: PropTypes.string,
+  info: PropTypes.object.isRequired,
+  children: PropTypes.element.isRequired,
 }
 
-const defaultProps = {
-  translate: false,
-  classes: '',
-}
+const TooltipWrapper = styled('div')(({ info, typography, tooltipstyle }) => ({
+  ...typography,
+  ...tooltipstyle,
+  position: 'absolute',
+  zIndex: 1,
+  pointerEvents: 'none',
+  left: `calc(${info.x}px + 10px)`,
+  top: `calc(${info.y}px + 10px)`,
+}))
 
-const MapTooltipContainer = ({
-  x,
-  y,
-  w,
-  h,
-  children,
-  translate,
-  classes,
-}) => {
-  // TODO anchor position configuration, currently just bottom right
-  const tooltipRef = useRef()
-  const dimensions = useDimensions(tooltipRef, w, h)
-  const xOffset = Math.max(-dimensions.w, w - (x + dimensions.w))
-  const yOffset = Math.max(-dimensions.h, h - (y + dimensions.h))
-
+// Tooltip component - general tooltip for maps
+const Tooltip = ({ info, children, typography, tooltipProps }) => {
   return (
-    <Tooltip
-      ref={tooltipRef}
-      className={classes}
-      left={x + ((!translate || xOffset > 0) ? 0 : xOffset)}
-      top={y + ((!translate || yOffset > 0) ? 0 : yOffset)}
-      max-height={Math.min(dimensions.h, h/2)}
-      max-width={Math.min(dimensions.w, w/2)}
+    <TooltipWrapper
+      info={info}
+      typography={typography}
+      tooltipstyle={tooltipProps}
     >
       {children}
-    </Tooltip>
+    </TooltipWrapper>
   )
 }
 
-MapTooltipContainer.propTypes = propTypes
-MapTooltipContainer.defaultProps = defaultProps
-
-export default MapTooltipContainer
+Tooltip.propTypes = {
+  ...typographyPropTypes,
+  ...tooltipPropTypes,
+  ...propTypes,
+}
+Tooltip.defaultProps = {
+  ...typographyDefaultProps,
+  ...tooltipDefaultProps,
+}
+export default Tooltip
