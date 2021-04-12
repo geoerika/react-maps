@@ -38,11 +38,10 @@ storiesOf('Locus ML Report', module)
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
-  .add('VWI - data-based colour fill and radius', () => (
+  .add('VWI - data-based colour fill', () => (
     <MLReportMap
       reportData={vwiJson}
       getCursor={getCursor()}
-      radiusBasedOn={'converted_visits'}
       fillBasedOn={'converted_unique_visitors'}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
@@ -54,6 +53,26 @@ storiesOf('Locus ML Report', module)
       showTooltip={true}
       radiusBasedOn={'converted_visits'}
       fillBasedOn={'converted_unique_visitors'}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
+  .add('VWI - show legend for data-based radius', () => (
+    <MLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      showTooltip={true}
+      radiusBasedOn={'converted_visits'}
+      showLegend={true}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
+  .add('VWI - show legend for data-based colour tones', () => (
+    <MLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      showTooltip={true}
+      fillBasedOn={'converted_unique_visitors'}
+      showLegend={true}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
