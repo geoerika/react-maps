@@ -48,7 +48,7 @@ const propTypes = {
   getCursor: PropTypes.func,
   viewStateOverride: PropTypes.object,
   showLegend: PropTypes.bool,
-  position: PropTypes.string,
+  legendPosition: PropTypes.string,
   legends: PropTypes.array,
   showTooltip: PropTypes.bool,
   tooltipNode: PropTypes.node,
@@ -60,7 +60,7 @@ const defaultProps = {
   getCursor: () => {},
   viewStateOverride: {},
   showLegend: false,
-  position: 'top-left',
+  legendPosition: 'top-right',
   legends: [],
   showTooltip: false,
   tooltipNode: tooltipNode,
@@ -74,7 +74,7 @@ const Map = ({
   getCursor,
   viewStateOverride,
   showLegend,
-  position,
+  legendPosition,
   legends,
   onHover,
   showTooltip,
@@ -139,7 +139,7 @@ const Map = ({
       >
         <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
       </DeckGL>
-      {showLegend && <Legend legends={legends} position={position} />}
+      {showLegend && <Legend legends={legends} position={legendPosition} />}
       {showTooltip && hoverInfo?.object && (
         <MapTooltip
           info={hoverInfo}
