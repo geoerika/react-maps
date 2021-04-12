@@ -53,6 +53,8 @@ const propTypes = {
   ]),
   showTooltip: PropTypes.bool,
   tooltipNode: PropTypes.node,
+  showLegend: PropTypes.bool,
+  legendPosition: PropTypes.string,
 }
 
 const defaultProps = {
@@ -79,6 +81,8 @@ const defaultProps = {
   getLineColor: [255, 255, 255],
   showTooltip: false,
   tooltipNode: undefined,
+  showLegend: false,
+  legendPosition: 'top-right',
 }
 
 const MLReportMap = ({
@@ -107,6 +111,8 @@ const MLReportMap = ({
   tooltipNode,
   tooltipKeys,
   typography,
+  showLegend,
+  legendPosition,
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
@@ -255,6 +261,8 @@ const MLReportMap = ({
       tooltipNode={tooltipNode}
       typography={typography}
       tooltipKeys={finalTooltipKeys}
+      showLegend={showLegend}
+      legendPosition={legendPosition}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate
     />
