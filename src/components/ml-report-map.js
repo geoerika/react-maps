@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import { color } from 'd3-color'
-
 import {
   commonProps,
   commonDefaultProps,
@@ -15,7 +13,7 @@ import {
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData, useLegends } from '../hooks'
+import { useMapData, useLegends, useArrayFillColors, useStrRadiusFillColor } from '../hooks'
 
 
 const propTypes = {
@@ -193,25 +191,11 @@ const MLReportMap = ({
     }
   }, [tooltipKeys, radiusBasedOn, fillBasedOn])
 
-  /**
-   * layerFillColors - React hook that converts an array of string format color in array format
-   * @returns { array } - array format color [r, g, b, a, o]
-   */
-  const layerFillColors = useMemo(() =>
-    fillColors.map((strColor) => {
-      let layerColor = color(strColor)
-      return [layerColor.r, layerColor.g, layerColor.b, 255, opacity]
-    })
-  , [fillColors, opacity])
+  // we need to convert string format color (used in legend) to array format color for deck.gl
+  const layerFillColors = useArrayFillColors({ fillColors, opacity })
 
-  /**
-   * radiusFillColor - React hook that converts an array format color [r, g, b] in a string format color
-   * @returns { array } - string format color 'rgb(r, g, b, opacity)'
-   */
-  const radiusFillColor = useMemo(() => {
-    let color = getFillColor(0)(1)
-    return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
-  }, [getFillColor, opacity])
+  // we need to convert array format color (used in deck.gl radius fill) into str format color for legend
+  const radiusFillColor = useStrRadiusFillColor({ getFillColor, opacity })
 
   const layers = useMemo(() => {
     return [
