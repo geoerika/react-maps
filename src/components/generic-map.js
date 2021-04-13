@@ -51,7 +51,7 @@ const propTypes = {
   legendPosition: PropTypes.string,
   legends: PropTypes.array,
   showTooltip: PropTypes.bool,
-  tooltipNode: PropTypes.node,
+  tooltipNode: PropTypes.func,
 }
 const defaultProps = {
   layers: [],

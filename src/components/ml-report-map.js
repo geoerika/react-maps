@@ -52,7 +52,7 @@ const propTypes = {
     PropTypes.array,
   ]),
   showTooltip: PropTypes.bool,
-  tooltipNode: PropTypes.node,
+  tooltipNode: PropTypes.func,
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
 }
