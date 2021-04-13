@@ -4,7 +4,14 @@ import { SCALES } from '../constants'
 
 
 // TODO meaningful representation of elevation and radius based on given values
-export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors, radiusBasedOn = '', metrics }) => {
+export const useLegends = ({
+  elevationBasedOn = '',
+  fillBasedOn = '',
+  fillColors,
+  radiusFillColor = '',
+  radiusBasedOn = '',
+  metrics,
+}) => {
   const legends = useMemo(() => {
     const legends = []
     if (fillBasedOn.length) {
@@ -33,7 +40,7 @@ export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors
 
     if (radiusBasedOn.length) {
       legends.push({
-        maxColor: fillColors[1],
+        maxColor: radiusFillColor || fillColors[1],
         type: 'size',
         dots: 5,
         size: 5,
@@ -44,7 +51,7 @@ export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors
       })
     }
     return legends
-  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, metrics])
+  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, radiusFillColor, metrics])
 
   return legends
 }
