@@ -75,7 +75,7 @@ const defaultProps = {
   filled: true,
   fillBasedOn: '',
   fillDataScale: 'linear',
-  // legend only works with string colour format, hex or rgba;
+  // legend only works with string colour format, hex or rgba
   // for deck.gl layers we need to convert color strings in arrays of [r, g, b, a, o]
   fillColors: ['#0062d9', '#dd196b'],
   getFillColor: highlightId => d => d.poi_id === highlightId ? [221, 25, 107] : [0, 98, 217],
@@ -195,7 +195,7 @@ const MLReportMap = ({
 
   /**
    * layerFillColors - React hook that converts an array of string format color in array format
-   * @returns { array } - color array format [r, g, b, a, o]
+   * @returns { array } - array format color [r, g, b, a, o]
    */
   const layerFillColors = useMemo(() =>
     fillColors.map((strColor) => {
@@ -203,6 +203,15 @@ const MLReportMap = ({
       return [layerColor.r, layerColor.g, layerColor.b, 255, opacity]
     })
   , [fillColors, opacity])
+
+  /**
+   * radiusFillColor - React hook that converts an array format color [r, g, b] in a string format color
+   * @returns { array } - string format color 'rgb(r, g, b, opacity)'
+   */
+  const radiusFillColor = useMemo(() => {
+    let color = getFillColor(0)(1)
+    return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
+  }, [getFillColor, opacity])
 
   const layers = useMemo(() => {
     return [
@@ -263,7 +272,7 @@ const MLReportMap = ({
     scatterLayerProps,
   ])
 
-  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, metrics })
+  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, radiusFillColor, metrics })
 
   return (
     <Map
