@@ -310,3 +310,24 @@ export const useResizeObserver = (ref) => {
 
   return dimensions
 }
+
+/**
+ * useArrayColors - React hook that converts an array of string format color in array format
+ * @returns { array } - array format color [r, g, b, a, o]
+ */
+export const useArrayFillColors = ({ fillColors, opacity }) =>
+  useMemo(() =>
+    fillColors.map((strColor) => {
+      let layerColor = color(strColor)
+      return [layerColor.r, layerColor.g, layerColor.b, 255, opacity]
+    }), [fillColors, opacity])
+
+/**
+ * useStrRadiusFillColor - React hook that converts an array format color [r, g, b] in a string format color
+ * @returns { array } - string format color 'rgb(r, g, b, opacity)'
+ */
+export const useStrRadiusFillColor = ({ getFillColor, opacity }) =>
+  useMemo(() => {
+    const color = getFillColor(0)(1)
+    return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
+  }, [getFillColor, opacity])
