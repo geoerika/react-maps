@@ -139,7 +139,7 @@ const Map = ({
       >
         <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
       </DeckGL>
-      {showLegend && <Legend legends={legends} position={legendPosition} />}
+      {showLegend && <Legend legends={legends} position={legendPosition} typograpy={typography}/>}
       {showTooltip && hoverInfo?.object && (
         <MapTooltip
           info={hoverInfo}
