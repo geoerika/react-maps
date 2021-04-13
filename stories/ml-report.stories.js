@@ -76,6 +76,17 @@ storiesOf('Locus ML Report', module)
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
+  .add('VWI - custom opacity', () => (
+    <MLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      showTooltip={true}
+      radiusBasedOn={'converted_visits'}
+      showLegend={true}
+      opacity={.1}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
   .add('VWI - zoom to point', () => {
     const [centerMap, setCenterMap] = useState()
     const [highlightId, setHighlightId] = useState()
