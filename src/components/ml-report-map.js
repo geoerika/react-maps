@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
+import { color } from 'd3-color'
+
 import {
   commonProps,
   commonDefaultProps,
@@ -73,9 +75,9 @@ const defaultProps = {
   filled: true,
   fillBasedOn: '',
   fillDataScale: 'linear',
-  fillColors: [[0, 98, 217], [221, 25, 107]],
-  // legend only works with string colour format at the moment
-  // fillColors: ['#0062d9', '#dd196b'],
+  // legend only works with string colour format, hex or rgba;
+  // for deck.gl layers we need to convert color strings in arrays of [r, g, b, a, o]
+  fillColors: ['#0062d9', '#dd196b'],
   getFillColor: highlightId => d => d.poi_id === highlightId ? [221, 25, 107] : [0, 98, 217],
   stroked: true,
   lineWidthUnits: 'pixels',
@@ -173,7 +175,7 @@ const MLReportMap = ({
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
-   * @returns { Node } - obect of keys { name, id, metricKeys }
+   * @returns { Node } - object of keys { name, id, metricKeys }
    */
   const finalTooltipKeys = useMemo(() => {
     let metricKeysArray = []
@@ -190,6 +192,17 @@ const MLReportMap = ({
       metricKeys: metricKeysArray,
     }
   }, [tooltipKeys, radiusBasedOn, fillBasedOn])
+
+  /**
+   * layerFillColors - React hook that converts an array of string format color in array format
+   * @returns { array } - color array format [r, g, b, a, o]
+   */
+  const layerFillColors = useMemo(() =>
+    fillColors.map((strColor) => {
+      let layerColor = color(strColor)
+      return [layerColor.r, layerColor.g, layerColor.b, 255, opacity]
+    })
+  , [fillColors, opacity])
 
   const layers = useMemo(() => {
     return [
@@ -211,7 +224,7 @@ const MLReportMap = ({
           dataKey: fillBasedOn,
           getLayerProp: getFillColor,
           layerDataScale: fillDataScale,
-          layerPropRange: fillColors,
+          layerPropRange: layerFillColors,
           metrics,
           highlightId,
         }),
@@ -242,7 +255,7 @@ const MLReportMap = ({
     fillBasedOn,
     getFillColor,
     fillDataScale,
-    fillColors,
+    layerFillColors,
     metrics,
     getLineWidth,
     getLineColor,
