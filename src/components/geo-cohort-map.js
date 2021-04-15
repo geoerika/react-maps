@@ -174,7 +174,12 @@ const GeoCohortMap = ({
     }
     return {
       ...tooltipKeys,
+      name: 'GeoCohortItem',
+      nameAccessor: (d) => d.properties._id,
+      id: '',
+      idAccessor: () => {},
       metricKeys: metricKeysArray,
+      metricAccessor: d => d.properties,
     }
   }, [tooltipKeys, elevationBasedOn, fillBasedOn])
 
