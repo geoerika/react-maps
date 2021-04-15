@@ -20,7 +20,7 @@ const propTypes = {
   fillBasedOn: PropTypes.string,
   fillDataScale: PropTypes.string,
   fillColors: PropTypes.array,
-  elevationBasedOnInit: PropTypes.string,
+  elevationBasedOn: PropTypes.string,
   elevationDataScale: PropTypes.string,
   elevations: PropTypes.array,
   onClick: PropTypes.func,
@@ -61,12 +61,12 @@ const defaultProps = {
   fillBasedOn: '',
   fillDataScale: 'linear',
   fillColors: ['#0062d9', '#dd196b'],
-  elevationBasedOnInit: '',
+  elevationBasedOn: '',
   elevationDataScale: 'linear',
   elevations: [0, 1000000],
   onClick: undefined,
   onHover: undefined,
-  opacity: 0.8,
+  opacity: 0.5,
   filled: true,
   getFillColor: [0, 98, 217],
   getElevation: 0,
@@ -84,6 +84,8 @@ const defaultProps = {
 
 const GeoCohortsMap = ({
   reportData,
+  filled,
+  stroked,
   fillBasedOn,
   fillDataScale,
   fillColors,
@@ -150,7 +152,7 @@ const GeoCohortsMap = ({
 
   const { metrics, metricDispatch } = useMapData({
     dataAccessor: d => d,
-    dataPropertyAccessor: d => d,
+    dataPropertyAccessor: d => d.properties,
   })
 
   /**
@@ -174,23 +176,25 @@ const GeoCohortsMap = ({
   }, [tooltipKeys, elevationBasedOn, fillBasedOn])
 
   // we need to convert string format color (used in legend) to array format color for deck.gl
-  const layerFillColors = useArrayFillColors({ fillColors, opacity })
+  const layerFillColors = useArrayFillColors({ fillColors })
 
   const layers = useMemo(() => ([
     new GeoJsonLayer({
       id: `${reportData[0]?.properties._id.GeoCohortListID}-fsa-layer || 'generic-geojson-layer`,
       data: reportData,
       pickable: Boolean(onClick || onHover || getTooltip || getCursor),
+      stroked,
       onClick: finalOnClick,
       opacity,
-      // extruded: elevationBasedOn.length,
+      extruded: elevationBasedOn.length,
+      filled,
       getFillColor: setFinalLayerDataAccessor({
         dataKey: fillBasedOn,
+        dataPropertyAccessor: (d) => d.properties,
         getLayerProp: getFillColor,
         layerDataScale: fillDataScale,
         layerPropRange: layerFillColors,
         metrics,
-        // highlightId,
       }),
       // getElevation: setFinalLayerDataAccessor({
       //   dataKey: elevationBasedOn,
@@ -200,6 +204,7 @@ const GeoCohortsMap = ({
       //   metrics,
       //   // highlightId,
       // }),
+      getElevation: getElevation,
       getLineWidth,
       getLineColor,
       updateTriggers: {
@@ -220,6 +225,8 @@ const GeoCohortsMap = ({
     elevationBasedOn,
     elevationDataScale,
     elevations,
+    filled,
+    stroked,
     fillBasedOn,
     fillDataScale,
     layerFillColors,
@@ -265,7 +272,7 @@ GeoCohortsMap.defaultProps = {
   ...defaultProps,
   ...commonDefaultProps,
   ...tooltipDefaultProps,
-  typographyDefaultProps,
+  ...typographyDefaultProps,
 }
 
 export default GeoCohortsMap
