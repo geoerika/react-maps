@@ -41,6 +41,9 @@ export const tooltipDefaultProps = {
     name: 'name',
     id: 'poi_id',
     metricKeys: [],
+    nameAccessor: d => d,
+    idAccessor: d => d,
+    metricAccessor: d => d,
   },
   tooltipProps: {
     backgroundColor: '#FFFFFF',
