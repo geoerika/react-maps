@@ -14,7 +14,6 @@ import {
 import Map from './generic-map'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
 import { useMapData, useLegends, useArrayFillColors } from '../hooks'
-import tCentroid from '@turf/centroid'
 
 
 const propTypes = {
@@ -134,12 +133,14 @@ const GeoCohortsMap = ({
     if (onClick) {
       onClick(object)
     } else if (object) {
-      const centroid = tCentroid(object)
-      const { geometry: { coordinates: coord } }  = centroid
-      // setHighlightId(object.poi_id)
-      setViewOverride({ longitude: coord[0], latitude: coord[1], zoom: 14 })
+      // recenter and zoom on the clicked element
+      const dataView = setView({ data: [object], width, height })
+      setViewOverride(o => ({
+        ...o,
+        ...dataView,
+      }))
     }
-  }, [onClick])
+  }, [onClick, width, height])
 
   useEffect(() => {
     if (reportData.length) {
