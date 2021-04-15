@@ -82,7 +82,7 @@ const defaultProps = {
   getCursor: undefined,
 }
 
-const GeoCohortsMap = ({
+const GeoCohortMap = ({
   reportData,
   filled,
   stroked,
@@ -262,17 +262,17 @@ const GeoCohortsMap = ({
   )
 }
 
-GeoCohortsMap.propTypes = {
+GeoCohortMap.propTypes = {
   ...propTypes,
   ...commonProps,
   ...tooltipPropTypes,
   ...typographyPropTypes,
 }
-GeoCohortsMap.defaultProps = {
+GeoCohortMap.defaultProps = {
   ...defaultProps,
   ...commonDefaultProps,
   ...tooltipDefaultProps,
   ...typographyDefaultProps,
 }
 
-export default GeoCohortsMap
+export default GeoCohortMap
