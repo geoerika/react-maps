@@ -90,3 +90,16 @@ storiesOf('Geo-Cohort Map', module)
         />
     )
   })
+  .add('GeoCohortMap - tooltip', () => {
+    const geoCohortData = useGeoCohortData()
+    return (
+      geoCohortData.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortData}
+          getCursor={getCursor()}
+          fillBasedOn={'Imps'}
+          showTooltip={true}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
