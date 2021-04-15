@@ -55,6 +55,7 @@ const propTypes = {
   getTooltip: PropTypes.func,
   showTooltip: PropTypes.bool,
   tooltipNode: PropTypes.func,
+  pitch: PropTypes.number,
 }
 
 const defaultProps = {
@@ -80,6 +81,7 @@ const defaultProps = {
   showTooltip: false,
   tooltipNode: undefined,
   getCursor: undefined,
+  pitch: 0,
 }
 
 const GeoCohortMap = ({
@@ -108,6 +110,7 @@ const GeoCohortMap = ({
   tooltipNode,
   tooltipKeys,
   typography,
+  pitch,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
@@ -256,6 +259,7 @@ const GeoCohortMap = ({
       showLegend={showLegend}
       legendPosition={legendPosition}
       legends={legends}
+      pitch={pitch}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   )

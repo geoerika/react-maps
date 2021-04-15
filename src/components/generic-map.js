@@ -49,6 +49,7 @@ const propTypes = {
   legend: PropTypes.node,
   showTooltip: PropTypes.bool,
   tooltipNode: PropTypes.func,
+  pitch: PropTypes.number,
 }
 const defaultProps = {
   layers: [],
@@ -59,6 +60,7 @@ const defaultProps = {
   legend: undefined,
   showTooltip: false,
   tooltipNode: tooltipNode,
+  pitch: 0,
 }
 
 // DeckGL react component
@@ -75,6 +77,7 @@ const Map = ({
   tooltipProps,
   tooltipKeys,
   typography,
+  pitch,
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
@@ -86,9 +89,9 @@ const Map = ({
       ...INIT_VIEW_STATE,
       ...o,
       ...viewStateOverride,
+      pitch,
     }))
-  }, [viewStateOverride])
-
+  }, [pitch, viewStateOverride])
   /**
    * finalOnHover - React hook that handles the onHover event for deck.gl map
    * @param { object } param - object of deck.gl onHover event
