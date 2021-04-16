@@ -38,10 +38,12 @@ const HeightWrapper = styled('div')`
 
 const Height = styled('div')`
   height: ${({ height }) => height}px;
-  width: 0;
+  width: 10px;
   margin-left: auto;
   margin-right: auto;
   border-left: 1px solid black;
+  border-right: 1px solid black;
+  background-color: ${({ color }) => color};
 `
 
 const propTypes = {
@@ -64,10 +66,10 @@ const LegendSymbol = ({ type, minColor, maxColor, dots, size }) => {
     return (
       <Size>
         <HeightWrapper margin='top'>
-          <Height height={40}  />
+          <Height height={40} color={maxColor}/>
         </HeightWrapper>
         <HeightWrapper margin='bottom'>
-          <Height height={10} />
+          <Height height={10} color={maxColor}/>
         </HeightWrapper>
       </Size>
     )
