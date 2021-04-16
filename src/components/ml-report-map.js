@@ -14,13 +14,13 @@ import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import Legend from './legend'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData, useLegends, useArrayFillColors, useStrRadiusFillColor } from '../hooks'
+import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
 
 
 const propTypes = {
   reportData: PropTypes.array.isRequired,
-  centerMap: PropTypes.object,
-  highlightId: PropTypes.number,
+  // centerMap: PropTypes.object,
+  // highlightId: PropTypes.number,
   getTooltip: PropTypes.func,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
@@ -46,7 +46,7 @@ const propTypes = {
   lineWidthUnits: PropTypes.string,
   getLineWidth: PropTypes.oneOfType([
     PropTypes.number,
-    PropTypes.array,
+    PropTypes.func,
   ]),
   getLineColor: PropTypes.oneOfType([
     PropTypes.func,
@@ -60,7 +60,7 @@ const propTypes = {
 }
 
 const defaultProps = {
-  centerMap: {}, // { lat, lon }
+  // centerMap: {}, // { lat, lon }
   // highlightId: undefined,
   getTooltip: undefined,
   onClick: undefined,
@@ -196,10 +196,10 @@ const MLReportMap = ({
   }, [tooltipKeys, radiusBasedOn, fillBasedOn])
 
   // we need to convert string format color (used in legend) to array format color for deck.gl
-  const layerFillColors = useArrayFillColors({ fillColors, opacity })
+  const layerFillColors = useArrayFillColors({ fillColors })
 
   // we need to convert array format color (used in deck.gl radius fill) into str format color for legend
-  const radiusFillColor = useStrRadiusFillColor({ getFillColor, opacity })
+  const objColor = useStrFillColor({ getFillColor, opacity })
 
   const layers = useMemo(() => {
     return [
@@ -260,7 +260,7 @@ const MLReportMap = ({
     scatterLayerProps,
   ])
 
-  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, radiusFillColor, metrics })
+  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, objColor, metrics })
 
   const legend = useMemo(() => (
     showLegend &&
