@@ -13,7 +13,7 @@ import {
 
 import Map from './generic-map'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData, useLegends, useArrayFillColors } from '../hooks'
+import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
 
 
 const propTypes = {
@@ -67,7 +67,7 @@ const defaultProps = {
   elevations: [0, 1000],
   onClick: undefined,
   onHover: undefined,
-  opacity: 0.8,
+  opacity: 0.5,
   filled: true,
   getFillColor: [0, 98, 217],
   getElevation: 0,
@@ -186,6 +186,9 @@ const GeoCohortMap = ({
   // we need to convert string format color (used in legend) to array format color for deck.gl
   const layerFillColors = useArrayFillColors({ fillColors })
 
+  // we need to convert array format color (used in deck.gl elevation fill) into str format color for legend
+  const objColor = useStrFillColor({ getFillColor, opacity })
+
   const layers = useMemo(() => ([
     new GeoJsonLayer({
       id: `${reportData[0]?.properties._id.GeoCohortListID}-fsa-layer || 'generic-geojson-layer`,
@@ -246,7 +249,7 @@ const GeoCohortMap = ({
     getTooltip,
   ])
 
-  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, metrics })
+  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, objColor, metrics })
 
   return (
     <Map
