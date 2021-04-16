@@ -51,7 +51,7 @@ storiesOf('Geo-Cohort Map', module)
         />
     )
   })
-  .add('GeoCohortMap - colour fill based on impressions', () => {
+  .add('GeoCohortMap - colour fill based on Impressions', () => {
     const geoCohortData = useGeoCohortData()
     return (
       geoCohortData.length > 0 &&
@@ -63,7 +63,7 @@ storiesOf('Geo-Cohort Map', module)
         />
     )
   })
-  .add('GeoCohortMap - elevation based on impressions', () => {
+  .add('GeoCohortMap - elevation based on Revenue', () => {
     const geoCohortData = useGeoCohortData()
     return (
       geoCohortData.length > 0 &&
@@ -99,6 +99,35 @@ storiesOf('Geo-Cohort Map', module)
           getCursor={getCursor()}
           fillBasedOn={'Imps'}
           showTooltip={true}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
+  .add('GeoCohortMap - show legend for data-based colour fill', () => {
+    const geoCohortData = useGeoCohortData()
+    return (
+      geoCohortData.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortData}
+          getCursor={getCursor()}
+          fillBasedOn={'Imps'}
+          showTooltip={true}
+          showLegend={true}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
+  .add('GeoCohortMap - show legend for data-based elevation', () => {
+    const geoCohortData = useGeoCohortData()
+    return (
+      geoCohortData.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortData}
+          getCursor={getCursor()}
+          elevationBasedOn={'Revenue'}
+          pitch={45}
+          showTooltip={true}
+          showLegend={true}
           mapboxApiAccessToken={mapboxApiAccessToken}
         />
     )
