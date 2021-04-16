@@ -8,7 +8,7 @@ export const useLegends = ({
   elevationBasedOn = '',
   fillBasedOn = '',
   fillColors,
-  radiusFillColor = '',
+  objColor = '',
   radiusBasedOn = '',
   metrics,
 }) => {
@@ -31,8 +31,9 @@ export const useLegends = ({
     if (elevationBasedOn.length) {
       legends.push({
         type: 'elevation',
-        max: (metrics[fillBasedOn] || {}).max,
-        min: (metrics[fillBasedOn] || {}).min,
+        maxColor: objColor || fillColors[1],
+        max: (metrics[elevationBasedOn] || {}).max,
+        min: (metrics[elevationBasedOn] || {}).min,
         // TODO: readable labels
         label: elevationBasedOn,
       })
@@ -40,7 +41,7 @@ export const useLegends = ({
 
     if (radiusBasedOn.length) {
       legends.push({
-        maxColor: radiusFillColor || fillColors[1],
+        maxColor: objColor || fillColors[1],
         type: 'size',
         dots: 5,
         size: 5,
@@ -51,7 +52,7 @@ export const useLegends = ({
       })
     }
     return legends
-  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, radiusFillColor, metrics])
+  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, objColor, metrics])
 
   return legends
 }
@@ -323,11 +324,12 @@ export const useArrayFillColors = ({ fillColors }) =>
     }), [fillColors])
 
 /**
- * useStrRadiusFillColor - React hook that converts an array format color [r, g, b] in a string format color
+ * useStrFillColor - React hook that converts an array format color [r, g, b] in a string format color
  * @returns { array } - string format color 'rgb(r, g, b, opacity)'
  */
-export const useStrRadiusFillColor = ({ getFillColor, opacity }) =>
+// TO DO: this is too specific to default getFillColor in our maps; make it more generic
+export const useStrFillColor = ({ getFillColor, opacity }) =>
   useMemo(() => {
-    const color = getFillColor(0)(1)
+    const color = typeof getFillColor === 'function' ? getFillColor(0)(1) : getFillColor
     return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
   }, [getFillColor, opacity])
