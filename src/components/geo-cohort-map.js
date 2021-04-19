@@ -12,6 +12,7 @@ import {
 } from '../shared/map-props'
 
 import Map from './generic-map'
+import Legend from './legend'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
 import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
 
@@ -48,7 +49,7 @@ const propTypes = {
   ]),
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
-
+  legendNode: PropTypes.node,
   reportData: PropTypes.array.isRequired,
   // highlightId: PropTypes.number,
   getCursor: PropTypes.func,
@@ -77,6 +78,7 @@ const defaultProps = {
   getLineColor: [0, 0, 0],
   showLegend: false,
   legendPosition: 'top-left',
+  legendNode: undefined,
   getTooltip: undefined,
   showTooltip: false,
   tooltipNode: undefined,
@@ -103,6 +105,7 @@ const GeoCohortMap = ({
   getLineColor,
   showLegend,
   legendPosition,
+  legendNode,
   getCursor,
   getTooltip,
   showTooltip,
@@ -251,6 +254,11 @@ const GeoCohortMap = ({
 
   const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, objColor, metrics })
 
+  const legend = useMemo(() => (
+    showLegend &&
+    (legendNode || <Legend legends={legends} position={legendPosition} typograpy={typography}/>)
+  ), [showLegend, legends, legendPosition, typography, legendNode])
+
   return (
     <Map
       layers={layers}
@@ -264,9 +272,7 @@ const GeoCohortMap = ({
       tooltipNode={tooltipNode}
       typography={typography}
       tooltipKeys={finalTooltipKeys}
-      showLegend={showLegend}
-      legendPosition={legendPosition}
-      legends={legends}
+      legend={legend}
       pitch={pitch}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
