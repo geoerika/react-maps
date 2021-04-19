@@ -12,8 +12,9 @@ import {
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
+import Legend from './legend'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData } from '../hooks'
+import { useMapData, useLegends, useArrayFillColors, useStrRadiusFillColor } from '../hooks'
 
 
 const propTypes = {
@@ -52,7 +53,10 @@ const propTypes = {
     PropTypes.array,
   ]),
   showTooltip: PropTypes.bool,
-  tooltipNode: PropTypes.node,
+  tooltipNode: PropTypes.func,
+  showLegend: PropTypes.bool,
+  legendPosition: PropTypes.string,
+  legendNode: PropTypes.node,
 }
 
 const defaultProps = {
@@ -71,7 +75,9 @@ const defaultProps = {
   filled: true,
   fillBasedOn: '',
   fillDataScale: 'linear',
-  fillColors: [[0, 98, 217], [221, 25, 107]],
+  // legend only works with string colour format, hex or rgba
+  // for deck.gl layers we need to convert color strings in arrays of [r, g, b, a, o]
+  fillColors: ['#0062d9', '#dd196b'],
   getFillColor: highlightId => d => d.poi_id === highlightId ? [221, 25, 107] : [0, 98, 217],
   stroked: true,
   lineWidthUnits: 'pixels',
@@ -79,6 +85,9 @@ const defaultProps = {
   getLineColor: [255, 255, 255],
   showTooltip: false,
   tooltipNode: undefined,
+  showLegend: false,
+  legendPosition: 'top-right',
+  legendNode: undefined,
 }
 
 const MLReportMap = ({
@@ -107,6 +116,9 @@ const MLReportMap = ({
   tooltipNode,
   tooltipKeys,
   typography,
+  showLegend,
+  legendPosition,
+  legendNode,
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
@@ -165,7 +177,7 @@ const MLReportMap = ({
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
-   * @returns { Node } - obect of keys { name, id, metricKeys }
+   * @returns { Node } - object of keys { name, id, metricKeys }
    */
   const finalTooltipKeys = useMemo(() => {
     let metricKeysArray = []
@@ -182,6 +194,12 @@ const MLReportMap = ({
       metricKeys: metricKeysArray,
     }
   }, [tooltipKeys, radiusBasedOn, fillBasedOn])
+
+  // we need to convert string format color (used in legend) to array format color for deck.gl
+  const layerFillColors = useArrayFillColors({ fillColors, opacity })
+
+  // we need to convert array format color (used in deck.gl radius fill) into str format color for legend
+  const radiusFillColor = useStrRadiusFillColor({ getFillColor, opacity })
 
   const layers = useMemo(() => {
     return [
@@ -203,7 +221,7 @@ const MLReportMap = ({
           dataKey: fillBasedOn,
           getLayerProp: getFillColor,
           layerDataScale: fillDataScale,
-          layerPropRange: fillColors,
+          layerPropRange: layerFillColors,
           metrics,
           highlightId,
         }),
@@ -234,13 +252,20 @@ const MLReportMap = ({
     fillBasedOn,
     getFillColor,
     fillDataScale,
-    fillColors,
+    layerFillColors,
     metrics,
     getLineWidth,
     getLineColor,
     getTooltip,
     scatterLayerProps,
   ])
+
+  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, radiusFillColor, metrics })
+
+  const legend = useMemo(() => (
+    showLegend &&
+    (legendNode || <Legend legends={legends} position={legendPosition} typograpy={typography}/>)
+  ), [showLegend, legends, legendPosition, typography, legendNode])
 
   return (
     <Map
@@ -255,6 +280,7 @@ const MLReportMap = ({
       tooltipNode={tooltipNode}
       typography={typography}
       tooltipKeys={finalTooltipKeys}
+      legend={legend}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate
     />

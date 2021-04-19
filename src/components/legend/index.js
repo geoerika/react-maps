@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
@@ -7,16 +8,17 @@ import LegendSymbol from './legend-symbol'
 
 setup(React.createElement)
 
-const LegendContainer = styled('div')`
-  display: flex;
-  position: absolute;
-  z-index: 9998;
-  background-color: rgba(255,255,255,0.9);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  cursor: ${props => props['num-legends'] > 1 ? 'pointer' : 'default'};
-  ${props => props.position}
-`
+const LegendContainer = styled('div')(({ num_legends, position, typography }) => ({
+  ...typography,
+  display: 'flex',
+  position: 'absolute',
+  zIndex: 9998,
+  backgroundColor: 'rgba(255,255,255,0.9)',
+  padding: '1rem',
+  borderRadius: '0.2rem',
+  cursor: num_legends > 1 ? 'pointer' : 'default',
+  ...position,
+}))
 
 const LegendTextContainer = styled('div')`
   display: flex;
@@ -26,7 +28,6 @@ const LegendTextContainer = styled('div')`
 const LegendText = styled('div')`
   ${props => props['legend-text-top'] ? 'flex-grow: 1;' : ''};
   margin-left: 1rem;
-  font-size: 1rem;
   color: black;
 `
 
@@ -52,7 +53,10 @@ const defaultProps = {
   ],
 }
 
-const Legend = ({ position, legends }) => {
+const Legend = ({ position, legends, typography }) => {
+  let objPosition = {}
+  objPosition[position.split('-')[0]] = '1rem'
+  objPosition[position.split('-')[1]] = '1rem'
   const [activeLegend, setActiveLegend] = useState(0)
   const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
   const { max, min, label, ...symbolProps } = legends[activeLegend] || {}
@@ -61,9 +65,10 @@ const Legend = ({ position, legends }) => {
     <>
       { max !== undefined && min !== undefined && (
         <LegendContainer
-          num-legends={legends.length}
+          num_legends={legends.length}
           onClick={handleLegendChange}
-          position={`${position.split('-')[0]}: 1rem; ${position.split('-')[1]}: 1rem;`}
+          position={objPosition}
+          typography={typography}
         >
           <LegendSymbolContainer>
             <LegendSymbol {...symbolProps} />
@@ -78,7 +83,7 @@ const Legend = ({ position, legends }) => {
   )
 }
 
-Legend.propTypes = propTypes
-Legend.defaultProps = defaultProps
+Legend.propTypes = { ...propTypes, ...typographyPropTypes }
+Legend.defaultProps = { ...defaultProps,  ...typographyDefaultProps }
 
 export default Legend

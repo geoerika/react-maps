@@ -11,7 +11,7 @@ export const commonDefaultProps = {
 export const typographyPropTypes = {
   typography: PropTypes.shape({
     fontFamily: PropTypes.string.isRequired,
-    fontSize: PropTypes.number.isRequired,
+    fontSize: PropTypes.string.isRequired,
     textColor: PropTypes.string.isRequired,
   }),
 }
@@ -19,7 +19,7 @@ export const typographyPropTypes = {
 export const typographyDefaultProps = {
   typography: {
     fontFamily: '"Open Sans", sans-serif',
-    fontSize: 12,
+    fontSize: '12px',
     textColor: 'black',
   },
 }

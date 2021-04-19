@@ -4,7 +4,14 @@ import { SCALES } from '../constants'
 
 
 // TODO meaningful representation of elevation and radius based on given values
-export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors, radiusBasedOn = '', metrics }) => {
+export const useLegends = ({
+  elevationBasedOn = '',
+  fillBasedOn = '',
+  fillColors,
+  radiusFillColor = '',
+  radiusBasedOn = '',
+  metrics,
+}) => {
   const legends = useMemo(() => {
     const legends = []
     if (fillBasedOn.length) {
@@ -33,7 +40,7 @@ export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors
 
     if (radiusBasedOn.length) {
       legends.push({
-        maxColor: fillColors[1],
+        maxColor: radiusFillColor || fillColors[1],
         type: 'size',
         dots: 5,
         size: 5,
@@ -44,7 +51,7 @@ export const useLegends = ({ elevationBasedOn = '', fillBasedOn = '', fillColors
       })
     }
     return legends
-  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, metrics])
+  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, radiusFillColor, metrics])
 
   return legends
 }
@@ -303,3 +310,24 @@ export const useResizeObserver = (ref) => {
 
   return dimensions
 }
+
+/**
+ * useArrayColors - React hook that converts an array of string format color in array format
+ * @returns { array } - array format color [r, g, b, a, o]
+ */
+export const useArrayFillColors = ({ fillColors, opacity }) =>
+  useMemo(() =>
+    fillColors.map((strColor) => {
+      let layerColor = color(strColor)
+      return [layerColor.r, layerColor.g, layerColor.b, 255, opacity]
+    }), [fillColors, opacity])
+
+/**
+ * useStrRadiusFillColor - React hook that converts an array format color [r, g, b] in a string format color
+ * @returns { array } - string format color 'rgb(r, g, b, opacity)'
+ */
+export const useStrRadiusFillColor = ({ getFillColor, opacity }) =>
+  useMemo(() => {
+    const color = getFillColor(0)(1)
+    return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
+  }, [getFillColor, opacity])
