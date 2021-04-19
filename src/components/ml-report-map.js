@@ -12,6 +12,7 @@ import {
 
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
+import Legend from './legend'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
 import { useMapData, useLegends, useArrayFillColors, useStrRadiusFillColor } from '../hooks'
 
@@ -55,6 +56,7 @@ const propTypes = {
   tooltipNode: PropTypes.func,
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
+  legendNode: PropTypes.node,
 }
 
 const defaultProps = {
@@ -85,6 +87,7 @@ const defaultProps = {
   tooltipNode: undefined,
   showLegend: false,
   legendPosition: 'top-right',
+  legendNode: undefined,
 }
 
 const MLReportMap = ({
@@ -115,6 +118,7 @@ const MLReportMap = ({
   typography,
   showLegend,
   legendPosition,
+  legendNode,
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
@@ -258,6 +262,11 @@ const MLReportMap = ({
 
   const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, radiusFillColor, metrics })
 
+  const legend = useMemo(() => (
+    showLegend &&
+    (legendNode || <Legend legends={legends} position={legendPosition} typograpy={typography}/>)
+  ), [showLegend, legends, legendPosition, typography, legendNode])
+
   return (
     <Map
       layers={layers}
@@ -271,9 +280,7 @@ const MLReportMap = ({
       tooltipNode={tooltipNode}
       typography={typography}
       tooltipKeys={finalTooltipKeys}
-      showLegend={showLegend}
-      legendPosition={legendPosition}
-      legends={legends}
+      legend={legend}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate
     />

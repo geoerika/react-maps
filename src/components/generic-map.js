@@ -18,7 +18,6 @@ import { styled, setup } from 'goober'
 
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
-import Legend from './legend'
 
 
 setup(React.createElement)
@@ -47,9 +46,7 @@ const propTypes = {
   getTooltip: PropTypes.func,
   getCursor: PropTypes.func,
   viewStateOverride: PropTypes.object,
-  showLegend: PropTypes.bool,
-  legendPosition: PropTypes.string,
-  legends: PropTypes.array,
+  legend: PropTypes.node,
   showTooltip: PropTypes.bool,
   tooltipNode: PropTypes.func,
 }
@@ -59,9 +56,7 @@ const defaultProps = {
   getTooltip: () => {},
   getCursor: () => {},
   viewStateOverride: {},
-  showLegend: false,
-  legendPosition: 'top-right',
-  legends: [],
+  legend: undefined,
   showTooltip: false,
   tooltipNode: tooltipNode,
 }
@@ -73,9 +68,7 @@ const Map = ({
   getTooltip,
   getCursor,
   viewStateOverride,
-  showLegend,
-  legendPosition,
-  legends,
+  legend,
   onHover,
   showTooltip,
   tooltipNode,
@@ -139,7 +132,7 @@ const Map = ({
       >
         <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
       </DeckGL>
-      {showLegend && <Legend legends={legends} position={legendPosition} typograpy={typography}/>}
+      {legend}
       {showTooltip && hoverInfo?.object && (
         <MapTooltip
           info={hoverInfo}
