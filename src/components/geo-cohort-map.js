@@ -178,7 +178,7 @@ const GeoCohortMap = ({
     return {
       ...tooltipKeys,
       name: 'GeoCohortItem',
-      nameAccessor: (d) => d.properties._id,
+      nameAccessor: (d) => d.properties,
       id: '',
       idAccessor: () => {},
       metricKeys: metricKeysArray,
@@ -194,7 +194,7 @@ const GeoCohortMap = ({
 
   const layers = useMemo(() => ([
     new GeoJsonLayer({
-      id: `${reportData[0]?.properties._id.GeoCohortListID}-fsa-layer || 'generic-geojson-layer`,
+      id: `${reportData[0]?.properties.GeoCohortListID}-fsa-layer || 'generic-geojson-layer`,
       data: reportData,
       pickable: Boolean(onClick || onHover || getTooltip || getCursor),
       stroked,
