@@ -123,14 +123,16 @@ const GeoCohortMap = ({
 
   useEffect(() => {
     if (width && height) {
-      // recenter based on data
-      const dataView = setView({ data: reportData, width, height })
+      // recenter based on clicked obj or data
+      const dataView = highlightObj ?
+        setView({ data: [highlightObj], width, height }) :
+        setView({ data: reportData, width, height })
       setViewOverride(o => ({
         ...o,
         ...dataView,
       }))
     }
-  }, [reportData, height, width])
+  }, [highlightObj, reportData, height, width])
 
   /**
    * finalOnClick - React hook that handles layer's onClick events
@@ -197,7 +199,7 @@ const GeoCohortMap = ({
     const highlightId = highlightObj?.properties.GeoCohortItem
     return [
       new GeoJsonLayer({
-        id: `${reportData[0]?.properties.GeoCohortListID}-fsa-layer || 'generic-geojson-layer`,
+        id: 'geo-cohort-geojson-layer',
         data: reportData,
         pickable: Boolean(onClick || onHover || getTooltip || getCursor),
         stroked,
