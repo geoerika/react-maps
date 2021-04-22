@@ -70,7 +70,7 @@ const defaultProps = {
   onHover: undefined,
   opacity: 0.5,
   filled: true,
-  getFillColor: [0, 98, 217],
+  getFillColor: highlightId => d => d?.properties?.GeoCohortItem === highlightId ? [221, 25, 107] : [0, 98, 217],
   getElevation: 0,
   stroked: true,
   lineWidthUnits: 'pixels',
@@ -118,7 +118,7 @@ const GeoCohortMap = ({
   ...geoJsonLayerProps
 }) => {
   const [viewStateOverride, setViewOverride] = useState({})
-  // const [highlightId, setHighlightId] = useState(0)
+  const [highlightObj, setHighlightObj] = useState(null)
   const [{ height, width }, setDimensions] = useState({})
 
   useEffect(() => {
@@ -147,6 +147,7 @@ const GeoCohortMap = ({
         ...o,
         ...dataView,
       }))
+      setHighlightObj(object)
     }
   }, [onClick, width, height])
 
@@ -192,46 +193,50 @@ const GeoCohortMap = ({
   // we need to convert array format color (used in deck.gl elevation fill) into str format color for legend
   const objColor = useStrFillColor({ getFillColor, opacity })
 
-  const layers = useMemo(() => ([
-    new GeoJsonLayer({
-      id: `${reportData[0]?.properties.GeoCohortListID}-fsa-layer || 'generic-geojson-layer`,
-      data: reportData,
-      pickable: Boolean(onClick || onHover || getTooltip || getCursor),
-      stroked,
-      onClick: finalOnClick,
-      opacity,
-      extruded: elevationBasedOn.length,
-      filled,
-      getFillColor: setFinalLayerDataAccessor({
-        dataKey: fillBasedOn,
-        dataPropertyAccessor: (d) => d.properties,
-        getLayerProp: getFillColor,
-        layerDataScale: fillDataScale,
-        layerPropRange: layerFillColors,
-        metrics,
+  const layers = useMemo(() => {
+    const highlightId = highlightObj?.properties.GeoCohortItem
+    return [
+      new GeoJsonLayer({
+        id: `${reportData[0]?.properties.GeoCohortListID}-fsa-layer || 'generic-geojson-layer`,
+        data: reportData,
+        pickable: Boolean(onClick || onHover || getTooltip || getCursor),
+        stroked,
+        onClick: finalOnClick,
+        opacity,
+        extruded: elevationBasedOn.length,
+        filled,
+        getFillColor: setFinalLayerDataAccessor({
+          dataKey: fillBasedOn,
+          dataPropertyAccessor: (d) => d.properties,
+          getLayerProp: getFillColor,
+          layerDataScale: fillDataScale,
+          layerPropRange: layerFillColors,
+          highlightId,
+          metrics,
+        }),
+        getElevation: setFinalLayerDataAccessor({
+          dataKey: elevationBasedOn,
+          dataPropertyAccessor: (d) => d.properties,
+          getLayerProp: getElevation,
+          layerDataScale: elevationDataScale,
+          layerPropRange: elevations,
+          metrics,
+        }),
+        getLineWidth,
+        getLineColor,
+        updateTriggers: {
+          getFillColor: [fillBasedOn, getFillColor, fillDataScale, layerFillColors, highlightId, metrics],
+          getElevation: [elevationBasedOn, getElevation, elevationDataScale, elevations, metrics],
+          getLineWidth: [getLineWidth],
+          getLineColor: [getLineColor],
+        },
+        ...geoJsonLayerProps,
       }),
-      getElevation: setFinalLayerDataAccessor({
-        dataKey: elevationBasedOn,
-        dataPropertyAccessor: (d) => d.properties,
-        getLayerProp: getElevation,
-        layerDataScale: elevationDataScale,
-        layerPropRange: elevations,
-        metrics,
-      }),
-      getLineWidth,
-      getLineColor,
-      updateTriggers: {
-        getFillColor: [fillBasedOn, getFillColor, fillDataScale, layerFillColors, metrics],
-        getElevation: [elevationBasedOn, getElevation, elevationDataScale, elevations, metrics],
-        getLineWidth: [getLineWidth],
-        getLineColor: [getLineColor],
-      },
-      ...geoJsonLayerProps,
-    }),
-  ]), [
+    ]}, [
     geoJsonLayerProps,
     reportData,
     metrics,
+    highlightObj,
     onClick,
     finalOnClick,
     onHover,
@@ -263,6 +268,7 @@ const GeoCohortMap = ({
     <Map
       layers={layers}
       setDimensionsCb={(o) => setDimensions(o)}
+      setHighlightObj={setHighlightObj}
       getTooltip={getTooltip}
       getCursor={getCursor}
       onHover={onHover}
