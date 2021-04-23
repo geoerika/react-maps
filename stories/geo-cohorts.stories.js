@@ -77,20 +77,6 @@ storiesOf('Geo-Cohort Map', module)
         />
     )
   })
-  .add('GeoCohortMap - data-based colour fill and elevation', () => {
-    const geoCohortData = useGeoCohortData()
-    return (
-      geoCohortData.length > 0 &&
-        <GeoCohortMap
-          reportData={geoCohortData}
-          getCursor={getCursor()}
-          fillBasedOn={'Imps'}
-          elevationBasedOn={'Revenue'}
-          pitch={45}
-          mapboxApiAccessToken={mapboxApiAccessToken}
-        />
-    )
-  })
   .add('GeoCohortMap - tooltip', () => {
     const geoCohortData = useGeoCohortData()
     return (
@@ -129,6 +115,22 @@ storiesOf('Geo-Cohort Map', module)
           pitch={45}
           showTooltip={true}
           showLegend={true}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
+  .add('GeoCohortMap - data-based colour fill and elevation with tooltip and legends', () => {
+    const geoCohortData = useGeoCohortData()
+    return (
+      geoCohortData.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortData}
+          getCursor={getCursor()}
+          fillBasedOn={'Imps'}
+          elevationBasedOn={'Revenue'}
+          showTooltip={true}
+          showLegend={true}
+          pitch={45}
           mapboxApiAccessToken={mapboxApiAccessToken}
         />
     )
