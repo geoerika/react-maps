@@ -56,6 +56,8 @@ const propTypes = {
   getTooltip: PropTypes.func,
   showTooltip: PropTypes.bool,
   tooltipNode: PropTypes.func,
+  dataAccessor: PropTypes.func,
+  dataPropertyAccessor: PropTypes.func,
   pitch: PropTypes.number,
 }
 
@@ -70,7 +72,7 @@ const defaultProps = {
   onHover: undefined,
   opacity: 0.5,
   filled: true,
-  getFillColor: highlightId => d => d?.properties?.GeoCohortItem === highlightId ? [221, 25, 107] : [0, 98, 217],
+  getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [221, 25, 107] : [0, 98, 217],
   getElevation: 0,
   stroked: true,
   lineWidthUnits: 'pixels',
@@ -84,6 +86,8 @@ const defaultProps = {
   tooltipNode: undefined,
   getCursor: undefined,
   pitch: 0,
+  dataAccessor: d => d,
+  dataPropertyAccessor: d => d,
 }
 
 const GeoCohortMap = ({
@@ -114,6 +118,8 @@ const GeoCohortMap = ({
   tooltipKeys,
   typography,
   pitch,
+  dataAccessor,
+  dataPropertyAccessor,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
@@ -160,8 +166,8 @@ const GeoCohortMap = ({
   }, [metricDispatch, reportData])
 
   const { metrics, metricDispatch } = useMapData({
-    dataAccessor: d => d,
-    dataPropertyAccessor: d => d.properties,
+    dataAccessor,
+    dataPropertyAccessor,
   })
 
   /**
@@ -181,13 +187,13 @@ const GeoCohortMap = ({
     return {
       ...tooltipKeys,
       name: 'GeoCohortItem',
-      nameAccessor: (d) => d.properties,
+      nameAccessor: dataPropertyAccessor,
       id: '',
       idAccessor: () => {},
       metricKeys: metricKeysArray,
-      metricAccessor: d => d.properties,
+      metricAccessor: dataPropertyAccessor,
     }
-  }, [tooltipKeys, elevationBasedOn, fillBasedOn])
+  }, [tooltipKeys, elevationBasedOn, fillBasedOn, dataPropertyAccessor])
 
   // we need to convert string format color (used in legend) to array format color for deck.gl
   const layerFillColors = useArrayFillColors({ fillColors })
@@ -196,7 +202,7 @@ const GeoCohortMap = ({
   const objColor = useStrFillColor({ getFillColor, opacity })
 
   const layers = useMemo(() => {
-    const highlightId = highlightObj?.properties.GeoCohortItem
+    const highlightId = highlightObj?.GeoCohortItem
     return [
       new GeoJsonLayer({
         id: 'geo-cohort-geojson-layer',
@@ -209,7 +215,7 @@ const GeoCohortMap = ({
         filled,
         getFillColor: setFinalLayerDataAccessor({
           dataKey: fillBasedOn,
-          dataPropertyAccessor: (d) => d.properties,
+          dataPropertyAccessor,
           getLayerProp: getFillColor,
           layerDataScale: fillDataScale,
           layerPropRange: layerFillColors,
@@ -218,7 +224,7 @@ const GeoCohortMap = ({
         }),
         getElevation: setFinalLayerDataAccessor({
           dataKey: elevationBasedOn,
-          dataPropertyAccessor: (d) => d.properties,
+          dataPropertyAccessor,
           getLayerProp: getElevation,
           layerDataScale: elevationDataScale,
           layerPropRange: elevations,
@@ -257,6 +263,7 @@ const GeoCohortMap = ({
     opacity,
     getCursor,
     getTooltip,
+    dataPropertyAccessor,
   ])
 
   const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, objColor, metrics })
