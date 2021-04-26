@@ -52,12 +52,13 @@ const defaultProps = {
   symbolProps: undefined,
 }
 
-const LegendItem = ({ label, min, max, symbolProps }) => {
+const LegendItem = ({ legendItemProps }) => {
+  const { min, max, label, metricAliases, ...symbolProps } = legendItemProps
   return (
     <>
       {max !== undefined && min !== undefined && (
         <LegendBody>
-          <LegendTitle>{label}</LegendTitle>
+          <LegendTitle>{`${metricAliases?.[label] || label}`}</LegendTitle>
           <LegendElements>
             <LegendSymbolContainer>
               <LegendSymbol {...symbolProps} />
