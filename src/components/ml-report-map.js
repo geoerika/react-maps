@@ -180,9 +180,10 @@ const MLReportMap = ({
    * @returns { Node } - object of keys { name, id, metricKeys }
    */
   const finalTooltipKeys = useMemo(() => {
-    let metricKeysArray = []
+    const { name, id } = tooltipKeys
+    let metricKeysArray = tooltipKeys?.metricKeys || []
     // set metricKeys array if no custom keys are given
-    if (!tooltipKeys?.metricKeys?.length) {
+    if (showTooltip && !tooltipKeys?.metricKeys?.length) {
       ([radiusBasedOn, fillBasedOn]).forEach((key) => {
         if (key) {
           metricKeysArray.push(key)
@@ -191,9 +192,11 @@ const MLReportMap = ({
     }
     return {
       ...tooltipKeys,
+      name: name || 'name',
+      id: id || 'poi_id',
       metricKeys: metricKeysArray,
     }
-  }, [tooltipKeys, radiusBasedOn, fillBasedOn])
+  }, [showTooltip, tooltipKeys, radiusBasedOn, fillBasedOn])
 
   // we need to convert string format color (used in legend) to array format color for deck.gl
   const layerFillColors = useArrayFillColors({ fillColors })
