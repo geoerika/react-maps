@@ -90,6 +90,26 @@ storiesOf('Geo-Cohort Map', module)
         />
     )
   })
+  .add('GeoCohortMap - custom tootltipKeys for tooltip', () => {
+    const geoCohortData = useGeoCohortData()
+    return (
+      geoCohortData.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortData}
+          getCursor={getCursor()}
+          fillBasedOn={'Imps'}
+          showTooltip={true}
+          tooltipKeys={{
+            metricKeys: ['Imps', 'Clicks', 'Bids', 'Revenue'],
+            metricAliases: {
+              Imps: 'Impressions',
+              Revenue: 'Spend',
+            },
+          }}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
   .add('GeoCohortMap - show legend for data-based colour fill', () => {
     const geoCohortData = useGeoCohortData()
     return (
@@ -119,7 +139,7 @@ storiesOf('Geo-Cohort Map', module)
         />
     )
   })
-  .add('GeoCohortMap - data-based colour fill and elevation with tooltip and legends', () => {
+  .add('GeoCohortMap - data-based colour fill and elevation with tooltip, custom legend labels', () => {
     const geoCohortData = useGeoCohortData()
     return (
       geoCohortData.length > 0 &&
@@ -129,6 +149,12 @@ storiesOf('Geo-Cohort Map', module)
           fillBasedOn={'Imps'}
           elevationBasedOn={'Revenue'}
           showTooltip={true}
+          tooltipKeys={{
+            metricAliases: {
+              Imps: 'Impressions',
+              Revenue: 'Spend',
+            },
+          }}
           showLegend={true}
           pitch={45}
           mapboxApiAccessToken={mapboxApiAccessToken}
