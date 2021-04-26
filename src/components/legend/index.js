@@ -37,7 +37,7 @@ const defaultProps = {
   ],
 }
 
-const Legend = ({ position, legends, typography }) => {
+const Legend = ({ position, legends, metricAliases, typography }) => {
   let objPosition = {}
   objPosition[position.split('-')[0]] = '1rem'
   objPosition[position.split('-')[1]] = '1rem'
@@ -52,14 +52,10 @@ const Legend = ({ position, legends, typography }) => {
         position={objPosition}
         typography={typography}
       >
-        {legends.map(({ max, min, label, type, ...symbolProps }) => (
+        {legends.map(({ type, ...legendProps }) => (
           <LegendItem
             key={type}
-            max={max}
-            min={min}
-            label={label}
-            type={type}
-            symbolProps={{ type, ...symbolProps }}
+            legendItemProps={{ type, metricAliases, ...legendProps }}
           />
         ))}
       </LegendContainer>
