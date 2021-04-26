@@ -25,10 +25,14 @@ export const typographyDefaultProps = {
 }
 
 export const tooltipPropTypes = {
-  tooltipKeys: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.array,
-  ]),
+  tooltipKeys: PropTypes.PropTypes.shape({
+    name: PropTypes.string,
+    id: PropTypes.string,
+    metricKeys: PropTypes.array,
+    nameAccessor: PropTypes.func,
+    idAccessor: PropTypes.func,
+    metricAliases: PropTypes.object,
+  }),
   tooltipProps: PropTypes.shape({
     backgroundColor: PropTypes.string.isRequired,
     border: PropTypes.string.isRequired,
@@ -38,12 +42,13 @@ export const tooltipPropTypes = {
 
 export const tooltipDefaultProps = {
   tooltipKeys: {
-    name: 'name',
-    id: 'poi_id',
-    metricKeys: [],
+    name: '',
+    id: '',
+    metricKeys: undefined,
     nameAccessor: d => d,
     idAccessor: d => d,
     metricAccessor: d => d,
+    metricAliases: {},
   },
   tooltipProps: {
     backgroundColor: '#FFFFFF',
