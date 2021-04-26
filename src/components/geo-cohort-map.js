@@ -175,9 +175,10 @@ const GeoCohortMap = ({
    * @returns { Node } - object of keys { name, id, metricKeys }
    */
   const finalTooltipKeys = useMemo(() => {
-    let metricKeysArray = []
+    const { name, nameAccessor } = tooltipKeys
+    let metricKeysArray = tooltipKeys?.metricKeys || []
     // set metricKeys array if no custom keys are given
-    if (!tooltipKeys?.metricKeys?.length) {
+    if (showTooltip && !tooltipKeys?.metricKeys) {
       ([elevationBasedOn, fillBasedOn]).forEach((key) => {
         if (key) {
           metricKeysArray.push(key)
@@ -186,14 +187,12 @@ const GeoCohortMap = ({
     }
     return {
       ...tooltipKeys,
-      name: 'GeoCohortItem',
-      nameAccessor: dataPropertyAccessor,
-      id: '',
-      idAccessor: () => {},
+      name: name || 'GeoCohortItem',
+      nameAccessor: nameAccessor || dataPropertyAccessor,
       metricKeys: metricKeysArray,
       metricAccessor: dataPropertyAccessor,
     }
-  }, [tooltipKeys, elevationBasedOn, fillBasedOn, dataPropertyAccessor])
+  }, [showTooltip, tooltipKeys, elevationBasedOn, fillBasedOn, dataPropertyAccessor])
 
   // we need to convert string format color (used in legend) to array format color for deck.gl
   const layerFillColors = useArrayFillColors({ fillColors })
