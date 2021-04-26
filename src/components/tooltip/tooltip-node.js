@@ -26,19 +26,23 @@ const Value = styled('span')`
  * @returns { Node } - node element
  */
 const tooltipNode = ({ tooltipKeys, params }) => {
-  const { name, id, metricKeys, nameAccessor, idAccessor, metricAccessor } = tooltipKeys
+  const { name, id, metricKeys, nameAccessor, idAccessor, metricAccessor, metricAliases } = tooltipKeys
   return (
     <>
-      {name && <Name>{nameAccessor(params)[name]}</Name>}
-      {id && <Id>{idAccessor(params)[id]}</Id>}
-      {metricKeys.length && (
+      {name && nameAccessor(params)?.[name] &&
+        <Name>{nameAccessor(params)[name]}</Name>
+      }
+      {id && idAccessor(params)?.[id] &&
+        <Id>{idAccessor(params)[id]}</Id>
+      }
+      {metricKeys?.length && (
         <div>
-          <hr></hr>
+          {(nameAccessor(params)?.[name] || idAccessor(params)?.[id]) && <hr/ >}
           {Object.entries(metricAccessor(params)).map(([key, value]) => (
             <div key={key}>
               {metricKeys.includes(key) && (
                 <div>
-                  <Key>{`${key}:`}</Key>
+                  <Key>{`${metricAliases?.[key] || key}`}:</Key>
                   <Value>{value}</Value>
                 </div>
               )}
