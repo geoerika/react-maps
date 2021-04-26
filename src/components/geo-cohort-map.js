@@ -172,7 +172,7 @@ const GeoCohortMap = ({
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
-   * @returns { Node } - object of keys { name, id, metricKeys }
+   * @returns { object } - object of tooltip keys { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
    */
   const finalTooltipKeys = useMemo(() => {
     const { name, nameAccessor } = tooltipKeys
@@ -200,6 +200,7 @@ const GeoCohortMap = ({
   // we need to convert array format color (used in deck.gl elevation fill) into str format color for legend
   const objColor = useStrFillColor({ getFillColor, opacity })
 
+  // set layer configuration for the map
   const layers = useMemo(() => {
     const highlightId = highlightObj?.GeoCohortItem
     return [
@@ -265,12 +266,23 @@ const GeoCohortMap = ({
     dataPropertyAccessor,
   ])
 
+  // prepare list of legends with used parameteres
   const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, objColor, metrics })
 
-  const legend = useMemo(() => (
-    showLegend &&
-    (legendNode || <Legend legends={legends} position={legendPosition} typograpy={typography}/>)
-  ), [showLegend, legends, legendPosition, typography, legendNode])
+  // set Legend element
+  const legend = useMemo(() => {
+    const { metricAliases } = tooltipKeys
+    return (
+      showLegend &&
+      (legendNode ||
+        <Legend
+          legends={legends}
+          metricAliases={metricAliases}
+          position={legendPosition}
+          typograpy={typography}
+        />
+      )
+    )}, [showLegend, legends, tooltipKeys,legendPosition, typography, legendNode])
 
   return (
     <Map
