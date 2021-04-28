@@ -15,9 +15,8 @@ const LegendBody = styled('div')`
   border-radius: 0.2rem;
 `
 
-const LegendTitle = styled('div')`
-  margin-bottom: 10px;
-  font-weight: bold;
+const LegendTitle = styled('h3')`
+  margin: 0 0 10px 0;
 `
 
 const LegendElements = styled('div')`
@@ -28,6 +27,8 @@ const LegendElements = styled('div')`
 const LegendTextContainer = styled('div')`
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
+  ${({ max }) => max ? '' : 'margin-bottom: 2px;'};
 `
 
 const LegendText = styled('div')`
@@ -39,17 +40,23 @@ const LegendText = styled('div')`
 const LegendSymbolContainer = styled('div')``
 
 const propTypes = {
-  label: PropTypes.string,
-  max: PropTypes.number,
-  min: PropTypes.number,
-  symbolProps: PropTypes.object,
+  legendItemProps: PropTypes.shape({
+    label: PropTypes.string,
+    max: PropTypes.number,
+    min: PropTypes.number,
+    metricAliases: PropTypes.object,
+    symbolProps: PropTypes.object,
+  }),
 }
 
 const defaultProps = {
-  label: '',
-  max: undefined,
-  min: undefined,
-  symbolProps: undefined,
+  legendItemProps: {
+    label: '',
+    max: undefined,
+    min: undefined,
+    metricAliases: undefined,
+    symbolProps: undefined,
+  },
 }
 
 const LegendItem = ({ legendItemProps }) => {
@@ -61,10 +68,10 @@ const LegendItem = ({ legendItemProps }) => {
           <LegendTitle>{`${metricAliases?.[label] || label}`}</LegendTitle>
           <LegendElements>
             <LegendSymbolContainer>
-              <LegendSymbol {...symbolProps} />
+              <LegendSymbol symbolProps={{ max, ...symbolProps }} />
             </LegendSymbolContainer>
-            <LegendTextContainer>
-              <LegendText legend-text-top={ top }>{max.toLocaleString()}</LegendText>
+            <LegendTextContainer max={max}>
+              {max > 0 && <LegendText legend-text-top={ top }>{max.toLocaleString()}</LegendText>}
               <LegendText>{min.toLocaleString()}</LegendText>
             </LegendTextContainer>
           </LegendElements>
