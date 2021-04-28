@@ -1,0 +1,44 @@
+[
+  {
+      "Actions": 0,
+      "BidAmount": 0,
+      "Bids": 0,
+      "Clicks": 0,
+      "ImpCost": 0.0003190000000,
+      "Imps": 1,
+      "Revenue": 0.0027500000000,
+      "_id": {
+          "Date": "2021-04-09",
+          "GeoCohortItem": "L6Y5A1",
+          "GeoCohortListID": 1
+      }
+  },
+  {
+      "Actions": 0,
+      "BidAmount": 0,
+      "Bids": 0,
+      "Clicks": 0,
+      "ImpCost": 0.0028680000000,
+      "Imps": 10,
+      "Revenue": 0.0275000000000,
+      "_id": {
+          "Date": "2021-04-09",
+          "GeoCohortItem": "L6Y5A2",
+          "GeoCohortListID": 1
+      }
+  },
+  {
+      "Actions": 0,
+      "BidAmount": 0,
+      "Bids": 0,
+      "Clicks": 0,
+      "ImpCost": 0.0003190000000,
+      "Imps": 1,
+      "Revenue": 0.0027500000000,
+      "_id": {
+          "Date": "2021-04-09",
+          "GeoCohortItem": "L6Y5A3",
+          "GeoCohortListID": 1
+      }
+  }
+]
