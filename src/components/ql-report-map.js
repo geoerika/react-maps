@@ -92,7 +92,7 @@ const defaultProps = {
   legendNode: undefined,
 }
 
-const MLReportMap = ({
+const QLReportMap = ({
   reportData,
   // centerMap,
   // highlightId,
@@ -297,17 +297,17 @@ const MLReportMap = ({
   )
 }
 
-MLReportMap.propTypes = {
+QLReportMap.propTypes = {
   ...propTypes,
   ...commonProps,
   ...typographyPropTypes,
   ...tooltipPropTypes,
 }
-MLReportMap.defaultProps = {
+QLReportMap.defaultProps = {
   ...defaultProps,
   ...commonDefaultProps,
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
 }
 
-export default MLReportMap
+export default QLReportMap

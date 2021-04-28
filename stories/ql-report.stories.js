@@ -2,7 +2,7 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
 
-import { MLReportMap } from '../src'
+import { QLReportMap } from '../src'
 import { getCursor } from '../src/utils'
 import vwiJson from './data/locus-ml-vwi.json'
 import vwiJsonZero from './data/locus-ql-zero.json'
@@ -10,29 +10,29 @@ import vwiJsonZero from './data/locus-ql-zero.json'
 
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN
 
-storiesOf('Locus ML Report', module)
+storiesOf('Locus QL Report', module)
   .add('VWI - basic', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
   .add('VWI - default cursor on hover and default zoom on click', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       getCursor={getCursor()}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
   .add('VWI - disable default onClick and cursor', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       onClick={() => {}}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
   .add('VWI - data-based radius', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       getCursor={getCursor()}
       radiusBasedOn={'converted_visits'}
@@ -40,7 +40,7 @@ storiesOf('Locus ML Report', module)
     />
   ))
   .add('VWI - data-based colour fill', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       getCursor={getCursor()}
       fillBasedOn={'converted_unique_visitors'}
@@ -48,7 +48,7 @@ storiesOf('Locus ML Report', module)
     />
   ))
   .add('VWI - tooltip', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       getCursor={getCursor()}
       showTooltip={true}
@@ -58,7 +58,7 @@ storiesOf('Locus ML Report', module)
     />
   ))
   .add('VWI - show legend for data-based radius', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       getCursor={getCursor()}
       showTooltip={true}
@@ -68,7 +68,7 @@ storiesOf('Locus ML Report', module)
     />
   ))
   .add('VWI - show legend for data-based colour tones', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       getCursor={getCursor()}
       showTooltip={true}
@@ -78,7 +78,7 @@ storiesOf('Locus ML Report', module)
     />
   ))
   .add('VWI - custom opacity', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJson}
       getCursor={getCursor()}
       showTooltip={true}
@@ -89,7 +89,7 @@ storiesOf('Locus ML Report', module)
     />
   ))
   .add('VWI - zero min and max values for radius and radiusFill legend', () => (
-    <MLReportMap
+    <QLReportMap
       reportData={vwiJsonZero}
       getCursor={getCursor()}
       showTooltip={true}
