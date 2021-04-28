@@ -9,6 +9,7 @@ const Gradient = styled('div')`
   width: 15px;
   height: 80px;
   background-image: linear-gradient(${({ max, min }) => `${max}, ${min}`});
+  margin: 5px 0 5px 0;
 `
 
 const Size = styled('div')`
@@ -19,8 +20,8 @@ const Size = styled('div')`
 `
 
 const Circle = styled('div')`
-  margin: 3px;
   box-sizing: border-box;
+  ${({ max }) => max ? 'margin: 2px 0 4px 0;' : ''};
   width: ${({ size }) => `${size}px`};
   height: ${({ size }) => `${size}px`};
   border: 1px solid black;
@@ -38,7 +39,7 @@ const HeightWrapper = styled('div')`
 
 const Height = styled('div')`
   height: ${({ height }) => height}px;
-  width: 10px;
+  width: 5px;
   margin-left: auto;
   margin-right: auto;
   border-left: 1px solid black;
@@ -98,11 +99,13 @@ const LegendSymbol = ({ symbolProps }) => {
               key={i}
               size={(dots - i) * size + size}
               color={maxColor}
+              max={max}
             />
           )) :
           <Circle
             size={zeroRadiusSize}
             color={maxColor}
+            max={max}
           />
         }
       </Size>
