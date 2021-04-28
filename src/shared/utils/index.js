@@ -190,7 +190,7 @@ export const setFinalLayerDataAccessor = ({
   dataPropertyAccessor = d => d,
   highlightId = null,
 }) => {
-  if (dataKey.length) {
+  if (dataKey?.length && metrics[dataKey]?.max) {
     const d3Fn = SCALES[layerDataScale]([
       (metrics[dataKey] || { min: 0 }).min,
       (metrics[dataKey] || { max: 10 }).max,
