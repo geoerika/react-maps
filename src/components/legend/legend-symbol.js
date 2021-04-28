@@ -47,27 +47,38 @@ const Height = styled('div')`
 `
 
 const propTypes = {
-  type: PropTypes.string,
-  minColor: PropTypes.string,
-  maxColor: PropTypes.string,
-  dots: PropTypes.number,
-  size: PropTypes.number,
+  symbolProps: PropTypes.shape({
+    type: PropTypes.string,
+    max: PropTypes.number,
+    minColor: PropTypes.string,
+    maxColor: PropTypes.string,
+    dots: PropTypes.number,
+    size: PropTypes.number,
+    zeroRadiusSize: PropTypes.number,
+  }),
 }
 const defaultProps = {
-  type: 'gradient',
-  minColor: 'rgb(0,0,0)',
-  maxColor: 'rgb(255,0,0)',
-  dots: 5,
-  size: 5,
+  symbolProps: {
+    type: 'gradient',
+    max: undefined,
+    minColor: 'rgb(0,0,0)',
+    maxColor: 'rgb(255,0,0)',
+    dots: 5,
+    size: 5,
+    zeroRadiusSize: 20,
+  },
 }
 
-const LegendSymbol = ({ type, minColor, maxColor, dots, size }) => {
+const LegendSymbol = ({ symbolProps }) => {
+  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type } = symbolProps
   if (type === 'elevation') {
     return (
       <Size>
-        <HeightWrapper margin='top'>
-          <Height height={40} color={maxColor}/>
-        </HeightWrapper>
+        {max > 0 &&
+          <HeightWrapper margin='top'>
+            <Height height={40} color={maxColor}/>
+          </HeightWrapper>
+        }
         <HeightWrapper margin='bottom'>
           <Height height={10} color={maxColor}/>
         </HeightWrapper>
@@ -75,18 +86,25 @@ const LegendSymbol = ({ type, minColor, maxColor, dots, size }) => {
     )
   }
   if (type === 'gradient') {
-    return <Gradient min={minColor} max={maxColor} />
+    const [minGradCol, maxGradCol] =  max > 0 ? [minColor, maxColor] : [minColor, minColor]
+    return <Gradient min={minGradCol} max={maxGradCol} />
   }
   if (type === 'size') {
     return (
       <Size>
-        {new Array(dots).fill(0).map((_, i) => (
+        {max > 0 ?
+          new Array(dots).fill(0).map((_, i) => (
+            <Circle
+              key={i}
+              size={(dots - i) * size + size}
+              color={maxColor}
+            />
+          )) :
           <Circle
-            key={i}
-            size={(dots - i) * size + size}
+            size={zeroRadiusSize}
             color={maxColor}
           />
-        ))}
+        }
       </Size>
     )
   }
