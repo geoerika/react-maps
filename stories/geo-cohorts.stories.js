@@ -5,6 +5,7 @@ import { storiesOf } from '@storybook/react'
 import { GeoCohortMap } from '../src'
 import { getCursor } from '../src/utils'
 import geoCohortJson from './data/geo-cohorts.json'
+import geoCohortJsonZero from './data/geo-cohorts-zero.json'
 
 import { getPlaceGeo, FOApi } from './poi-manage'
 
@@ -148,6 +149,52 @@ storiesOf('Geo-Cohort Map', module)
           getCursor={getCursor()}
           fillBasedOn={'Imps'}
           elevationBasedOn={'Revenue'}
+          showTooltip={true}
+          tooltipKeys={{
+            metricAliases: {
+              Imps: 'Impressions',
+              Revenue: 'Spend',
+            },
+          }}
+          showLegend={true}
+          pitch={45}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
+  .add('GeoCohortMap - zero max and min values for colorFill and elevation legend', () => {
+    const [geoCohortDataZero, setGeoCohortDataZero] = useState([])
+    useEffect(() => {
+      const getFSAsGeometry = async (dataArray) => {
+        let response = []
+        await Promise.all(dataArray.map(async elem => {
+          try {
+            await getPlaceGeo(FOApi)({ data: {
+              placeType: 'postcode',
+              country: 'CA',
+              postcode: elem._id.GeoCohortItem,
+            } }).then(result => {
+              response.push({
+                ...result,
+                ...elem,
+                ...elem._id,
+              })
+            })
+          } catch (error) {
+            console.error(error)
+          }
+        }))
+        setGeoCohortDataZero(response)
+      }
+      getFSAsGeometry(geoCohortJsonZero)
+    }, [])
+    return (
+      geoCohortDataZero.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortDataZero}
+          getCursor={getCursor()}
+          fillBasedOn={'Bids'}
+          elevationBasedOn={'Clicks'}
           showTooltip={true}
           tooltipKeys={{
             metricAliases: {
