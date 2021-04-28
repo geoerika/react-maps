@@ -23,7 +23,6 @@ export const useLegends = ({
         type: 'gradient',
         max: (metrics[fillBasedOn] || {}).max,
         min: (metrics[fillBasedOn] || {}).min,
-        // TODO: readable labels
         label: fillBasedOn,
       })
     }
@@ -34,7 +33,6 @@ export const useLegends = ({
         maxColor: objColor || fillColors[1],
         max: (metrics[elevationBasedOn] || {}).max,
         min: (metrics[elevationBasedOn] || {}).min,
-        // TODO: readable labels
         label: elevationBasedOn,
       })
     }
@@ -45,9 +43,9 @@ export const useLegends = ({
         type: 'size',
         dots: 5,
         size: 5,
+        zeroRadiusSize: 20,
         max: (metrics[radiusBasedOn] || {}).max,
         min: (metrics[radiusBasedOn] || {}).min,
-        // TODO: readable labels
         label: radiusBasedOn,
       })
     }
