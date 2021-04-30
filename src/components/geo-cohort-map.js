@@ -159,16 +159,19 @@ const GeoCohortMap = ({
     }
   }, [onClick, width, height])
 
-  useEffect(() => {
-    if (reportData.length) {
-      metricDispatch({ type: 'data', payload : reportData })
-    }
-  }, [metricDispatch, reportData])
-
+  // set metrics and metricDispatch
   const { metrics, metricDispatch } = useMapData({
     dataAccessor,
     dataPropertyAccessor,
   })
+
+  useEffect(() => {
+    if (reportData?.length) {
+      metricDispatch({ type: 'data', payload : reportData })
+    }
+    // reset highlightObj when we get new reportData
+    setHighlightObj(null)
+  }, [metricDispatch, reportData])
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
