@@ -14,6 +14,9 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   flexDirection: 'column',
   position: 'absolute',
   cursor: num_legends > 1 ? 'pointer' : 'default',
+  backgroundColor: 'rgba(255,255,255,0.9)',
+  padding: '0 1rem 1rem',
+  borderRadius: '0.2rem',
   ...position,
 }))
 
