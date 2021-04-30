@@ -146,9 +146,9 @@ const GeoCohortMap = ({
    * @param { object } param.object - clicked object on the map
    */
   const finalOnClick = useCallback(({ object }) => {
-    if (onClick) {
+    if (typeof onClick === 'function') {
       onClick(object)
-    } else if (object) {
+    } else if (object?.type) {
       // recenter and zoom on the clicked element
       const dataView = setView({ data: [object], width, height })
       setViewOverride(o => ({
