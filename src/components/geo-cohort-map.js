@@ -13,6 +13,8 @@ import {
 
 import Map from './generic-map'
 import Legend from './legend'
+import MapTooltip from './tooltip'
+import tooltipNode from './tooltip/tooltip-node'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
 import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
 
@@ -83,7 +85,7 @@ const defaultProps = {
   legendNode: undefined,
   getTooltip: undefined,
   showTooltip: false,
-  tooltipNode: undefined,
+  tooltipNode: tooltipNode,
   getCursor: undefined,
   pitch: 0,
   dataAccessor: d => d,
@@ -297,10 +299,15 @@ const GeoCohortMap = ({
       onHover={onHover}
       viewStateOverride={viewStateOverride}
       showTooltip={showTooltip}
-      tooltipProps={tooltipProps}
-      tooltipNode={tooltipNode}
-      typography={typography}
-      tooltipKeys={finalTooltipKeys}
+      renderTooltip={({ hoverInfo }) => (
+        <MapTooltip
+          info={hoverInfo}
+          tooltipProps={tooltipProps}
+          typography={typography}
+        >
+          {tooltipNode({ tooltipKeys: finalTooltipKeys, params: hoverInfo.object })}
+        </MapTooltip>
+      )}
       legend={legend}
       pitch={pitch}
       mapboxApiAccessToken={mapboxApiAccessToken}
