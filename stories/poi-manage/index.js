@@ -109,7 +109,7 @@ export const geocoderOnResult = async ({ result, POIType }) => {
 }
 
 // create instance of FO object with our axios configuration
-const FOApi = FO(axios.create({
+export const FOApi = FO(axios.create({
   baseURL: `${process.env.API_HOST}/${process.env.API_STAGE}`,
   headers: { 'eq-api-jwt': process.env.JWT },
 }))
@@ -120,11 +120,10 @@ const FOApi = FO(axios.create({
  * @param { string } param.data - object properties needed to retrieve geometry of fsa polygon
  * @return { object } - polygon POI feature
  */
-const getPlaceGeo = (api) => async ({ data }) => {
+export const getPlaceGeo = (api) => async ({ data }) => {
   try {
     const placeGeometry = await api.getGeoPlacePolygon(data)
     const { geometry } = placeGeometry[0]
-
     return {
       type: 'Feature',
       geometry,

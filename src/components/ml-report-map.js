@@ -13,14 +13,16 @@ import {
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import Legend from './legend'
+import MapTooltip from './tooltip'
+import tooltipNode from './tooltip/tooltip-node'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData, useLegends, useArrayFillColors, useStrRadiusFillColor } from '../hooks'
+import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
 
 
 const propTypes = {
   reportData: PropTypes.array.isRequired,
-  centerMap: PropTypes.object,
-  highlightId: PropTypes.number,
+  // centerMap: PropTypes.object,
+  // highlightId: PropTypes.number,
   getTooltip: PropTypes.func,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
@@ -46,7 +48,7 @@ const propTypes = {
   lineWidthUnits: PropTypes.string,
   getLineWidth: PropTypes.oneOfType([
     PropTypes.number,
-    PropTypes.array,
+    PropTypes.func,
   ]),
   getLineColor: PropTypes.oneOfType([
     PropTypes.func,
@@ -60,7 +62,7 @@ const propTypes = {
 }
 
 const defaultProps = {
-  centerMap: {}, // { lat, lon }
+  // centerMap: {}, // { lat, lon }
   // highlightId: undefined,
   getTooltip: undefined,
   onClick: undefined,
@@ -84,7 +86,7 @@ const defaultProps = {
   getLineWidth: 2,
   getLineColor: [255, 255, 255],
   showTooltip: false,
-  tooltipNode: undefined,
+  tooltipNode: tooltipNode,
   showLegend: false,
   legendPosition: 'top-right',
   legendNode: undefined,
@@ -180,9 +182,10 @@ const MLReportMap = ({
    * @returns { Node } - object of keys { name, id, metricKeys }
    */
   const finalTooltipKeys = useMemo(() => {
-    let metricKeysArray = []
+    const { name, id } = tooltipKeys
+    let metricKeysArray = tooltipKeys?.metricKeys || []
     // set metricKeys array if no custom keys are given
-    if (!tooltipKeys?.metricKeys?.length) {
+    if (showTooltip && !tooltipKeys?.metricKeys?.length) {
       ([radiusBasedOn, fillBasedOn]).forEach((key) => {
         if (key) {
           metricKeysArray.push(key)
@@ -191,15 +194,17 @@ const MLReportMap = ({
     }
     return {
       ...tooltipKeys,
+      name: name || 'name',
+      id: id || 'poi_id',
       metricKeys: metricKeysArray,
     }
-  }, [tooltipKeys, radiusBasedOn, fillBasedOn])
+  }, [showTooltip, tooltipKeys, radiusBasedOn, fillBasedOn])
 
   // we need to convert string format color (used in legend) to array format color for deck.gl
-  const layerFillColors = useArrayFillColors({ fillColors, opacity })
+  const layerFillColors = useArrayFillColors({ fillColors })
 
   // we need to convert array format color (used in deck.gl radius fill) into str format color for legend
-  const radiusFillColor = useStrRadiusFillColor({ getFillColor, opacity })
+  const objColor = useStrFillColor({ getFillColor, opacity })
 
   const layers = useMemo(() => {
     return [
@@ -260,7 +265,7 @@ const MLReportMap = ({
     scatterLayerProps,
   ])
 
-  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, radiusFillColor, metrics })
+  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, objColor, metrics })
 
   const legend = useMemo(() => (
     showLegend &&
@@ -276,10 +281,15 @@ const MLReportMap = ({
       onHover={onHover}
       viewStateOverride={viewStateOverride}
       showTooltip={showTooltip}
-      tooltipProps={tooltipProps}
-      tooltipNode={tooltipNode}
-      typography={typography}
-      tooltipKeys={finalTooltipKeys}
+      renderTooltip={({ hoverInfo }) => (
+        <MapTooltip
+          info={hoverInfo}
+          tooltipProps={tooltipProps}
+          typography={typography}
+        >
+          {tooltipNode({ tooltipKeys: finalTooltipKeys, params: hoverInfo.object })}
+        </MapTooltip>
+      )}
       legend={legend}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate

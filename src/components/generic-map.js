@@ -4,10 +4,6 @@ import PropTypes from 'prop-types'
 import {
   commonProps,
   commonDefaultProps,
-  typographyPropTypes,
-  typographyDefaultProps,
-  tooltipPropTypes,
-  tooltipDefaultProps,
 } from '../shared/map-props'
 
 import { FlyToInterpolator, MapView } from '@deck.gl/core'
@@ -15,9 +11,6 @@ import { DeckGL } from '@deck.gl/react'
 import { StaticMap } from 'react-map-gl'
 
 import { styled, setup } from 'goober'
-
-import MapTooltip from './tooltip'
-import tooltipNode from './tooltip/tooltip-node'
 
 
 setup(React.createElement)
@@ -43,38 +36,42 @@ const INIT_VIEW_STATE = {
 const propTypes = {
   layers: PropTypes.array,
   setDimensionsCb: PropTypes.func,
+  setHighlightObj: PropTypes.func,
   getTooltip: PropTypes.func,
   getCursor: PropTypes.func,
   viewStateOverride: PropTypes.object,
   legend: PropTypes.node,
   showTooltip: PropTypes.bool,
-  tooltipNode: PropTypes.func,
+  renderTooltip: PropTypes.func,
+  pitch: PropTypes.number,
 }
+
 const defaultProps = {
   layers: [],
   setDimensionsCb: () => {},
+  setHighlightObj: () => {},
   getTooltip: () => {},
   getCursor: () => {},
   viewStateOverride: {},
   legend: undefined,
   showTooltip: false,
-  tooltipNode: tooltipNode,
+  renderTooltip: undefined,
+  pitch: 0,
 }
 
 // DeckGL react component
 const Map = ({
   layers,
   setDimensionsCb,
+  setHighlightObj,
   getTooltip,
   getCursor,
   viewStateOverride,
   legend,
   onHover,
   showTooltip,
-  tooltipNode,
-  tooltipProps,
-  tooltipKeys,
-  typography,
+  renderTooltip,
+  pitch,
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
@@ -86,8 +83,9 @@ const Map = ({
       ...INIT_VIEW_STATE,
       ...o,
       ...viewStateOverride,
+      pitch,
     }))
-  }, [viewStateOverride])
+  }, [pitch, viewStateOverride])
 
   /**
    * finalOnHover - React hook that handles the onHover event for deck.gl map
@@ -129,37 +127,31 @@ const Map = ({
         onHover={finalOnHover}
         getTooltip={getTooltip}
         getCursor={getCursor}
+        onClick={({ object }) => {
+          if(!object) {
+            setHighlightObj(null)
+          }
+        }}
       >
         <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
       </DeckGL>
       {legend}
-      {showTooltip && hoverInfo?.object && (
-        <MapTooltip
-          info={hoverInfo}
-          tooltipProps={tooltipProps}
-          typography={typography}
-        >
-          {tooltipNode({ tooltipKeys, params: hoverInfo.object })}
-        </MapTooltip>
+      {showTooltip && hoverInfo?.object && typeof renderTooltip === 'function' && (
+        renderTooltip({ hoverInfo })
       )}
     </MapContainer>
   )
 }
 
-
 Map.propTypes = {
   ...propTypes,
   ...StaticMap.propTypes,
   ...commonProps,
-  ...typographyPropTypes,
-  ...tooltipPropTypes,
 }
 Map.defaultProps = {
   ...defaultProps,
   ...StaticMap.defaultProps,
   ...commonDefaultProps,
-  ...typographyDefaultProps,
-  ...tooltipDefaultProps,
 }
 
 export default Map
