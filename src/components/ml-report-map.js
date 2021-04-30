@@ -13,6 +13,8 @@ import {
 import Map from './generic-map'
 import Scatter from './layers/scatter-plot'
 import Legend from './legend'
+import MapTooltip from './tooltip'
+import tooltipNode from './tooltip/tooltip-node'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
 import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
 
@@ -84,7 +86,7 @@ const defaultProps = {
   getLineWidth: 2,
   getLineColor: [255, 255, 255],
   showTooltip: false,
-  tooltipNode: undefined,
+  tooltipNode: tooltipNode,
   showLegend: false,
   legendPosition: 'top-right',
   legendNode: undefined,
@@ -279,10 +281,15 @@ const MLReportMap = ({
       onHover={onHover}
       viewStateOverride={viewStateOverride}
       showTooltip={showTooltip}
-      tooltipProps={tooltipProps}
-      tooltipNode={tooltipNode}
-      typography={typography}
-      tooltipKeys={finalTooltipKeys}
+      renderTooltip={({ hoverInfo }) => (
+        <MapTooltip
+          info={hoverInfo}
+          tooltipProps={tooltipProps}
+          typography={typography}
+        >
+          {tooltipNode({ tooltipKeys: finalTooltipKeys, params: hoverInfo.object })}
+        </MapTooltip>
+      )}
       legend={legend}
       mapboxApiAccessToken={mapboxApiAccessToken}
       // x, y, translate
