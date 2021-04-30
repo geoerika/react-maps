@@ -10,12 +10,19 @@ const Name = styled('h4')`
 const Id = styled('h5')`
   margin: 0px;
 `
-const Key = styled('p')`
-  display: inline;
-  margin-right: 10px;
+const TooltipAttributes = styled('div')`
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-gap: 10px;
 `
-const Value = styled('span')`
-  float: right;
+const Keys = styled('div')`
+  display: flex;
+  flex-direction: column;
+`
+const Values = styled('div')`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 `
 
 /**
@@ -37,17 +44,18 @@ const tooltipNode = ({ tooltipKeys, params }) => {
       }
       {metricKeys?.length && (
         <div>
-          {(nameAccessor(params)?.[name] || idAccessor(params)?.[id]) && <hr/ >}
-          {Object.entries(metricAccessor(params)).map(([key, value]) => (
-            <div key={key}>
-              {metricKeys.includes(key) && (
-                <div>
-                  <Key>{`${metricAliases?.[key] || key}`}:</Key>
-                  <Value>{value}</Value>
-                </div>
-              )}
-            </div>
-          ))}
+          {(nameAccessor(params)?.[name] || idAccessor(params)?.[id]) && <hr></hr>}
+          <TooltipAttributes>
+            <Keys>
+              {Object.entries(metricAccessor(params)).map(([key]) =>
+                metricKeys.includes(key) &&
+                <div key={key}>{metricAliases?.[key] || key}:</div>)}
+            </Keys>
+            <Values>
+              {Object.entries(metricAccessor(params)).map(([key, value]) =>
+                metricKeys.includes(key) && <div key={key}>{value}</div>)}
+            </Values>
+          </TooltipAttributes>
         </div>
       )} 
     </>
