@@ -4,10 +4,6 @@ import PropTypes from 'prop-types'
 import {
   commonProps,
   commonDefaultProps,
-  typographyPropTypes,
-  typographyDefaultProps,
-  tooltipPropTypes,
-  tooltipDefaultProps,
 } from '../shared/map-props'
 
 import { FlyToInterpolator, MapView } from '@deck.gl/core'
@@ -15,9 +11,6 @@ import { DeckGL } from '@deck.gl/react'
 import { StaticMap } from 'react-map-gl'
 
 import { styled, setup } from 'goober'
-
-import MapTooltip from './tooltip'
-import tooltipNode from './tooltip/tooltip-node'
 
 
 setup(React.createElement)
@@ -49,7 +42,7 @@ const propTypes = {
   viewStateOverride: PropTypes.object,
   legend: PropTypes.node,
   showTooltip: PropTypes.bool,
-  tooltipNode: PropTypes.func,
+  renderTooltip: PropTypes.func,
   pitch: PropTypes.number,
 }
 
@@ -62,7 +55,7 @@ const defaultProps = {
   viewStateOverride: {},
   legend: undefined,
   showTooltip: false,
-  tooltipNode: tooltipNode,
+  renderTooltip: undefined,
   pitch: 0,
 }
 
@@ -77,10 +70,7 @@ const Map = ({
   legend,
   onHover,
   showTooltip,
-  tooltipNode,
-  tooltipProps,
-  tooltipKeys,
-  typography,
+  renderTooltip,
   pitch,
   mapboxApiAccessToken,
 }) => {
@@ -146,14 +136,8 @@ const Map = ({
         <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
       </DeckGL>
       {legend}
-      {showTooltip && hoverInfo?.object && (
-        <MapTooltip
-          info={hoverInfo}
-          tooltipProps={tooltipProps}
-          typography={typography}
-        >
-          {tooltipNode({ tooltipKeys, params: hoverInfo.object })}
-        </MapTooltip>
+      {showTooltip && hoverInfo?.object && typeof renderTooltip === 'function' && (
+        renderTooltip({ hoverInfo })
       )}
     </MapContainer>
   )
@@ -163,15 +147,11 @@ Map.propTypes = {
   ...propTypes,
   ...StaticMap.propTypes,
   ...commonProps,
-  ...typographyPropTypes,
-  ...tooltipPropTypes,
 }
 Map.defaultProps = {
   ...defaultProps,
   ...StaticMap.defaultProps,
   ...commonDefaultProps,
-  ...typographyDefaultProps,
-  ...tooltipDefaultProps,
 }
 
 export default Map
