@@ -6,22 +6,19 @@ import { styled, setup } from 'goober'
 setup(React.createElement)
 
 const Gradient = styled('div')`
-  width: 15px;
-  height: 80px;
-  background-image: linear-gradient(${({ max, min }) => `${max}, ${min}`});
-  margin: 5px 0 5px 0;
+  height: 15px;
+  background-image: linear-gradient(${({ max, min }) => `to right, ${min}, ${max}`});
 `
 
 const Size = styled('div')`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  width: 15px;
+  justify-content: ${({ max }) => max ? 'space-between' : 'center'};
 `
 
 const Circle = styled('div')`
   box-sizing: border-box;
-  ${({ max }) => max ? 'margin: 2px 0 4px 0;' : ''};
   width: ${({ size }) => `${size}px`};
   height: ${({ size }) => `${size}px`};
   border: 1px solid black;
@@ -30,20 +27,18 @@ const Circle = styled('div')`
 `
 
 const HeightWrapper = styled('div')`
-  flex-grow: 1;
-  width: 80%;
-  border-bottom: 1px solid black;
-  border-top: 1px solid black;
-  margin: 5px 0 5px 0;
+  border-left: ${({ pos }) => pos ? '1px solid black' : ''};
+  border-right: ${({ pos }) => pos ? '' : '1px solid black'};
+  height: 15px;
+  display: flex;
+  align-items: center;
 `
 
 const Height = styled('div')`
-  height: ${({ height }) => height}px;
-  width: 5px;
-  margin-left: auto;
-  margin-right: auto;
-  border-left: 1px solid black;
-  border-right: 1px solid black;
+  width: ${({ width }) => width}px;
+  height: 7px;
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
   background-color: ${({ color }) => color};
 `
 
@@ -74,15 +69,15 @@ const LegendSymbol = ({ symbolProps }) => {
   const { max, minColor, maxColor, dots, size, zeroRadiusSize, type } = symbolProps
   if (type === 'elevation') {
     return (
-      <Size>
+      <Size max={max}>
+        <HeightWrapper pos={'left'}>
+          <Height width={21} color={maxColor} />
+        </HeightWrapper>
         {max > 0 &&
-          <HeightWrapper margin='top'>
-            <Height height={40} color={maxColor}/>
+          <HeightWrapper>
+            <Height width={84} color={maxColor} />
           </HeightWrapper>
         }
-        <HeightWrapper margin='bottom'>
-          <Height height={10} color={maxColor}/>
-        </HeightWrapper>
       </Size>
     )
   }
@@ -92,12 +87,12 @@ const LegendSymbol = ({ symbolProps }) => {
   }
   if (type === 'size') {
     return (
-      <Size>
+      <Size max={max}>
         {max > 0 ?
           new Array(dots).fill(0).map((_, i) => (
             <Circle
               key={i}
-              size={(dots - i) * size + size}
+              size={(i + 1) * size + size}
               color={maxColor}
               max={max}
             />
