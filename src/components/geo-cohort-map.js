@@ -274,18 +274,20 @@ const GeoCohortMap = ({
   // prepare list of legends with used parameteres
   const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, objColor, metrics })
 
-  // set Legend element
+  // set legend element
   const legend = useMemo(() => {
     const { metricAliases } = tooltipKeys
     return (
       showLegend &&
       (legendNode ||
-        <Legend
-          legends={legends}
-          metricAliases={metricAliases}
-          position={legendPosition}
-          typograpy={typography}
-        />
+        (legends?.length > 0 &&
+          <Legend
+            legends={legends}
+            metricAliases={metricAliases}
+            position={legendPosition}
+            typograpy={typography}
+          />
+        )
       )
     )}, [showLegend, legends, tooltipKeys,legendPosition, typography, legendNode])
 
