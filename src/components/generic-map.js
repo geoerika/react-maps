@@ -40,7 +40,10 @@ const propTypes = {
   getTooltip: PropTypes.func,
   getCursor: PropTypes.func,
   viewStateOverride: PropTypes.object,
-  legend: PropTypes.node,
+  legend: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.bool,
+  ]),
   showTooltip: PropTypes.bool,
   renderTooltip: PropTypes.func,
   pitch: PropTypes.number,
