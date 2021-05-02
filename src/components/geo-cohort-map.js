@@ -61,6 +61,7 @@ const propTypes = {
   dataAccessor: PropTypes.func,
   dataPropertyAccessor: PropTypes.func,
   pitch: PropTypes.number,
+  truncateLabel: PropTypes.func,
 }
 
 const defaultProps = {
@@ -90,6 +91,7 @@ const defaultProps = {
   pitch: 0,
   dataAccessor: d => d,
   dataPropertyAccessor: d => d,
+  truncateLabel: d => d,
 }
 
 const GeoCohortMap = ({
@@ -122,6 +124,7 @@ const GeoCohortMap = ({
   pitch,
   dataAccessor,
   dataPropertyAccessor,
+  truncateLabel,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
@@ -284,12 +287,13 @@ const GeoCohortMap = ({
           <Legend
             legends={legends}
             metricAliases={metricAliases}
+            truncateLabel={truncateLabel}
             position={legendPosition}
             typograpy={typography}
           />
         )
       )
-    )}, [showLegend, legends, tooltipKeys,legendPosition, typography, legendNode])
+    )}, [showLegend, legends, tooltipKeys, legendPosition, truncateLabel, typography, legendNode])
 
   return (
     <Map
