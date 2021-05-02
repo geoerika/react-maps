@@ -27,6 +27,8 @@ const propTypes = {
     min: PropTypes.number,
     label: PropTypes.string,
   })),
+  metricAliases: PropTypes.object,
+  truncateLabel: PropTypes.func,
 }
 
 const defaultProps = {
@@ -38,9 +40,11 @@ const defaultProps = {
       label: '',
     },
   ],
+  metricAliases: undefined,
+  truncateLabel: d => d,
 }
 
-const Legend = ({ position, legends, metricAliases, typography }) => {
+const Legend = ({ position, legends, metricAliases, truncateLabel, typography }) => {
   let objPosition = {}
   objPosition[position.split('-')[0]] = '1rem'
   objPosition[position.split('-')[1]] = '1rem'
@@ -58,7 +62,7 @@ const Legend = ({ position, legends, metricAliases, typography }) => {
         {legends.map(({ type, ...legendProps }) => (
           <LegendItem
             key={type}
-            legendItemProps={{ type, metricAliases, ...legendProps }}
+            legendItemProps={{ type, metricAliases, truncateLabel, ...legendProps }}
           />
         ))}
       </LegendContainer>
