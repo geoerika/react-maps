@@ -30,8 +30,14 @@ const LegendTextContainer = styled('div')`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: ${({ type }) => type === 'size' ? '115px' : '128px'};
-  padding: ${({ type }) => type === 'size' ? '0 5px 0 3px' : '0 0 0 3px'};
+  width: ${({ type, max }) =>
+    max > 0 ?
+      (type === 'size' ? '115px' : '128px') :
+      '20px'};
+  padding: ${({ type, max }) =>
+    max > 0 ?
+      (type === 'size' ? '0 5px 0 3px' : '0 0 0 3px') :
+      '0px'};
   margin-top: 5px;
 `
 
@@ -41,7 +47,7 @@ const LegendText = styled('div')`
 `
 
 const LegendSymbolContainer = styled('div')`
-  width: 120px;
+  width: ${({ max }) => max ? '120px' : '20px'};
 `
 
 const propTypes = {
@@ -91,10 +97,10 @@ const LegendItem = ({ legendItemProps }) => {
         <LegendBody>
           <LegendTitle>{title}</LegendTitle>
           <LegendElements>
-            <LegendSymbolContainer>
+            <LegendSymbolContainer max={max}>
               <LegendSymbol symbolProps={{ max, type, ...symbolProps }} />
             </LegendSymbolContainer>
-            <LegendTextContainer type={type}>
+            <LegendTextContainer type={type} max={max}>
               <LegendText max={max}>{minValue.toLocaleString()}</LegendText>
               {max > 0 && <LegendText max={max}>{maxValue.toLocaleString()}</LegendText>}
             </LegendTextContainer>
