@@ -4,11 +4,13 @@ import { styled, setup } from 'goober'
 
 setup(React.createElement)
 
-const Name = styled('h4')`
+const Name = styled('div')`
   margin: 0px;
+  fontWeight: 700;
 `
-const Id = styled('h5')`
+const Id = styled('div')`
   margin: 0px;
+  fontWeight: 700;
 `
 const TooltipAttributes = styled('div')`
   display: grid;
