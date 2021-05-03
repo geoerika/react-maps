@@ -7,6 +7,7 @@ import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
 import { SCALES } from '../../constants'
+import { color } from 'd3-color'
 
 
 /**
@@ -198,4 +199,15 @@ export const setFinalLayerDataAccessor = ({
     return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
   }
   return typeof getLayerProp === 'function' ? getLayerProp(highlightId) : getLayerProp
+}
+
+/**
+ * strToArrayColor - transforms a string format color ex.'#0062d9' into an array of rgb color values
+ * @param { object } param
+ * @param { string } param.strColor - string format color
+ * @returns { array  } - an array of rgb color values [r, g, b]
+ */
+export const strToArrayColor = ({ strColor }) => {
+  const layerColor = color(strColor)
+  return [layerColor.r, layerColor.g, layerColor.b]
 }
