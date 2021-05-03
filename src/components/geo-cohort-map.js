@@ -16,7 +16,13 @@ import Legend from './legend'
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
 import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
+import {
+  useMapData,
+  useLegends,
+  useArrayFillColors,
+  useStrFillColor,
+  useGradientFillColors,
+} from '../hooks'
 
 
 const propTypes = {
@@ -74,7 +80,7 @@ const defaultProps = {
   elevations: [0, 1000],
   onClick: undefined,
   onHover: undefined,
-  opacity: 0.5,
+  opacity: 1,
   filled: true,
   getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [221, 25, 107] : [0, 98, 217],
   getElevation: 0,
@@ -183,7 +189,8 @@ const GeoCohortMap = ({
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
-   * @returns { object } - object of tooltip keys { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
+   * @returns { object } - object of tooltip keys
+   * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
    */
   const finalTooltipKeys = useMemo(() => {
     const { name, nameAccessor } = tooltipKeys
@@ -210,6 +217,12 @@ const GeoCohortMap = ({
 
   // we need to convert array format color (used in deck.gl elevation fill) into str format color for legend
   const objColor = useStrFillColor({ getFillColor, opacity })
+
+  /**
+   * we convert an array of string format colors, into an array of rgba string format colours so we
+   * can use them in the Legend Gradient component
+   */
+  const finalFillColors = useGradientFillColors({ fillColors, opacity })
 
   // set layer configuration for the map
   const layers = useMemo(() => {
@@ -278,7 +291,13 @@ const GeoCohortMap = ({
   ])
 
   // prepare list of legends with used parameteres
-  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, objColor, metrics })
+  const legends = useLegends({
+    elevationBasedOn,
+    fillBasedOn,
+    fillColors: finalFillColors,
+    objColor,
+    metrics,
+  })
 
   // set legend element
   const legend = useMemo(() => {
