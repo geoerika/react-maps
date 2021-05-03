@@ -268,3 +268,18 @@ storiesOf('Geo-Cohort Map', module)
         />
     )
   })
+  .add('GeoCohortMap - custom opacity for colour fill and Legend', () => {
+    const geoCohortData = useGeoCohortData()
+    return (
+      geoCohortData.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortData}
+          getCursor={getCursor()}
+          fillBasedOn={'Imps'}
+          opacity={0.8}
+          showTooltip={true}
+          showLegend={true}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
