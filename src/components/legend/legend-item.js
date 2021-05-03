@@ -51,6 +51,7 @@ const propTypes = {
     min: PropTypes.number,
     metricAliases: PropTypes.object,
     truncateLabel: PropTypes.object,
+    formatData: PropTypes.object,
     type: PropTypes.string,
     symbolProps: PropTypes.object,
   }),
@@ -63,14 +64,27 @@ const defaultProps = {
     min: undefined,
     metricAliases: undefined,
     truncateLabel: d => d,
+    formatData: undefined,
     type: '',
     symbolProps: undefined,
   },
 }
 
 const LegendItem = ({ legendItemProps }) => {
-  const { min, max, label, metricAliases, truncateLabel, type, ...symbolProps } = legendItemProps
+  const {
+    min,
+    max,
+    label,
+    metricAliases,
+    truncateLabel,
+    formatData,
+    type,
+    ...symbolProps
+  } = legendItemProps
   const title = truncateLabel(metricAliases?.[label] || label)
+  const [minValue, maxValue] = formatData?.[label] ?
+    [formatData[label](min), formatData[label](max)] :
+    [min, max]
   return (
     <>
       {max !== undefined && min !== undefined && (
@@ -81,8 +95,8 @@ const LegendItem = ({ legendItemProps }) => {
               <LegendSymbol symbolProps={{ max, type, ...symbolProps }} />
             </LegendSymbolContainer>
             <LegendTextContainer type={type}>
-              <LegendText max={max}>{min.toLocaleString()}</LegendText>
-              {max > 0 && <LegendText max={max}>{max.toLocaleString()}</LegendText>}
+              <LegendText max={max}>{minValue.toLocaleString()}</LegendText>
+              {max > 0 && <LegendText max={max}>{maxValue.toLocaleString()}</LegendText>}
             </LegendTextContainer>
           </LegendElements>
         </LegendBody>
