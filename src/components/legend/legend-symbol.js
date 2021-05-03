@@ -7,7 +7,8 @@ setup(React.createElement)
 
 const Gradient = styled('div')`
   height: 15px;
-  background-image: linear-gradient(${({ max, min }) => `to right, ${min}, ${max}`});
+  margin: auto;
+  background-image: linear-gradient(${({ mincolor, maxcolor }) => `to right, ${mincolor}, ${maxcolor}`});
 `
 
 const Size = styled('div')`
@@ -83,7 +84,7 @@ const LegendSymbol = ({ symbolProps }) => {
   }
   if (type === 'gradient') {
     const [minGradCol, maxGradCol] =  max > 0 ? [minColor, maxColor] : [minColor, minColor]
-    return <Gradient min={minGradCol} max={maxGradCol} />
+    return <Gradient mincolor={minGradCol} maxcolor={maxGradCol} />
   }
   if (type === 'size') {
     return (
