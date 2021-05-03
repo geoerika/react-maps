@@ -242,7 +242,7 @@ storiesOf('Geo-Cohort Map', module)
             },
           }}
           showLegend={true}
-          truncateLegendTitle={(label) => truncate(label, 10)}
+          formatLegendTitle={(label) => truncate(label, 10)}
           mapboxApiAccessToken={mapboxApiAccessToken}
         />
     )

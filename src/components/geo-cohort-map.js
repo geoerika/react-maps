@@ -67,7 +67,7 @@ const propTypes = {
   dataAccessor: PropTypes.func,
   dataPropertyAccessor: PropTypes.func,
   pitch: PropTypes.number,
-  truncateLegendTitle: PropTypes.func,
+  formatLegendTitle: PropTypes.func,
   formatTooltipTitle: PropTypes.func,
   formatData: PropTypes.object,
 }
@@ -87,7 +87,7 @@ const defaultProps = {
   getElevation: 0,
   stroked: true,
   lineWidthUnits: 'pixels',
-  getLineWidth: 2,
+  getLineWidth: 1,
   getLineColor: [0, 0, 0],
   showLegend: false,
   legendPosition: 'top-left',
@@ -99,7 +99,7 @@ const defaultProps = {
   pitch: 0,
   dataAccessor: d => d,
   dataPropertyAccessor: d => d,
-  truncateLegendTitle: d => d,
+  formatLegendTitle: d => d,
   formatTooltipTitle: d => d,
   formatData: undefined,
 }
@@ -134,7 +134,7 @@ const GeoCohortMap = ({
   pitch,
   dataAccessor,
   dataPropertyAccessor,
-  truncateLegendTitle,
+  formatLegendTitle,
   formatTooltipTitle,
   formatData,
   mapboxApiAccessToken,
@@ -312,7 +312,7 @@ const GeoCohortMap = ({
           <Legend
             legends={legends}
             metricAliases={metricAliases}
-            truncateLegendTitle={truncateLegendTitle}
+            formatLegendTitle={formatLegendTitle}
             formatData={formatData}
             position={legendPosition}
             typograpy={typography}
@@ -324,7 +324,7 @@ const GeoCohortMap = ({
     legends,
     tooltipKeys,
     legendPosition,
-    truncateLegendTitle,
+    formatLegendTitle,
     formatData,
     typography,
     legendNode,

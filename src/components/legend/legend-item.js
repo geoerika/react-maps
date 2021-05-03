@@ -57,7 +57,7 @@ const propTypes = {
     max: PropTypes.number,
     min: PropTypes.number,
     metricAliases: PropTypes.object,
-    truncateLegendTitle: PropTypes.func,
+    formatLegendTitle: PropTypes.func,
     formatData: PropTypes.object,
     type: PropTypes.string,
     symbolProps: PropTypes.object,
@@ -70,7 +70,7 @@ const defaultProps = {
     max: undefined,
     min: undefined,
     metricAliases: undefined,
-    truncateLegendTitle: d => d,
+    formatLegendTitle: d => d,
     formatData: undefined,
     type: '',
     symbolProps: undefined,
@@ -83,12 +83,12 @@ const LegendItem = ({ legendItemProps }) => {
     max,
     label,
     metricAliases,
-    truncateLegendTitle,
+    formatLegendTitle,
     formatData,
     type,
     ...symbolProps
   } = legendItemProps
-  const title = truncateLegendTitle(metricAliases?.[label] || label)
+  const title = formatLegendTitle(metricAliases?.[label] || label)
   const [minValue, maxValue] = formatData?.[label] ?
     [formatData[label](min), formatData[label](max)] :
     [min, max]
