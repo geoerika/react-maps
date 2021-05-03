@@ -9,15 +9,16 @@ import LegendSymbol from './legend-symbol'
 setup(React.createElement)
 
 const LegendBody = styled('div')`
-  display: flex;
-  flex-direction: column;
   align-items: center;
   margin-top: 1rem;
 `
 
 const LegendTitle = styled('div')`
-  margin: 0 0 10px 0;
+  margin: 0 auto 10px auto;
+  text-align: center;
   fontWeight: 700;
+  max-width: 160px;
+  overflow-wrap: anywhere;
 `
 
 const LegendElements = styled('div')`
