@@ -26,6 +26,10 @@ const truncate = (fullStr, strLen, separator = ' ... ') => {
            + fullStr.substr(fullStr.length - backChars)
 }
 
+const formatData = {
+  Revenue: d => '$' + d,
+}
+
 const useGeoCohortData = () => {
   const [geoCohortData, setGeoCohortData] = useState([])
   useEffect(() => {
@@ -239,6 +243,27 @@ storiesOf('Geo-Cohort Map', module)
           }}
           showLegend={true}
           truncateLabel={(label) => truncate(label, 10)}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
+  .add('GeoCohortMap - format data values', () => {
+    const geoCohortData = useGeoCohortData()
+    return (
+      geoCohortData.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortData}
+          getCursor={getCursor()}
+          fillBasedOn={'Revenue'}
+          showTooltip={true}
+          tooltipKeys={{
+            metricAliases: {
+              Imps: 'Impressions',
+              Revenue: 'Spend',
+            },
+          }}
+          showLegend={true}
+          formatData={formatData}
           mapboxApiAccessToken={mapboxApiAccessToken}
         />
     )
