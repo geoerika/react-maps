@@ -12,6 +12,20 @@ import { getPlaceGeo, FOApi } from './poi-manage'
 
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN
 
+const truncate = (fullStr, strLen, separator = ' ... ') => {
+  if (fullStr.length <= strLen) {
+    return fullStr
+  }
+  const sepLen = separator.length
+  const charsToShow = strLen - sepLen
+  const frontChars = Math.ceil(charsToShow / 2)
+  const backChars = Math.floor(charsToShow / 2)
+
+  return fullStr.substr(0, frontChars)
+           + separator
+           + fullStr.substr(fullStr.length - backChars)
+}
+
 const useGeoCohortData = () => {
   const [geoCohortData, setGeoCohortData] = useState([])
   useEffect(() => {
@@ -204,6 +218,27 @@ storiesOf('Geo-Cohort Map', module)
           }}
           showLegend={true}
           pitch={45}
+          mapboxApiAccessToken={mapboxApiAccessToken}
+        />
+    )
+  })
+  .add('GeoCohortMap - truncate legend title', () => {
+    const geoCohortData = useGeoCohortData()
+    return (
+      geoCohortData.length > 0 &&
+        <GeoCohortMap
+          reportData={geoCohortData}
+          getCursor={getCursor()}
+          fillBasedOn={'Imps'}
+          showTooltip={true}
+          tooltipKeys={{
+            metricAliases: {
+              Imps: 'Impressions',
+              Revenue: 'Spend',
+            },
+          }}
+          showLegend={true}
+          truncateLabel={(label) => truncate(label, 10)}
           mapboxApiAccessToken={mapboxApiAccessToken}
         />
     )
