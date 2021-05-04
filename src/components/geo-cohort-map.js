@@ -218,17 +218,25 @@ const GeoCohortMap = ({
     }
   }, [showTooltip, tooltipKeys, elevationBasedOn, fillBasedOn, dataPropertyAccessor])
 
+  /**
+   * there is visually a difference between the legend opacity for color gradient and map opacity,
+   * we need to adjust opacity for symbols in the legend to have a closer match
+   */
+  const legendOpacity = useMemo(() =>
+    opacity === 1 ? opacity : (opacity > 0.6 ? 0.9 : opacity + 0.2)
+  , [opacity])
+
   // we need to convert string format color (used in legend) to array format color for deck.gl
   const layerFillColors = useArrayFillColors({ fillColors })
 
   // we need to convert array format color (used in deck.gl elevation fill) into str format color for legend
-  const objColor = useStrFillColor({ getFillColor, opacity })
+  const objColor = useStrFillColor({ getFillColor, opacity: legendOpacity })
 
   /**
    * we convert an array of string format colors, into an array of rgba string format colours so we
    * can use them in the Legend Gradient component
    */
-  const finalFillColors = useGradientFillColors({ fillColors, opacity })
+  const finalFillColors = useGradientFillColors({ fillColors, opacity: legendOpacity })
 
   // set layer configuration for the map
   const layers = useMemo(() => {
