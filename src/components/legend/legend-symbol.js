@@ -6,20 +6,19 @@ import { styled, setup } from 'goober'
 setup(React.createElement)
 
 const Gradient = styled('div')`
-  width: 15px;
-  height: 80px;
-  background-image: linear-gradient(${({ max, min }) => `${max}, ${min}`});
+  height: 15px;
+  margin: auto;
+  background-image: linear-gradient(${({ mincolor, maxcolor }) => `to right, ${mincolor}, ${maxcolor}`});
 `
 
 const Size = styled('div')`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  width: 15px;
+  justify-content: ${({ max }) => max ? 'space-between' : 'center'};
 `
 
 const Circle = styled('div')`
-  margin: 3px;
   box-sizing: border-box;
   width: ${({ size }) => `${size}px`};
   height: ${({ size }) => `${size}px`};
@@ -29,64 +28,82 @@ const Circle = styled('div')`
 `
 
 const HeightWrapper = styled('div')`
-  flex-grow: 1;
-  width: 80%;
-  border-bottom: 1px solid black;
-  border-top: 1px solid black;
-  margin: 5px 0 5px 0;
+  border-left: ${({ pos }) => pos ? '1px solid black' : ''};
+  border-right: ${({ pos }) => pos ? '' : '1px solid black'};
+  height: 15px;
+  display: flex;
+  align-items: center;
 `
 
 const Height = styled('div')`
-  height: ${({ height }) => height}px;
-  width: 10px;
-  margin-left: auto;
-  margin-right: auto;
-  border-left: 1px solid black;
-  border-right: 1px solid black;
+  width: ${({ width }) => width}px;
+  height: 7px;
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
   background-color: ${({ color }) => color};
 `
 
 const propTypes = {
-  type: PropTypes.string,
-  minColor: PropTypes.string,
-  maxColor: PropTypes.string,
-  dots: PropTypes.number,
-  size: PropTypes.number,
+  symbolProps: PropTypes.shape({
+    type: PropTypes.string,
+    max: PropTypes.number,
+    minColor: PropTypes.string,
+    maxColor: PropTypes.string,
+    dots: PropTypes.number,
+    size: PropTypes.number,
+    zeroRadiusSize: PropTypes.number,
+  }),
 }
 const defaultProps = {
-  type: 'gradient',
-  minColor: 'rgb(0,0,0)',
-  maxColor: 'rgb(255,0,0)',
-  dots: 5,
-  size: 5,
+  symbolProps: {
+    type: 'gradient',
+    max: undefined,
+    minColor: 'rgb(0,0,0)',
+    maxColor: 'rgb(255,0,0)',
+    dots: 5,
+    size: 5,
+    zeroRadiusSize: 20,
+  },
 }
 
-const LegendSymbol = ({ type, minColor, maxColor, dots, size }) => {
+const LegendSymbol = ({ symbolProps }) => {
+  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type } = symbolProps
   if (type === 'elevation') {
     return (
-      <Size>
-        <HeightWrapper margin='top'>
-          <Height height={40} color={maxColor}/>
+      <Size max={max}>
+        <HeightWrapper pos={'left'}>
+          <Height width={21} color={maxColor} />
         </HeightWrapper>
-        <HeightWrapper margin='bottom'>
-          <Height height={10} color={maxColor}/>
-        </HeightWrapper>
+        {max > 0 &&
+          <HeightWrapper>
+            <Height width={84} color={maxColor} />
+          </HeightWrapper>
+        }
       </Size>
     )
   }
   if (type === 'gradient') {
-    return <Gradient min={minColor} max={maxColor} />
+    const [minGradCol, maxGradCol] =  max > 0 ? [minColor, maxColor] : [minColor, minColor]
+    return <Gradient mincolor={minGradCol} maxcolor={maxGradCol} />
   }
   if (type === 'size') {
     return (
-      <Size>
-        {new Array(dots).fill(0).map((_, i) => (
+      <Size max={max}>
+        {max > 0 ?
+          new Array(dots).fill(0).map((_, i) => (
+            <Circle
+              key={i}
+              size={(i + 1) * size + size}
+              color={maxColor}
+              max={max}
+            />
+          )) :
           <Circle
-            key={i}
-            size={(dots - i) * size + size}
+            size={zeroRadiusSize}
             color={maxColor}
+            max={max}
           />
-        ))}
+        }
       </Size>
     )
   }

@@ -52,7 +52,7 @@ export const tooltipDefaultProps = {
   },
   tooltipProps: {
     backgroundColor: '#FFFFFF',
-    border: '1px solid #0062d9',
+    boxShadow: '0 2px 8px 0 rgba(12, 12, 13, 0.15)',
     borderRadius: '3px',
     padding: '8px',
   },  

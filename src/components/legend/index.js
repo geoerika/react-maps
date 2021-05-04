@@ -14,6 +14,9 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   flexDirection: 'column',
   position: 'absolute',
   cursor: num_legends > 1 ? 'pointer' : 'default',
+  backgroundColor: 'rgba(255,255,255,0.9)',
+  padding: '0 1rem 1rem',
+  borderRadius: '0.2rem',
   ...position,
 }))
 
@@ -24,6 +27,10 @@ const propTypes = {
     min: PropTypes.number,
     label: PropTypes.string,
   })),
+  metricAliases: PropTypes.object,
+  formatLegendTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
+  formatData: PropTypes.object,
 }
 
 const defaultProps = {
@@ -35,9 +42,21 @@ const defaultProps = {
       label: '',
     },
   ],
+  metricAliases: undefined,
+  formatLegendTitle: d => d,
+  formatPropertyLabel: d => d,
+  formatData: undefined,
 }
 
-const Legend = ({ position, legends, metricAliases, typography }) => {
+const Legend = ({
+  position,
+  legends,
+  metricAliases,
+  formatLegendTitle,
+  formatPropertyLabel,
+  formatData,
+  typography,
+}) => {
   let objPosition = {}
   objPosition[position.split('-')[0]] = '1rem'
   objPosition[position.split('-')[1]] = '1rem'
@@ -55,7 +74,14 @@ const Legend = ({ position, legends, metricAliases, typography }) => {
         {legends.map(({ type, ...legendProps }) => (
           <LegendItem
             key={type}
-            legendItemProps={{ type, metricAliases, ...legendProps }}
+            legendItemProps={{
+              type,
+              metricAliases,
+              formatLegendTitle,
+              formatPropertyLabel,
+              formatData,
+              ...legendProps,
+            }}
           />
         ))}
       </LegendContainer>

@@ -9,63 +9,104 @@ import LegendSymbol from './legend-symbol'
 setup(React.createElement)
 
 const LegendBody = styled('div')`
-  background-color: rgba(255,255,255,0.9);
-  margin-bottom: 5px;
-  padding: 1rem;
-  border-radius: 0.2rem;
+  align-items: center;
+  margin-top: 1rem;
 `
 
 const LegendTitle = styled('div')`
-  margin-bottom: 10px;
-  font-weight: bold;
+  margin: 0 auto 10px auto;
+  text-align: center;
+  fontWeight: 700;
+  max-width: 160px;
+  overflow-wrap: anywhere;
 `
 
 const LegendElements = styled('div')`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  align-items: center;
 `
 
 const LegendTextContainer = styled('div')`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  width: ${({ type, max }) =>
+    max > 0 ?
+      (type === 'size' ? '115px' : '128px') :
+      '20px'};
+  padding: ${({ type, max }) =>
+    max > 0 ?
+      (type === 'size' ? '0 5px 0 3px' : '0 0 0 3px') :
+      '0px'};
+  margin-top: 5px;
 `
 
 const LegendText = styled('div')`
-  ${props => props['legend-text-top'] ? 'flex-grow: 1;' : ''};
-  margin-left: 1rem;
   color: black;
+  margin: ${({ max }) => max ? '' : 'auto'};
 `
 
-const LegendSymbolContainer = styled('div')``
+const LegendSymbolContainer = styled('div')`
+  width: ${({ max }) => max ? '120px' : '20px'};
+`
 
 const propTypes = {
-  label: PropTypes.string,
-  max: PropTypes.number,
-  min: PropTypes.number,
-  symbolProps: PropTypes.object,
+  legendItemProps: PropTypes.shape({
+    label: PropTypes.string,
+    max: PropTypes.number,
+    min: PropTypes.number,
+    metricAliases: PropTypes.object,
+    formatLegendTitle: PropTypes.func,
+    formatPropertyLabel: PropTypes.func,
+    formatData: PropTypes.object,
+    type: PropTypes.string,
+    symbolProps: PropTypes.object,
+  }),
 }
 
 const defaultProps = {
-  label: '',
-  max: undefined,
-  min: undefined,
-  symbolProps: undefined,
+  legendItemProps: {
+    label: '',
+    max: undefined,
+    min: undefined,
+    metricAliases: undefined,
+    formatLegendTitle: d => d,
+    formatPropertyLabel: d => d,
+    formatData: undefined,
+    type: '',
+    symbolProps: undefined,
+  },
 }
 
 const LegendItem = ({ legendItemProps }) => {
-  const { min, max, label, metricAliases, ...symbolProps } = legendItemProps
+  const {
+    min,
+    max,
+    label,
+    metricAliases,
+    formatLegendTitle,
+    formatPropertyLabel,
+    formatData,
+    type,
+    ...symbolProps
+  } = legendItemProps
+  const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
+  const [minValue, maxValue] = formatData?.[label] ?
+    [formatData[label](min), formatData[label](max)] :
+    [min, max]
   return (
     <>
       {max !== undefined && min !== undefined && (
         <LegendBody>
-          <LegendTitle>{`${metricAliases?.[label] || label}`}</LegendTitle>
+          <LegendTitle>{title}</LegendTitle>
           <LegendElements>
-            <LegendSymbolContainer>
-              <LegendSymbol {...symbolProps} />
+            <LegendSymbolContainer max={max}>
+              <LegendSymbol symbolProps={{ max, type, ...symbolProps }} />
             </LegendSymbolContainer>
-            <LegendTextContainer>
-              <LegendText legend-text-top={ top }>{max.toLocaleString()}</LegendText>
-              <LegendText>{min.toLocaleString()}</LegendText>
+            <LegendTextContainer type={type} max={max}>
+              <LegendText max={max}>{minValue.toLocaleString()}</LegendText>
+              {max > 0 && <LegendText max={max}>{maxValue.toLocaleString()}</LegendText>}
             </LegendTextContainer>
           </LegendElements>
         </LegendBody>

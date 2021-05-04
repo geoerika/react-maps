@@ -7,6 +7,7 @@ import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
 import { SCALES } from '../../constants'
+import { color } from 'd3-color'
 
 
 /**
@@ -190,7 +191,7 @@ export const setFinalLayerDataAccessor = ({
   dataPropertyAccessor = d => d,
   highlightId = null,
 }) => {
-  if (dataKey.length) {
+  if (dataKey?.length && metrics[dataKey]?.max) {
     const d3Fn = SCALES[layerDataScale]([
       (metrics[dataKey] || { min: 0 }).min,
       (metrics[dataKey] || { max: 10 }).max,
@@ -199,3 +200,23 @@ export const setFinalLayerDataAccessor = ({
   }
   return typeof getLayerProp === 'function' ? getLayerProp(highlightId) : getLayerProp
 }
+
+/**
+ * strToArrayColor - transforms a string format color ex.'#0062d9' into an array of rgb color values
+ * @param { object } param
+ * @param { string } param.strColor - string format color
+ * @returns { array  } - an array of rgb color values [r, g, b]
+ */
+export const strToArrayColor = ({ strColor }) => {
+  const layerColor = color(strColor)
+  return [layerColor.r, layerColor.g, layerColor.b]
+}
+
+/**
+ * setLegendOpacity - adjusts legend opacity to match closer to deck.gl layer opacity
+ * @param { object } param
+ * @param { number } param.opacity - map opacity value
+ * @returns { number  } - legend opacity value
+ */
+export const setLegendOpacity = ({ opacity }) =>
+  opacity >= 1 ? 1 : (opacity > 0.6 ? 0.9 : opacity + 0.2)

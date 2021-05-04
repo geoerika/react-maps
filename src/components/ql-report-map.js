@@ -92,7 +92,7 @@ const defaultProps = {
   legendNode: undefined,
 }
 
-const MLReportMap = ({
+const QLReportMap = ({
   reportData,
   // centerMap,
   // highlightId,
@@ -267,10 +267,22 @@ const MLReportMap = ({
 
   const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, objColor, metrics })
 
-  const legend = useMemo(() => (
-    showLegend &&
-    (legendNode || <Legend legends={legends} position={legendPosition} typograpy={typography}/>)
-  ), [showLegend, legends, legendPosition, typography, legendNode])
+  // set legend element
+  const legend = useMemo(() => {
+    const { metricAliases } = tooltipKeys
+    return (
+      showLegend &&
+      (legendNode ||
+        (legends?.length > 0 &&
+          <Legend
+            legends={legends}
+            metricAliases={metricAliases}
+            position={legendPosition}
+            typograpy={typography}
+          />
+        )
+      )
+    )}, [showLegend, legends, tooltipKeys,legendPosition, typography, legendNode])
 
   return (
     <Map
@@ -297,17 +309,17 @@ const MLReportMap = ({
   )
 }
 
-MLReportMap.propTypes = {
+QLReportMap.propTypes = {
   ...propTypes,
   ...commonProps,
   ...typographyPropTypes,
   ...tooltipPropTypes,
 }
-MLReportMap.defaultProps = {
+QLReportMap.defaultProps = {
   ...defaultProps,
   ...commonDefaultProps,
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
 }
 
-export default MLReportMap
+export default QLReportMap

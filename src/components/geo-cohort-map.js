@@ -15,8 +15,14 @@ import Map from './generic-map'
 import Legend from './legend'
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
-import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
+import { setView, setFinalLayerDataAccessor, setLegendOpacity } from '../shared/utils'
+import {
+  useMapData,
+  useLegends,
+  useArrayFillColors,
+  useStrFillColor,
+  useGradientFillColors,
+} from '../hooks'
 
 
 const propTypes = {
@@ -61,12 +67,16 @@ const propTypes = {
   dataAccessor: PropTypes.func,
   dataPropertyAccessor: PropTypes.func,
   pitch: PropTypes.number,
+  formatLegendTitle: PropTypes.func,
+  formatTooltipTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
+  formatData: PropTypes.object,
 }
 
 const defaultProps = {
   fillBasedOn: '',
   fillDataScale: 'linear',
-  fillColors: ['#0062d9', '#dd196b'],
+  fillColors: ['#bae0ff', '#0075ff'],
   elevationBasedOn: '',
   elevationDataScale: 'linear',
   elevations: [0, 1000],
@@ -74,12 +84,12 @@ const defaultProps = {
   onHover: undefined,
   opacity: 0.5,
   filled: true,
-  getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [221, 25, 107] : [0, 98, 217],
+  getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [255, 138, 0] : [0, 117, 255],
   getElevation: 0,
   stroked: true,
   lineWidthUnits: 'pixels',
-  getLineWidth: 2,
-  getLineColor: [0, 0, 0],
+  getLineWidth: 1,
+  getLineColor: [34, 66, 205],
   showLegend: false,
   legendPosition: 'top-left',
   legendNode: undefined,
@@ -90,6 +100,10 @@ const defaultProps = {
   pitch: 0,
   dataAccessor: d => d,
   dataPropertyAccessor: d => d,
+  formatLegendTitle: d => d,
+  formatTooltipTitle: d => d,
+  formatPropertyLabel: d => d,
+  formatData: undefined,
 }
 
 const GeoCohortMap = ({
@@ -122,6 +136,10 @@ const GeoCohortMap = ({
   pitch,
   dataAccessor,
   dataPropertyAccessor,
+  formatLegendTitle,
+  formatTooltipTitle,
+  formatPropertyLabel,
+  formatData,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
@@ -177,7 +195,8 @@ const GeoCohortMap = ({
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
-   * @returns { object } - object of tooltip keys { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
+   * @returns { object } - object of tooltip keys
+   * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
    */
   const finalTooltipKeys = useMemo(() => {
     const { name, nameAccessor } = tooltipKeys
@@ -202,8 +221,18 @@ const GeoCohortMap = ({
   // we need to convert string format color (used in legend) to array format color for deck.gl
   const layerFillColors = useArrayFillColors({ fillColors })
 
+  /**
+   * We convert an array of string format colors, into an array of rgba string format colours so we
+   * can use them in the Legend Gradient component
+   *
+   * There is visually a difference between the legend opacity for color gradient and map opacity,
+   * we need to adjust opacity for symbols in the legend to have a closer match
+   */
+  const finalFillColors = useGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) })
+
   // we need to convert array format color (used in deck.gl elevation fill) into str format color for legend
-  const objColor = useStrFillColor({ getFillColor, opacity })
+  const objColor = useStrFillColor({ getFillColor, opacity: setLegendOpacity({ opacity }) })
+
 
   // set layer configuration for the map
   const layers = useMemo(() => {
@@ -272,22 +301,43 @@ const GeoCohortMap = ({
   ])
 
   // prepare list of legends with used parameteres
-  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, objColor, metrics })
+  const legends = useLegends({
+    elevationBasedOn,
+    fillBasedOn,
+    fillColors: finalFillColors,
+    objColor,
+    metrics,
+  })
 
-  // set Legend element
+  // set legend element
   const legend = useMemo(() => {
     const { metricAliases } = tooltipKeys
     return (
       showLegend &&
       (legendNode ||
-        <Legend
-          legends={legends}
-          metricAliases={metricAliases}
-          position={legendPosition}
-          typograpy={typography}
-        />
+        (legends?.length > 0 &&
+          <Legend
+            legends={legends}
+            metricAliases={metricAliases}
+            formatLegendTitle={formatLegendTitle}
+            formatPropertyLabel={formatPropertyLabel}
+            formatData={formatData}
+            position={legendPosition}
+            typograpy={typography}
+          />
+        )
       )
-    )}, [showLegend, legends, tooltipKeys,legendPosition, typography, legendNode])
+    )}, [
+    showLegend,
+    legends,
+    tooltipKeys,
+    legendPosition,
+    formatLegendTitle,
+    formatPropertyLabel,
+    formatData,
+    typography,
+    legendNode,
+  ])
 
   return (
     <Map
@@ -305,7 +355,13 @@ const GeoCohortMap = ({
           tooltipProps={tooltipProps}
           typography={typography}
         >
-          {tooltipNode({ tooltipKeys: finalTooltipKeys, params: hoverInfo.object })}
+          {tooltipNode({
+            tooltipKeys: finalTooltipKeys,
+            formatData,
+            formatTooltipTitle,
+            formatPropertyLabel,
+            params: hoverInfo.object,
+          })}
         </MapTooltip>
       )}
       legend={legend}
