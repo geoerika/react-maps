@@ -211,3 +211,12 @@ export const strToArrayColor = ({ strColor }) => {
   const layerColor = color(strColor)
   return [layerColor.r, layerColor.g, layerColor.b]
 }
+
+/**
+ * setLegendOpacity - adjusts legend opacity to match closer to deck.gl layer opacity
+ * @param { object } param
+ * @param { number } param.opacity - map opacity value
+ * @returns { number  } - legend opacity value
+ */
+export const setLegendOpacity = ({ opacity }) =>
+  opacity >= 1 ? 1 : (opacity > 0.6 ? 0.9 : opacity + 0.2)
