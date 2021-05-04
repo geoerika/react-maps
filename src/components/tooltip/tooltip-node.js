@@ -36,7 +36,7 @@ const Values = styled('div')`
  * @param { object } param.params - object of deck.gl onHover event
  * @returns { Node } - node element
  */
-const tooltipNode = ({ tooltipKeys, formatData, formatTooltipTitle, params }) => {
+const tooltipNode = ({ tooltipKeys, formatData, formatTooltipTitle, formatPropertyLabel, params }) => {
   const { name, id, metricKeys, nameAccessor, idAccessor, metricAccessor, metricAliases } = tooltipKeys
   return (
     <>
@@ -53,7 +53,7 @@ const tooltipNode = ({ tooltipKeys, formatData, formatTooltipTitle, params }) =>
             <Keys>
               {Object.entries(metricAccessor(params)).map(([key]) =>
                 metricKeys.includes(key) &&
-                <div key={key}>{metricAliases?.[key] || key}:</div>)}
+                <div key={key}>{metricAliases?.[key] || formatPropertyLabel(key)}:</div>)}
             </Keys>
             <Values>
               {Object.entries(metricAccessor(params)).map(([key, value]) =>
