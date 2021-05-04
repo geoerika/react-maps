@@ -69,6 +69,7 @@ const propTypes = {
   pitch: PropTypes.number,
   formatLegendTitle: PropTypes.func,
   formatTooltipTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
   formatData: PropTypes.object,
 }
 
@@ -101,6 +102,7 @@ const defaultProps = {
   dataPropertyAccessor: d => d,
   formatLegendTitle: d => d,
   formatTooltipTitle: d => d,
+  formatPropertyLabel: d => d,
   formatData: undefined,
 }
 
@@ -136,6 +138,7 @@ const GeoCohortMap = ({
   dataPropertyAccessor,
   formatLegendTitle,
   formatTooltipTitle,
+  formatPropertyLabel,
   formatData,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
@@ -313,6 +316,7 @@ const GeoCohortMap = ({
             legends={legends}
             metricAliases={metricAliases}
             formatLegendTitle={formatLegendTitle}
+            formatPropertyLabel={formatPropertyLabel}
             formatData={formatData}
             position={legendPosition}
             typograpy={typography}
@@ -325,6 +329,7 @@ const GeoCohortMap = ({
     tooltipKeys,
     legendPosition,
     formatLegendTitle,
+    formatPropertyLabel,
     formatData,
     typography,
     legendNode,
@@ -350,6 +355,7 @@ const GeoCohortMap = ({
             tooltipKeys: finalTooltipKeys,
             formatData,
             formatTooltipTitle,
+            formatPropertyLabel,
             params: hoverInfo.object,
           })}
         </MapTooltip>
