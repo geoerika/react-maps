@@ -22,7 +22,7 @@ const Circle = styled('div')`
   box-sizing: border-box;
   width: ${({ size }) => `${size}px`};
   height: ${({ size }) => `${size}px`};
-  border: 1px solid black;
+  border: 1px solid ${({ linecolor }) => linecolor};
   border-radius: ${({ size }) => `${size / 2}px`};
   background-color: ${({ color }) => color};
 `
@@ -53,6 +53,7 @@ const propTypes = {
     dots: PropTypes.number,
     size: PropTypes.number,
     zeroRadiusSize: PropTypes.number,
+    symbolLineColor: PropTypes.string,
   }),
 }
 const defaultProps = {
@@ -65,11 +66,12 @@ const defaultProps = {
     dots: 5,
     size: 5,
     zeroRadiusSize: 20,
+    symbolLineColor: 'rgb(0,0,0)',
   },
 }
 
 const LegendSymbol = ({ symbolProps }) => {
-  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type, fillBasedOn } = symbolProps
+  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type, fillBasedOn, symbolLineColor } = symbolProps
   if (type === 'elevation') {
     return (
       <Size max={max}>
@@ -98,12 +100,14 @@ const LegendSymbol = ({ symbolProps }) => {
               size={(i + 1) * size + size}
               color={maxColor}
               max={max}
+              linecolor={symbolLineColor}
             />
           )) :
           <Circle
             size={zeroRadiusSize}
             color={(fillBasedOn && !max) ? minColor : maxColor}
             max={max}
+            linecolor={symbolLineColor}
           />
         }
       </Size>

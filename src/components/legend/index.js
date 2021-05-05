@@ -32,6 +32,7 @@ const propTypes = {
   formatLegendTitle: PropTypes.func,
   formatPropertyLabel: PropTypes.func,
   formatData: PropTypes.object,
+  symbolLineColor: PropTypes.string,
 }
 
 const defaultProps = {
@@ -48,6 +49,7 @@ const defaultProps = {
   formatLegendTitle: d => d,
   formatPropertyLabel: d => d,
   formatData: undefined,
+  symbolLineColor: '',
 }
 
 const Legend = ({
@@ -58,6 +60,7 @@ const Legend = ({
   formatLegendTitle,
   formatPropertyLabel,
   formatData,
+  symbolLineColor,
   typography,
 }) => {
   let objPosition = {}
@@ -84,6 +87,7 @@ const Legend = ({
               formatPropertyLabel,
               formatData,
               fillBasedOn,
+              symbolLineColor,
               ...legendProps,
             }}
           />
