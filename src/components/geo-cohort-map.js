@@ -15,14 +15,15 @@ import Map from './generic-map'
 import Legend from './legend'
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
-import { setView, setFinalLayerDataAccessor, setLegendOpacity } from '../shared/utils'
 import {
-  useMapData,
-  useLegends,
-  useArrayFillColors,
-  useStrFillColor,
-  useGradientFillColors,
-} from '../hooks'
+  setView,
+  setFinalLayerDataAccessor,
+  getArrayFillColors,
+  getStrFillColor,
+  getArrayGradientFillColors,
+  setLegendOpacity
+} from '../shared/utils'
+import { useMapData, useLegends } from '../hooks'
 
 
 const propTypes = {
@@ -218,22 +219,6 @@ const GeoCohortMap = ({
     }
   }, [showTooltip, tooltipKeys, elevationBasedOn, fillBasedOn, dataPropertyAccessor])
 
-  // we need to convert string format color (used in legend) to array format color for deck.gl
-  const layerFillColors = useArrayFillColors({ fillColors })
-
-  /**
-   * We convert an array of string format colors, into an array of rgba string format colours so we
-   * can use them in the Legend Gradient component
-   *
-   * There is visually a difference between the legend opacity for color gradient and map opacity,
-   * we need to adjust opacity for symbols in the legend to have a closer match
-   */
-  const finalFillColors = useGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) })
-
-  // we need to convert array format color (used in deck.gl elevation fill) into str format color for legend
-  const objColor = useStrFillColor({ getFillColor, opacity: setLegendOpacity({ opacity }) })
-
-
   // set layer configuration for the map
   const layers = useMemo(() => {
     const highlightId = highlightObj?.GeoCohortItem
@@ -252,7 +237,8 @@ const GeoCohortMap = ({
           dataPropertyAccessor,
           getLayerProp: getFillColor,
           layerDataScale: fillDataScale,
-          layerPropRange: layerFillColors,
+          // we need to convert string format color (used in legend) to array format color for deck.gl
+          layerPropRange: getArrayFillColors({ fillColors }),
           highlightId,
           metrics,
         }),
@@ -267,8 +253,23 @@ const GeoCohortMap = ({
         getLineWidth,
         getLineColor,
         updateTriggers: {
-          getFillColor: [fillBasedOn, getFillColor, fillDataScale, layerFillColors, highlightId, metrics],
-          getElevation: [elevationBasedOn, getElevation, elevationDataScale, elevations, metrics],
+          getFillColor: [
+            fillBasedOn,
+            dataPropertyAccessor,
+            getFillColor,
+            fillDataScale,
+            fillColors,
+            highlightId,
+            metrics,
+          ],
+          getElevation: [
+            elevationBasedOn,
+            dataPropertyAccessor,
+            getElevation,
+            elevationDataScale,
+            elevations,
+            metrics,
+          ],
           getLineWidth: [getLineWidth],
           getLineColor: [getLineColor],
         },
@@ -289,7 +290,7 @@ const GeoCohortMap = ({
     stroked,
     fillBasedOn,
     fillDataScale,
-    layerFillColors,
+    fillColors,
     getElevation,
     getFillColor,
     getLineColor,
@@ -304,8 +305,16 @@ const GeoCohortMap = ({
   const legends = useLegends({
     elevationBasedOn,
     fillBasedOn,
-    fillColors: finalFillColors,
-    objColor,
+    /**
+     * We convert an array of string format colors, into an array of rgba string format colours so we
+     * can use them in the Legend Gradient component
+     *
+     * There is visually a difference between the legend opacity for color gradient and map opacity,
+     * we need to adjust opacity for symbols in the legend to have a closer match
+     */
+    fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
+    // convert array format color (used in deck.gl elevation fill) into str format color for legend
+    objColor: getStrFillColor({ getFillColor, opacity: setLegendOpacity({ opacity }) }),
     metrics,
   })
 
