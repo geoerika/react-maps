@@ -318,6 +318,7 @@ const GeoCohortMap = ({
         (legends?.length > 0 &&
           <Legend
             legends={legends}
+            fillBasedOn={fillBasedOn}
             metricAliases={metricAliases}
             formatLegendTitle={formatLegendTitle}
             formatPropertyLabel={formatPropertyLabel}
@@ -330,6 +331,7 @@ const GeoCohortMap = ({
     )}, [
     showLegend,
     legends,
+    fillBasedOn,
     tooltipKeys,
     legendPosition,
     formatLegendTitle,

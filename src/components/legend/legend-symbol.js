@@ -46,6 +46,7 @@ const Height = styled('div')`
 const propTypes = {
   symbolProps: PropTypes.shape({
     type: PropTypes.string,
+    fillBasedOn: PropTypes.string,
     max: PropTypes.number,
     minColor: PropTypes.string,
     maxColor: PropTypes.string,
@@ -57,6 +58,7 @@ const propTypes = {
 const defaultProps = {
   symbolProps: {
     type: 'gradient',
+    fillBasedOn: '',
     max: undefined,
     minColor: 'rgb(0,0,0)',
     maxColor: 'rgb(255,0,0)',
@@ -67,12 +69,12 @@ const defaultProps = {
 }
 
 const LegendSymbol = ({ symbolProps }) => {
-  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type } = symbolProps
+  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type, fillBasedOn } = symbolProps
   if (type === 'elevation') {
     return (
       <Size max={max}>
         <HeightWrapper pos={'left'}>
-          <Height width={21} color={maxColor} />
+          <Height width={21} color={(fillBasedOn && !max) ? minColor : maxColor} />
         </HeightWrapper>
         {max > 0 &&
           <HeightWrapper>
@@ -100,7 +102,7 @@ const LegendSymbol = ({ symbolProps }) => {
           )) :
           <Circle
             size={zeroRadiusSize}
-            color={maxColor}
+            color={(fillBasedOn && !max) ? minColor : maxColor}
             max={max}
           />
         }

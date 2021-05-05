@@ -27,6 +27,7 @@ const propTypes = {
     min: PropTypes.number,
     label: PropTypes.string,
   })),
+  fillBasedOn: PropTypes.string,
   metricAliases: PropTypes.object,
   formatLegendTitle: PropTypes.func,
   formatPropertyLabel: PropTypes.func,
@@ -42,6 +43,7 @@ const defaultProps = {
       label: '',
     },
   ],
+  fillBasedOn: '',
   metricAliases: undefined,
   formatLegendTitle: d => d,
   formatPropertyLabel: d => d,
@@ -51,6 +53,7 @@ const defaultProps = {
 const Legend = ({
   position,
   legends,
+  fillBasedOn,
   metricAliases,
   formatLegendTitle,
   formatPropertyLabel,
@@ -80,6 +83,7 @@ const Legend = ({
               formatLegendTitle,
               formatPropertyLabel,
               formatData,
+              fillBasedOn,
               ...legendProps,
             }}
           />
