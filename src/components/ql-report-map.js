@@ -237,6 +237,7 @@ const QLReportMap = ({
         opacity,
         getRadius: setFinalLayerDataAccessor({
           dataKey: radiusBasedOn,
+          dataPropertyAccessor,
           getLayerProp: getRadius,
           layerDataScale: radiusDataScale,
           layerPropRange: radii,
@@ -244,18 +245,35 @@ const QLReportMap = ({
         }),
         getFillColor: setFinalLayerDataAccessor({
           dataKey: fillBasedOn,
+          dataPropertyAccessor,
           getLayerProp: getFillColor,
           layerDataScale: fillDataScale,
-          layerPropRange: layerFillColors,
-          metrics,
+          // we need to convert string format color (used in legend) to array format color for deck.gl
+          layerPropRange: getArrayFillColors({ fillColors }),
           highlightId,
+          metrics,
         }),
         getLineWidth,
         getLineColor,
         getTooltip,
         updateTriggers: {
-          getRadius: [getRadius],
-          getFillColor: [getFillColor, highlightId],
+          getRadius: [
+            radiusBasedOn,
+            dataPropertyAccessor,
+            getRadius,
+            radiusDataScale,
+            radii,
+            metrics,
+          ],
+          getFillColor: [
+            fillBasedOn,
+            dataPropertyAccessor,
+            getFillColor,
+            fillDataScale,
+            fillColors,
+            highlightId,
+            metrics,
+          ],
           getLineWidth: [getLineWidth],
           getLineColor: [getLineColor],
         },
@@ -277,12 +295,13 @@ const QLReportMap = ({
     fillBasedOn,
     getFillColor,
     fillDataScale,
-    layerFillColors,
+    fillColors,
     metrics,
     getLineWidth,
     getLineColor,
     getTooltip,
     scatterLayerProps,
+    dataPropertyAccessor,
   ])
 
   // prepare list of legends with used parameteres
