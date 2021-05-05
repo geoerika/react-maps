@@ -31,6 +31,7 @@ export const useLegends = ({
     if (elevationBasedOn.length) {
       legends.push({
         type: 'elevation',
+        minColor: fillColors[0],
         maxColor: objColor || fillColors[1],
         max: (metrics[elevationBasedOn] || {}).max,
         min: (metrics[elevationBasedOn] || {}).min,
@@ -40,6 +41,7 @@ export const useLegends = ({
 
     if (radiusBasedOn.length) {
       legends.push({
+        minColor: fillColors[0],
         maxColor: objColor || fillColors[1],
         type: 'size',
         dots: 5,
