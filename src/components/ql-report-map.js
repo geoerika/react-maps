@@ -15,8 +15,15 @@ import Scatter from './layers/scatter-plot'
 import Legend from './legend'
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
-import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
+import {
+  setView,
+  setFinalLayerDataAccessor,
+  getArrayFillColors,
+  getStrFillColor,
+  getArrayGradientFillColors,
+  setLegendOpacity,
+} from '../shared/utils'
+import { useMapData, useLegends } from '../hooks'
 
 
 const propTypes = {
@@ -219,12 +226,6 @@ const QLReportMap = ({
     }
   }, [showTooltip, tooltipKeys, radiusBasedOn, fillBasedOn])
 
-  // we need to convert string format color (used in legend) to array format color for deck.gl
-  const layerFillColors = useArrayFillColors({ fillColors })
-
-  // we need to convert array format color (used in deck.gl radius fill) into str format color for legend
-  const objColor = useStrFillColor({ getFillColor, opacity })
-
   const layers = useMemo(() => {
     return [
       Scatter({
@@ -284,7 +285,22 @@ const QLReportMap = ({
     scatterLayerProps,
   ])
 
-  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, objColor, metrics })
+  // prepare list of legends with used parameteres
+  const legends = useLegends({
+    radiusBasedOn,
+    fillBasedOn,
+    /**
+     * We convert an array of string format colors, into an array of rgba string format colours so we
+     * can use them in the Legend Gradient component
+     *
+     * There is visually a difference between the legend opacity for color gradient and map opacity,
+     * we need to adjust opacity for symbols in the legend to have a closer match
+     */
+    fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
+    // convert array format color (used in deck.gl elevation fill) into str format color for legend
+    objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
+    metrics,
+  })
 
   // set legend element
   const legend = useMemo(() => {
@@ -295,13 +311,35 @@ const QLReportMap = ({
         (legends?.length > 0 &&
           <Legend
             legends={legends}
+            fillBasedOn={fillBasedOn}
             metricAliases={metricAliases}
+            formatLegendTitle={formatLegendTitle}
+            formatPropertyLabel={formatPropertyLabel}
+            formatData={formatData}
             position={legendPosition}
             typograpy={typography}
+            symbolLineColor={
+              (typeof getLineColor !== 'function') ?
+                getStrFillColor({ fillColor: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
+                ''
+            }
           />
         )
       )
-    )}, [showLegend, legends, tooltipKeys,legendPosition, typography, legendNode])
+    )}, [
+    showLegend,
+    legends,
+    fillBasedOn,
+    tooltipKeys,
+    legendPosition,
+    formatLegendTitle,
+    formatPropertyLabel,
+    formatData,
+    typography,
+    legendNode,
+    getLineColor,
+    opacity,
+  ])
 
   return (
     <Map
