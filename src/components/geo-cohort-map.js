@@ -21,7 +21,7 @@ import {
   getArrayFillColors,
   getStrFillColor,
   getArrayGradientFillColors,
-  setLegendOpacity
+  setLegendOpacity,
 } from '../shared/utils'
 import { useMapData, useLegends } from '../hooks'
 
@@ -314,7 +314,7 @@ const GeoCohortMap = ({
      */
     fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
     // convert array format color (used in deck.gl elevation fill) into str format color for legend
-    objColor: getStrFillColor({ getFillColor, opacity: setLegendOpacity({ opacity }) }),
+    objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
     metrics,
   })
 
@@ -334,6 +334,11 @@ const GeoCohortMap = ({
             formatData={formatData}
             position={legendPosition}
             typograpy={typography}
+            symbolLineColor={
+              (typeof getLineColor !== 'function') ?
+                getStrFillColor({ fillColor: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
+                ''
+            }
           />
         )
       )
@@ -348,6 +353,8 @@ const GeoCohortMap = ({
     formatData,
     typography,
     legendNode,
+    getLineColor,
+    opacity,
   ])
 
   return (
