@@ -191,12 +191,15 @@ export const setFinalLayerDataAccessor = ({
   dataPropertyAccessor = d => d,
   highlightId = null,
 }) => {
-  if (dataKey?.length && metrics[dataKey]?.max) {
-    const d3Fn = SCALES[layerDataScale]([
-      (metrics[dataKey] || { min: 0 }).min,
-      (metrics[dataKey] || { max: 10 }).max,
-    ], layerPropRange)
-    return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
+  if (dataKey?.length) {
+    if (metrics[dataKey]?.max) {
+      const d3Fn = SCALES[layerDataScale]([
+        (metrics[dataKey] || { min: 0 }).min,
+        (metrics[dataKey] || { max: 10 }).max,
+      ], layerPropRange)
+      return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
+    }
+    return layerPropRange[0]
   }
   return typeof getLayerProp === 'function' ? getLayerProp(highlightId) : getLayerProp
 }
