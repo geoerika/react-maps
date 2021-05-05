@@ -79,16 +79,16 @@ const defaultProps = {
   fillDataScale: 'linear',
   // legend only works with string colour format, hex or rgba
   // for deck.gl layers we need to convert color strings in arrays of [r, g, b, a, o]
-  fillColors: ['#0062d9', '#dd196b'],
-  getFillColor: highlightId => d => d.poi_id === highlightId ? [221, 25, 107] : [0, 98, 217],
+  fillColors: ['#bae0ff', '#0075ff'],
+  getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [255, 138, 0] : [0, 117, 255],
   stroked: true,
   lineWidthUnits: 'pixels',
-  getLineWidth: 2,
-  getLineColor: [255, 255, 255],
+  getLineWidth: 1,
+  getLineColor: [34, 66, 205],
   showTooltip: false,
   tooltipNode: tooltipNode,
   showLegend: false,
-  legendPosition: 'top-right',
+  legendPosition: 'top-left',
   legendNode: undefined,
 }
 
