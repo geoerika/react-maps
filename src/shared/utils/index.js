@@ -233,8 +233,8 @@ export const getArrayFillColors = ({ fillColors }) =>
 * @param { string } param.opacity - opacity value
 * @returns { array } - string format colour 'rgb(r, g, b, opacity)'
 */
-export const getStrFillColor = ({ getFillColor, opacity }) => {
-  const color = typeof getFillColor === 'function' ? getFillColor(0)(1) : getFillColor
+export const getStrFillColor = ({ fillColor, opacity }) => {
+  const color = typeof fillColor === 'function' ? fillColor(0)(1) : fillColor
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
 }
 
