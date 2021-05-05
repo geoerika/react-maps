@@ -192,16 +192,17 @@ const QLReportMap = ({
     }
   }, [onClick])
 
+  // set metrics and metricDispatch
+  const { metrics, metricDispatch } = useMapData({
+    dataAccessor,
+    dataPropertyAccessor,
+  })
+
   useEffect(() => {
     if (reportData.length) {
       metricDispatch({ type: 'data', payload : reportData })
     }
   }, [metricDispatch, reportData])
-
-  const { metrics, metricDispatch } = useMapData({
-    dataAccessor: d => d,
-    dataPropertyAccessor: d => d,
-  })
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
@@ -375,7 +376,13 @@ const QLReportMap = ({
           tooltipProps={tooltipProps}
           typography={typography}
         >
-          {tooltipNode({ tooltipKeys: finalTooltipKeys, params: hoverInfo.object })}
+          {tooltipNode({
+            tooltipKeys: finalTooltipKeys,
+            formatData,
+            formatTooltipTitle,
+            formatPropertyLabel,
+            params: hoverInfo.object,
+          })}
         </MapTooltip>
       )}
       legend={legend}
