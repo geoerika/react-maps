@@ -22,7 +22,7 @@ const Circle = styled('div')`
   box-sizing: border-box;
   width: ${({ size }) => `${size}px`};
   height: ${({ size }) => `${size}px`};
-  border: 1px solid black;
+  border: 1px solid ${({ linecolor }) => linecolor};
   border-radius: ${({ size }) => `${size / 2}px`};
   background-color: ${({ color }) => color};
 `
@@ -46,33 +46,37 @@ const Height = styled('div')`
 const propTypes = {
   symbolProps: PropTypes.shape({
     type: PropTypes.string,
+    fillBasedOn: PropTypes.string,
     max: PropTypes.number,
     minColor: PropTypes.string,
     maxColor: PropTypes.string,
     dots: PropTypes.number,
     size: PropTypes.number,
     zeroRadiusSize: PropTypes.number,
+    symbolLineColor: PropTypes.string,
   }),
 }
 const defaultProps = {
   symbolProps: {
     type: 'gradient',
+    fillBasedOn: '',
     max: undefined,
     minColor: 'rgb(0,0,0)',
     maxColor: 'rgb(255,0,0)',
     dots: 5,
     size: 5,
     zeroRadiusSize: 20,
+    symbolLineColor: 'rgb(0,0,0)',
   },
 }
 
 const LegendSymbol = ({ symbolProps }) => {
-  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type } = symbolProps
+  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type, fillBasedOn, symbolLineColor } = symbolProps
   if (type === 'elevation') {
     return (
       <Size max={max}>
         <HeightWrapper pos={'left'}>
-          <Height width={21} color={maxColor} />
+          <Height width={21} color={(fillBasedOn && !max) ? minColor : maxColor} />
         </HeightWrapper>
         {max > 0 &&
           <HeightWrapper>
@@ -96,12 +100,14 @@ const LegendSymbol = ({ symbolProps }) => {
               size={(i + 1) * size + size}
               color={maxColor}
               max={max}
+              linecolor={symbolLineColor}
             />
           )) :
           <Circle
             size={zeroRadiusSize}
-            color={maxColor}
+            color={(fillBasedOn && !max) ? minColor : maxColor}
             max={max}
+            linecolor={symbolLineColor}
           />
         }
       </Size>

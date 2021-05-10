@@ -10,6 +10,25 @@ import vwiJsonZero from './data/locus-ql-zero.json'
 
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN
 
+const formatPropertyLabel = (s) => [
+  s.charAt(0).toUpperCase(),
+  s.slice(1).replace(/_/g, ' '),
+].join('')
+
+const truncate = (fullStr, strLen, separator = ' ... ') => {
+  if (fullStr.length <= strLen) {
+    return fullStr
+  }
+  const sepLen = separator.length
+  const charsToShow = strLen - sepLen
+  const frontChars = Math.ceil(charsToShow / 2)
+  const backChars = Math.floor(charsToShow / 2)
+
+  return fullStr.substr(0, frontChars)
+           + separator
+           + fullStr.substr(fullStr.length - backChars)
+}
+
 storiesOf('Locus QL Report', module)
   .add('VWI - basic', () => (
     <QLReportMap
@@ -95,6 +114,32 @@ storiesOf('Locus QL Report', module)
       showTooltip={true}
       radiusBasedOn={'visits'}
       fillBasedOn={'converted_unique_visitors_single_visit'}
+      showLegend={true}
+      opacity={.5}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
+  .add('VWI - format property key in Legend title and Tooltip keys', () => (
+    <QLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      showTooltip={true}
+      radiusBasedOn={'visits'}
+      fillBasedOn={'converted_unique_visitors_single_visit'}
+      formatPropertyLabel={formatPropertyLabel}
+      showLegend={true}
+      opacity={.5}
+      mapboxApiAccessToken={mapboxApiAccessToken}
+    />
+  ))
+  .add('VWI - format tootltip title', () => (
+    <QLReportMap
+      reportData={vwiJson}
+      getCursor={getCursor()}
+      showTooltip={true}
+      radiusBasedOn={'visits'}
+      formatPropertyLabel={formatPropertyLabel}
+      formatTooltipTitle={(title) => truncate(title, 20)}
       showLegend={true}
       opacity={.5}
       mapboxApiAccessToken={mapboxApiAccessToken}

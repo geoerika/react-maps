@@ -27,10 +27,12 @@ const propTypes = {
     min: PropTypes.number,
     label: PropTypes.string,
   })),
+  fillBasedOn: PropTypes.string,
   metricAliases: PropTypes.object,
   formatLegendTitle: PropTypes.func,
   formatPropertyLabel: PropTypes.func,
   formatData: PropTypes.object,
+  symbolLineColor: PropTypes.string,
 }
 
 const defaultProps = {
@@ -42,19 +44,23 @@ const defaultProps = {
       label: '',
     },
   ],
+  fillBasedOn: '',
   metricAliases: undefined,
   formatLegendTitle: d => d,
   formatPropertyLabel: d => d,
   formatData: undefined,
+  symbolLineColor: '',
 }
 
 const Legend = ({
   position,
   legends,
+  fillBasedOn,
   metricAliases,
   formatLegendTitle,
   formatPropertyLabel,
   formatData,
+  symbolLineColor,
   typography,
 }) => {
   let objPosition = {}
@@ -80,6 +86,8 @@ const Legend = ({
               formatLegendTitle,
               formatPropertyLabel,
               formatData,
+              fillBasedOn,
+              symbolLineColor,
               ...legendProps,
             }}
           />

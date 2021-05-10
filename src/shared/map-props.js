@@ -35,7 +35,8 @@ export const tooltipPropTypes = {
   }),
   tooltipProps: PropTypes.shape({
     backgroundColor: PropTypes.string.isRequired,
-    border: PropTypes.string.isRequired,
+    boxShadow: PropTypes.string.isRequired,
+    borderRadius: PropTypes.string.isRequired,
     padding: PropTypes.string.isRequired,
   }),
 }

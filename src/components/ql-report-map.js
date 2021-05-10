@@ -15,19 +15,21 @@ import Scatter from './layers/scatter-plot'
 import Legend from './legend'
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
-import { setView, setFinalLayerDataAccessor } from '../shared/utils'
-import { useMapData, useLegends, useArrayFillColors, useStrFillColor } from '../hooks'
+import {
+  setView,
+  setFinalLayerDataAccessor,
+  getArrayFillColors,
+  getStrFillColor,
+  getArrayGradientFillColors,
+  setLegendOpacity,
+} from '../shared/utils'
+import { useMapData, useLegends } from '../hooks'
 
 
 const propTypes = {
   reportData: PropTypes.array.isRequired,
   // centerMap: PropTypes.object,
   // highlightId: PropTypes.number,
-  getTooltip: PropTypes.func,
-  onClick: PropTypes.func,
-  onHover: PropTypes.func,
-  getCursor: PropTypes.func,
-  opacity: PropTypes.number,
   radiusBasedOn: PropTypes.string,
   radiusDataScale: PropTypes.string,
   radii: PropTypes.array,
@@ -54,42 +56,60 @@ const propTypes = {
     PropTypes.func,
     PropTypes.array,
   ]),
-  showTooltip: PropTypes.bool,
-  tooltipNode: PropTypes.func,
+  opacity: PropTypes.number,
+  onClick: PropTypes.func,
+  onHover: PropTypes.func,
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
   legendNode: PropTypes.node,
+  getTooltip: PropTypes.func,
+  showTooltip: PropTypes.bool,
+  tooltipNode: PropTypes.func,
+  getCursor: PropTypes.func,
+  dataAccessor: PropTypes.func,
+  dataPropertyAccessor: PropTypes.func,
+  pitch: PropTypes.number,
+  formatLegendTitle: PropTypes.func,
+  formatTooltipTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
+  formatData: PropTypes.object,
 }
 
 const defaultProps = {
   // centerMap: {}, // { lat, lon }
   // highlightId: undefined,
-  getTooltip: undefined,
-  onClick: undefined,
-  onHover: undefined,
-  getCursor: undefined,
-  opacity: 1,
   radiusBasedOn: '',
   radiusDataScale: 'linear',
   radii: [5, 50],
   getRadius: 10,
   radiusUnits: 'pixels',
   filled: true,
-  fillBasedOn: '',
-  fillDataScale: 'linear',
   // legend only works with string colour format, hex or rgba
   // for deck.gl layers we need to convert color strings in arrays of [r, g, b, a, o]
-  fillColors: ['#0062d9', '#dd196b'],
-  getFillColor: highlightId => d => d.poi_id === highlightId ? [221, 25, 107] : [0, 98, 217],
+  fillBasedOn: '',
+  fillDataScale: 'linear',
+  fillColors: ['#bae0ff', '#0075ff'],
+  getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [255, 138, 0] : [0, 117, 255],
   stroked: true,
   lineWidthUnits: 'pixels',
-  getLineWidth: 2,
-  getLineColor: [255, 255, 255],
+  getLineWidth: 1,
+  getLineColor: [34, 66, 205],
+  opacity: 0.5,
+  onClick: undefined,
+  onHover: undefined,
+  showLegend: false,
+  legendPosition: 'top-left',
+  legendNode: undefined,
+  getTooltip: undefined,
   showTooltip: false,
   tooltipNode: tooltipNode,
-  showLegend: false,
-  legendPosition: 'top-right',
-  legendNode: undefined,
+  getCursor: undefined,
+  dataAccessor: d => d,
+  dataPropertyAccessor: d => d,
+  formatLegendTitle: d => d,
+  formatTooltipTitle: d => d,
+  formatPropertyLabel: d => d,
+  formatData: undefined,
 }
 
 const QLReportMap = ({
@@ -121,6 +141,12 @@ const QLReportMap = ({
   showLegend,
   legendPosition,
   legendNode,
+  dataAccessor,
+  dataPropertyAccessor,
+  formatLegendTitle,
+  formatTooltipTitle,
+  formatPropertyLabel,
+  formatData,
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
@@ -166,16 +192,17 @@ const QLReportMap = ({
     }
   }, [onClick])
 
+  // set metrics and metricDispatch
+  const { metrics, metricDispatch } = useMapData({
+    dataAccessor,
+    dataPropertyAccessor,
+  })
+
   useEffect(() => {
     if (reportData.length) {
       metricDispatch({ type: 'data', payload : reportData })
     }
   }, [metricDispatch, reportData])
-
-  const { metrics, metricDispatch } = useMapData({
-    dataAccessor: d => d,
-    dataPropertyAccessor: d => d,
-  })
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
@@ -200,12 +227,6 @@ const QLReportMap = ({
     }
   }, [showTooltip, tooltipKeys, radiusBasedOn, fillBasedOn])
 
-  // we need to convert string format color (used in legend) to array format color for deck.gl
-  const layerFillColors = useArrayFillColors({ fillColors })
-
-  // we need to convert array format color (used in deck.gl radius fill) into str format color for legend
-  const objColor = useStrFillColor({ getFillColor, opacity })
-
   const layers = useMemo(() => {
     return [
       Scatter({
@@ -217,6 +238,7 @@ const QLReportMap = ({
         opacity,
         getRadius: setFinalLayerDataAccessor({
           dataKey: radiusBasedOn,
+          dataPropertyAccessor,
           getLayerProp: getRadius,
           layerDataScale: radiusDataScale,
           layerPropRange: radii,
@@ -224,18 +246,35 @@ const QLReportMap = ({
         }),
         getFillColor: setFinalLayerDataAccessor({
           dataKey: fillBasedOn,
+          dataPropertyAccessor,
           getLayerProp: getFillColor,
           layerDataScale: fillDataScale,
-          layerPropRange: layerFillColors,
-          metrics,
+          // we need to convert string format color (used in legend) to array format color for deck.gl
+          layerPropRange: getArrayFillColors({ fillColors }),
           highlightId,
+          metrics,
         }),
         getLineWidth,
         getLineColor,
         getTooltip,
         updateTriggers: {
-          getRadius: [getRadius],
-          getFillColor: [getFillColor, highlightId],
+          getRadius: [
+            radiusBasedOn,
+            dataPropertyAccessor,
+            getRadius,
+            radiusDataScale,
+            radii,
+            metrics,
+          ],
+          getFillColor: [
+            fillBasedOn,
+            dataPropertyAccessor,
+            getFillColor,
+            fillDataScale,
+            fillColors,
+            highlightId,
+            metrics,
+          ],
           getLineWidth: [getLineWidth],
           getLineColor: [getLineColor],
         },
@@ -257,15 +296,31 @@ const QLReportMap = ({
     fillBasedOn,
     getFillColor,
     fillDataScale,
-    layerFillColors,
+    fillColors,
     metrics,
     getLineWidth,
     getLineColor,
     getTooltip,
     scatterLayerProps,
+    dataPropertyAccessor,
   ])
 
-  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, objColor, metrics })
+  // prepare list of legends with used parameteres
+  const legends = useLegends({
+    radiusBasedOn,
+    fillBasedOn,
+    /**
+     * We convert an array of string format colors, into an array of rgba string format colours so we
+     * can use them in the Legend Gradient component
+     *
+     * There is visually a difference between the legend opacity for color gradient and map opacity,
+     * we need to adjust opacity for symbols in the legend to have a closer match
+     */
+    fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
+    // convert array format color (used in deck.gl elevation fill) into str format color for legend
+    objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
+    metrics,
+  })
 
   // set legend element
   const legend = useMemo(() => {
@@ -276,13 +331,35 @@ const QLReportMap = ({
         (legends?.length > 0 &&
           <Legend
             legends={legends}
+            fillBasedOn={fillBasedOn}
             metricAliases={metricAliases}
+            formatLegendTitle={formatLegendTitle}
+            formatPropertyLabel={formatPropertyLabel}
+            formatData={formatData}
             position={legendPosition}
             typograpy={typography}
+            symbolLineColor={
+              (typeof getLineColor !== 'function') ?
+                getStrFillColor({ fillColor: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
+                ''
+            }
           />
         )
       )
-    )}, [showLegend, legends, tooltipKeys,legendPosition, typography, legendNode])
+    )}, [
+    showLegend,
+    legends,
+    fillBasedOn,
+    tooltipKeys,
+    legendPosition,
+    formatLegendTitle,
+    formatPropertyLabel,
+    formatData,
+    typography,
+    legendNode,
+    getLineColor,
+    opacity,
+  ])
 
   return (
     <Map
@@ -299,7 +376,13 @@ const QLReportMap = ({
           tooltipProps={tooltipProps}
           typography={typography}
         >
-          {tooltipNode({ tooltipKeys: finalTooltipKeys, params: hoverInfo.object })}
+          {tooltipNode({
+            tooltipKeys: finalTooltipKeys,
+            formatData,
+            formatTooltipTitle,
+            formatPropertyLabel,
+            params: hoverInfo.object,
+          })}
         </MapTooltip>
       )}
       legend={legend}
