@@ -6,7 +6,7 @@ import {
   commonDefaultProps,
 } from '../shared/map-props'
 
-import { FlyToInterpolator, MapView } from '@deck.gl/core'
+import { FlyToInterpolator, MapView, WebMercatorViewport } from '@deck.gl/core'
 import { DeckGL } from '@deck.gl/react'
 import { StaticMap } from 'react-map-gl'
 
@@ -47,6 +47,8 @@ const propTypes = {
   showTooltip: PropTypes.bool,
   renderTooltip: PropTypes.func,
   pitch: PropTypes.number,
+  setZoom: PropTypes.func,
+  setViewportBBox: PropTypes.func,
 }
 
 const defaultProps = {
@@ -60,6 +62,8 @@ const defaultProps = {
   showTooltip: false,
   renderTooltip: undefined,
   pitch: 0,
+  setZoom: () => {},
+  setViewportBBox: () => {},
 }
 
 // DeckGL react component
@@ -75,6 +79,8 @@ const Map = ({
   showTooltip,
   renderTooltip,
   pitch,
+  setZoom,
+  setViewportBBox,
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
@@ -118,10 +124,16 @@ const Map = ({
           setDimensionsCb({ height, width })
         }}
         onViewStateChange={o => {
-          const { viewState } = o
+          const { viewState, interactionState } = o
+          const{ isDragging, inTransition, isZooming, isPanning, isRotating } = interactionState
           setViewState(viewState)
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
+          // send zoom and bbox coords to parent comp
+          if (!isDragging || !inTransition || !isZooming || !isPanning || !isRotating) {
+            setZoom(viewState.zoom)
+            setViewportBBox(new WebMercatorViewport(viewState).getBounds())
+          }
         }}
         initialViewState={viewState}
         views={ MAP_VIEW }
