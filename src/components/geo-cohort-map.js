@@ -72,6 +72,8 @@ const propTypes = {
   formatTooltipTitle: PropTypes.func,
   formatPropertyLabel: PropTypes.func,
   formatData: PropTypes.object,
+  setZoom: PropTypes.func,
+  setViewportBBox: PropTypes.func,
 }
 
 const defaultProps = {
@@ -105,6 +107,8 @@ const defaultProps = {
   formatTooltipTitle: d => d,
   formatPropertyLabel: d => d,
   formatData: undefined,
+  setZoom: () => {},
+  setViewportBBox: () => {},
 }
 
 const GeoCohortMap = ({
@@ -141,6 +145,8 @@ const GeoCohortMap = ({
   formatTooltipTitle,
   formatPropertyLabel,
   formatData,
+  setZoom,
+  setViewportBBox,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
@@ -154,10 +160,14 @@ const GeoCohortMap = ({
       const dataView = highlightObj ?
         setView({ data: [highlightObj], width, height }) :
         setView({ data: reportData, width, height })
-      setViewOverride(o => ({
-        ...o,
-        ...dataView,
-      }))
+      // TO DO  - resolve this so it is not so particular to our maps
+      // only adjust viewport to data for FSAs
+      if (!highlightObj && reportData[0]?.GeoCohortItem?.length === 3) {
+        setViewOverride(o => ({
+          ...o,
+          ...dataView,
+        }))
+      }
     }
   }, [highlightObj, reportData, height, width])
 
@@ -384,6 +394,8 @@ const GeoCohortMap = ({
       )}
       legend={legend}
       pitch={pitch}
+      setZoom={setZoom}
+      setViewportBBox={setViewportBBox}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   )
