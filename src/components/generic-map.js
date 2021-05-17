@@ -6,7 +6,7 @@ import {
   commonDefaultProps,
 } from '../shared/map-props'
 
-import { FlyToInterpolator, MapView, WebMercatorViewport } from '@deck.gl/core'
+import { FlyToInterpolator, MapView } from '@deck.gl/core'
 import { DeckGL } from '@deck.gl/react'
 import { StaticMap } from 'react-map-gl'
 
@@ -46,9 +46,9 @@ const propTypes = {
   ]),
   showTooltip: PropTypes.bool,
   renderTooltip: PropTypes.func,
+  initViewState: PropTypes.object,
   pitch: PropTypes.number,
   setZoom: PropTypes.func,
-  setViewportBBox: PropTypes.func,
 }
 
 const defaultProps = {
@@ -62,8 +62,8 @@ const defaultProps = {
   showTooltip: false,
   renderTooltip: undefined,
   pitch: 0,
+  initViewState: {},
   setZoom: () => {},
-  setViewportBBox: () => {},
 }
 
 // DeckGL react component
@@ -79,12 +79,12 @@ const Map = ({
   showTooltip,
   renderTooltip,
   pitch,
+  initViewState,
   setZoom,
-  setViewportBBox,
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
-  const [viewState, setViewState] = useState(INIT_VIEW_STATE)
+  const [viewState, setViewState] = useState()
   const [hoverInfo, setHoverInfo] = useState({})
 
   useLayoutEffect(() => {
@@ -119,6 +119,7 @@ const Map = ({
         onLoad={() => {
           const { height, width } = deckRef.current.deck
           setDimensionsCb({ height, width })
+          setViewState(initViewState || INIT_VIEW_STATE)
         }}
         onResize={({ height, width }) => {
           setDimensionsCb({ height, width })
@@ -129,10 +130,10 @@ const Map = ({
           setViewState(viewState)
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
-          // send zoom and bbox coords to parent comp
+          // send zoom to parent comp; reset highlightObj when we are actively interacting with the map in other ways
           if (!isDragging || !inTransition || !isZooming || !isPanning || !isRotating) {
             setZoom(viewState.zoom)
-            setViewportBBox(new WebMercatorViewport(viewState).getBounds())
+            setHighlightObj(null)
           }
         }}
         initialViewState={viewState}
