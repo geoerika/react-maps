@@ -46,7 +46,9 @@ const propTypes = {
   ]),
   showTooltip: PropTypes.bool,
   renderTooltip: PropTypes.func,
+  initViewState: PropTypes.object,
   pitch: PropTypes.number,
+  setZoom: PropTypes.func,
 }
 
 const defaultProps = {
@@ -60,6 +62,8 @@ const defaultProps = {
   showTooltip: false,
   renderTooltip: undefined,
   pitch: 0,
+  initViewState: {},
+  setZoom: () => {},
 }
 
 // DeckGL react component
@@ -75,10 +79,12 @@ const Map = ({
   showTooltip,
   renderTooltip,
   pitch,
+  initViewState,
+  setZoom,
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
-  const [viewState, setViewState] = useState(INIT_VIEW_STATE)
+  const [viewState, setViewState] = useState()
   const [hoverInfo, setHoverInfo] = useState({})
 
   useLayoutEffect(() => {
@@ -113,15 +119,22 @@ const Map = ({
         onLoad={() => {
           const { height, width } = deckRef.current.deck
           setDimensionsCb({ height, width })
+          setViewState(initViewState || INIT_VIEW_STATE)
         }}
         onResize={({ height, width }) => {
           setDimensionsCb({ height, width })
         }}
         onViewStateChange={o => {
-          const { viewState } = o
+          const { viewState, interactionState } = o
+          const{ isDragging, inTransition, isZooming, isPanning, isRotating } = interactionState
           setViewState(viewState)
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
+          // send zoom to parent comp; reset highlightObj when we are actively interacting with the map in other ways
+          if (!isDragging || !inTransition || !isZooming || !isPanning || !isRotating) {
+            setZoom(viewState.zoom)
+            setHighlightObj(null)
+          }
         }}
         initialViewState={viewState}
         views={ MAP_VIEW }

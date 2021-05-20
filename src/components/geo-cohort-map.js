@@ -26,7 +26,11 @@ import {
 import { useMapData, useLegends } from '../hooks'
 
 
+const layerPool = ['FSALayer', 'GeoCohortLayer']
+
 const propTypes = {
+  reportFSAData: PropTypes.array.isRequired,
+  reportGeoCohortData: PropTypes.array.isRequired,
   fillBasedOn: PropTypes.string,
   fillDataScale: PropTypes.string,
   fillColors: PropTypes.array,
@@ -59,7 +63,6 @@ const propTypes = {
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
   legendNode: PropTypes.node,
-  reportData: PropTypes.array.isRequired,
   // highlightId: PropTypes.number,
   getCursor: PropTypes.func,
   getTooltip: PropTypes.func,
@@ -108,7 +111,8 @@ const defaultProps = {
 }
 
 const GeoCohortMap = ({
-  reportData,
+  reportFSAData,
+  reportGeoCohortData,
   filled,
   stroked,
   fillBasedOn,
@@ -147,19 +151,26 @@ const GeoCohortMap = ({
   const [viewStateOverride, setViewOverride] = useState({})
   const [highlightObj, setHighlightObj] = useState(null)
   const [{ height, width }, setDimensions] = useState({})
+  const [zoom, setZoom] = useState(1)
 
-  useEffect(() => {
-    if (width && height) {
-      // recenter based on clicked obj or data
-      const dataView = highlightObj ?
-        setView({ data: [highlightObj], width, height }) :
-        setView({ data: reportData, width, height })
-      setViewOverride(o => ({
-        ...o,
-        ...dataView,
-      }))
+  const [activeData, activeLayer] = useMemo(() => {
+    if (width && height && reportFSAData?.length) {
+      const { zoom: FSALayerZoom } = setView({ data: reportFSAData, width, height })
+      // reportFSAData is retrieved faster than reportGeoCohortData, so display it until the second loads
+      return (zoom < Math.max(FSALayerZoom + 1, 11) || !reportGeoCohortData?.length) ?
+        [reportFSAData, 'FSALayer'] :
+        [reportGeoCohortData, 'GeoCohortLayer']
     }
-  }, [highlightObj, reportData, height, width])
+    return []
+  }, [zoom, width, height, reportFSAData, reportGeoCohortData])
+
+  // set initial viewport to display all FSA polygons on the map
+  const initViewState = useMemo(() => {
+    if (reportFSAData?.length && width && height) {
+      return setView({ data: reportFSAData, width, height })
+    }
+    return null
+  }, [reportFSAData, height, width])
 
   /**
    * finalOnClick - React hook that handles layer's onClick events
@@ -187,12 +198,12 @@ const GeoCohortMap = ({
   })
 
   useEffect(() => {
-    if (reportData?.length) {
-      metricDispatch({ type: 'data', payload : reportData })
+    if (activeData?.length) {
+      metricDispatch({ type: 'data', payload : activeData })
     }
-    // reset highlightObj when we get new reportData
+    // reset highlightObj when we get new report data
     setHighlightObj(null)
-  }, [metricDispatch, reportData])
+  }, [metricDispatch, activeData])
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
@@ -223,61 +234,65 @@ const GeoCohortMap = ({
   const layers = useMemo(() => {
     const highlightId = highlightObj?.GeoCohortItem
     return [
-      new GeoJsonLayer({
-        id: 'geo-cohort-geojson-layer',
-        data: reportData,
-        pickable: Boolean(onClick || onHover || getTooltip || getCursor),
-        stroked,
-        onClick: finalOnClick,
-        opacity,
-        extruded: elevationBasedOn.length,
-        filled,
-        getFillColor: setFinalLayerDataAccessor({
-          dataKey: fillBasedOn,
-          dataPropertyAccessor,
-          getLayerProp: getFillColor,
-          layerDataScale: fillDataScale,
-          // we need to convert string format color (used in legend) to array format color for deck.gl
-          layerPropRange: getArrayFillColors({ fillColors }),
-          highlightId,
-          metrics,
-        }),
-        getElevation: setFinalLayerDataAccessor({
-          dataKey: elevationBasedOn,
-          dataPropertyAccessor,
-          getLayerProp: getElevation,
-          layerDataScale: elevationDataScale,
-          layerPropRange: elevations,
-          metrics,
-        }),
-        getLineWidth,
-        getLineColor,
-        updateTriggers: {
-          getFillColor: [
-            fillBasedOn,
+      layerPool.map(layer =>
+        new GeoJsonLayer({
+          id: layer,
+          visible: activeLayer === layer,
+          data: activeData,
+          pickable: Boolean(onClick || onHover || getTooltip || getCursor),
+          stroked,
+          onClick: finalOnClick,
+          opacity,
+          extruded: elevationBasedOn.length,
+          filled,
+          getFillColor: setFinalLayerDataAccessor({
+            dataKey: fillBasedOn,
             dataPropertyAccessor,
-            getFillColor,
-            fillDataScale,
-            fillColors,
+            getLayerProp: getFillColor,
+            layerDataScale: fillDataScale,
+            // we need to convert string format color (used in legend) to array format color for deck.gl
+            layerPropRange: getArrayFillColors({ fillColors }),
             highlightId,
             metrics,
-          ],
-          getElevation: [
-            elevationBasedOn,
+          }),
+          getElevation: setFinalLayerDataAccessor({
+            dataKey: elevationBasedOn,
             dataPropertyAccessor,
-            getElevation,
-            elevationDataScale,
-            elevations,
+            getLayerProp: getElevation,
+            layerDataScale: elevationDataScale,
+            layerPropRange: elevations,
             metrics,
-          ],
-          getLineWidth: [getLineWidth],
-          getLineColor: [getLineColor],
-        },
-        ...geoJsonLayerProps,
-      }),
+          }),
+          getLineWidth,
+          getLineColor,
+          updateTriggers: {
+            getFillColor: [
+              fillBasedOn,
+              dataPropertyAccessor,
+              getFillColor,
+              fillDataScale,
+              fillColors,
+              highlightId,
+              metrics,
+            ],
+            getElevation: [
+              elevationBasedOn,
+              dataPropertyAccessor,
+              getElevation,
+              elevationDataScale,
+              elevations,
+              metrics,
+            ],
+            getLineWidth: [getLineWidth],
+            getLineColor: [getLineColor],
+          },
+          ...geoJsonLayerProps,
+        }),
+      ),
     ]}, [
     geoJsonLayerProps,
-    reportData,
+    activeData,
+    activeLayer,
     metrics,
     highlightObj,
     onClick,
@@ -384,6 +399,8 @@ const GeoCohortMap = ({
       )}
       legend={legend}
       pitch={pitch}
+      initViewState={initViewState}
+      setZoom={setZoom}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   )
