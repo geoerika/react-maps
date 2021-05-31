@@ -75,6 +75,7 @@ const propTypes = {
   formatTooltipTitle: PropTypes.func,
   formatPropertyLabel: PropTypes.func,
   formatData: PropTypes.object,
+  setViewportBBox: PropTypes.func,
 }
 
 const defaultProps = {
@@ -108,6 +109,7 @@ const defaultProps = {
   formatTooltipTitle: d => d,
   formatPropertyLabel: d => d,
   formatData: undefined,
+  setViewportBBox: () => {},
 }
 
 const GeoCohortMap = ({
@@ -145,6 +147,7 @@ const GeoCohortMap = ({
   formatTooltipTitle,
   formatPropertyLabel,
   formatData,
+  setViewportBBox,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
@@ -401,6 +404,7 @@ const GeoCohortMap = ({
       pitch={pitch}
       initViewState={initViewState}
       setZoom={setZoom}
+      setViewportBBox={setViewportBBox}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   )
