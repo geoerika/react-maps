@@ -165,7 +165,7 @@ const GeoCohortMap = ({
   useEffect(() => {
     if (currentViewport?.zoom) {
       setViewportBBox(new WebMercatorViewport(currentViewport).getBounds())
-      setApiBBox(new WebMercatorViewport({ ...currentViewport, zoom: 10 }).getBounds())
+      setApiBBox(new WebMercatorViewport({ ...currentViewport, zoom: 9 }).getBounds())
     }
   }, [currentViewport, setViewportBBox, setApiBBox])
 
@@ -173,7 +173,7 @@ const GeoCohortMap = ({
     if (width && height && reportFSAData?.length) {
       const { zoom: FSALayerZoom } = setView({ data: reportFSAData, width, height })
       // reportFSAData is retrieved faster than reportGeoCohortData, so display it until the second loads
-      return (zoom < Math.max(FSALayerZoom + 1, 11) || !reportGeoCohortData?.length) ?
+      return (zoom < Math.max(FSALayerZoom + 1, 10) || !reportGeoCohortData?.length) ?
         [reportFSAData, 'FSALayer'] :
         [reportGeoCohortData, 'GeoCohortLayer']
     }
