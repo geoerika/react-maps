@@ -49,6 +49,7 @@ const propTypes = {
   initViewState: PropTypes.object,
   pitch: PropTypes.number,
   setZoom: PropTypes.func,
+  setCurrentViewport: PropTypes.func,
 }
 
 const defaultProps = {
@@ -64,6 +65,7 @@ const defaultProps = {
   pitch: 0,
   initViewState: {},
   setZoom: () => {},
+  setCurrentViewport: () => {},
 }
 
 // DeckGL react component
@@ -81,6 +83,7 @@ const Map = ({
   pitch,
   initViewState,
   setZoom,
+  setCurrentViewport,
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
@@ -130,9 +133,15 @@ const Map = ({
           setViewState(viewState)
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
-          // send zoom to parent comp; reset highlightObj when we are actively interacting with the map in other ways
+          /**
+           * send zoom and viewState to parent comp
+           * reset highlightObj when we are actively interacting with the map in other ways
+           */
           if (!isDragging || !inTransition || !isZooming || !isPanning || !isRotating) {
             setZoom(viewState.zoom)
+            if (viewState.zoom >= 10) {
+              setCurrentViewport(viewState)
+            }
             setHighlightObj(null)
           }
         }}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { GeoJsonLayer } from '@deck.gl/layers'
+import { WebMercatorViewport } from '@deck.gl/core'
 import PropTypes from 'prop-types'
 
 import {
@@ -75,6 +76,8 @@ const propTypes = {
   formatTooltipTitle: PropTypes.func,
   formatPropertyLabel: PropTypes.func,
   formatData: PropTypes.object,
+  setViewportBBox: PropTypes.func,
+  setApiBBox: PropTypes.func,
 }
 
 const defaultProps = {
@@ -108,6 +111,8 @@ const defaultProps = {
   formatTooltipTitle: d => d,
   formatPropertyLabel: d => d,
   formatData: undefined,
+  setViewportBBox: () => {},
+  setApiBBox: () => {},
 }
 
 const GeoCohortMap = ({
@@ -145,6 +150,8 @@ const GeoCohortMap = ({
   formatTooltipTitle,
   formatPropertyLabel,
   formatData,
+  setViewportBBox,
+  setApiBBox,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
@@ -152,12 +159,21 @@ const GeoCohortMap = ({
   const [highlightObj, setHighlightObj] = useState(null)
   const [{ height, width }, setDimensions] = useState({})
   const [zoom, setZoom] = useState(1)
+  const [currentViewport, setCurrentViewport] = useState()
+
+  // calculate bbox coords for current viewport and extended area around
+  useEffect(() => {
+    if (currentViewport?.zoom) {
+      setViewportBBox(new WebMercatorViewport(currentViewport).getBounds())
+      setApiBBox(new WebMercatorViewport({ ...currentViewport, zoom: 9 }).getBounds())
+    }
+  }, [currentViewport, setViewportBBox, setApiBBox])
 
   const [activeData, activeLayer] = useMemo(() => {
     if (width && height && reportFSAData?.length) {
       const { zoom: FSALayerZoom } = setView({ data: reportFSAData, width, height })
       // reportFSAData is retrieved faster than reportGeoCohortData, so display it until the second loads
-      return (zoom < Math.max(FSALayerZoom + 1, 11) || !reportGeoCohortData?.length) ?
+      return (zoom < Math.max(FSALayerZoom + 1, 10) || !reportGeoCohortData?.length) ?
         [reportFSAData, 'FSALayer'] :
         [reportGeoCohortData, 'GeoCohortLayer']
     }
@@ -401,6 +417,7 @@ const GeoCohortMap = ({
       pitch={pitch}
       initViewState={initViewState}
       setZoom={setZoom}
+      setCurrentViewport={setCurrentViewport}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   )
