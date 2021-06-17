@@ -93,5 +93,8 @@
     "react-dom": "^16.13.1",
     "size-limit": "^4.9.2"
   },
+  "engines": {
+    "node": "14.x"
+  },
   "homepage": "https://github.com/EQWorks/react-maps#readme"
 }
