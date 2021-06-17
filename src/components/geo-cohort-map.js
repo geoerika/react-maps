@@ -183,10 +183,10 @@ const GeoCohortMap = ({
   // set initial viewport to display all FSA polygons on the map
   const initViewState = useMemo(() => {
     if (reportFSAData?.length && width && height) {
-      return setView({ data: reportFSAData, width, height })
+      return { ...setView({ data: reportFSAData, width, height }), pitch }
     }
     return null
-  }, [reportFSAData, height, width])
+  }, [reportFSAData, pitch, height, width])
 
   /**
    * finalOnClick - React hook that handles layer's onClick events
