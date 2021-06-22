@@ -249,66 +249,65 @@ const GeoCohortMap = ({
   // set layer configuration for the map
   const layers = useMemo(() => {
     const highlightId = highlightObj?.GeoCohortItem
-    return [
-      layerPool.map(layer =>
-        new GeoJsonLayer({
-          id: layer,
-          visible: activeLayer === layer,
-          data: activeData,
-          pickable: Boolean(onClick || onHover || getTooltip || getCursor),
-          stroked,
-          onClick: finalOnClick,
-          opacity,
-          extruded: elevationBasedOn.length,
-          filled,
-          getFillColor: setFinalLayerDataAccessor({
-            dataKey: fillBasedOn,
+    return layerPool.map(layer =>
+      new GeoJsonLayer({
+        id: layer,
+        visible: activeLayer === layer,
+        data: layer === 'FSALayer' ? reportFSAData : (reportGeoCohortData || []),
+        pickable: Boolean(onClick || onHover || getTooltip || getCursor),
+        stroked,
+        onClick: finalOnClick,
+        opacity,
+        extruded: elevationBasedOn.length,
+        filled,
+        getFillColor: setFinalLayerDataAccessor({
+          dataKey: fillBasedOn,
+          dataPropertyAccessor,
+          getLayerProp: getFillColor,
+          layerDataScale: fillDataScale,
+          // we need to convert string format color (used in legend) to array format color for deck.gl
+          layerPropRange: getArrayFillColors({ fillColors }),
+          highlightId,
+          metrics,
+        }),
+        getElevation: setFinalLayerDataAccessor({
+          dataKey: elevationBasedOn,
+          dataPropertyAccessor,
+          getLayerProp: getElevation,
+          layerDataScale: elevationDataScale,
+          layerPropRange: elevations,
+          metrics,
+        }),
+        getLineWidth,
+        getLineColor,
+        updateTriggers: {
+          getFillColor: [
+            fillBasedOn,
             dataPropertyAccessor,
-            getLayerProp: getFillColor,
-            layerDataScale: fillDataScale,
-            // we need to convert string format color (used in legend) to array format color for deck.gl
-            layerPropRange: getArrayFillColors({ fillColors }),
+            getFillColor,
+            fillDataScale,
+            fillColors,
             highlightId,
             metrics,
-          }),
-          getElevation: setFinalLayerDataAccessor({
-            dataKey: elevationBasedOn,
+          ],
+          getElevation: [
+            elevationBasedOn,
             dataPropertyAccessor,
-            getLayerProp: getElevation,
-            layerDataScale: elevationDataScale,
-            layerPropRange: elevations,
+            getElevation,
+            elevationDataScale,
+            elevations,
             metrics,
-          }),
-          getLineWidth,
-          getLineColor,
-          updateTriggers: {
-            getFillColor: [
-              fillBasedOn,
-              dataPropertyAccessor,
-              getFillColor,
-              fillDataScale,
-              fillColors,
-              highlightId,
-              metrics,
-            ],
-            getElevation: [
-              elevationBasedOn,
-              dataPropertyAccessor,
-              getElevation,
-              elevationDataScale,
-              elevations,
-              metrics,
-            ],
-            getLineWidth: [getLineWidth],
-            getLineColor: [getLineColor],
-          },
-          ...geoJsonLayerProps,
-        }),
-      ),
-    ]}, [
+          ],
+          getLineWidth: [getLineWidth],
+          getLineColor: [getLineColor],
+        },
+        ...geoJsonLayerProps,
+      }),
+    )}, [
     geoJsonLayerProps,
-    activeData,
     activeLayer,
+    reportFSAData,
+    reportGeoCohortData,
     metrics,
     highlightObj,
     onClick,
