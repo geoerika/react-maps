@@ -18,7 +18,7 @@ import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
 import {
   setView,
-  setFinalLayerDataAccessor,
+  setFinalLayerDataProperty,
   getArrayFillColors,
   getStrFillColor,
   getArrayGradientFillColors,
@@ -50,7 +50,6 @@ const propTypes = {
     PropTypes.number,
     PropTypes.func,
   ]),
-  // elevationScale
   stroked: PropTypes.bool,
   lineWidthUnits: PropTypes.string,
   getLineWidth: PropTypes.oneOfType([
@@ -259,7 +258,8 @@ const GeoCohortMap = ({
         opacity,
         extruded: elevationBasedOn.length,
         filled,
-        getFillColor: setFinalLayerDataAccessor({
+        getFillColor: setFinalLayerDataProperty({
+          data: activeData,
           dataKey: fillBasedOn,
           dataPropertyAccessor,
           getLayerProp: getFillColor,
@@ -267,35 +267,34 @@ const GeoCohortMap = ({
           // we need to convert string format color (used in legend) to array format color for deck.gl
           layerPropRange: getArrayFillColors({ fillColors }),
           highlightId,
-          metrics,
         }),
-        getElevation: setFinalLayerDataAccessor({
+        getElevation: setFinalLayerDataProperty({
+          data: activeData,
           dataKey: elevationBasedOn,
           dataPropertyAccessor,
           getLayerProp: getElevation,
           layerDataScale: elevationDataScale,
           layerPropRange: elevations,
-          metrics,
         }),
         getLineWidth,
         getLineColor,
         updateTriggers: {
           getFillColor: [
+            activeData,
             fillBasedOn,
             dataPropertyAccessor,
             getFillColor,
             fillDataScale,
             fillColors,
             highlightId,
-            metrics,
           ],
           getElevation: [
+            activeData,
             elevationBasedOn,
             dataPropertyAccessor,
             getElevation,
             elevationDataScale,
             elevations,
-            metrics,
           ],
           getLineWidth: [getLineWidth],
           getLineColor: [getLineColor],
@@ -304,11 +303,11 @@ const GeoCohortMap = ({
       }),
     )}, [
     geoJsonLayerProps,
+    activeData,
     activeLayer,
     reportFSAData,
     reportGeoCohortData,
-    metrics,
-    highlightObj,
+    highlightObj?.GeoCohortItem,
     onClick,
     finalOnClick,
     onHover,
