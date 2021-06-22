@@ -17,7 +17,7 @@ import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
 import {
   setView,
-  setFinalLayerDataAccessor,
+  setFinalLayerDataProperty,
   getArrayFillColors,
   getStrFillColor,
   getArrayGradientFillColors,
@@ -28,8 +28,6 @@ import { useMapData, useLegends } from '../hooks'
 
 const propTypes = {
   reportData: PropTypes.array.isRequired,
-  // centerMap: PropTypes.object,
-  // highlightId: PropTypes.number,
   radiusBasedOn: PropTypes.string,
   radiusDataScale: PropTypes.string,
   radii: PropTypes.array,
@@ -76,8 +74,6 @@ const propTypes = {
 }
 
 const defaultProps = {
-  // centerMap: {}, // { lat, lon }
-  // highlightId: undefined,
   radiusBasedOn: '',
   radiusDataScale: 'linear',
   radii: [5, 50],
@@ -115,11 +111,7 @@ const defaultProps = {
 
 const QLReportMap = ({
   reportData,
-  // centerMap,
-  // highlightId,
-  // Deck Map props
   getTooltip,
-  // Deck Layer Props
   onClick,
   onHover,
   getCursor,
@@ -165,16 +157,6 @@ const QLReportMap = ({
       }))
     }
   }, [reportData, height, width])
-
-  // useEffect(() => {
-  //   // zoom to a point
-  //   if (width && height) {
-  //     setViewOverride(o => ({
-  //       ...o,
-  //       ...centerMap,
-  //     }))
-  //   }
-  // }, [centerMap, height, width])
 
   /**
    * finalOnClick - React hook that handles layer's onClick events
@@ -237,15 +219,16 @@ const QLReportMap = ({
         pickable: Boolean(onClick || onHover || getTooltip || getCursor),
         onClick: finalOnClick,
         opacity,
-        getRadius: setFinalLayerDataAccessor({
+        getRadius: setFinalLayerDataProperty({
+          data: reportData,
           dataKey: radiusBasedOn,
           dataPropertyAccessor,
           getLayerProp: getRadius,
           layerDataScale: radiusDataScale,
           layerPropRange: radii,
-          metrics,
         }),
-        getFillColor: setFinalLayerDataAccessor({
+        getFillColor: setFinalLayerDataProperty({
+          data: reportData,
           dataKey: fillBasedOn,
           dataPropertyAccessor,
           getLayerProp: getFillColor,
@@ -253,28 +236,27 @@ const QLReportMap = ({
           // we need to convert string format color (used in legend) to array format color for deck.gl
           layerPropRange: getArrayFillColors({ fillColors }),
           highlightId,
-          metrics,
         }),
         getLineWidth,
         getLineColor,
         getTooltip,
         updateTriggers: {
           getRadius: [
+            reportData,
             radiusBasedOn,
             dataPropertyAccessor,
             getRadius,
             radiusDataScale,
             radii,
-            metrics,
           ],
           getFillColor: [
+            reportData,
             fillBasedOn,
             dataPropertyAccessor,
             getFillColor,
             fillDataScale,
             fillColors,
             highlightId,
-            metrics,
           ],
           getLineWidth: [getLineWidth],
           getLineColor: [getLineColor],
@@ -298,7 +280,6 @@ const QLReportMap = ({
     getFillColor,
     fillDataScale,
     fillColors,
-    metrics,
     getLineWidth,
     getLineColor,
     getTooltip,
@@ -388,7 +369,6 @@ const QLReportMap = ({
       )}
       legend={legend}
       mapboxApiAccessToken={mapboxApiAccessToken}
-      // x, y, translate
     />
   )
 }
