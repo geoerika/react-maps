@@ -8,6 +8,7 @@ import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
 import { SCALES } from '../../constants'
 import { color } from 'd3-color'
+import { extent } from 'd3-array'
 
 
 /**
@@ -182,25 +183,23 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
  * @param { function || number || array } param.getLayerProp - deck.gl layer data accessor
  * @param { function } param.layerDataScale - D3 scale function
  * @param { array } param.layerPropRange - array of range values for the deck.gl layer property
- * @param { object } param.metrics - object of {max, min} values of all data attribute keys
+ * @param { array } param.data - data array
  * @param { function } param.dataPropertyAccessor - function to help access attribute data
  * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
  */
-export const setFinalLayerDataAccessor = ({
+export const setFinalLayerDataProperty = ({
+  data,
   dataKey,
   getLayerProp,
   layerDataScale,
   layerPropRange,
-  metrics,
   dataPropertyAccessor = d => d,
   highlightId = null,
 }) => {
-  if (dataKey?.length) {
-    if (metrics[dataKey]?.max) {
-      const d3Fn = SCALES[layerDataScale]([
-        (metrics[dataKey] || { min: 0 }).min,
-        (metrics[dataKey] || { max: 10 }).max,
-      ], layerPropRange)
+  if (data?.length && dataKey?.length) {
+    const dataRange = extent(data, d => dataPropertyAccessor(d)[dataKey])
+    if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
+      const d3Fn = SCALES[layerDataScale](dataRange, layerPropRange)
       return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
     }
     return layerPropRange[0]
