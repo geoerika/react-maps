@@ -157,7 +157,7 @@ const GeoJsonMap = ({
     opacity,
   ])
 
-  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, metrics })
+  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, data })
 
   return (
     <div>

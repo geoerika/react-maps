@@ -319,7 +319,7 @@ const ReportWIMap = ({
     opacity,
   ])
 
-  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, metrics })
+  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, data })
   
   const handleRadiusBasedOnChange = e => setRadiusBasedOn(e.target.value)
   const handleRadiusTypeChange = e => {

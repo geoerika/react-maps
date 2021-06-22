@@ -143,7 +143,7 @@ const HexLayerMap = ({
     metrics,
   ])
 
-  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, metrics })
+  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, data })
 
   return (
     <div>
