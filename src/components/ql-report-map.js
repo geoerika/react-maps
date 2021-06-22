@@ -23,7 +23,7 @@ import {
   getArrayGradientFillColors,
   setLegendOpacity,
 } from '../shared/utils'
-import { useMapData, useLegends } from '../hooks'
+import { useLegends } from '../hooks'
 
 
 const propTypes = {
@@ -64,7 +64,6 @@ const propTypes = {
   showTooltip: PropTypes.bool,
   tooltipNode: PropTypes.func,
   getCursor: PropTypes.func,
-  dataAccessor: PropTypes.func,
   dataPropertyAccessor: PropTypes.func,
   pitch: PropTypes.number,
   formatLegendTitle: PropTypes.func,
@@ -101,7 +100,6 @@ const defaultProps = {
   showTooltip: false,
   tooltipNode: tooltipNode,
   getCursor: undefined,
-  dataAccessor: d => d,
   dataPropertyAccessor: d => d,
   formatLegendTitle: d => d,
   formatTooltipTitle: d => d,
@@ -134,7 +132,6 @@ const QLReportMap = ({
   showLegend,
   legendPosition,
   legendNode,
-  dataAccessor,
   dataPropertyAccessor,
   formatLegendTitle,
   formatTooltipTitle,
@@ -174,18 +171,6 @@ const QLReportMap = ({
       setViewOverride({ longitude, latitude, zoom: 14 })
     }
   }, [onClick])
-
-  // set metrics and metricDispatch
-  const { metrics, metricDispatch } = useMapData({
-    dataAccessor,
-    dataPropertyAccessor,
-  })
-
-  useEffect(() => {
-    if (reportData.length) {
-      metricDispatch({ type: 'data', payload : reportData })
-    }
-  }, [metricDispatch, reportData])
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
@@ -301,7 +286,8 @@ const QLReportMap = ({
     fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
     // convert array format color (used in deck.gl elevation fill) into str format color for legend
     objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
-    metrics,
+    data: reportData,
+    dataPropertyAccessor,
   })
 
   // set legend element

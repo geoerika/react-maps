@@ -24,7 +24,7 @@ import {
   getArrayGradientFillColors,
   setLegendOpacity,
 } from '../shared/utils'
-import { useMapData, useLegends } from '../hooks'
+import { useLegends } from '../hooks'
 
 
 const layerPool = ['FSALayer', 'GeoCohortLayer']
@@ -67,7 +67,6 @@ const propTypes = {
   getTooltip: PropTypes.func,
   showTooltip: PropTypes.bool,
   tooltipNode: PropTypes.func,
-  dataAccessor: PropTypes.func,
   dataPropertyAccessor: PropTypes.func,
   pitch: PropTypes.number,
   formatLegendTitle: PropTypes.func,
@@ -103,7 +102,6 @@ const defaultProps = {
   tooltipNode: tooltipNode,
   getCursor: undefined,
   pitch: 0,
-  dataAccessor: d => d,
   dataPropertyAccessor: d => d,
   formatLegendTitle: d => d,
   formatTooltipTitle: d => d,
@@ -142,7 +140,6 @@ const GeoCohortMap = ({
   tooltipKeys,
   typography,
   pitch,
-  dataAccessor,
   dataPropertyAccessor,
   formatLegendTitle,
   formatTooltipTitle,
@@ -204,20 +201,6 @@ const GeoCohortMap = ({
       setHighlightObj(object)
     }
   }, [onClick, width, height])
-
-  // set metrics and metricDispatch
-  const { metrics, metricDispatch } = useMapData({
-    dataAccessor,
-    dataPropertyAccessor,
-  })
-
-  useEffect(() => {
-    if (activeData?.length) {
-      metricDispatch({ type: 'data', payload : activeData })
-    }
-    // reset highlightObj when we get new report data
-    setHighlightObj(null)
-  }, [metricDispatch, activeData])
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
@@ -343,7 +326,8 @@ const GeoCohortMap = ({
     fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
     // convert array format color (used in deck.gl elevation fill) into str format color for legend
     objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
-    metrics,
+    data: activeLayer === 'FSALayer' ? reportFSAData : (reportGeoCohortData || []),
+    dataPropertyAccessor,
   })
 
   // set legend element
