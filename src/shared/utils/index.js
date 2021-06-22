@@ -177,14 +177,31 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
 }
 
 /**
- * setFinalLayerDataAccsessor - returns function or values to set deck.gl layer property (ex: fill colour, radius)
+ * getDataRange - returns array of min and max values of a data set
  * @param { object } param
+ * @param { array } param.data - data array
+ * @param { string } param.dataKey - data attribute key
+ * @param { function } param.dataPropertyAccessor - function to access data attribute
+ * @return { array  } - array of min and max values
+ */
+export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
+  let dataRange = []
+  if (data?.length > 0) {
+    dataRange = extent(data, d => dataPropertyAccessor(d)[dataKey])
+  }
+  return dataRange
+}
+
+/**
+ * setFinalLayerDataProperty - returns function or values to set deck.gl layer property (ex: fill colour, radius)
+ * @param { object } param
+ * @param { array } param.data - data array
  * @param { string } param.dataKey - data attribute key
  * @param { function || number || array } param.getLayerProp - deck.gl layer data accessor
  * @param { function } param.layerDataScale - D3 scale function
  * @param { array } param.layerPropRange - array of range values for the deck.gl layer property
- * @param { array } param.data - data array
  * @param { function } param.dataPropertyAccessor - function to help access attribute data
+ * @param { string } param.highlightId - id of selected object on the map
  * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
  */
 export const setFinalLayerDataProperty = ({
@@ -197,7 +214,7 @@ export const setFinalLayerDataProperty = ({
   highlightId = null,
 }) => {
   if (data?.length && dataKey?.length) {
-    const dataRange = extent(data, d => dataPropertyAccessor(d)[dataKey])
+    const dataRange = getDataRange({ data, dataKey, dataPropertyAccessor })
     if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
       const d3Fn = SCALES[layerDataScale](dataRange, layerPropRange)
       return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
