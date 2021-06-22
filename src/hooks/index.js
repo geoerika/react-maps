@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useReducer } from 'react'
 import { color } from 'd3-color'
+import { getDataRange } from '../shared/utils'
 import { SCALES } from '../constants'
 
 
@@ -10,35 +11,39 @@ export const useLegends = ({
   fillColors,
   objColor = '',
   radiusBasedOn = '',
-  metrics,
+  data = [],
+  dataPropertyAccessor = d => d,
 }) => {
   const legends = useMemo(() => {
     const legends = []
     if (fillBasedOn.length) {
       // TODO support quantile/quantize
       // i.e. different lengths of fillColors[]
+      const dataRange = getDataRange({ data, dataKey: fillBasedOn, dataPropertyAccessor })
       legends.push({
         minColor: fillColors[0],
         maxColor: fillColors[1],
         type: 'gradient',
-        max: (metrics[fillBasedOn] || {}).max,
-        min: (metrics[fillBasedOn] || {}).min,
+        min: dataRange[0],
+        max: dataRange[1],
         label: fillBasedOn,
       })
     }
 
     if (elevationBasedOn.length) {
+      const dataRange = getDataRange({ data, dataKey: elevationBasedOn, dataPropertyAccessor })
       legends.push({
         type: 'elevation',
         minColor: fillColors[0],
         maxColor: objColor || fillColors[1],
-        max: (metrics[elevationBasedOn] || {}).max,
-        min: (metrics[elevationBasedOn] || {}).min,
+        min: dataRange[0],
+        max: dataRange[1],
         label: elevationBasedOn,
       })
     }
 
     if (radiusBasedOn.length) {
+      const dataRange = getDataRange({ data, dataKey: radiusBasedOn, dataPropertyAccessor })
       legends.push({
         minColor: fillColors[0],
         maxColor: objColor || fillColors[1],
@@ -46,13 +51,13 @@ export const useLegends = ({
         dots: 5,
         size: 5,
         zeroRadiusSize: 20,
-        max: (metrics[radiusBasedOn] || {}).max,
-        min: (metrics[radiusBasedOn] || {}).min,
+        min: dataRange[0],
+        max: dataRange[1],
         label: radiusBasedOn,
       })
     }
     return legends
-  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, objColor, metrics])
+  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, objColor, data, dataPropertyAccessor])
 
   return legends
 }
