@@ -207,6 +207,7 @@ const QLReportMap = ({
         getRadius: setFinalLayerDataProperty({
           data: reportData,
           dataKey: radiusBasedOn,
+          defaultValue: getRadius,
           dataPropertyAccessor,
           getLayerProp: getRadius,
           layerDataScale: radiusDataScale,
@@ -215,6 +216,7 @@ const QLReportMap = ({
         getFillColor: setFinalLayerDataProperty({
           data: reportData,
           dataKey: fillBasedOn,
+          defaultValue: getFillColor,
           dataPropertyAccessor,
           getLayerProp: getFillColor,
           layerDataScale: fillDataScale,

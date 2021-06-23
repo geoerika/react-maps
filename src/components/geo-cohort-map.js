@@ -244,6 +244,7 @@ const GeoCohortMap = ({
         getFillColor: setFinalLayerDataProperty({
           data: activeData,
           dataKey: fillBasedOn,
+          defaultValue: getFillColor,
           dataPropertyAccessor,
           getLayerProp: getFillColor,
           layerDataScale: fillDataScale,
@@ -254,6 +255,7 @@ const GeoCohortMap = ({
         getElevation: setFinalLayerDataProperty({
           data: activeData,
           dataKey: elevationBasedOn,
+          defaultValue: getElevation,
           dataPropertyAccessor,
           getLayerProp: getElevation,
           layerDataScale: elevationDataScale,

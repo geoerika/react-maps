@@ -207,6 +207,7 @@ export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
 export const setFinalLayerDataProperty = ({
   data,
   dataKey,
+  defaultValue,
   getLayerProp,
   layerDataScale,
   layerPropRange,
@@ -214,6 +215,11 @@ export const setFinalLayerDataProperty = ({
   highlightId = null,
 }) => {
   if (data?.length && dataKey?.length) {
+    const sample = dataPropertyAccessor(data[0])
+    if (sample[dataKey] === undefined) {
+      console.warn('Invalid field provided to color')
+      return defaultValue
+    }
     const dataRange = getDataRange({ data, dataKey, dataPropertyAccessor })
     if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
       const d3Fn = SCALES[layerDataScale](dataRange, layerPropRange)
