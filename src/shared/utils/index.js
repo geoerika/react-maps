@@ -196,38 +196,39 @@ export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
  * setFinalLayerDataProperty - returns function or values to set deck.gl layer property (ex: fill colour, radius)
  * @param { object } param
  * @param { array } param.data - data array
- * @param { string } param.dataKey - data attribute key
- * @param { function || number || array } param.getLayerProp - deck.gl layer data accessor
- * @param { function } param.layerDataScale - D3 scale function
- * @param { array } param.layerPropRange - array of range values for the deck.gl layer property
+ * @param { number || string || array || object } param.value - value for (attribute data || layer prop) or data attribute key
+ * @param { number || string || array } param.defaultValue - default value attribute data || layer prop
+ * @param { function } param.dataScale - D3 scale function
+ * @param { array } param.valueOptions - array of range values for the deck.gl layer property
  * @param { function } param.dataPropertyAccessor - function to help access attribute data
  * @param { string } param.highlightId - id of selected object on the map
  * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
  */
 export const setFinalLayerDataProperty = ({
   data,
-  dataKey,
+  value,
   defaultValue,
-  getLayerProp,
-  layerDataScale,
-  layerPropRange,
+  dataScale,
+  valueOptions,
   dataPropertyAccessor = d => d,
   highlightId = null,
 }) => {
-  if (data?.length && dataKey?.length) {
+  if (!value) {
+    return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
+  }
+  if (data?.length && value.field?.length) {
     const sample = dataPropertyAccessor(data[0])
-    if (sample[dataKey] === undefined) {
-      console.warn('Invalid field provided to color')
+    if (sample[value.field] === undefined) {
       return defaultValue
     }
-    const dataRange = getDataRange({ data, dataKey, dataPropertyAccessor })
+    const dataRange = getDataRange({ data, dataKey: value.field, dataPropertyAccessor })
     if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
-      const d3Fn = SCALES[layerDataScale](dataRange, layerPropRange)
-      return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
+      const d3Fn = SCALES[dataScale](dataRange, valueOptions)
+      return (d) => d3Fn(dataPropertyAccessor(d)[value.field])
     }
-    return layerPropRange[0]
+    return valueOptions[0]
   }
-  return typeof getLayerProp === 'function' ? getLayerProp(highlightId) : getLayerProp
+  return typeof value === 'function' ? defaultValue(highlightId) : value
 }
 
 /**
