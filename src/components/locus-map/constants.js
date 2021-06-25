@@ -100,13 +100,24 @@ export const PROP_CONFIGURATIONS = {
     // control: 'slider',
     byProducts: { extruded: true },
   },
-  /*
-    ====[TODO]
-    radiusScale: 10
-    radiusUnits: 'px'
-    lineWidthScale: 10
-    lineWidthUnits: 'px'
-    click: 'onClick', // pickable
-    hover: 'onHover', // pickable
-  */
+  sourceArcColor: {
+    defaultValue: [156,39, 176],
+    deckGLName: 'getSourceColor',
+  },
+  targetArcColor: {
+    defaultValue: [255, 235, 59],
+    deckGLName: 'getTargetColor',
+  },
+  arcWidth: {
+    defaultValue: 1,
+    deckGLName: 'getWidth',
+  },
+  arcHeight: {
+    defaultValue: 1,
+    deckGLName: 'getHeight',
+  },
+  arcTilt: {
+    defaultValue: 0,
+    deckGLName: 'getTilt',
+  },
 }
