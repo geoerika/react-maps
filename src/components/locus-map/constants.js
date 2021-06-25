@@ -1,4 +1,4 @@
-import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, GeoJsonLayer, ArcLayer } from '@deck.gl/layers'
 // ====[TODO] extensions? https://deck.gl/docs/api-reference/extensions/data-filter-extension
 
 /*
@@ -64,7 +64,33 @@ export const LAYER_CONFIGURATIONS = {
       lineWidthUnits: 'pixels',
     },
   },
-  // ====[TODO] tileLayer https://deck.gl/examples/tile-layer/
+  arc: {
+    notAClass: false,
+    deckGLClass: ArcLayer,
+    dataPropertyAccessor: d => d,
+    geometry: {
+      source: {
+        propName: 'getSourcePosition',
+        propFn: ({ longitude, latitude }) => d => [d[longitude], d[latitude]],
+        longitude: { type: 'number' },
+        latitude: { type: 'number' },
+      },
+      target: {
+        propName: 'getTargetPosition',
+        propFn: ({ longitude, latitude }) => d => [d[longitude], d[latitude]],
+        longitude: { type: 'number' },
+        latitude: { type: 'number' },
+      },
+    },
+    visualizations: ['sourceArcColor', 'targetArcColor', 'arcWidth', 'arcHeight', 'arcTilt'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    defaultProps: {
+      greatCircle: false,
+      widthMaxPixels: Number.MAX_SAFE_INTEGER,
+      widthScale: 1,
+      widthUnits: 'pixels',
+    },
+  },
 }
 
 // ====[NOTE] props that are available for configuration via UI
