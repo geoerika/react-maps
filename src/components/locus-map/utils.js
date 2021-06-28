@@ -12,6 +12,7 @@ export const parseDeckGLLayerFromConfig = ({
 }) => {
   const {
     dataPropertyAccessor = d => d,
+    geometryAccessor = d => d,
     geometry: layerGeom,
     deckGLClass: Layer,
     defaultProps,
@@ -20,8 +21,17 @@ export const parseDeckGLLayerFromConfig = ({
 
   // ====[NOTE] if a layer requires explicit geometry (all except GeoJson?)
   // =========] pass its configured values (references to data fields) to final propFn
-  const geometryProps = layerGeom.propName ?
-    { [layerGeom.propName]: layerGeom.propFn({ ...geometry }) } : {}
+  let geometryProps = {}
+  if (layerGeom.propName) {
+    geometryProps = { [layerGeom.propName]: layerGeom.propFn({ geometryAccessor, ...geometry }) }
+  }
+  if(layerGeom.source) {
+    geometryProps = {
+      [layerGeom.source.propName] : layerGeom.source.propFn({ geometryAccessor, ...geometry.source }),
+      [layerGeom.target.propName] : layerGeom.target.propFn({ geometryAccessor, ...geometry.target }),
+    }
+  }
+
   // ====[TODO] correct fallback logic for the above. Should throw an error or prompt someone to choose
 
   // ====[TODO] calculate field extents in advance, so every configurable aspect doesn't need to

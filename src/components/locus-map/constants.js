@@ -29,7 +29,8 @@ export const LAYER_CONFIGURATIONS = {
       propName: 'getPosition',
       // ====[TODO] support [lon,lat] array?
       // =========] inv => d => inv ? [...d[coordKey]].reverse() : d[coordKey]
-      propFn: ({ longitude, latitude }) => d => [d[longitude], d[latitude]],
+      propFn: ({ longitude, latitude, geometryAccessor }) => d =>
+        [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
       longitude: { type: 'number' },
       latitude: { type: 'number' },
     },
@@ -67,17 +68,18 @@ export const LAYER_CONFIGURATIONS = {
   arc: {
     notAClass: false,
     deckGLClass: ArcLayer,
-    dataPropertyAccessor: d => d,
     geometry: {
       source: {
         propName: 'getSourcePosition',
-        propFn: ({ longitude, latitude }) => d => [d[longitude], d[latitude]],
+        propFn: ({ longitude, latitude, geometryAccessor }) => d =>
+          [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
         longitude: { type: 'number' },
         latitude: { type: 'number' },
       },
       target: {
         propName: 'getTargetPosition',
-        propFn: ({ longitude, latitude }) => d => [d[longitude], d[latitude]],
+        propFn: ({ longitude, latitude, geometryAccessor }) => d =>
+          [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
         longitude: { type: 'number' },
         latitude: { type: 'number' },
       },
