@@ -1,7 +1,7 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
-import { parseDeckGLLayerFromConfig } from './utils'
+import { setView, parseDeckGLLayerFromConfig } from './utils'
 import Map from '../generic-map'
 
 
@@ -22,9 +22,31 @@ const LocusMap = ({
   layerConfig,
   mapboxApiAccessToken,
 }) => {
+  const [viewStateOverride, setViewOverride] = useState({})
+  const [{ height, width }, setDimensions] = useState({})
+
   useEffect(() => {
     configurableLayerDispatch({ type: 'init', payload: { layerConfig, dataConfig } })
   }, [layerConfig, dataConfig])
+
+  useEffect(() => {
+    if (width && height) {
+      // recenter based on data
+      let dataGeomList = []
+      layerConfig.forEach(layer => {
+        if (layer.layer !== 'arc') {
+          const data = dataConfig.filter(elem => elem.id === layer.dataId)[0].data
+          dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
+        }
+      })
+      const dataView = setView({ dataGeomList, width, height })
+      setViewOverride(o => ({
+        ...o,
+        ...dataView,
+      }))
+    }
+  }, [dataConfig, layerConfig, height, width])
+
 
   const [{ layers }, configurableLayerDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'init') {
@@ -63,6 +85,8 @@ const LocusMap = ({
   return (
     <Map
       layers={Object.values(layers).map(o => o.deckLayer)}
+      setDimensionsCb={(o) => setDimensions(o)}
+      viewStateOverride={viewStateOverride}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   )
