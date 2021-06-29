@@ -38,11 +38,14 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['radius', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
-      // ====[TODO] difference between these defaults and prop defaults below
       radiusScale: 1,
       radiusUnits: 'pixels',
+      radiusMinPixels: 0,
+      radiusMaxPixels: Number.MAX_SAFE_INTEGER,
       lineWidthScale: 1,
       lineWidthUnits: 'pixels',
+      lineWidthMinPixels: 0,
+      lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
     },
   },
   geojson: {
@@ -59,10 +62,18 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['radius', 'elevation', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
-      pointRadiusScale: 1,
-      pointRadiusUnits: 'meters',
       lineWidthScale: 1,
       lineWidthUnits: 'pixels',
+      lineWidthMinPixels: 0,
+      lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
+      lineJointRounded: false,
+      lineMiterLimit: 4,
+      elevationScale: 1,
+      pointRadiusScale: 1,
+      pointRadiusUnits: 'meters',
+      pointRadiusMinPixels: 0,
+      pointRadiusMaxPixels: Number.MAX_SAFE_INTEGER,
+      material: true,
     },
   },
   arc: {
@@ -88,6 +99,7 @@ export const LAYER_CONFIGURATIONS = {
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
       greatCircle: false,
+      widthMinPixels: 0,
       widthMaxPixels: Number.MAX_SAFE_INTEGER,
       widthScale: 1,
       widthUnits: 'pixels',
@@ -100,32 +112,25 @@ export const PROP_CONFIGURATIONS = {
   fill: {
     defaultValue: highlightId => d => d?.GeoCohortItem === highlightId ? [255, 138, 0] : [0, 117, 255],
     deckGLName: 'getFillColor',
-    // control: 'select',
-    // options: ['picker', 'scales'],
     byProducts: { filled: true },
   },
   radius: {
     defaultValue: 20,
     deckGLName: 'getRadius',
-    // control: 'slider',
   },
   lineWidth: {
     defaultValue: 1,
     deckGLName: 'getLineWidth',
-    // control: 'slider',
     byProducts: { stroked: true },
   },
   lineColor: {
     defaultValue: [0, 0, 0],
     deckGLName: 'getLineColor',
-    // control: 'select',
-    // options: ['picker', 'scales'],
     byProducts: { stroked: true },
   },
   elevation: {
     defaultValue: 0,
     deckGLName: 'getElevation',
-    // control: 'slider',
     byProducts: { extruded: true },
   },
   sourceArcColor: {
