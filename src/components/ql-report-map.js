@@ -89,7 +89,8 @@ const defaultProps = {
   fillBasedOn: '',
   fillDataScale: 'linear',
   fillColors: ['#bae0ff', '#0075ff'],
-  getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [255, 138, 0] : [0, 117, 255],
+  //TO DO: make this more general, not specific to our data structure for reports
+  getFillColor: highlightId => d => d?.poi_id === highlightId ? [255, 138, 0] : [0, 117, 255],
   stroked: true,
   lineWidthUnits: 'pixels',
   getLineWidth: 1,
