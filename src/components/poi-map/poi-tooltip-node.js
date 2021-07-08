@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { tooltipPropTypes, tooltipDefaultProps } from '../../shared/map-props'
+import { tooltipPropTypes, POITooltipDefaultProps } from '../../shared/map-props'
 import { styled, setup } from 'goober'
 
 
@@ -38,6 +38,6 @@ const POITooltipNode = ({ tooltipKeys, params }) => (
 )
 
 POITooltipNode.propTypes = { ...tooltipPropTypes, ...propTypes }
-POITooltipNode.defaultProps = { ...tooltipDefaultProps, ...defaultProps }
+POITooltipNode.defaultProps = { ...POITooltipDefaultProps, ...defaultProps }
 
 export default POITooltipNode
