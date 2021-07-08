@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useLayoutEffect, useRef } from 'react'
+import React, { useState, useCallback, useLayoutEffect, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -87,17 +87,24 @@ const Map = ({
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
-  const [viewState, setViewState] = useState()
+  const [mapViewState, setMapViewState] = useState()
   const [hoverInfo, setHoverInfo] = useState({})
 
   useLayoutEffect(() => {
-    setViewState(o => ({
+    setMapViewState(o => ({
       ...INIT_VIEW_STATE,
       ...o,
       ...viewStateOverride,
+    }))
+  }, [viewStateOverride])
+
+  useEffect(() => {
+    setMapViewState(o => ({
+      ...INIT_VIEW_STATE,
+      ...o,
       pitch,
     }))
-  }, [pitch, viewStateOverride])
+  }, [pitch])
 
   /**
    * finalOnHover - React hook that handles the onHover event for deck.gl map
@@ -122,7 +129,7 @@ const Map = ({
         onLoad={() => {
           const { height, width } = deckRef.current.deck
           setDimensionsCb({ height, width })
-          setViewState(initViewState || INIT_VIEW_STATE)
+          setMapViewState(initViewState || INIT_VIEW_STATE)
         }}
         onResize={({ height, width }) => {
           setDimensionsCb({ height, width })
@@ -130,7 +137,7 @@ const Map = ({
         onViewStateChange={o => {
           const { viewState, interactionState } = o
           const{ isDragging, inTransition, isZooming, isPanning, isRotating } = interactionState
-          setViewState(viewState)
+          setMapViewState(viewState)
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
           /**
@@ -145,7 +152,7 @@ const Map = ({
             setHighlightObj(null)
           }
         }}
-        initialViewState={viewState}
+        initialViewState={mapViewState}
         views={ MAP_VIEW }
         layers={layers}
         controller={true}
