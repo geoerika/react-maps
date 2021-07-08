@@ -25,17 +25,21 @@ export const typographyDefaultProps = {
 }
 
 export const tooltipPropTypes = {
-  tooltipKeys: PropTypes.PropTypes.shape({
-    name: PropTypes.string,
-    id: PropTypes.string,
-    metricKeys: PropTypes.array,
-    nameAccessor: PropTypes.func,
-    idAccessor: PropTypes.func,
-    metricAliases: PropTypes.object,
-  }),
+  tooltipKeys: PropTypes.oneOfType([
+    PropTypes.PropTypes.shape({
+      name: PropTypes.string,
+      id: PropTypes.string,
+      metricKeys: PropTypes.array,
+      nameAccessor: PropTypes.func,
+      idAccessor: PropTypes.func,
+      metricAliases: PropTypes.object,
+    }),
+    PropTypes.array,
+  ]),
   tooltipProps: PropTypes.shape({
     backgroundColor: PropTypes.string.isRequired,
     boxShadow: PropTypes.string.isRequired,
+    border: PropTypes.string.isRequired,
     borderRadius: PropTypes.string.isRequired,
     padding: PropTypes.string.isRequired,
   }),
@@ -54,6 +58,7 @@ export const tooltipDefaultProps = {
   tooltipProps: {
     backgroundColor: '#FFFFFF',
     boxShadow: '0 2px 8px 0 rgba(12, 12, 13, 0.15)',
+    border: '1px solid rgba(255, 255, 255)',
     borderRadius: '3px',
     padding: '8px',
   },  
@@ -63,6 +68,7 @@ export const POITooltipDefaultProps = {
   tooltipKeys: ['name', 'id', 'lat', 'lon'],
   tooltipProps: {
     backgroundColor: 'rgb(0, 181, 173, 0.7)',
+    boxShadow: '0 2px 8px 0 rgba(12, 12, 13, 0.15)',
     border: '1px solid rgb(0, 181, 173, 0.7)',
     borderRadius: '3px',
     padding: '8px',
