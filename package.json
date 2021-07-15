@@ -15,8 +15,10 @@
     "test": "echo 'No tests yet, shay-shay-shame~'",
     "build": "babel src --out-dir dist --copy-files",
     "prepublishOnly": "yarn lint && yarn test && yarn build",
+    "start": "env $(print-env) start-storybook -p 6006",
     "storybook": "env $(print-env) start-storybook -p 6006",
-    "build-storybook": "env $(print-env) build-storybook"
+    "build-storybook": "env $(print-env) build-storybook",
+    "chromatic": "npx chromatic --skip 'dependabot/**'"
   },
   "repository": {
     "type": "git",
