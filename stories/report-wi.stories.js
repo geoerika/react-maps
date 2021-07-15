@@ -1,119 +1,79 @@
-/* eslint-disable react/prop-types */
 import React from 'react'
-import { storiesOf } from '@storybook/react'
+
 import axios from 'axios'
 
-import FO from '../src/actions'
+import { LoginContextProvider } from '@eqworks/common-login'
 import { ReportMap } from '../src'
+import { AuthMapWrapper } from '../src'
+import FO from './locus/actions'
 
 
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN
 
-const getAxios = () => axios.create({
-  baseURL: `${process.env.API_HOST}/${process.env.API_STAGE}`,
-  headers: { 'eq-api-jwt': process.env.JWT },
+const jwt = window.localStorage.getItem('auth_jwt')
+
+const api = axios.create({
+  baseURL: [
+    process.env.API_HOST || process.env.STORYBOOK_API_HOST || 'http://localhost:3000',
+    process.env.API_STAGE || process.env.STORYBOOK_API_STAGE,
+  ].filter(v => v).join('/'),
+  headers: { 'eq-api-jwt': jwt },
 })
 
-const getReport = FO(getAxios()).getReportWi
+const getReport = FO(api).getReportWi
 
-storiesOf('Walk-In Report', module)
-  .add('Basic Report', () => (
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('Report with Tooltip', () => (
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      fillBasedOn='visits'
-      legendPosition='bottom-right'
-      showLegend
-      useTooltip
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('Radius Based On Visits', () => (
-    // NOTE: large values skew this
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      radiusBasedOn='visits'
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('Radius Based On Saturday', () => (
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      radiusBasedOn='Sat'
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('Radius Based On Noon', () => (
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      radiusBasedOn='12'
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('Fill Based On Visits', () => (
-    // NOTE: large values skew this
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      fillBasedOn='visits'
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('Default Legend', () => (
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      fillBasedOn='visits'
-      showLegend
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('Bottom Right Legend', () => (
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      fillBasedOn='visits'
-      showLegend
-      legendPosition='bottom-right'
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('Multiple Legends', () => (
-    <ReportMap
-      getReport={getReport}
-      report_id={4}
-      layer_id={1}
-      map_id={145}
-      fillBasedOn='visits'
-      radiusBasedOn='visits'
-      showLegend
-      legendPosition='bottom-right'
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
+export default {
+  title: 'Walk-In Report',
+  component: ReportMap,
+}
+
+const mapArgs = {
+  getReport,
+  report_id: 4,
+  layer_id: 1,
+  map_id: 145,
+  mapboxApiAccessToken,
+}
+
+const Template = (args) =>
+  <LoginContextProvider>
+    <AuthMapWrapper>
+      <ReportMap {...args} />
+    </AuthMapWrapper>
+  </LoginContextProvider>
+
+
+export const BasicReport = Template.bind({})
+BasicReport.args = mapArgs
+
+export const ReportWithTooltip = Template.bind({})
+ReportWithTooltip.args = {
+  fillBasedOn: 'visits',
+  legendPosition: 'bottom-right',
+  showLegend: true,
+  useTooltip: true,
+  ...mapArgs,
+}
+
+// NOTE: large values skew this
+export const RadiusBasedOnVisits = Template.bind({})
+RadiusBasedOnVisits.args = { radiusBasedOn: 'visits', ...mapArgs }
+
+export const RadiusBasedOnSaturday = Template.bind({})
+RadiusBasedOnSaturday.args = { radiusBasedOn: 'Sat', ...mapArgs }
+
+export const RadiusBasedOnNoon = Template.bind({})
+RadiusBasedOnNoon.args = { radiusBasedOn: '12', ...mapArgs }
+
+// NOTE: large values skew this
+export const FillBasedOnVisits = Template.bind({})
+FillBasedOnVisits.args = { fillBasedOn: 'visits', ...mapArgs }
+
+export const DefaultLegend = Template.bind({})
+DefaultLegend.args = { fillBasedOn: 'visits', showLegend: true, ...mapArgs }
+
+export const BottomRightLegend = Template.bind({})
+BottomRightLegend.args = { legendPosition: 'bottom-right', ...DefaultLegend.args }
+
+export const MultipleLegends = Template.bind({})
+MultipleLegends.args = { ...BottomRightLegend.args, radiusBasedOn: 'visits' }

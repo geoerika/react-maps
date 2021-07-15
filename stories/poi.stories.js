@@ -1,14 +1,16 @@
-/* eslint-disable react/prop-types */
-import React from 'react'
-import { storiesOf } from '@storybook/react'
-import { POIMap, POIMapActivePOI } from '../src'
+import React, { useState } from 'react'
+import { LoginContextProvider } from '@eqworks/common-login'
+
+import { POIMap } from '../src'
+import { AuthMapWrapper } from '../src'
+
 import POIsRadii from './data/pois-radii'
 import POIsRadiiTo from './data/pois-radii-to'
 import POIsRadii6 from './data/pois-radii-6.json'
 import POIsPolygonsVanData from './data/pois-polygons-van'
 import POIsPolygonTorontoData from './data/pois-polygon-toronto.json'
 
-import { forwardGeocoder, geocoderOnResult } from './poi-manage'
+import { forwardGeocoder, geocoderOnResult } from './locus'
 
 
 const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN
@@ -19,98 +21,124 @@ const POIsPolygonsVan = POIsPolygonsVanData.map((polygon) =>
 const POIsPolygonToronto = POIsPolygonTorontoData.map((polygon) =>
   ({ ...polygon, geometry: JSON.parse(polygon.properties.polygon_json) }))
 
-storiesOf('POI Map', module)
-  .add('Point POIs - clusters with POICluster layer', () => (
-    <POIMap
-      POIData={ POIsRadii }
-      mode='display'
-      cluster={ true }
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Point POIs - radii & icons with POIIcon & POIGeoJson layers', () => (
-    <POIMap
-      POIData={ POIsRadiiTo }
-      mode='display'
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Point POIs - one POI to check zoom', () => (
-    <POIMap
-      POIData={ [POIsRadiiTo[0]] }
-      mode='display'
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Point POIs - check icon size and zoom for lists with < 10 POIs', () => (
-    <POIMap
-      POIData={ POIsRadii6 }
-      mode='display'
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Point POIs - POIManage: activePOI and radius change', () => (
-    <POIMapActivePOI
-      POIData={ POIsRadiiTo }
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Polygon POIs - POIGeoJson layer', () => (
-    <POIMap
-      POIData={ POIsPolygonsVan }
-      mode='display'
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Edit Radius POIs - POIEditDraw layer', () => (
-    <POIMap
-      activePOI={ POIsRadiiTo[0] }
-      mode='edit'
-      controller={{ doubleClickZoom: false }}
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Edit Polygon POIs - POIEditDraw layer', () => (
-    <POIMap
-      activePOI={ POIsPolygonToronto[0] }
-      mode='edit'
-      controller={{ doubleClickZoom: false }}
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Draw Point POIs - POIEditDraw layer', () => (
-    <POIMap
-      POIData={ [] }
-      mode={ 'point-draw'}
-      controller={{ doubleClickZoom: false }}
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Draw Polygon POIs - POIEditDraw layer', () => (
-    <POIMap
-      POIData={ [] }
-      mode={ 'polygon-draw'}
-      controller={{ doubleClickZoom: false }}
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-    />
-  ))
-  .add('Create Point POIs', () => (
-    <POIMap
-      POIData={ [] }
-      mode={ 'create-point' }
-      controller={{ doubleClickZoom: false }}
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-      forwardGeocoder={ forwardGeocoder }
-      geocoderOnResult= { geocoderOnResult }
-    />
-  ))
-  .add('Create Polygon POIs', () => (
-    <POIMap
-      POIData={ [] }
-      mode={ 'create-polygon' }
-      controller={{ doubleClickZoom: false }}
-      mapboxApiAccessToken={ MAPBOX_ACCESS_TOKEN }
-      forwardGeocoder={ forwardGeocoder }
-      geocoderOnResult= { geocoderOnResult }
-    />
-  ))
+export default {
+  title: 'POI Map',
+  component: POIMap,
+}
+
+const Template = (args) => <POIMap {...args} />
+
+const displayArgs = {
+  mode: 'display',
+  mapboxApiAccessToken: MAPBOX_ACCESS_TOKEN,
+}
+
+export const POIClusters = Template.bind({})
+POIClusters.args = {
+  POIData: POIsRadii,
+  cluster: true,
+  ...displayArgs,
+}
+POIClusters.storyName = 'Point POIs - clusters with POICluster layer'
+
+export const RadiiAndIcons = Template.bind({})
+RadiiAndIcons.args = { POIData: POIsRadiiTo, ...displayArgs }
+RadiiAndIcons.storyName = 'Point POIs - radii & icons with POIIcon & POIGeoJson layers'
+
+export const PointPOIOne = Template.bind({})
+PointPOIOne.args = { POIData: [POIsRadiiTo[0]], ...displayArgs }
+PointPOIOne.storyName = 'Point POIs - one POI to check zoom'
+
+export const PointPOIListsWithLess10Pois = Template.bind({})
+PointPOIListsWithLess10Pois.args = { POIData: POIsRadii6, ...displayArgs }
+PointPOIListsWithLess10Pois.storyName = 'Point POIs - check icon size and zoom for lists with < 10 POIs'
+
+export const PointPOIActivePOIAndRadiusChange = () => {
+  const [activePOI, setActivePOI] = useState(null)
+
+  const changeRadius = () => {
+    let radius = 100
+    let newActivePOI = {
+      geometry: activePOI.geometry,
+      properties: {
+        ...activePOI.properties,
+        radius,
+      },
+    }
+    setActivePOI(newActivePOI)
+  }
+  return (
+    <div>
+      <p>FIRST: select a POI on the map!</p>
+      <button onClick={changeRadius}>Change Radius</button>
+      {POIsRadiiTo.length > 0 &&
+        <POIMap
+          POIData={POIsRadiiTo}
+          activePOI={activePOI}
+          setActivePOI={setActivePOI}
+          { ...displayArgs }
+        />
+      }
+    </div>
+  )
+}
+PointPOIActivePOIAndRadiusChange.storyName = 'Point POIs - POIManage: activePOI and radius change'
+
+export const PolygonPOI = Template.bind({})
+PolygonPOI.args = { POIData: POIsPolygonsVan, ...displayArgs }
+PolygonPOI.storyName = 'Polygon POIs - POIGeoJson layer'
+
+const editArgs = {
+  ...displayArgs,
+  mode: 'edit',
+  controller: { doubleClickZoom: false },
+}
+
+export const EditRadius = Template.bind({})
+EditRadius.args = { activePOI: POIsRadiiTo[0], ...editArgs }
+EditRadius.storyName = 'Edit Radius POIs - POIEditDraw layer'
+
+export const EditPolygon = Template.bind({})
+EditPolygon.args = { activePOI: POIsPolygonToronto[0], ...editArgs }
+EditPolygon.storyName = 'Edit Polygon POIs - POIEditDraw layer'
+
+const drawArgs = {
+  controller: { doubleClickZoom: false },
+  mapboxApiAccessToken: MAPBOX_ACCESS_TOKEN,
+}
+
+export const DrawPoint = Template.bind({})
+DrawPoint.args = { mode: 'point-draw', ...drawArgs }
+DrawPoint.storyName = 'Draw Point POIs - POIEditDraw layer'
+
+export const DrawPolygon = Template.bind({})
+DrawPolygon.args = { mode: 'polygon-draw', ...drawArgs }
+DrawPolygon.storyName = 'Draw Polygon POIs - POIEditDraw layer'
+
+export const CreatePointPOI = () => (
+  <LoginContextProvider>
+    <AuthMapWrapper>
+      <POIMap
+        {...drawArgs}
+        mode={'create-point'}
+        forwardGeocoder={forwardGeocoder}
+        geocoderOnResult={geocoderOnResult}
+      />
+    </AuthMapWrapper>
+  </LoginContextProvider>
+)
+CreatePointPOI.parameters = { layout: 'fullscreen' }
+
+export const CreatePolygonPOI = () => (
+  <LoginContextProvider>
+    <AuthMapWrapper>
+      <POIMap
+        {...drawArgs}
+        mode={'create-polygon'}
+        forwardGeocoder={forwardGeocoder}
+        geocoderOnResult={geocoderOnResult}
+      />
+    </AuthMapWrapper>
+  </LoginContextProvider>
+)
+CreatePolygonPOI.parameters = { layout: 'fullscreen' }
