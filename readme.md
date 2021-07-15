@@ -39,8 +39,8 @@ A React map component library for ATOM and Locus.
     Here is the sample of `.env`
     ```
     MAPBOX_ACCESS_TOKEN="your mapbox key"
-    STORYBOOK_API_HOST=
-    STORYBOOK_API_STAGE=
+    API_HOST=
+    API_STAGE=
     KEY_WARDEN_HOST=<keywarden api>
     ```
 
