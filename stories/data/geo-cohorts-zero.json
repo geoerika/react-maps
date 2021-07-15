@@ -1,44 +1,156 @@
 [
   {
-      "Actions": 0,
-      "BidAmount": 0,
-      "Bids": 0,
-      "Clicks": 0,
-      "ImpCost": 0.0003190000000,
-      "Imps": 1,
-      "Revenue": 0.0027500000000,
-      "_id": {
-          "Date": "2021-04-09",
-          "GeoCohortItem": "L6Y5A1",
-          "GeoCohortListID": 1
-      }
+    "Actions": 0,
+    "BidAmount": 0.5692179226333,
+    "Bids": 0,
+    "Clicks": 0,
+    "GeoCohortItem": "M4X1M7",
+    "GeoCohortListID": [
+      8
+    ],
+    "GeoCohortListName": [
+      "Children's Apparel - Top Spending"
+    ],
+    "ImpCost": 0.4741955293297,
+    "Imps": 1597,
+    "Revenue": 4.3917500000000,
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            [
+              -79.37074,
+              43.66416
+            ],
+            [
+              -79.37214,
+              43.66751
+            ],
+            [
+              -79.37263,
+              43.66689
+            ],
+            [
+              -79.37222,
+              43.66667
+            ],
+            [
+              -79.37196,
+              43.66591
+            ],
+            [
+              -79.37225,
+              43.66583
+            ],
+            [
+              -79.37198,
+              43.66484
+            ],
+            [
+              -79.37153,
+              43.66404
+            ],
+            [
+              -79.37074,
+              43.66416
+            ]
+          ]
+        ]
+      ],
+      "type": "MultiPolygon"
+    },
+    "type": "Feature"
   },
   {
-      "Actions": 0,
-      "BidAmount": 0,
-      "Bids": 0,
-      "Clicks": 0,
-      "ImpCost": 0.0028680000000,
-      "Imps": 10,
-      "Revenue": 0.0275000000000,
-      "_id": {
-          "Date": "2021-04-09",
-          "GeoCohortItem": "L6Y5A2",
-          "GeoCohortListID": 1
-      }
+    "Actions": 0,
+    "BidAmount": 0.7157485335366,
+    "Bids": 0,
+    "Clicks": 0,
+    "GeoCohortItem": "M4X1P6",
+    "GeoCohortListID": [
+      8
+    ],
+    "GeoCohortListName": [
+      "Children's Apparel - Top Spending"
+    ],
+    "ImpCost": 0.5999982916243,
+    "Imps": 1997,
+    "Revenue": 5.4917500000000,
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            [
+              -79.36884,
+              43.66643
+            ],
+            [
+              -79.3691,
+              43.66709
+            ],
+            [
+              -79.36936,
+              43.66704
+            ],
+            [
+              -79.36941,
+              43.66632
+            ],
+            [
+              -79.36884,
+              43.66643
+            ]
+          ]
+        ]
+      ],
+      "type": "MultiPolygon"
+    },
+    "type": "Feature"
   },
   {
-      "Actions": 0,
-      "BidAmount": 0,
-      "Bids": 0,
-      "Clicks": 0,
-      "ImpCost": 0.0003190000000,
-      "Imps": 1,
-      "Revenue": 0.0027500000000,
-      "_id": {
-          "Date": "2021-04-09",
-          "GeoCohortItem": "L6Y5A3",
-          "GeoCohortListID": 1
-      }
+    "Actions": 0,
+    "BidAmount": 0.0196513741304,
+    "Bids": 0,
+    "Clicks": 0,
+    "GeoCohortItem": "M4X1G9",
+    "GeoCohortListID": [
+      8
+    ],
+    "GeoCohortListName": [
+      "Children's Apparel - Top Spending"
+    ],
+    "ImpCost": 0.0179287827833,
+    "Imps": 60,
+    "Revenue": 0.1650000000000,
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            [
+              -79.37001,
+              43.66762
+            ],
+            [
+              -79.36975,
+              43.66815
+            ],
+            [
+              -79.3709,
+              43.66789
+            ],
+            [
+              -79.37075,
+              43.66749
+            ],
+            [
+              -79.37001,
+              43.66762
+            ]
+          ]
+        ]
+      ],
+      "type": "MultiPolygon"
+    },
+    "type": "Feature"
   }
 ]
