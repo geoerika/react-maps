@@ -140,15 +140,15 @@ const Map = ({
           setMapViewState(viewState)
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
-          /**
-           * send zoom and viewState to parent comp
-           * reset highlightObj when we are actively interacting with the map in other ways
-           */
+          // send zoom and viewState to parent comp
           if (!isDragging || !inTransition || !isZooming || !isPanning || !isRotating) {
             setZoom(viewState.zoom)
             if (viewState.zoom >= 10) {
               setCurrentViewport(viewState)
             }
+          }
+          // reset highlightObj when we are actively interacting with the map in other ways
+          if (isDragging || isZooming || isPanning || isRotating) {
             setHighlightObj(null)
           }
         }}

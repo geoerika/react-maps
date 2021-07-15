@@ -64,7 +64,6 @@ const propTypes = {
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
   legendNode: PropTypes.node,
-  // highlightId: PropTypes.number,
   getCursor: PropTypes.func,
   getTooltip: PropTypes.func,
   showTooltip: PropTypes.bool,
