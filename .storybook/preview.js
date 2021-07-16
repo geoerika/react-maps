@@ -5,7 +5,9 @@ import { ThemeProvider } from '@eqworks/lumen-ui'
 export const decorators = [
   (Story) => (
     <ThemeProvider>
-      <Story />
+      <div style={{ overflow: 'scroll' }}>
+        <Story />
+      </div>
     </ThemeProvider>
   ),
 ]
