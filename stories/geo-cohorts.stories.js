@@ -7,7 +7,7 @@ import geoCohortPostalraw from './data/geo-cohort-postal.json'
 import geoCohortJsonZero from './data/geo-cohorts-zero.json'
 
 
-const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN
+const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STORYBOOK_MAPBOX_ACCESS_TOKEN
 
 const truncate = (fullStr, strLen, separator = ' ... ') => {
   if (fullStr.length <= strLen) {

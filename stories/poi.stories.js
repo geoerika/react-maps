@@ -13,7 +13,7 @@ import POIsPolygonTorontoData from './data/pois-polygon-toronto.json'
 import { forwardGeocoder, geocoderOnResult } from './locus'
 
 
-const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN
+const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STORYBOOK_MAPBOX_ACCESS_TOKEN
 
 // create GeoJSON format for polygon data
 const POIsPolygonsVan = POIsPolygonsVanData.map((polygon) =>
@@ -30,7 +30,7 @@ const Template = (args) => <POIMap {...args} />
 
 const displayArgs = {
   mode: 'display',
-  mapboxApiAccessToken: MAPBOX_ACCESS_TOKEN,
+  mapboxApiAccessToken: mapboxApiAccessToken,
 }
 
 export const POIClusters = Template.bind({})
@@ -104,7 +104,7 @@ EditPolygon.storyName = 'Edit Polygon POIs - POIEditDraw layer'
 
 const drawArgs = {
   controller: { doubleClickZoom: false },
-  mapboxApiAccessToken: MAPBOX_ACCESS_TOKEN,
+  mapboxApiAccessToken: mapboxApiAccessToken,
 }
 
 export const DrawPoint = Template.bind({})
