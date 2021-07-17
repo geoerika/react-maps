@@ -29,7 +29,7 @@ export const LAYER_CONFIGURATIONS = {
       propName: 'getPosition',
       // ====[TODO] support [lon,lat] array?
       // =========] inv => d => inv ? [...d[coordKey]].reverse() : d[coordKey]
-      propFn: ({ longitude, latitude, geometryAccessor }) => d =>
+      propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
         [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
       longitude: { type: 'number' },
       latitude: { type: 'number' },
@@ -82,14 +82,14 @@ export const LAYER_CONFIGURATIONS = {
     geometry: {
       source: {
         propName: 'getSourcePosition',
-        propFn: ({ longitude, latitude, geometryAccessor }) => d =>
+        propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
           [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
         longitude: { type: 'number' },
         latitude: { type: 'number' },
       },
       target: {
         propName: 'getTargetPosition',
-        propFn: ({ longitude, latitude, geometryAccessor }) => d =>
+        propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
           [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
         longitude: { type: 'number' },
         latitude: { type: 'number' },

@@ -81,7 +81,7 @@ export const parseDeckGLLayerFromConfig = ({
  */
 export const setView = ({ dataGeomList, width, height }) => {
 
-  const dataCoordinateArray = dataGeomList.map(({ data, longitude, latitude, geometryAccessor }) =>
+  const dataCoordinateArray = dataGeomList.map(({ data, longitude, latitude, geometryAccessor = d => d }) =>
     getDataCoordinates({ data, longitude, latitude, geometryAccessor })).flat()
 
   const formattedGeoData = dataCoordinateArray.reduce(
