@@ -8,19 +8,19 @@ import Map from '../generic-map'
 const propTypes = {
   dataConfig: PropTypes.array.isRequired,
   layerConfig: PropTypes.array.isRequired,
-  mapboxApiAccessToken: PropTypes.string.isRequired,
+  mapProps: PropTypes.object,
 }
 
 const defaultProps = {
   dataConfig: [],
   layerConfig: [],
-  mapboxApiAccessToken:'no-token',
+  mapProps: {},
 }
 
 const LocusMap = ({
   dataConfig,
   layerConfig,
-  mapboxApiAccessToken,
+  ...mapProps
 }) => {
   const [viewStateOverride, setViewOverride] = useState({})
   const [{ height, width }, setDimensions] = useState({})
@@ -87,7 +87,7 @@ const LocusMap = ({
       layers={Object.values(layers).map(o => o.deckLayer)}
       setDimensionsCb={(o) => setDimensions(o)}
       viewStateOverride={viewStateOverride}
-      mapboxApiAccessToken={mapboxApiAccessToken}
+      { ...mapProps }
     />
   )
 }
