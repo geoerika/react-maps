@@ -1,6 +1,6 @@
 # react-maps
 
-A react map component for ATOM and Locus.
+A React map component library for ATOM and Locus.
 
 # Setup
 
@@ -41,7 +41,7 @@ A react map component for ATOM and Locus.
     MAPBOX_ACCESS_TOKEN="your mapbox key"
     API_HOST=
     API_STAGE=
-    JWT=(api token)
+    KEY_WARDEN_HOST=<keywarden api>
     ```
 
 3. Storybook:

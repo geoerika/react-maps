@@ -34,8 +34,6 @@ export const colorIntensityByMetric = ({
   return d => color.map(({ base, multiplier }) => intensity(getDataObject(d)[metric]) * multiplier + base)
 }
 
-export const genUniqueDateKey = o => `${o.date_type}_//_${o.start_date}_//_${o.end_date}`
-
 export const calculateReportWIMetrics = (agg, row) => ({
   ...reportWI.DATA_FIELDS.reduce((rowAgg, key) => ({
     ...rowAgg,
