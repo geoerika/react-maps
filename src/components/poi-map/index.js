@@ -503,7 +503,8 @@ const POIMap = ({
           <DrawButtonContainer>
             <DrawButtonGroup
               mode={ mode }
-              setDrawModeOn={ () => { setCreateDrawMode(true); setActivePOI(null) } }
+              // delete values of previous editedPOI before starting to draw another POI
+              setDrawModeOn={ () => { setCreateDrawMode(true); setDraftActivePOI({ editedPOI: null }) } }
               onErase={ () => { setData([]); setDraftActivePOI({ editedPOI: null }) } }
             />
           </DrawButtonContainer>
@@ -548,8 +549,8 @@ const POIMap = ({
                   marker={ false }
                   position='top-left'
                   countries='ca, us'
-                  localGeocoder= { forwardGeocoder }
-                  onResult= { ({ result: result }) => {
+                  localGeocoder={ forwardGeocoder }
+                  onResult={ ({ result: result }) => {
                     setCreateDrawMode(false)
                     setShowIcon(false)
                     geocoderOnResult({ result, POIType }).then((feature) => {
