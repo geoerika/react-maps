@@ -112,17 +112,22 @@ export const getDataCoordinates = ({ data }) => {
   let POIType
   let coordinateArray
   if (data[0]?.geometry?.type) {
-    POIType = data[0]?.geometry?.type
-    coordinateArray = data.reduce((acc, point) => [...acc, point?.geometry?.coordinates], [])
+    coordinateArray = data.reduce((acc, point) => {
+      POIType = point.geometry?.type
+      if (POIType === 'Point') {
+        return [...acc, point.geometry.coordinates]
+      }
+      if (POIType === 'Polygon') {
+        return [...acc, ...point.geometry.coordinates?.flat()]
+      }
+      if (POIType === 'MultiPolygon') {
+        return [...acc, ...point.geometry.coordinates?.flat().flat()]
+      }
+    }, [])
   } else {
     coordinateArray = data.reduce((acc, point) => [...acc, [point?.lon, point?.lat]], [])
   }
-  if (POIType === 'Polygon') {
-    coordinateArray = coordinateArray.flat().flat()
-  }
-  if (POIType === 'MultiPolygon') {
-    coordinateArray = coordinateArray.flat().flat().flat()
-  }
+
   const [minCoords, maxCoords] = coordinateArray.reduce(
     ([[minLng, minLat], [maxLng, maxLat]], point) => {
       const [lng, lat] = point
