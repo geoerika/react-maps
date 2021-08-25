@@ -54,7 +54,12 @@ const POIGeoJson = ({ data, mapProps, POIType, ...props }) =>
       }
       return mapProps.polygonFillColour
     },
-    getLineColor: () => mapProps.lineColour,
+    getLineColor: () => {
+      if (POIType === TYPE_RADIUS.code) {
+        return mapProps.lineColour
+      }
+      return mapProps.polygonLineColour
+    },
     getLineWidth: () => mapProps.lineWidth,
     opacity: mapProps.opacity,
     transitions: data.length === 1 ? { ...defaultProps.transitions } : {},
