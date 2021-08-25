@@ -87,10 +87,11 @@ export const POIMapProps = {
 
 export const POIMapDefaultProps = {
   mapProps: {
-    fillColour: [239, 95, 102],
-    polygonFillColour: [0,136,136],
-    lineColour: [0, 0, 0],
+    fillColour: [250, 198, 175],
+    polygonFillColour: [212, 62, 52],
+    polygonLineColour: [152, 26, 39],
+    lineColour: [242, 157, 132],
     lineWidth: 2,
-    opacity: 0.3,
+    opacity: 0.2,
   },
 }
