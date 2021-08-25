@@ -31,8 +31,8 @@ const getIconName = (d) => {
 const getIconSize = () => d => {
   // if d.properties.cluster exists it is a cluster, get right size for icon
   return d.properties.cluster 
-    ? ((Math.min(100, d.properties.point_count) / 100) + 1) 
-    : 0.8
+    ? ((Math.min(100, d.properties.point_count) / 100) + 1) + .5
+    : 1.3
 }
 
 // creates an icon layer that includes clusters
@@ -44,10 +44,10 @@ class IconClusterLayer extends CompositeLayer {
     pickable: true,
     iconAtlas,
     iconMapping,
-    sizeScale: 60,
+    sizeScale: 40,
     superclusterZoom: 20,
     getSuperclusterRadius: (viewportZoom, sizeScale) => 
-      viewportZoom > 15 ? sizeScale / 3 : sizeScale,
+      viewportZoom > 15 ? sizeScale / 2 : sizeScale,
     visible: false,
   }
   
