@@ -214,12 +214,15 @@ const POIMap = ({
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
-    if (mode === 'empty' || !mode) {
+    // remove created activePOI from data list if it was added to POI list in poi-manage
+    if (mode === 'empty' || !mode || (mode === 'create-polygon' && !activePOI?.properties)) {
       setData([])
     }
+
     if (!activePOI?.properties && !showIcon) {
       setData(POIData)
     }
+
     if ((mode === 'display' && activePOI?.properties) ||
         (mode === 'edit' && POIType === TYPE_POLYGON.code) ||
         (mode === 'create-point' && activePOI?.properties?.radius)) {
@@ -227,10 +230,7 @@ const POIMap = ({
       // disable drawing mode when we have edited radius so we can display radius on map
       setCreateDrawMode(false)
     }
-    // remove created activePOI from data list if it was added to POI list in poi-manage
-    if (mode === 'create-polygon' && activePOI?.added) {
-      setData([])
-    }
+
     if (mode === 'edit' && POIType === TYPE_RADIUS.code) {
       /**
        * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
@@ -551,9 +551,12 @@ const POIMap = ({
                   countries='ca, us'
                   localGeocoder={ forwardGeocoder }
                   onResult={ ({ result: result }) => {
+                    // reset state in map before displaying a new geocoder result
                     setCreateDrawMode(false)
                     setShowIcon(false)
+                    setDraftActivePOI({ editedPOI: null })
                     geocoderOnResult({ result, POIType }).then((feature) => {
+                      console.log('set data in geocoder')
                       setData([feature])
                       /**
                        * particular case when we only find a 'Point' feature and not a 'Polygon'
