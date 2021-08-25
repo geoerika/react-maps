@@ -130,6 +130,8 @@ const defaultProps = {
   geocoderOnResult: () => {},
 }
 
+const layerPool = ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster']
+
 // DeckGL React component
 const POIMap = ({
   POIData,
@@ -171,9 +173,6 @@ const POIMap = ({
     return activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
   }, [mode, activePOI, POIData])
 
-  // React hook that sets layerPool = all layers used in POIMap component
-  const layerPool = useMemo(() => ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster'], [])
-
   // React hook that sets mapLayers - the layers used by POIMap during various map modes
   const mapLayers = useMemo(() => {
     if (mode === 'empty') {
@@ -181,10 +180,10 @@ const POIMap = ({
     }
     if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
       // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
-      if (mode.startsWith('create-polygon')) {
+      if (mode === 'create-polygon') {
         return ['POIEditDraw', 'POIIcon']
       }
-      if (mode.startsWith('create-point')) {
+      if (mode === 'create-point') {
         // disable drawing layer when we have edited radius while creating a POI, so we can display radius
         if (activePOI?.properties?.radius) {
           return ['POIGeoJson', 'POIIcon']
@@ -456,7 +455,7 @@ const POIMap = ({
       } })
     }
     return []
-  }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
+  }, [mapLayers, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   const getCurrentCursor = getCursor({ layers })
 
@@ -471,6 +470,9 @@ const POIMap = ({
     !POIData.length
   ,[data, POIData, mapLayers, mode]))
 
+  console.log('activePOI: ', activePOI)
+  console.log('data: ', data)
+  console.log('layers: ', layers)
   return (
     <MapWrapper>
       { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
@@ -556,7 +558,6 @@ const POIMap = ({
                     setShowIcon(false)
                     setDraftActivePOI({ editedPOI: null })
                     geocoderOnResult({ result, POIType }).then((feature) => {
-                      console.log('set data in geocoder')
                       setData([feature])
                       /**
                        * particular case when we only find a 'Point' feature and not a 'Polygon'
