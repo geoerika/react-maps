@@ -47,7 +47,8 @@ const EDIT_DRAW_MODE = {
  * @param { string } param.mode - editing / drawing mode
  * @param { number } param.POIType - POI type
  * @param { array } param.selectedFeatureIndexes - array of selected feature indexes
- * @return { instanceOf EditableGeoJsonLayer}
+ * @param { array } param.visible - whether the layer is visible or not
+ * @returns { instanceOf EditableGeoJsonLayer}
  */
 const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeatureIndexes, visible }) => {
 
@@ -80,8 +81,9 @@ const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeature
       ...defaultProps._subLayerProps,
       geojson: {
         ...defaultProps._subLayerProps.geojson,
-        getFillColor: () => mapProps.fillColour,
-        getLineColor: () => mapProps.lineColour,
+        data,
+        getFillColor: () => mapProps.polygonFillColour,
+        getLineColor: () => mapProps.polygonLineColour,
         getLineWidth: () => mapProps.lineWidth,
         opacity: mapProps.opacity,
         getRadius: d => {
