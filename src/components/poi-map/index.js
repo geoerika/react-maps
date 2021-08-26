@@ -130,7 +130,6 @@ const defaultProps = {
   geocoderOnResult: () => {},
 }
 
-const layerPool = ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster']
 
 // DeckGL React component
 const POIMap = ({
@@ -437,6 +436,13 @@ const POIMap = ({
     setDraftActivePOI({ editedPOI, editedRadius, editedCoordinates })
   }, [activePOI, mode, setDraftActivePOI])
 
+  // layerPool - array of potential layer names
+  const layerPool = useMemo(() => (createDrawMode || mode === 'edit' || mode.endsWith('-draw')) ?
+    ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster'] :
+    // don't include POIEditDraw layer for editing or drawing unless needed
+    ['POIGeoJson', 'POIIcon', 'POICluster']
+  ,[mode, createDrawMode])
+
   // set layers for DeckGL map
   // don't set layers for display and edit modes unless we have POIs in data
   const layers = useMemo(() => {
@@ -455,7 +461,7 @@ const POIMap = ({
       } })
     }
     return []
-  }, [mapLayers, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
+  }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   const getCurrentCursor = getCursor({ layers })
 
@@ -470,9 +476,6 @@ const POIMap = ({
     !POIData.length
   ,[data, POIData, mapLayers, mode]))
 
-  console.log('activePOI: ', activePOI)
-  console.log('data: ', data)
-  console.log('layers: ', layers)
   return (
     <MapWrapper>
       { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
@@ -551,6 +554,7 @@ const POIMap = ({
                   marker={ false }
                   position='top-left'
                   countries='ca, us'
+                  language='en'
                   localGeocoder={ forwardGeocoder }
                   onResult={ ({ result: result }) => {
                     // reset state in map before displaying a new geocoder result
