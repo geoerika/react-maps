@@ -59,3 +59,30 @@ export const getCursor = ({ layers } = {}) => {
   }
   return ({ isDragging, isHovering }) => (isDragging ? 'grabbing' : (isHovering ? 'pointer' : 'grab'))
 }
+
+/**
+ * truncate - returns formatted string, by truncating to a certain nr of characters
+ * @param { string } fullStr - string to format
+ * @param { number } strLen - length of formatted string
+ * @param { string } separator - string to separate formatted string
+ * @returns { string } - formatted string
+ */
+export function truncate(fullStr, strLen, separator = ' ... ') {
+  if (fullStr.length <= strLen) {
+    return fullStr
+  }
+  const sepLen = separator.length
+  const charsToShow = strLen - sepLen
+  const frontChars = Math.ceil(charsToShow / 2)
+  const backChars = Math.floor(charsToShow / 2)
+
+  return fullStr.substr(0, frontChars)
+           + separator
+           + fullStr.substr(fullStr.length - backChars)
+}
+
+// object of formatting functions for lon and lat keys in the POI map
+export const formatDataPOI = {
+  lon: val => Math.round(val * 100) / 100 + String.fromCharCode(176),
+  lat: val => Math.round(val * 100) / 100 + String.fromCharCode(176),
+}
