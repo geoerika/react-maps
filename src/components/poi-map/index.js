@@ -200,7 +200,7 @@ const POIMap = ({
         if (activePOI?.properties?.radius) {
           return ['POIGeoJson', 'POIIcon']
         }
-        return ['POIGeoJson', 'POIEditDraw', 'POIIcon']
+        return ['POIEditDraw', 'POIIcon']
       }
       return ['POIEditDraw']
     }
