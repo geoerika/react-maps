@@ -15,9 +15,13 @@ import { FlyToInterpolator } from '@deck.gl/core'
 import { StaticMap } from 'react-map-gl'
 import Geocoder from 'react-map-gl-geocoder'
 
-import { styled, setup } from 'goober'
 import { FormControlLabel } from '@material-ui/core'
 import { Switch } from '@eqworks/lumen-ui'
+import { styled, setup } from 'goober'
+
+import DrawButtonGroup from './draw-button-group'
+import MapTooltip from '../tooltip'
+import tooltipNode from '../tooltip/tooltip-node'
 
 import {
   processLayers,
@@ -25,16 +29,13 @@ import {
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
 } from '../../shared/utils'
-import { getCursor } from '../../utils'
+import { getCursor, truncate, formatDataPOI } from '../../utils'
 import { useResizeObserver } from '../../hooks'
-import POITooltip from '../tooltip'
-import POITooltipNode from './poi-tooltip-node'
-import DrawButtonGroup from './draw-button-group'
 import {
   typographyPropTypes,
   typographyDefaultProps,
   tooltipPropTypes,
-  POITooltipDefaultProps,
+  tooltipDefaultProps,
   POIMapProps,
   POIMapDefaultProps,
 } from '../../shared/map-props'
@@ -115,6 +116,10 @@ const propTypes = {
   controller: PropTypes.object,
   forwardGeocoder: PropTypes.func,
   geocoderOnResult: PropTypes.func,
+  dataPropertyAccessor: PropTypes.func,
+  formatTooltipTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
+  formatData: PropTypes.object,
 }
 
 const defaultProps = {
@@ -128,6 +133,10 @@ const defaultProps = {
   controller: { controller: true },
   forwardGeocoder: () => {},
   geocoderOnResult: () => {},
+  dataPropertyAccessor: d => d,
+  formatTooltipTitle: (title) => truncate(title, 20),
+  formatPropertyLabel: d => d,
+  formatData: formatDataPOI,
 }
 
 
@@ -148,6 +157,10 @@ const POIMap = ({
   mapboxApiAccessToken,
   forwardGeocoder,
   geocoderOnResult,
+  dataPropertyAccessor,
+  formatTooltipTitle,
+  formatPropertyLabel,
+  formatData,
 }) => {
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
@@ -209,6 +222,7 @@ const POIMap = ({
     }
     return []
   }, [mode, activePOI, cluster, POIType, createDrawMode, showRadius, showIcon])
+
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -466,6 +480,25 @@ const POIMap = ({
   const getCurrentCursor = getCursor({ layers })
 
   /**
+ * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
+ * @returns { object } - object of tooltip keys
+ * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
+ */
+  const finalTooltipKeys = useMemo(() => {
+    const { id, idAccessor, name, nameAccessor } = tooltipKeys
+    let metricKeysArray = tooltipKeys?.metricKeys || ['lon', 'lat']
+    return {
+      ...tooltipKeys,
+      id: id || 'id',
+      idAccessor: idAccessor || dataPropertyAccessor,
+      name: name || 'name',
+      nameAccessor: nameAccessor || dataPropertyAccessor,
+      metricKeys: metricKeysArray,
+      metricAccessor: dataPropertyAccessor,
+    }
+  }, [tooltipKeys, dataPropertyAccessor])
+
+  /**
    * mapCanRender - conditions to render the map
    */
   const mapCanRender = Boolean(useMemo(() =>
@@ -492,18 +525,21 @@ const POIMap = ({
         </SwitchContainer>
       )}
       <MapContainer ref={ mapContainerRef }>
-        { hoverInfo?.object && (
-          <POITooltip
-            info={ hoverInfo }
-            typography={ typography }
-            tooltipProps={ tooltipProps }
+        {hoverInfo?.object &&
+          <MapTooltip
+            info={hoverInfo}
+            tooltipProps={tooltipProps}
+            typography={typography}
           >
-            {<POITooltipNode
-              tooltipKeys={ tooltipKeys }
-              params = { hoverInfo.object.properties }
-            />}
-          </POITooltip>
-        ) }
+            {tooltipNode({
+              tooltipKeys: finalTooltipKeys,
+              formatData,
+              formatTooltipTitle,
+              formatPropertyLabel,
+              params: hoverInfo.object.properties,
+            })}
+          </MapTooltip>
+        }
         { mode.startsWith('create-') && (
           <DrawButtonContainer>
             <DrawButtonGroup
@@ -591,7 +627,7 @@ POIMap.propTypes = {
 }
 POIMap.defaultProps = {
   ...typographyDefaultProps,
-  ...POITooltipDefaultProps,
+  ...tooltipDefaultProps,
   ...POIMapDefaultProps,
   ...defaultProps,
   ...StaticMap.defaultProps,
