@@ -64,17 +64,6 @@ export const tooltipDefaultProps = {
   },  
 }
 
-export const POITooltipDefaultProps = {
-  tooltipKeys: ['name', 'id', 'lat', 'lon'],
-  tooltipProps: {
-    backgroundColor: 'rgb(0, 181, 173, 0.7)',
-    boxShadow: '0 2px 8px 0 rgba(12, 12, 13, 0.15)',
-    border: '1px solid rgb(0, 181, 173, 0.7)',
-    borderRadius: '3px',
-    padding: '8px',
-  },  
-}
-
 export const POIMapProps = {
   mapProps: PropTypes.shape({
     fillColour: PropTypes.array.isRequired,
