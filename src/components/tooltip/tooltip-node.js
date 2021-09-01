@@ -7,10 +7,17 @@ setup(React.createElement)
 const Title = styled('div')`
   margin: 0px;
   fontWeight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 `
 const Id = styled('div')`
   margin: 0px;
-  fontWeight: 700;
+  font-size: 10px;
+  color: #808080;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 `
 const TooltipAttributes = styled('div')`
   display: grid;
@@ -18,6 +25,7 @@ const TooltipAttributes = styled('div')`
   grid-gap: 10px;
 `
 const Keys = styled('div')`
+  fontWeight: 600;
   display: flex;
   flex-direction: column;
 `
@@ -25,6 +33,9 @@ const Values = styled('div')`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+`
+const Line = styled('hr')`
+  border-top: 1px solid #6c6c6c;
 `
 
 /**
@@ -48,7 +59,7 @@ const tooltipNode = ({ tooltipKeys, formatData, formatTooltipTitle, formatProper
       }
       {metricKeys?.length && (
         <div>
-          {(nameAccessor(params)?.[name] || idAccessor(params)?.[id]) && <hr></hr>}
+          {(nameAccessor(params)?.[name] || idAccessor(params)?.[id]) && <Line/>}
           <TooltipAttributes>
             <Keys>
               {Object.entries(metricAccessor(params)).map(([key]) =>
