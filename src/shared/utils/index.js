@@ -109,11 +109,10 @@ export const setView = ({ data, width, height }) => {
  * @returns { array } - coordinates that define the boundary area where the data is located
  */
 export const getDataCoordinates = ({ data }) => {
-  let POIType
   let coordinateArray
   if (data[0]?.geometry?.type) {
     coordinateArray = data.reduce((acc, point) => {
-      POIType = point.geometry?.type
+      const POIType = point.geometry?.type
       if (POIType === 'Point') {
         return [...acc, point.geometry.coordinates]
       }
