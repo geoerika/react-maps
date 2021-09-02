@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { LoginContextProvider } from '@eqworks/common-login'
 
 import { POIMap } from '../src'
-import { AuthMapWrapper } from '../src'
+import AuthMapWrapper from './auth-map-wrapper'
 
 import POIsRadii from './data/pois-radii'
 import POIsRadiiTo from './data/pois-radii-to'
