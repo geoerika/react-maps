@@ -15,9 +15,13 @@ import { FlyToInterpolator } from '@deck.gl/core'
 import { StaticMap } from 'react-map-gl'
 import Geocoder from 'react-map-gl-geocoder'
 
-import { styled, setup } from 'goober'
 import { FormControlLabel } from '@material-ui/core'
 import { Switch } from '@eqworks/lumen-ui'
+import { styled, setup } from 'goober'
+
+import DrawButtonGroup from './draw-button-group'
+import MapTooltip from '../tooltip'
+import tooltipNode from '../tooltip/tooltip-node'
 
 import {
   processLayers,
@@ -25,16 +29,13 @@ import {
   createCircleFromPointRadius,
   getCircleRadiusCentroid,
 } from '../../shared/utils'
-import { getCursor } from '../../utils'
+import { getCursor, truncate, formatDataPOI } from '../../utils'
 import { useResizeObserver } from '../../hooks'
-import POITooltip from '../tooltip'
-import POITooltipNode from './poi-tooltip-node'
-import DrawButtonGroup from './draw-button-group'
 import {
   typographyPropTypes,
   typographyDefaultProps,
   tooltipPropTypes,
-  POITooltipDefaultProps,
+  tooltipDefaultProps,
   POIMapProps,
   POIMapDefaultProps,
 } from '../../shared/map-props'
@@ -115,6 +116,10 @@ const propTypes = {
   controller: PropTypes.object,
   forwardGeocoder: PropTypes.func,
   geocoderOnResult: PropTypes.func,
+  dataPropertyAccessor: PropTypes.func,
+  formatTooltipTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
+  formatData: PropTypes.object,
 }
 
 const defaultProps = {
@@ -128,7 +133,12 @@ const defaultProps = {
   controller: { controller: true },
   forwardGeocoder: () => {},
   geocoderOnResult: () => {},
+  dataPropertyAccessor: d => d,
+  formatTooltipTitle: (title) => truncate(title, 20),
+  formatPropertyLabel: d => d,
+  formatData: formatDataPOI,
 }
+
 
 // DeckGL React component
 const POIMap = ({
@@ -147,6 +157,10 @@ const POIMap = ({
   mapboxApiAccessToken,
   forwardGeocoder,
   geocoderOnResult,
+  dataPropertyAccessor,
+  formatTooltipTitle,
+  formatPropertyLabel,
+  formatData,
 }) => {
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
@@ -171,9 +185,6 @@ const POIMap = ({
     return activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
   }, [mode, activePOI, POIData])
 
-  // React hook that sets layerPool = all layers used in POIMap component
-  const layerPool = useMemo(() => ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster'], [])
-
   // React hook that sets mapLayers - the layers used by POIMap during various map modes
   const mapLayers = useMemo(() => {
     if (mode === 'empty') {
@@ -181,15 +192,15 @@ const POIMap = ({
     }
     if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
       // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
-      if (mode.startsWith('create-polygon')) {
+      if (mode === 'create-polygon') {
         return ['POIEditDraw', 'POIIcon']
       }
-      if (mode.startsWith('create-point')) {
+      if (mode === 'create-point') {
         // disable drawing layer when we have edited radius while creating a POI, so we can display radius
         if (activePOI?.properties?.radius) {
           return ['POIGeoJson', 'POIIcon']
         }
-        return ['POIGeoJson', 'POIEditDraw', 'POIIcon']
+        return ['POIEditDraw', 'POIIcon']
       }
       return ['POIEditDraw']
     }
@@ -212,14 +223,18 @@ const POIMap = ({
     return []
   }, [mode, activePOI, cluster, POIType, createDrawMode, showRadius, showIcon])
 
+
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
-    if (mode === 'empty' || !mode) {
+    // remove created activePOI from data list if it was added to POI list in poi-manage
+    if (mode === 'empty' || !mode || (mode === 'create-polygon' && !activePOI?.properties)) {
       setData([])
     }
+
     if (!activePOI?.properties && !showIcon) {
       setData(POIData)
     }
+
     if ((mode === 'display' && activePOI?.properties) ||
         (mode === 'edit' && POIType === TYPE_POLYGON.code) ||
         (mode === 'create-point' && activePOI?.properties?.radius)) {
@@ -227,10 +242,7 @@ const POIMap = ({
       // disable drawing mode when we have edited radius so we can display radius on map
       setCreateDrawMode(false)
     }
-    // remove created activePOI from data list if it was added to POI list in poi-manage
-    if (mode === 'create-polygon' && activePOI?.added) {
-      setData([])
-    }
+
     if (mode === 'edit' && POIType === TYPE_RADIUS.code) {
       /**
        * in order to edit the radius of a poi on the map, we create a new GeoJSON circle / polygon
@@ -438,6 +450,13 @@ const POIMap = ({
     setDraftActivePOI({ editedPOI, editedRadius, editedCoordinates })
   }, [activePOI, mode, setDraftActivePOI])
 
+  // layerPool - array of potential layer names
+  const layerPool = useMemo(() => (createDrawMode || mode === 'edit' || mode.endsWith('-draw')) ?
+    ['POIGeoJson', 'POIEditDraw', 'POIIcon', 'POICluster'] :
+    // don't include POIEditDraw layer for editing or drawing unless needed
+    ['POIGeoJson', 'POIIcon', 'POICluster']
+  ,[mode, createDrawMode])
+
   // set layers for DeckGL map
   // don't set layers for display and edit modes unless we have POIs in data
   const layers = useMemo(() => {
@@ -459,6 +478,25 @@ const POIMap = ({
   }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   const getCurrentCursor = getCursor({ layers })
+
+  /**
+ * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
+ * @returns { object } - object of tooltip keys
+ * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
+ */
+  const finalTooltipKeys = useMemo(() => {
+    const { id, idAccessor, name, nameAccessor } = tooltipKeys
+    let metricKeysArray = tooltipKeys?.metricKeys || ['lon', 'lat']
+    return {
+      ...tooltipKeys,
+      id: id || 'id',
+      idAccessor: idAccessor || dataPropertyAccessor,
+      name: name || 'name',
+      nameAccessor: nameAccessor || dataPropertyAccessor,
+      metricKeys: metricKeysArray,
+      metricAccessor: dataPropertyAccessor,
+    }
+  }, [tooltipKeys, dataPropertyAccessor])
 
   /**
    * mapCanRender - conditions to render the map
@@ -487,18 +525,21 @@ const POIMap = ({
         </SwitchContainer>
       )}
       <MapContainer ref={ mapContainerRef }>
-        { hoverInfo?.object && (
-          <POITooltip
-            info={ hoverInfo }
-            typography={ typography }
-            tooltipProps={ tooltipProps }
+        {hoverInfo?.object &&
+          <MapTooltip
+            info={hoverInfo}
+            tooltipProps={tooltipProps}
+            typography={typography}
           >
-            {<POITooltipNode
-              tooltipKeys={ tooltipKeys }
-              params = { hoverInfo.object.properties }
-            />}
-          </POITooltip>
-        ) }
+            {tooltipNode({
+              tooltipKeys: finalTooltipKeys,
+              formatData,
+              formatTooltipTitle,
+              formatPropertyLabel,
+              params: hoverInfo.object.properties,
+            })}
+          </MapTooltip>
+        }
         { mode.startsWith('create-') && (
           <DrawButtonContainer>
             <DrawButtonGroup
@@ -549,10 +590,13 @@ const POIMap = ({
                   marker={ false }
                   position='top-left'
                   countries='ca, us'
+                  language='en'
                   localGeocoder={ forwardGeocoder }
                   onResult={ ({ result: result }) => {
+                    // reset state in map before displaying a new geocoder result
                     setCreateDrawMode(false)
                     setShowIcon(false)
+                    setDraftActivePOI({ editedPOI: null })
                     geocoderOnResult({ result, POIType }).then((feature) => {
                       setData([feature])
                       /**
@@ -583,7 +627,7 @@ POIMap.propTypes = {
 }
 POIMap.defaultProps = {
   ...typographyDefaultProps,
-  ...POITooltipDefaultProps,
+  ...tooltipDefaultProps,
   ...POIMapDefaultProps,
   ...defaultProps,
   ...StaticMap.defaultProps,
