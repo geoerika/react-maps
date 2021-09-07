@@ -194,7 +194,11 @@ const POIMap = ({
     if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
       // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
       if (mode === 'create-polygon') {
-        return ['POIEditDraw', 'POIIcon']
+        // only show POIIcon layer when we have a 'Point' feature as activePOI while drawing POIs
+        if (activePOI?.geometry?.type === 'Point') {
+          return ['POIEditDraw', 'POIIcon']
+        }
+        return ['POIEditDraw']
       }
       if (mode === 'create-point') {
         // disable drawing layer when we have edited radius while creating a POI, so we can display radius
