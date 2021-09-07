@@ -34,17 +34,17 @@ const DrawButtonGroup = ({ mode, setDrawModeOn, onErase }) => {
   return (
     <ButtonGroup orientation='vertical'>
       <StyledButtonDraw
-        startIcon={ mode === 'create-point' ? <AddLocationOutlinedIcon/> : <AddBoxOutlinedIcon/> }
+        startIcon={mode === 'create-point' ? <AddLocationOutlinedIcon /> : <AddBoxOutlinedIcon />}
         size='small'
         type='secondary'
         color='primary'
-        onClick={ setDrawModeOn }
+        onClick={setDrawModeOn}
       />
       <StyledButtonDelete
-        startIcon={ <DeleteOutlineIcon/> }
+        startIcon={<DeleteOutlineIcon />}
         size='small'
         type='secondary'
-        onClick={ onErase }
+        onClick={onErase}
       />
     </ButtonGroup>
   )

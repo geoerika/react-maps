@@ -166,6 +166,7 @@ const POIMap = ({
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [showIcon, setShowIcon] = useState(false)
   const [createDrawMode, setCreateDrawMode] = useState(false)
+  const [allowDrawing, setAllowDrawing] = useState(true)
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
@@ -511,20 +512,20 @@ const POIMap = ({
 
   return (
     <MapWrapper>
-      { POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
+      {POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
         <SwitchContainer>
           <FormControlLabel
             control={
               <Switch
-                checked={ showRadius }
-                onChange={ () => setShowRadius(!showRadius) }
+                checked={showRadius}
+                onChange={() => setShowRadius(!showRadius)}
               />
             }
             label='Show Radius'
           />
         </SwitchContainer>
       )}
-      <MapContainer ref={ mapContainerRef }>
+      <MapContainer ref={mapContainerRef}>
         {hoverInfo?.object &&
           <MapTooltip
             info={hoverInfo}
@@ -540,21 +541,25 @@ const POIMap = ({
             })}
           </MapTooltip>
         }
-        { mode.startsWith('create-') && (
+        {mode.startsWith('create-') && (
           <DrawButtonContainer>
             <DrawButtonGroup
-              mode={ mode }
+              mode={mode}
               // delete values of previous editedPOI before starting to draw another POI
-              setDrawModeOn={ () => { setCreateDrawMode(true); setDraftActivePOI({ editedPOI: null }) } }
-              onErase={ () => { setData([]); setDraftActivePOI({ editedPOI: null }) } }
+              setDrawModeOn={() => {
+                if (allowDrawing) {
+                  setCreateDrawMode(true); setDraftActivePOI({ editedPOI: null })
+                }
+              }}
+              onErase={() => { setData([]); setDraftActivePOI({ editedPOI: null }) }}
             />
           </DrawButtonContainer>
-        ) }
-        { mapCanRender && (
+        )}
+        {mapCanRender && (
           <DeckGL
-            initialViewState={ viewState }
-            layers={ layers }
-            controller={ controller }
+            initialViewState={viewState}
+            layers={layers}
+            controller={controller}
             /**
              * USE once nebula.gl fixes selectedFeatureIndex out of range value cases (ie [], null)
              * onClick for edit mode to select feature for editing
@@ -574,25 +579,33 @@ const POIMap = ({
             //     data[0].properties.isOnMapEditing = false
             //   }
             // }}
-            onViewStateChange={ () => setHoverInfo(null) }
-            getCursor={ getCurrentCursor }
+            onInteractionStateChange={interactionState => {
+              const{ inTransition } = interactionState
+              if (inTransition) {
+                setAllowDrawing(false)
+              } else {
+                setAllowDrawing(true)
+              }
+              setHoverInfo(null)
+            }}
+            getCursor={getCurrentCursor}
           >
             <StaticMap
-              ref={ mapRef }
-              mapboxApiAccessToken={ mapboxApiAccessToken }
+              ref={mapRef}
+              mapboxApiAccessToken={mapboxApiAccessToken}
             >
-              { mode.startsWith('create-') && (
+              {mode.startsWith('create-') && (
                 <Geocoder
-                  mapRef={ mapRef }
-                  containerRef={ mapContainerRef }
-                  mapboxApiAccessToken={ mapboxApiAccessToken }
+                  mapRef={mapRef}
+                  containerRef={mapContainerRef}
+                  mapboxApiAccessToken={mapboxApiAccessToken}
                   inputValue=''
-                  marker={ false }
+                  marker={false}
                   position='top-left'
                   countries='ca, us'
                   language='en'
-                  localGeocoder={ forwardGeocoder }
-                  onResult={ ({ result: result }) => {
+                  localGeocoder={forwardGeocoder}
+                  onResult={({ result: result }) => {
                     // reset state in map before displaying a new geocoder result
                     setCreateDrawMode(false)
                     setShowIcon(false)
@@ -607,12 +620,12 @@ const POIMap = ({
                         setShowIcon(true)
                       }
                     })
-                  } }
+                  }}
                 />
-              ) }
+              )}
             </StaticMap>
           </DeckGL>
-        ) }
+        )}
       </MapContainer>
     </MapWrapper>
   )
