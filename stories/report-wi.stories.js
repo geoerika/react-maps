@@ -4,7 +4,7 @@ import axios from 'axios'
 
 import { LoginContextProvider } from '@eqworks/common-login'
 import { ReportMap } from '../src'
-import { AuthMapWrapper } from '../src'
+import AuthMapWrapper from './auth-map-wrapper'
 import FO from './locus/actions'
 
 
