@@ -179,15 +179,15 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
 /**
  * getDataRange - returns array of min and max values of a data set
  * @param { object } param
- * @param { array } param.data - data array
+ * @param { array } param.layerData - data array
  * @param { string } param.dataKey - data attribute key
  * @param { function } param.dataPropertyAccessor - function to access data attribute
  * @return { array  } - array of min and max values
  */
-export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
+export const getDataRange = ({ layerData, dataKey, dataPropertyAccessor }) => {
   let dataRange = []
-  if (data?.length > 0) {
-    dataRange = extent(data, d => dataPropertyAccessor(d)[dataKey])
+  if (layerData?.length > 0) {
+    dataRange = extent(layerData, d => dataPropertyAccessor(d)[dataKey])
   }
   return dataRange
 }
@@ -216,18 +216,30 @@ export const setFinalLayerDataProperty = ({
   if (!value) {
     return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
   }
-  if (data?.length && value.field?.length) {
-    const sample = dataPropertyAccessor(data[0])
+  let layerData = data?.tileData?.length ? data.tileData : data
+
+  if (layerData?.length && value.field?.length) {
+    const sample = dataPropertyAccessor(layerData[0])
     if (sample[value.field] === undefined) {
       return defaultValue
     }
-    const dataRange = getDataRange({ data, dataKey: value.field, dataPropertyAccessor })
+    const dataRange = getDataRange({ layerData, dataKey: value.field, dataPropertyAccessor })
     if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
       const d3Fn = SCALES[dataScale](dataRange, valueOptions)
+      // case for MVT layer
+      if (data?.tileData?.length) {
+        layerData = Object.fromEntries(data.tileData.map((item) =>
+          [item.geo_id, { Value: dataPropertyAccessor(item)[value.field] }]))
+        return ({ properties: { geo_id } }) => {
+          const { Value } = layerData[geo_id] || { Value: 0 }
+          return d3Fn(Value)
+        }
+      }
       return (d) => d3Fn(dataPropertyAccessor(d)[value.field])
     }
     return valueOptions[0]
   }
+
   return typeof value === 'function' ? defaultValue(highlightId) : value
 }
 
