@@ -5,6 +5,7 @@ import { getCursor } from '../src/utils'
 
 import xwiData from './data/xwi-report.json'
 import poiRadiiTo from './data/pois-radii-to.json'
+import mvtData from './data/locus-map-mvt.json'
 
 
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STORYBOOK_MAPBOX_ACCESS_TOKEN
@@ -17,9 +18,28 @@ export default {
 const dataConfig = [
   { id: 'xwiReport-123', data: xwiData },
   { id: 'poiGeojson-123', data: poiRadiiTo },
+  { id: 'mvt-123',
+    data: {
+      tileGeom: 'https://mapsource-dev.locus.place/maps/ct/{z}/{x}/{y}.vector.pbf?',
+      tileData: mvtData,
+    },
+  },
 ]
 
 const layerConfig = [
+  {
+    layer: 'MVT',
+    dataId: 'mvt-123',
+    visualizations: {
+      fill: {
+        value: { field: 'value' },
+        valueOptions: [[ 247, 254, 236], [10, 97, 11]],
+        dataScale: 'linear',
+      },
+    },
+    interactions: {},
+    opacity: 0.2,
+  },
   {
     layer: 'geojson',
     dataId: 'poiGeojson-123',
@@ -31,7 +51,7 @@ const layerConfig = [
       },
       fill: {
         value: { field: 'radius' },
-        valueOptions: [[186, 224, 255], [0, 117, 255]],
+        valueOptions: [[214, 232, 253], [39, 85, 196]],
         dataScale: 'linear',
       },
     },
@@ -43,10 +63,11 @@ const layerConfig = [
     geometry: {
       source: { longitude: 'source_lon', latitude: 'source_lat' },
       target: { longitude: 'target_lon', latitude: 'target_lat' },
-    },  
+    },
     visualizations: {
-      sourceArcColor: [246, 91, 32], 
-      targetArcColor: [153, 40, 179],
+      sourceArcColor: { value: [182, 38, 40] },
+      targetArcColor: { value: [251, 201, 78] },
+      arcWidth: { value: 2 },
     },
     interactions: {},
   },
@@ -57,8 +78,7 @@ const layerConfig = [
     visualizations: {
       radius: { value: 5 },
       fill: {
-        value: [153, 40, 179],
-        dataScale: 'linear',
+        value: [182, 38, 40],
       },
     },
     interactions: {},
@@ -70,8 +90,7 @@ const layerConfig = [
     visualizations: {
       radius: { value: 5 },
       fill: {
-        value: [246, 91, 32],
-        dataScale: 'linear',
+        value: [251, 201, 78],
       },
     },
     interactions: {},
