@@ -34,12 +34,12 @@ const LocusMap = ({
       // recenter based on data
       let dataGeomList = []
       layerConfig.forEach(layer => {
-        if (layer.layer !== 'arc') {
+        if (!['arc', 'MVT'].includes(layer.layer)) {
           const data = dataConfig.filter(elem => elem.id === layer.dataId)[0].data
           dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
         }
       })
-      const dataView = setView({ dataGeomList, width, height })
+      const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
       setViewOverride(o => ({
         ...o,
         ...dataView,
@@ -81,6 +81,8 @@ const LocusMap = ({
     }
     return state
   }, { data: {}, layers: {} })
+
+  console.log('layers: ', layers)
 
   return (
     <Map
