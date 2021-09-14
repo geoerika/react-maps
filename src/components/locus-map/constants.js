@@ -1,4 +1,5 @@
 import { ScatterplotLayer, GeoJsonLayer, ArcLayer } from '@deck.gl/layers'
+import { MVTLayer } from '@deck.gl/geo-layers'
 // ====[TODO] extensions? https://deck.gl/docs/api-reference/extensions/data-filter-extension
 
 /*
@@ -96,7 +97,7 @@ export const LAYER_CONFIGURATIONS = {
       },
     },
     visualizations: ['sourceArcColor', 'targetArcColor', 'arcWidth', 'arcHeight', 'arcTilt'],
-    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    interactions: [],
     defaultProps: {
       greatCircle: false,
       widthMinPixels: 0,
@@ -105,12 +106,30 @@ export const LAYER_CONFIGURATIONS = {
       widthUnits: 'pixels',
     },
   },
+  MVT: {
+    notAClass: false,
+    deckGLClass: MVTLayer,
+    dataPropertyAccessor: d => d,
+    // geometry: {
+    visualizations: ['fill', 'lineWidth', 'lineColor'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    defaultProps: {
+      minZoom: 0,
+      maxZoom: 23,
+      lineWidthScale: 1,
+      lineWidthUnits: 'pixels',
+      lineWidthMinPixels: 0,
+      lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
+      lineJointRounded: false,
+      lineMiterLimit: 4,
+    },
+  },
 }
 
 // ====[NOTE] props that are available for configuration via UI
 export const PROP_CONFIGURATIONS = {
   fill: {
-    defaultValue: highlightId => d => d?.GeoCohortItem === highlightId ? [255, 138, 0] : [0, 117, 255],
+    defaultValue: highlightId => d => d?.GeoCohortItem === highlightId ? [250, 175, 21] : [102, 108, 198],
     deckGLName: 'getFillColor',
     byProducts: { filled: true },
   },
@@ -134,11 +153,11 @@ export const PROP_CONFIGURATIONS = {
     byProducts: { extruded: true },
   },
   sourceArcColor: {
-    defaultValue: [156,39, 176],
+    defaultValue: [24, 66, 153],
     deckGLName: 'getSourceColor',
   },
   targetArcColor: {
-    defaultValue: [255, 235, 59],
+    defaultValue: [250, 175, 21],
     deckGLName: 'getTargetColor',
   },
   arcWidth: {
