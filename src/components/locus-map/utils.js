@@ -24,10 +24,10 @@ export const parseDeckGLLayerFromConfig = ({
   // ====[NOTE] if a layer requires explicit geometry (all except GeoJson?)
   // =========] pass its configured values (references to data fields) to final propFn
   let geometryProps = {}
-  if (layerGeom.propName) {
+  if (layerGeom?.propName) {
     geometryProps = { [layerGeom.propName]: layerGeom.propFn({ geometryAccessor, ...geometry }) }
   }
-  if(layerGeom.source) {
+  if(layerGeom?.source) {
     geometryProps = {
       [layerGeom.source.propName] : layerGeom.source.propFn({ geometryAccessor, ...geometry.source }),
       [layerGeom.target.propName] : layerGeom.target.propFn({ geometryAccessor, ...geometry.target }),
@@ -59,7 +59,7 @@ export const parseDeckGLLayerFromConfig = ({
 
   return data => new Layer({
     id,
-    data,
+    data: layer !== 'MVT' ? data : data.tileGeom,
     // ====[TODO] logic for below
     // pickable
     // updateTriggers
