@@ -1,5 +1,6 @@
 import { ScatterplotLayer, GeoJsonLayer, ArcLayer } from '@deck.gl/layers'
 import { MVTLayer } from '@deck.gl/geo-layers'
+import { EditableGeoJsonLayer } from '@nebula.gl/layers'
 // ====[TODO] extensions? https://deck.gl/docs/api-reference/extensions/data-filter-extension
 
 /*
@@ -39,14 +40,8 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['radius', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
-      radiusScale: 1,
       radiusUnits: 'pixels',
-      radiusMinPixels: 0,
-      radiusMaxPixels: Number.MAX_SAFE_INTEGER,
-      lineWidthScale: 1,
       lineWidthUnits: 'pixels',
-      lineWidthMinPixels: 0,
-      lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
     },
   },
   geojson: {
@@ -63,18 +58,8 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['radius', 'elevation', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
-      lineWidthScale: 1,
       lineWidthUnits: 'pixels',
-      lineWidthMinPixels: 0,
-      lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
-      lineJointRounded: false,
-      lineMiterLimit: 4,
-      elevationScale: 1,
-      pointRadiusScale: 1,
-      pointRadiusUnits: 'meters',
-      pointRadiusMinPixels: 0,
-      pointRadiusMaxPixels: Number.MAX_SAFE_INTEGER,
-      material: true,
+      pointRadiusUnits: 'pixels',
     },
   },
   arc: {
@@ -98,30 +83,49 @@ export const LAYER_CONFIGURATIONS = {
     },
     visualizations: ['sourceArcColor', 'targetArcColor', 'arcWidth', 'arcHeight', 'arcTilt'],
     interactions: [],
-    defaultProps: {
-      greatCircle: false,
-      widthMinPixels: 0,
-      widthMaxPixels: Number.MAX_SAFE_INTEGER,
-      widthScale: 1,
-      widthUnits: 'pixels',
-    },
+    defaultProps: {},
   },
   MVT: {
     notAClass: false,
     deckGLClass: MVTLayer,
     dataPropertyAccessor: d => d,
-    // geometry: {
     visualizations: ['fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
-      minZoom: 0,
-      maxZoom: 23,
-      lineWidthScale: 1,
+      // extent: null, //[minX, minY, maxX, maxY]
       lineWidthUnits: 'pixels',
-      lineWidthMinPixels: 0,
-      lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
-      lineJointRounded: false,
-      lineMiterLimit: 4,
+    },
+  },
+  select: {
+    notAClass: true,
+    deckGLClass: EditableGeoJsonLayer,
+    dataPropertyAccessor: d => d,
+    visualizations: [
+      'fill',
+      'lineWidth',
+      'lineColor',
+      'tentativeFillColor',
+      'tentativeLineColor',
+      'tentativeLineWidth',
+      'editHandlePointColor',
+      'editHandlePointOutlineColor',
+      'editHandlePointRadius',
+    ],
+    interactions: [],
+    defaultProps: {
+      pickingRadius: 12,
+      _subLayerProps: {
+        geojson: {
+          parameters: {
+            depthTest: false,
+          },
+        },
+        guides: {
+          parameters: {
+            depthTest: false,
+          },
+        },
+      },
     },
   },
 }
@@ -143,7 +147,7 @@ export const PROP_CONFIGURATIONS = {
     byProducts: { stroked: true },
   },
   lineColor: {
-    defaultValue: [0, 0, 0],
+    defaultValue: [42, 42, 42],
     deckGLName: 'getLineColor',
     byProducts: { stroked: true },
   },
@@ -171,5 +175,29 @@ export const PROP_CONFIGURATIONS = {
   arcTilt: {
     defaultValue: 0,
     deckGLName: 'getTilt',
+  },
+  tentativeFillColor: {
+    defaultValue: [253, 217, 114],
+    deckGLName: 'getTentativeFillColor',
+  },
+  tentativeLineColor: {
+    defaultValue: [215, 142, 15],
+    deckGLName: 'getTentativeLineColor',
+  },
+  tentativeLineWidth: {
+    defaultValue: 2,
+    deckGLName: 'getTentativeLineWidth',
+  },
+  editHandlePointColor: {
+    defaultValue: [182, 38, 40],
+    deckGLName: 'getEditHandlePointColor',
+  },
+  editHandlePointOutlineColor: {
+    defaultValue: [255, 255, 255],
+    deckGLName: 'getEditHandlePointOutlineColor',
+  },
+  editHandlePointRadius: {
+    defaultValue: 4,
+    deckGLName: 'getEditHandlePointRadius',
   },
 }
