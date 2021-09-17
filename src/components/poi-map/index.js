@@ -350,11 +350,8 @@ const POIMap = ({
    */
   const onHover = useCallback((info) => {
     const { object } = info
-    if (object?.properties?.id || object?.cluster) {
-      setHoverInfo({ isHovering: true })
-      if (!object?.cluster) {
-        setHoverInfo({ ...info, isHovering: true })
-      }
+    if (object?.properties?.id && !object?.cluster) {
+      setHoverInfo({ ...info })
     } else  {
       setHoverInfo(null)
     }
