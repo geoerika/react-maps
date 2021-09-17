@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useMemo, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
 import { setView, parseDeckGLLayerFromConfig } from './utils'
@@ -24,19 +24,32 @@ const LocusMap = ({
 }) => {
   const [viewStateOverride, setViewOverride] = useState({})
   const [{ height, width }, setDimensions] = useState({})
+  const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
+  const [selectShape, setSelectShape] = useState([])
+
+  const controller = useMemo(() => {
+    const layerList = layerConfig.reduce((agg, layer) => [...agg, layer.layer], [])
+    if (layerList?.includes('select' )) {
+      return { doubleClickZoom: false }
+    }
+    return { controller: true }
+  }, [layerConfig])
 
   useEffect(() => {
     configurableLayerDispatch({ type: 'init', payload: { layerConfig, dataConfig } })
-  }, [layerConfig, dataConfig])
+  }, [layerConfig, dataConfig, selectShape])
 
   useEffect(() => {
     if (width && height) {
       // recenter based on data
       let dataGeomList = []
       layerConfig.forEach(layer => {
-        if (!['arc', 'MVT'].includes(layer.layer)) {
+        if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
           const data = dataConfig.filter(elem => elem.id === layer.dataId)[0].data
           dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
+        }
+        if (layer.layer === 'select') {
+          setSelectedFeatureIndexes([0])
         }
       })
       const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
@@ -45,7 +58,7 @@ const LocusMap = ({
         ...dataView,
       }))
     }
-  }, [dataConfig, layerConfig, height, width])
+  }, [dataConfig, layerConfig, selectShape, height, width])
 
 
   const [{ layers }, configurableLayerDispatch] = useReducer((state, { type, payload }) => {
@@ -70,7 +83,12 @@ const LocusMap = ({
           ...agg,
           [id]: {
             config: layer,
-            deckLayer: parseDeckGLLayerFromConfig({ ...layer, id })(data[dataIdMap[layer.dataId]]) },
+            deckLayer: parseDeckGLLayerFromConfig({
+              ...layer,
+              selectedFeatureIndexes,
+              setSelectShape,
+              id,
+            })(layer.layer === 'select' ? selectShape : data[dataIdMap[layer.dataId]]) },
         }
       }, {})
       return {
@@ -82,13 +100,12 @@ const LocusMap = ({
     return state
   }, { data: {}, layers: {} })
 
-  console.log('layers: ', layers)
-
   return (
     <Map
       layers={Object.values(layers).map(o => o.deckLayer)}
       setDimensionsCb={(o) => setDimensions(o)}
       viewStateOverride={viewStateOverride}
+      controller={controller}
       { ...mapProps }
     />
   )
