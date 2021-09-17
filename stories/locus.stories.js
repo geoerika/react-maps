@@ -24,9 +24,18 @@ const dataConfig = [
       tileData: mvtData,
     },
   },
+  { id: 'select-123', data: [] },
 ]
 
 const layerConfig = [
+  {
+    layer: 'select',
+    dataId: 'select-123',
+    layerMode: 'polygon',
+    visualizations: {},
+    interactions: {},
+    opacity: 0.5,
+  },
   {
     layer: 'MVT',
     dataId: 'mvt-123',
@@ -46,7 +55,7 @@ const layerConfig = [
     visualizations: {
       radius: {
         value: { field: 'radius' },
-        valueOptions: [100, 500],
+        valueOptions: [5, 15],
         dataScale: 'linear',
       },
       fill: {
