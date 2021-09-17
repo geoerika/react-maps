@@ -40,6 +40,7 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['radius', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
+      pickable: true,
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
     },
@@ -58,6 +59,7 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['radius', 'elevation', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
+      pickable: true,
       lineWidthUnits: 'pixels',
       pointRadiusUnits: 'pixels',
     },
@@ -92,6 +94,7 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
+      pickable: true,
       // extent: null, //[minX, minY, maxX, maxY]
       lineWidthUnits: 'pixels',
     },
@@ -113,6 +116,7 @@ export const LAYER_CONFIGURATIONS = {
     ],
     interactions: [],
     defaultProps: {
+      visible: true,
       pickingRadius: 12,
       _subLayerProps: {
         geojson: {
