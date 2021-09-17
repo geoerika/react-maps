@@ -64,7 +64,7 @@ const defaultProps = {
   showTooltip: false,
   renderTooltip: undefined,
   pitch: 0,
-  initViewState: {},
+  initViewState: undefined,
   setZoom: () => {},
   setCurrentViewport: () => {},
   controller: { controller: true },
