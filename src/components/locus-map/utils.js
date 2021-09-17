@@ -1,4 +1,5 @@
 import { WebMercatorViewport } from '@deck.gl/core'
+import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@nebula.gl/edit-modes'
 
 import { setFinalLayerDataProperty } from '../../shared/utils'
 import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS } from './constants'
@@ -10,7 +11,7 @@ export const parseDeckGLLayerFromConfig = ({
   geometry,
   visualizations,
   // interactions,
-  ...other
+  ...others
 }) => {
   const {
     dataPropertyAccessor = d => d,
@@ -20,6 +21,24 @@ export const parseDeckGLLayerFromConfig = ({
     defaultProps,
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
+
+  const { layerMode } = others
+  let mode = null
+
+  switch(layerMode) {
+  case 'circle':
+    mode = DrawCircleByDiameterMode
+    break
+  case 'rectangle':
+    mode = DrawRectangleMode
+    break
+  case 'polygon':
+    mode = DrawPolygonMode
+    break
+  default:
+    mode = undefined
+    break
+  }
 
   // ====[NOTE] if a layer requires explicit geometry (all except GeoJson?)
   // =========] pass its configured values (references to data fields) to final propFn
@@ -59,14 +78,31 @@ export const parseDeckGLLayerFromConfig = ({
 
   return data => new Layer({
     id,
-    data: layer !== 'MVT' ? data : data.tileGeom,
+    data: layer === 'MVT' ?
+      data.tileGeom :
+      (layer === 'select' ? { type: 'FeatureCollection', features: data } : data),
     // ====[TODO] logic for below
     // pickable
     // updateTriggers
+    mode,
     ...defaultProps,
-    ...other,
+    ...others,
     ...propsWithData({ data }),
     ...geometryProps,
+    onEdit: layer !== 'select' ?
+      () => {} :
+      ({ updatedData }) => {
+        const { setSelectShape } = others
+        /**
+         * need condition here otherwise we get errors when we draw as updatedData.features is updated
+         * only when we finish drawing a point or an entire polygon
+         */
+        if (updatedData?.features?.length && (!data.length ||
+          // these conditions are for calling setSelectShape only when we have new edited / created geometries
+          (data.length && !data.includes(updatedData.features[updatedData.features.length - 1])))) {
+          setSelectShape(updatedData.features)
+        }
+      },
   })
 }
 
