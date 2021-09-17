@@ -27,6 +27,7 @@ const LocusMap = ({
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [selectShape, setSelectShape] = useState([])
 
+  // set controller for Map comp
   const controller = useMemo(() => {
     const layerList = layerConfig.reduce((agg, layer) => [...agg, layer.layer], [])
     if (layerList?.includes('select' )) {
@@ -35,38 +36,7 @@ const LocusMap = ({
     return { controller: true }
   }, [layerConfig])
 
-  useEffect(() => {
-    configurableLayerDispatch({ type: 'init', payload: { layerConfig, dataConfig } })
-  }, [layerConfig, dataConfig])
-
-
-  useEffect(() => {
-    if (width && height) {
-      // recenter based on data
-      let dataGeomList = []
-      layerConfig.forEach(layer => {
-        if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
-          const data = dataConfig.filter(elem => elem.id === layer.dataId)[0].data
-          dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
-        }
-      })
-      const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
-      setViewOverride(o => ({
-        ...o,
-        ...dataView,
-      }))
-    }
-  }, [dataConfig, layerConfig, height, width])
-
-  useEffect(() => {
-    const selectActive = layerConfig.find(layer => layer.layer === 'select')
-    if (selectActive && selectShape.length) {
-      setSelectedFeatureIndexes([0])
-      configurableLayerDispatch({ type: 'select', payload: { data: selectShape } })
-    }
-  }, [layerConfig, selectShape])
-
-
+  // set state for layers and data
   const [{ layers }, configurableLayerDispatch] = useReducer((state, { type, payload }) => {
     if (type === 'init') {
       const { dataConfig, layerConfig } = payload
@@ -136,6 +106,42 @@ const LocusMap = ({
 
     return state
   }, { data: {}, layers: {} })
+
+  // set initial layers and their corresponding data
+  useEffect(() => {
+    configurableLayerDispatch({ type: 'init', payload: { layerConfig, dataConfig } })
+  }, [layerConfig, dataConfig])
+
+  // adjust viewport based on data
+  useEffect(() => {
+    if (width && height) {
+      // recenter based on data
+      let dataGeomList = []
+      layerConfig.forEach(layer => {
+        if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
+          const data = dataConfig.filter(elem => elem.id === layer.dataId)[0].data
+          dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
+        }
+      })
+      const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
+      // don't adjust viewport when we select data on map by drawing shapes
+      if (!selectShape.length ) {
+        setViewOverride(o => ({
+          ...o,
+          ...dataView,
+        }))
+      }
+    }
+  }, [dataConfig, layerConfig, selectShape, height, width])
+
+  // update state for 'select' layer
+  useEffect(() => {
+    const selectActive = layerConfig.find(layer => layer.layer === 'select')
+    if (selectActive && selectShape.length) {
+      setSelectedFeatureIndexes([0])
+      configurableLayerDispatch({ type: 'select', payload: { data: selectShape } })
+    }
+  }, [layerConfig, selectShape])
 
   return (
     <Map
