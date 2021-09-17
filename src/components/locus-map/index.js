@@ -37,7 +37,8 @@ const LocusMap = ({
 
   useEffect(() => {
     configurableLayerDispatch({ type: 'init', payload: { layerConfig, dataConfig } })
-  }, [layerConfig, dataConfig, selectShape])
+  }, [layerConfig, dataConfig])
+
 
   useEffect(() => {
     if (width && height) {
@@ -48,9 +49,6 @@ const LocusMap = ({
           const data = dataConfig.filter(elem => elem.id === layer.dataId)[0].data
           dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
         }
-        if (layer.layer === 'select') {
-          setSelectedFeatureIndexes([0])
-        }
       })
       const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
       setViewOverride(o => ({
@@ -58,7 +56,15 @@ const LocusMap = ({
         ...dataView,
       }))
     }
-  }, [dataConfig, layerConfig, selectShape, height, width])
+  }, [dataConfig, layerConfig, height, width])
+
+  useEffect(() => {
+    const selectActive = layerConfig.find(layer => layer.layer === 'select')
+    if (selectActive && selectShape.length) {
+      setSelectedFeatureIndexes([0])
+      configurableLayerDispatch({ type: 'select', payload: { data: selectShape } })
+    }
+  }, [layerConfig, selectShape])
 
 
   const [{ layers }, configurableLayerDispatch] = useReducer((state, { type, payload }) => {
@@ -88,7 +94,8 @@ const LocusMap = ({
               selectedFeatureIndexes,
               setSelectShape,
               id,
-            })(layer.layer === 'select' ? selectShape : data[dataIdMap[layer.dataId]]) },
+            })(data[dataIdMap[layer.dataId]]),
+          },
         }
       }, {})
       return {
@@ -97,6 +104,36 @@ const LocusMap = ({
         layers,
       }
     }
+
+    if (type === 'select') {
+      const { data } = payload
+      const { layers } = state
+      let selectLayer = {}
+
+      for (const id in layers) {
+        if (layers[id].config.layer === 'select') {
+          selectLayer = {
+            [id]: {
+              ...layers[id],
+              deckLayer: parseDeckGLLayerFromConfig({
+                ...layers[id].config,
+                id,
+                selectedFeatureIndexes,
+                setSelectShape,
+              })(data),
+            },
+          }
+        }
+      }
+      return {
+        ...state,
+        layers: {
+          ...layers,
+          ...selectLayer,
+        },
+      }
+    }
+
     return state
   }, { data: {}, layers: {} })
 
