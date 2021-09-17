@@ -8,19 +8,19 @@ import Map from '../generic-map'
 const propTypes = {
   dataConfig: PropTypes.array.isRequired,
   layerConfig: PropTypes.array.isRequired,
-  mapProps: PropTypes.object,
+  mapConfig: PropTypes.object,
 }
 
 const defaultProps = {
   dataConfig: [],
   layerConfig: [],
-  mapProps: {},
+  mapConfig: {},
 }
 
 const LocusMap = ({
   dataConfig,
   layerConfig,
-  ...mapProps
+  mapConfig,
 }) => {
   const [viewStateOverride, setViewOverride] = useState({})
   const [{ height, width }, setDimensions] = useState({})
@@ -53,7 +53,7 @@ const LocusMap = ({
       }, {})
 
       const layers = layerConfig.reduce((agg, layer, i) => {
-        const id = `layer-${new Date().getTime()}-${i}`
+        const id = `layer-${layer.layer}-${new Date().getTime()}-${i}`
         // ====[TODO] fallback for invalid/missing dataId
         return {
           ...agg,
@@ -149,7 +149,8 @@ const LocusMap = ({
       setDimensionsCb={(o) => setDimensions(o)}
       viewStateOverride={viewStateOverride}
       controller={controller}
-      { ...mapProps }
+      { ...mapConfig }
+      getCursor={mapConfig.cursor(Object.values(layers).map(o => o.deckLayer))}
     />
   )
 }

@@ -31,7 +31,7 @@ const layerConfig = [
   {
     layer: 'select',
     dataId: 'select-123',
-    layerMode: 'polygon',
+    layerMode: 'circle',
     visualizations: {},
     interactions: {},
     opacity: 0.5,
@@ -106,11 +106,15 @@ const layerConfig = [
   },
 ]
 
+const mapConfig = {
+  cursor: (layers) => getCursor({ layers }),
+  mapboxApiAccessToken,
+}
+
 const mapArgs = {
   layerConfig,
   dataConfig,
-  getCursor: getCursor(),
-  mapboxApiAccessToken,
+  mapConfig,
 }
 
 const Template = (args) => <LocusMap {...args} />
