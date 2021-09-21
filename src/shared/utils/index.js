@@ -179,17 +179,15 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
 /**
  * getDataRange - returns array of min and max values of a data set
  * @param { object } param
- * @param { array } param.layerData - data array
+ * @param { array } param.data - data array
  * @param { string } param.dataKey - data attribute key
  * @param { function } param.dataPropertyAccessor - function to access data attribute
  * @return { array  } - array of min and max values
  */
-export const getDataRange = ({ layerData, dataKey, dataPropertyAccessor }) => {
-  let dataRange = []
-  if (layerData?.length > 0) {
-    dataRange = extent(layerData, d => dataPropertyAccessor(d)[dataKey])
+export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
+  if (data?.length) {
+    return extent(data, d => dataPropertyAccessor(d)[dataKey])
   }
-  return dataRange
 }
 
 /**
@@ -223,7 +221,7 @@ export const setFinalLayerDataProperty = ({
     if (sample[value.field] === undefined) {
       return defaultValue
     }
-    const dataRange = getDataRange({ layerData, dataKey: value.field, dataPropertyAccessor })
+    const dataRange = getDataRange({ data: layerData, dataKey: value.field, dataPropertyAccessor })
     if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
       const d3Fn = SCALES[dataScale](dataRange, valueOptions)
       // case for MVT layer
