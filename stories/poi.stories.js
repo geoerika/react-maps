@@ -69,7 +69,7 @@ export const PointPOIActivePOIAndRadiusChange = () => {
   }
   return (
     <div>
-      <p>FIRST: select a POI on the map!</p>
+      <p style={{ color: 'red' }}>FIRST: select a POI on the map!</p>
       <button onClick={changeRadius}>Change Radius</button>
       {POIsRadiiTo.length > 0 &&
         <POIMap
