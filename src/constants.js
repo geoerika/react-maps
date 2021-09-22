@@ -23,3 +23,6 @@ export const SCALES = {
   'quantile': scaleQuantile,
   'quantize': scaleQuantize,
 }
+
+export const CLUSTER_SIZE_SCALE = 40
+export const SUPERCLUSTER_ZOOM = 20
