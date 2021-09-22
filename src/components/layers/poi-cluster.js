@@ -41,7 +41,6 @@ class IconClusterLayer extends CompositeLayer {
   static defaultProps = {
     id: 'icon-cluster',
     getPosition: d => d.geometry.coordinates,
-    pickable: true,
     iconAtlas,
     iconMapping,
     sizeScale: 40,
@@ -101,7 +100,6 @@ class IconClusterLayer extends CompositeLayer {
       iconMapping,
       sizeScale,
       getPosition,
-      pickable,
       visible,
       ...props
     } = this.props
@@ -116,8 +114,8 @@ class IconClusterLayer extends CompositeLayer {
         getPosition,
         getIcon: d => getIconName(d),
         getSize: getIconSize(),
-        pickable,
         visible,
+        pickable: visible,
         ...props,
       }),
     )

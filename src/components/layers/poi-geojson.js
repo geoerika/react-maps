@@ -6,7 +6,6 @@ import { TYPE_RADIUS } from '../../constants'
 
 const defaultProps = {
   id: 'geojson-layer',
-  pickable: true,
   stroked: true,
   visible: false,
   filled: true,
@@ -38,7 +37,7 @@ const defaultProps = {
  * @param { number } param.POIType - POI type
  * @returns { instanceOf GeoJsonLayer } 
  */
-const POIGeoJson = ({ data, mapProps, POIType, ...props }) =>
+const POIGeoJson = ({ data, mapProps, POIType, visible, ...props }) =>
   new GeoJsonLayer({
     data,
     ...defaultProps,
@@ -63,6 +62,8 @@ const POIGeoJson = ({ data, mapProps, POIType, ...props }) =>
     getLineWidth: () => mapProps.lineWidth,
     opacity: mapProps.opacity,
     transitions: data.length === 1 ? { ...defaultProps.transitions } : {},
+    visible,
+    pickable: visible,
     ...props,
   })
 

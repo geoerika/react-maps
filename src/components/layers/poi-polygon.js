@@ -4,7 +4,6 @@ import { PolygonLayer } from '@deck.gl/layers'
 
 const defaultProps = {
   id: 'polygon-layer',
-  pickable: true,
   stroked: true,
   filled: true,
   wireframe: true,
@@ -20,7 +19,7 @@ const defaultProps = {
  * @param { array } param.data - data array
  * @returns { instanceOf PolygonLayer } 
  */
-const POIPolygon = ({ mapProps, data, ...props }) =>
+const POIPolygon = ({ mapProps, data, visible, ...props }) =>
   new PolygonLayer({
     data,
     ...defaultProps,
@@ -28,6 +27,8 @@ const POIPolygon = ({ mapProps, data, ...props }) =>
     getLineColor: () => mapProps.lineColour,
     getLineWidth: () => mapProps.lineWidth,
     opacity: mapProps.opacity,
+    visible,
+    pickable: visible,
     ...props,
   })
 export default POIPolygon
