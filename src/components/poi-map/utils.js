@@ -2,12 +2,12 @@ import * as eqMapLayers from '../../components/layers'
 
 
 /**
- * processLayers - returns layers used by a map
+ * processLayers - returns layers used by POIMap
  * @param { object } param
  * @param { array } param.mapLayers - array of layers to show on map
  * @param { array } param.layerPool - array of all layers used by map in general
  * @param { object } param.props - layers' props
- * @returns { array } - array of Deck.gl and Nebula.gl layers used by a map
+ * @returns { array } - array of Deck.gl and Nebula.gl layers used by POIMap
  */
 export const processLayers = ({ mapLayers, layerPool, props }) =>
   layerPool.map(layer =>
