@@ -33,9 +33,9 @@ const setLayer = ({ layer, props, visible }) =>
 /**
 * clusterZoomLevel - determines if we still have clusters in the data displayed in current viewport
 * @param { object } param
-* @param { string } param.clusterLayerData - cluster layer data displayed in the current viewport
+* @param { string } param.clusterLayerVisibleData - cluster layer data displayed in the current viewport
 * @returns { boolean } - boolean indicating if we see or not clusters in the viewport
 */
-export const clusterZoomLevel = ({ clusterLayerData }) => {
-  return Boolean(clusterLayerData.find(elem => elem?.object?.cluster))
+export const clusterZoomLevel = ({ layerVisibleData }) => {
+  return Boolean(layerVisibleData.find(elem => elem?.object?.cluster))
 }

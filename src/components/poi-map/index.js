@@ -131,7 +131,8 @@ const POIMap = ({
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
-  const [clusterLayerData, setClusterLayerData] = useState()
+  const [showClusters, setShowClusters] = useState(true)
+  const [layerVisibleData, setLayerVisibleData] = useState()
   const mapContainerRef = useRef()
   const deckRef = useRef()
   const mapRef = useRef()
@@ -176,7 +177,7 @@ const POIMap = ({
       if (showRadius) {
         return ['POIGeoJson', 'POIIcon']
       }
-      if (cluster) {
+      if (cluster && showClusters) {
         return ['POICluster']
       }
       return ['POIIcon']
@@ -189,7 +190,7 @@ const POIMap = ({
       return ['POIGeoJson']
     }
     return []
-  }, [mode, activePOI, cluster, POIType, createDrawMode, showRadius, showIcon])
+  }, [mode, activePOI, cluster, showClusters, POIType, createDrawMode, showRadius, showIcon])
 
 
   // React Hook to handle setting up data for DeckGL layers
@@ -256,7 +257,7 @@ const POIMap = ({
     return {
       display: {
         type: 'data view',
-        payload: { data, height, width },
+        payload: { data, height, width, cluster, showClusters },
       },
       edit: {
         type: 'edit',
@@ -274,7 +275,7 @@ const POIMap = ({
         payload: INIT_VIEW[mapMode],
       },
     }
-  }, [data, height, width, mapMode])
+  }, [data, height, width, mapMode, cluster, showClusters])
 
   // React hook that selects feature when map is in editing mode
   useEffect(() => {
@@ -322,7 +323,8 @@ const POIMap = ({
 
   // state viewState
   const [{ viewState }, viewStateDispatch] = useReducer((state, { type, payload }) => {
-    if (['data view', 'edit', 'create'].includes(type)) {
+    const { cluster, showClusters } = payload
+    if (['data view', 'edit', 'create'].includes(type) && ((cluster && showClusters) || !cluster) ) {
       return {
         viewState: {
           ...state.viewState,
@@ -445,10 +447,10 @@ const POIMap = ({
   const getCurrentCursor = getCursor({ layers })
 
   useEffect(() => {
-    if (clusterLayerData?.length) {
-      console.log('clusterZoomLevel: ', clusterZoomLevel({ clusterLayerData }))
+    if (layerVisibleData?.length) {
+      setShowClusters(clusterZoomLevel({ layerVisibleData }))
     }
-  }, [clusterLayerData])
+  }, [layerVisibleData])
 
   /**
  * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
@@ -558,7 +560,7 @@ const POIMap = ({
                 setAllowDrawing(true)
               }
               setHoverInfo(null)
-              setClusterLayerData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
+              setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
             }}
             getCursor={getCurrentCursor}
           >
