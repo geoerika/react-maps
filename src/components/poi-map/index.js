@@ -23,7 +23,7 @@ import DrawButtonGroup from './draw-button-group'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 
-import { processLayers } from './utils'
+import { processLayers, clusterZoomLevel } from './utils'
 import { setView, createCircleFromPointRadius, getCircleRadiusCentroid } from '../../shared/utils'
 import { getCursor, truncate, formatDataPOI } from '../../utils'
 import { useResizeObserver } from '../../hooks'
@@ -443,6 +443,12 @@ const POIMap = ({
   }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
 
   const getCurrentCursor = getCursor({ layers })
+
+  useEffect(() => {
+    if (clusterLayerData?.length) {
+      console.log('clusterZoomLevel: ', clusterZoomLevel({ clusterLayerData }))
+    }
+  }, [clusterLayerData])
 
   /**
  * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
