@@ -21,24 +21,25 @@ export const processLayers = ({ mapLayers, layerPool, props }) =>
   )
 
 /**
-* setLayer - sets a map layer
-* @param { object } param
-* @param { string } param.layer - name of a layer found in src/components/layers/index.js
-* @param { object } param.props - object of layer props
-* @param { boolean } param.visible - boolean to be used to set a certain layer visible or not on the map
-* @returns { instanceOf } - Deck.gl or Nebula.gl layer
-*/
+ * setLayer - sets a map layer
+ * @param { object } param
+ * @param { string } param.layer - name of a layer found in src/components/layers/index.js
+ * @param { object } param.props - object of layer props
+ * @param { boolean } param.visible - boolean to be used to set a certain layer visible or not on the map
+ * @returns { instanceOf } - Deck.gl or Nebula.gl layer
+ */
 const setLayer = ({ layer, props, visible }) =>
   layer === 'POICluster' ?
     new eqMapLayers[layer]({ ...props, visible }) :
     eqMapLayers[layer]({ ...props, visible })
 
 /**
-* isClusterZoomLevel - determines if we should use cluster layer for the data in the current viewport
-* @param { object } param
-* @param { string } param.layerVisibleData - layer data displayed in the current viewport
-* @returns { boolean } - boolean indicating whether we should show clusters on the map
-*/
+ * isClusterZoomLevel - determines if we should use cluster layer for the data in the current viewport
+ * @param { object } param
+ * @param { string } param.layerVisibleData - layer data displayed in the current viewport
+ * @param { string } param.zoom - current map viewport zoom
+ * @returns { boolean } - boolean indicating whether we should show clusters on the map
+ */
 export const isClusterZoomLevel = ({ layerVisibleData, zoom }) => {
   if (layerVisibleData[0].layer.id === 'IconClusterLayer') {
     return Boolean(layerVisibleData?.find(elem => elem?.object?.cluster))
