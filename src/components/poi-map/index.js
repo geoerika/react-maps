@@ -23,12 +23,8 @@ import DrawButtonGroup from './draw-button-group'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 
-import {
-  processLayers,
-  setView,
-  createCircleFromPointRadius,
-  getCircleRadiusCentroid,
-} from '../../shared/utils'
+import { processLayers } from './utils'
+import { setView, createCircleFromPointRadius, getCircleRadiusCentroid } from '../../shared/utils'
 import { getCursor, truncate, formatDataPOI } from '../../utils'
 import { useResizeObserver } from '../../hooks'
 import {
