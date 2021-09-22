@@ -10,6 +10,9 @@ import Supercluster from 'supercluster'
 import iconMapping from '../icons/cluster.json'
 import iconAtlas from '../icons/cluster.png'
 
+import { getSuperclusterRadius } from '../../shared/utils'
+import { CLUSTER_SIZE_SCALE, SUPERCLUSTER_ZOOM } from '../../constants'
+
 /**
  * getIconName - sets icon name for clusters
  * @param { object } d - POI data point
@@ -43,10 +46,9 @@ class IconClusterLayer extends CompositeLayer {
     getPosition: d => d.geometry.coordinates,
     iconAtlas,
     iconMapping,
-    sizeScale: 40,
-    superclusterZoom: 20,
-    getSuperclusterRadius: (viewportZoom, sizeScale) => 
-      viewportZoom > 15 ? sizeScale / 2 : sizeScale,
+    sizeScale: CLUSTER_SIZE_SCALE,
+    superclusterZoom: SUPERCLUSTER_ZOOM,
+    getSuperclusterRadius,
     visible: false,
   }
   
@@ -60,7 +62,7 @@ class IconClusterLayer extends CompositeLayer {
     if (rebuildIndex) {
       const index = new Supercluster({
         maxZoom: props.superclusterZoom,
-        radius: props.getSuperclusterRadius(this.context.viewport.zoom, props.sizeScale),
+        radius: props.getSuperclusterRadius({ zoom: this.context.viewport.zoom }),
       })
       index.load(
         props.data.map(d => ({
