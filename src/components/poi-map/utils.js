@@ -1,4 +1,8 @@
+import Supercluster from 'supercluster'
 import * as eqMapLayers from '../../components/layers'
+
+import { getSuperclusterRadius } from '../../shared/utils'
+import { SUPERCLUSTER_ZOOM } from '../../constants'
 
 
 /**
@@ -29,13 +33,35 @@ const setLayer = ({ layer, props, visible }) =>
     new eqMapLayers[layer]({ ...props, visible }) :
     eqMapLayers[layer]({ ...props, visible })
 
-
 /**
-* clusterZoomLevel - determines if we still have clusters in the data displayed in current viewport
+* isClusterZoomLevel - determines if we should use cluster layer for the data in the current viewport
 * @param { object } param
-* @param { string } param.clusterLayerVisibleData - cluster layer data displayed in the current viewport
-* @returns { boolean } - boolean indicating if we see or not clusters in the viewport
+* @param { string } param.layerVisibleData - layer data displayed in the current viewport
+* @returns { boolean } - boolean indicating whether we should show clusters on the map
 */
-export const clusterZoomLevel = ({ layerVisibleData }) => {
-  return Boolean(layerVisibleData.find(elem => elem?.object?.cluster))
+export const isClusterZoomLevel = ({ layerVisibleData, zoom }) => {
+  if (layerVisibleData[0].layer.id === 'IconClusterLayer') {
+    return Boolean(layerVisibleData?.find(elem => elem?.object?.cluster))
+  }
+  const visiblePOIs = layerVisibleData.reduce((agg, elem) => {
+    return elem.objects ? [...agg, ...elem.objects] : [...agg, elem.object]
+  }, [])
+
+  if (visiblePOIs?.length) {
+    const getPosition = d => d.geometry.coordinates
+    const index = new Supercluster({
+      maxZoom: SUPERCLUSTER_ZOOM,
+      radius: getSuperclusterRadius({ zoom }),
+    })
+    index.load(
+      visiblePOIs.map(d => ({
+        geometry: { coordinates: getPosition(d) },
+        properties: d.properties,
+      })),
+    )
+    const z = Math.floor(zoom)
+    const clusterData = index.getClusters([-180, -85, 180, 85], z)
+  
+    return Boolean(clusterData.find(elem => elem?.properties?.cluster))
+  }
 }

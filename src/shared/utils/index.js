@@ -5,7 +5,7 @@ import { point } from '@turf/helpers'
 import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
-import { SCALES } from '../../constants'
+import { SCALES, CLUSTER_SIZE_SCALE } from '../../constants'
 import { color } from 'd3-color'
 import { extent } from 'd3-array'
 
@@ -268,3 +268,15 @@ export const getArrayGradientFillColors = ({ fillColors, opacity }) =>
  */
 export const setLegendOpacity = ({ opacity }) =>
   opacity >= 1 ? 1 : (opacity > 0.6 ? 0.9 : opacity + 0.2)
+
+/**
+ * getSuperclusterRadius - determines cluster radius
+ * @param { object } param
+ * @param { number } param.zoom - viewstate zoom
+ * @param { number } param.sizeScale - scale for cluster radius size
+ * @returns { number  } - cluster radius in pixels
+ */
+export const getSuperclusterRadius = ({ zoom, sizeScale = CLUSTER_SIZE_SCALE }) =>
+  zoom > 15 ?
+    sizeScale / 2 :
+    sizeScale
