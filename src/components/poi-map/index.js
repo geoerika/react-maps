@@ -131,7 +131,9 @@ const POIMap = ({
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [showRadius, setShowRadius] = useState(false)
+  const [clusterLayerData, setClusterLayerData] = useState()
   const mapContainerRef = useRef()
+  const deckRef = useRef()
   const mapRef = useRef()
   const { width, height } = useResizeObserver(mapContainerRef)
 
@@ -519,6 +521,7 @@ const POIMap = ({
         )}
         {mapCanRender && (
           <DeckGL
+            ref={deckRef}
             initialViewState={viewState}
             layers={layers}
             controller={controller}
@@ -549,6 +552,7 @@ const POIMap = ({
                 setAllowDrawing(true)
               }
               setHoverInfo(null)
+              setClusterLayerData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
             }}
             getCursor={getCurrentCursor}
           >
