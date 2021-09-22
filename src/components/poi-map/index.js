@@ -23,7 +23,7 @@ import DrawButtonGroup from './draw-button-group'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 
-import { processLayers, clusterZoomLevel } from './utils'
+import { processLayers, isClusterZoomLevel } from './utils'
 import { setView, createCircleFromPointRadius, getCircleRadiusCentroid } from '../../shared/utils'
 import { getCursor, truncate, formatDataPOI } from '../../utils'
 import { useResizeObserver } from '../../hooks'
@@ -130,6 +130,7 @@ const POIMap = ({
   const [allowDrawing, setAllowDrawing] = useState(true)
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
+  const [zoom, setZoom] = useState(INIT_VIEW_STATE.zoom)
   const [showRadius, setShowRadius] = useState(false)
   const [showClusters, setShowClusters] = useState(true)
   const [layerVisibleData, setLayerVisibleData] = useState()
@@ -446,17 +447,18 @@ const POIMap = ({
 
   const getCurrentCursor = getCursor({ layers })
 
+  // set state for showClusters
   useEffect(() => {
-    if (layerVisibleData?.length) {
-      setShowClusters(clusterZoomLevel({ layerVisibleData }))
+    if (layerVisibleData?.length && zoom) {
+      setShowClusters(isClusterZoomLevel({ layerVisibleData, zoom }))
     }
-  }, [layerVisibleData])
+  }, [layerVisibleData, zoom])
 
   /**
- * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
- * @returns { object } - object of tooltip keys
- * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
- */
+   * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
+   * @returns { object } - object of tooltip keys
+   * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
+   */
   const finalTooltipKeys = useMemo(() => {
     const { id, idAccessor, name, nameAccessor } = tooltipKeys
     let metricKeysArray = tooltipKeys?.metricKeys || ['lon', 'lat']
@@ -552,15 +554,19 @@ const POIMap = ({
             //     data[0].properties.isOnMapEditing = false
             //   }
             // }}
+            onViewStateChange={o => {
+              const { viewState } = o
+              setZoom(viewState.zoom)
+            }}
             onInteractionStateChange={interactionState => {
               const{ inTransition } = interactionState
               if (inTransition) {
                 setAllowDrawing(false)
               } else {
                 setAllowDrawing(true)
+                setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
               }
               setHoverInfo(null)
-              setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
             }}
             getCursor={getCurrentCursor}
           >
