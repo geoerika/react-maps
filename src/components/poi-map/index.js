@@ -46,13 +46,24 @@ setup(React.createElement)
 const MapWrapper = styled('div')`
 `
 
-const SwitchContainer = styled('div')`
+const SwitchContainerCluster = styled('div')`
   position: absolute;
   margin: 15px;
   z-index: 1;
   background-color: white;
   border-radius: 3px;
   padding: 5px;
+`
+
+const SwitchContainerRadius = styled('div')`
+  position: absolute;
+  margin: 15px;
+  margin-top: ${props => props.clusterswitch ? 60 : 15}px;
+  z-index: 1;
+  background-color: white;
+  border-radius: 3px;
+  padding: 5px;
+  width: 154px;
 `
 
 const DrawButtonContainer = styled('div')`
@@ -132,7 +143,8 @@ const POIMap = ({
   const [hoverInfo, setHoverInfo] = useState(null)
   const [zoom, setZoom] = useState(INIT_VIEW_STATE.zoom)
   const [showRadius, setShowRadius] = useState(false)
-  const [showClusters, setShowClusters] = useState(true)
+  const [showClusters, setShowClusters] = useState(false)
+  const [clusterZoom, setClusterZoom] = useState(false)
   const [layerVisibleData, setLayerVisibleData] = useState()
   const mapContainerRef = useRef()
   const deckRef = useRef()
@@ -175,10 +187,10 @@ const POIMap = ({
       return ['POIEditDraw']
     }
     if (POIType === TYPE_RADIUS.code) {
-      if (showRadius) {
+      if ((cluster && showClusters && !clusterZoom && showRadius) || showRadius) {
         return ['POIGeoJson', 'POIIcon']
       }
-      if (cluster && showClusters) {
+      if (cluster && showClusters && clusterZoom) {
         return ['POICluster']
       }
       return ['POIIcon']
@@ -191,7 +203,7 @@ const POIMap = ({
       return ['POIGeoJson']
     }
     return []
-  }, [mode, activePOI, cluster, showClusters, POIType, createDrawMode, showRadius, showIcon])
+  }, [mode, activePOI, cluster, showClusters, clusterZoom, POIType, createDrawMode, showRadius, showIcon])
 
 
   // React Hook to handle setting up data for DeckGL layers
@@ -258,7 +270,7 @@ const POIMap = ({
     return {
       display: {
         type: 'data view',
-        payload: { data, height, width, cluster, showClusters },
+        payload: { data, height, width },
       },
       edit: {
         type: 'edit',
@@ -276,7 +288,7 @@ const POIMap = ({
         payload: INIT_VIEW[mapMode],
       },
     }
-  }, [data, height, width, mapMode, cluster, showClusters])
+  }, [data, height, width, mapMode])
 
   // React hook that selects feature when map is in editing mode
   useEffect(() => {
@@ -324,8 +336,7 @@ const POIMap = ({
 
   // state viewState
   const [{ viewState }, viewStateDispatch] = useReducer((state, { type, payload }) => {
-    const { cluster, showClusters } = payload
-    if (['data view', 'edit', 'create'].includes(type) && ((cluster && showClusters) || !cluster) ) {
+    if (['data view', 'edit', 'create'].includes(type)) {
       return {
         viewState: {
           ...state.viewState,
@@ -447,12 +458,21 @@ const POIMap = ({
 
   const getCurrentCursor = getCursor({ layers })
 
-  // set state for showClusters
+  // set state for clusterZoom
   useEffect(() => {
-    if (layerVisibleData?.length && zoom) {
-      setShowClusters(isClusterZoomLevel({ layerVisibleData, zoom }))
+    if (zoom && cluster && showClusters) {
+      if (layerVisibleData?.length) {
+        setClusterZoom(isClusterZoomLevel({ layerVisibleData, zoom }))
+      }
     }
-  }, [layerVisibleData, zoom])
+  }, [layerVisibleData, zoom, cluster, showClusters])
+
+  // hide radius switch when we have clusters enabled and cluster level zoom
+  useEffect(() => {
+    if (cluster && clusterZoom && showClusters) {
+      setShowRadius(false)
+    }
+  }, [cluster, showClusters, clusterZoom])
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
@@ -486,8 +506,23 @@ const POIMap = ({
 
   return (
     <MapWrapper>
-      {POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
-        <SwitchContainer>
+      {POIType === TYPE_RADIUS.code && cluster && mode !=='edit' && !mode.startsWith('create-') && (
+        <SwitchContainerCluster>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showClusters}
+                onChange={() => setShowClusters(!showClusters)}
+              />
+            }
+            label='Show Clusters'
+          />
+        </SwitchContainerCluster>
+      )}
+      {POIType === TYPE_RADIUS.code &&
+        ((cluster && showClusters && !clusterZoom) || (cluster && !showClusters) || !cluster) &&
+        mode !=='edit' && !mode.startsWith('create-') && (
+        <SwitchContainerRadius clusterswitch={cluster ? 'yes' : undefined}>
           <FormControlLabel
             control={
               <Switch
@@ -497,7 +532,7 @@ const POIMap = ({
             }
             label='Show Radius'
           />
-        </SwitchContainer>
+        </SwitchContainerRadius>
       )}
       <MapContainer ref={mapContainerRef}>
         {hoverInfo?.object &&
