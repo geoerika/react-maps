@@ -16,7 +16,7 @@ export const useLegends = ({
 }) => {
   const legends = useMemo(() => {
     const legends = []
-    if (fillBasedOn.length) {
+    if (fillBasedOn.length && data?.length) {
       // TODO support quantile/quantize
       // i.e. different lengths of fillColors[]
       const dataRange = getDataRange({ data, dataKey: fillBasedOn, dataPropertyAccessor })
@@ -30,7 +30,7 @@ export const useLegends = ({
       })
     }
 
-    if (elevationBasedOn.length) {
+    if (elevationBasedOn.length && data?.length) {
       const dataRange = getDataRange({ data, dataKey: elevationBasedOn, dataPropertyAccessor })
       legends.push({
         type: 'elevation',
@@ -42,7 +42,7 @@ export const useLegends = ({
       })
     }
 
-    if (radiusBasedOn.length) {
+    if (radiusBasedOn.length && data?.length) {
       const dataRange = getDataRange({ data, dataKey: radiusBasedOn, dataPropertyAccessor })
       legends.push({
         minColor: fillColors[0],
