@@ -37,13 +37,11 @@ const setLayer = ({ layer, props, visible }) =>
  * isClusterZoomLevel - determines if we should use cluster layer for the data in the current viewport
  * @param { object } param
  * @param { string } param.layerVisibleData - layer data displayed in the current viewport
+ * @param { string } param.viewportBBOX - bounding box coordinates for the current viewport
  * @param { string } param.zoom - current map viewport zoom
  * @returns { boolean } - boolean indicating whether we should show clusters on the map
  */
-export const isClusterZoomLevel = ({ layerVisibleData, zoom }) => {
-  if (layerVisibleData[0].layer.id === 'IconClusterLayer') {
-    return Boolean(layerVisibleData?.find(elem => elem?.object?.cluster))
-  }
+export const isClusterZoomLevel = ({ layerVisibleData, viewportBBOX, zoom }) => {
   const visiblePOIs = layerVisibleData.reduce((agg, elem) => {
     return elem.objects ? [...agg, ...elem.objects] : [...agg, elem.object]
   }, [])
@@ -61,7 +59,7 @@ export const isClusterZoomLevel = ({ layerVisibleData, zoom }) => {
       })),
     )
     const z = Math.floor(zoom)
-    const clusterData = index.getClusters([-180, -85, 180, 85], z)
+    const clusterData = index.getClusters(viewportBBOX, z)
   
     return Boolean(clusterData.find(elem => elem?.properties?.cluster))
   }
