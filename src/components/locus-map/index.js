@@ -5,18 +5,6 @@ import { setView, parseDeckGLLayerFromConfig } from './utils'
 import Map from '../generic-map'
 
 
-const propTypes = {
-  dataConfig: PropTypes.array.isRequired,
-  layerConfig: PropTypes.array.isRequired,
-  mapConfig: PropTypes.object,
-}
-
-const defaultProps = {
-  dataConfig: [],
-  layerConfig: [],
-  mapConfig: {},
-}
-
 const LocusMap = ({
   dataConfig,
   layerConfig,
@@ -155,7 +143,14 @@ const LocusMap = ({
   )
 }
 
-LocusMap.propTypes = propTypes
-LocusMap.defaultProps = defaultProps
+LocusMap.propTypes = {
+  dataConfig: PropTypes.array.isRequired,
+  layerConfig: PropTypes.array.isRequired,
+  mapConfig: PropTypes.object,
+}
+
+LocusMap.defaultProps = {
+  mapConfig: {},
+}
 
 export default LocusMap

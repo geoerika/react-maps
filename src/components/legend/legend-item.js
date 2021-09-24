@@ -51,34 +51,6 @@ const LegendSymbolContainer = styled('div')`
   width: ${({ max }) => max ? '120px' : '20px'};
 `
 
-const propTypes = {
-  legendItemProps: PropTypes.shape({
-    label: PropTypes.string,
-    max: PropTypes.number,
-    min: PropTypes.number,
-    metricAliases: PropTypes.object,
-    formatLegendTitle: PropTypes.func,
-    formatPropertyLabel: PropTypes.func,
-    formatData: PropTypes.object,
-    type: PropTypes.string,
-    symbolProps: PropTypes.object,
-  }),
-}
-
-const defaultProps = {
-  legendItemProps: {
-    label: '',
-    max: undefined,
-    min: undefined,
-    metricAliases: undefined,
-    formatLegendTitle: d => d,
-    formatPropertyLabel: d => d,
-    formatData: undefined,
-    type: '',
-    symbolProps: undefined,
-  },
-}
-
 const LegendItem = ({ legendItemProps }) => {
   const {
     min,
@@ -115,7 +87,34 @@ const LegendItem = ({ legendItemProps }) => {
   )
 }
 
-LegendItem.propTypes = { ...propTypes, ...typographyPropTypes }
-LegendItem.defaultProps = { ...defaultProps,  ...typographyDefaultProps }
+LegendItem.propTypes = {
+  legendItemProps: PropTypes.shape({
+    label: PropTypes.string,
+    max: PropTypes.number,
+    min: PropTypes.number,
+    metricAliases: PropTypes.object,
+    formatLegendTitle: PropTypes.func,
+    formatPropertyLabel: PropTypes.func,
+    formatData: PropTypes.object,
+    type: PropTypes.string,
+    symbolProps: PropTypes.object,
+  }),
+  ...typographyPropTypes,
+}
+
+LegendItem.defaultProps = {
+  legendItemProps: {
+    label: '',
+    max: undefined,
+    min: undefined,
+    metricAliases: undefined,
+    formatLegendTitle: d => d,
+    formatPropertyLabel: d => d,
+    formatData: undefined,
+    type: '',
+    symbolProps: undefined,
+  },
+  ...typographyDefaultProps,
+}
 
 export default LegendItem

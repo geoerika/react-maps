@@ -18,15 +18,13 @@ export const convertCSVtoJSON = f => {
       .reduce((agg, ele, i) => ({ ...agg, [headers[i]]: parseFloat(ele) ? parseFloat(ele) : ele }), {}))
 }
 
-
 export const useLoader = ({ setData, mode = 'text', accept }) => {
   const onDrop = useCallback(([file]) => { // single file handling only for now
     if (!file) {
       return
     }
-
+    
     const reader = new FileReader()
-
     reader.onerror = () => { console.error('file reading has failed') }
     reader.onload = () => {
       setData(reader.result)
@@ -64,6 +62,7 @@ Loader.propTypes = {
   prompt: PropTypes.string,
   activePrompt: PropTypes.string,
 }
+
 Loader.defaultProps = {
   setData: () => {},
   mode: 'text',

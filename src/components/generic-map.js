@@ -33,43 +33,6 @@ const INIT_VIEW_STATE = {
   zoom: 2.5,
 }
 
-const propTypes = {
-  layers: PropTypes.array,
-  setDimensionsCb: PropTypes.func,
-  setHighlightObj: PropTypes.func,
-  getTooltip: PropTypes.func,
-  getCursor: PropTypes.func,
-  viewStateOverride: PropTypes.object,
-  legend: PropTypes.oneOfType([
-    PropTypes.node,
-    PropTypes.bool,
-  ]),
-  showTooltip: PropTypes.bool,
-  renderTooltip: PropTypes.func,
-  initViewState: PropTypes.object,
-  pitch: PropTypes.number,
-  setZoom: PropTypes.func,
-  setCurrentViewport: PropTypes.func,
-  controller: PropTypes.object,
-}
-
-const defaultProps = {
-  layers: [],
-  setDimensionsCb: () => {},
-  setHighlightObj: () => {},
-  getTooltip: () => {},
-  getCursor: () => {},
-  viewStateOverride: {},
-  legend: undefined,
-  showTooltip: false,
-  renderTooltip: undefined,
-  pitch: 0,
-  initViewState: undefined,
-  setZoom: () => {},
-  setCurrentViewport: () => {},
-  controller: { controller: true },
-}
-
 // DeckGL react component
 const Map = ({
   layers,
@@ -179,12 +142,42 @@ const Map = ({
 }
 
 Map.propTypes = {
-  ...propTypes,
+  layers: PropTypes.array,
+  setDimensionsCb: PropTypes.func,
+  setHighlightObj: PropTypes.func,
+  getTooltip: PropTypes.func,
+  getCursor: PropTypes.func,
+  viewStateOverride: PropTypes.object,
+  legend: PropTypes.oneOfType([
+    PropTypes.node,
+    PropTypes.bool,
+  ]),
+  showTooltip: PropTypes.bool,
+  renderTooltip: PropTypes.func,
+  initViewState: PropTypes.object,
+  pitch: PropTypes.number,
+  setZoom: PropTypes.func,
+  setCurrentViewport: PropTypes.func,
+  controller: PropTypes.object,
   ...StaticMap.propTypes,
   ...commonProps,
 }
+
 Map.defaultProps = {
-  ...defaultProps,
+  layers: [],
+  setDimensionsCb: () => {},
+  setHighlightObj: () => {},
+  getTooltip: () => {},
+  getCursor: () => {},
+  viewStateOverride: {},
+  legend: undefined,
+  showTooltip: false,
+  renderTooltip: undefined,
+  pitch: 0,
+  initViewState: undefined,
+  setZoom: () => {},
+  setCurrentViewport: () => {},
+  controller: { controller: true },
   ...StaticMap.defaultProps,
   ...commonDefaultProps,
 }

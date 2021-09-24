@@ -13,35 +13,6 @@ import Map from './old-generic-map'
 import Loader, { convertCSVtoJSON } from './loader'
 
 
-const propTypes = {
-  fillBasedOnInit: PropTypes.string,
-  fillColors: PropTypes.array,
-  elevationBasedOnInit: PropTypes.string,
-  elevations: PropTypes.array,
-  onClick: PropTypes.func,
-  onHover: PropTypes.func,
-  opacity: PropTypes.number,
-  getColorWeight: PropTypes.func,
-  getElevationWeight: PropTypes.func,
-  showLegend: PropTypes.bool,
-  legendPosition: PropTypes.string,
-}
-
-const defaultProps = {
-  fillBasedOnInit: '',
-  fillColors: [interpolateBlues(0), interpolateBlues(1)],
-  elevationBasedOnInit: '',
-  elevations: [0, 10000],
-  onClick: undefined,
-  onHover: undefined,
-  opacity: 0.8,
-  getColorWeight: () => 1,
-  getElevationWeight: () => 1,
-  showLegend: false,
-  legendPosition: 'top-left',
-}
-
-
 const HexLayerMap = ({
   fillBasedOnInit,
   fillColors,
@@ -177,7 +148,34 @@ const HexLayerMap = ({
   )
 }
 
-HexLayerMap.propTypes = { ...propTypes, ...commonProps }
-HexLayerMap.defaultProps = { ...defaultProps, ...commonDefaultProps }
+HexLayerMap.propTypes = {
+  fillBasedOnInit: PropTypes.string,
+  fillColors: PropTypes.array,
+  elevationBasedOnInit: PropTypes.string,
+  elevations: PropTypes.array,
+  onClick: PropTypes.func,
+  onHover: PropTypes.func,
+  opacity: PropTypes.number,
+  getColorWeight: PropTypes.func,
+  getElevationWeight: PropTypes.func,
+  showLegend: PropTypes.bool,
+  legendPosition: PropTypes.string,
+  ...commonProps,
+}
+
+HexLayerMap.defaultProps = {
+  fillBasedOnInit: '',
+  fillColors: [interpolateBlues(0), interpolateBlues(1)],
+  elevationBasedOnInit: '',
+  elevations: [0, 10000],
+  onClick: undefined,
+  onHover: undefined,
+  opacity: 0.8,
+  getColorWeight: () => 1,
+  getElevationWeight: () => 1,
+  showLegend: false,
+  legendPosition: 'top-left',
+  ...commonDefaultProps,
+}
 
 export default HexLayerMap

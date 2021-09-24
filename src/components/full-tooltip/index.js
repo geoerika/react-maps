@@ -20,24 +20,6 @@ const Tooltip = styled('div', forwardRef)`
   background-color: white;
 `
 
-const propTypes = {
-  x: PropTypes.number.isRequired,
-  y: PropTypes.number.isRequired,
-  w: PropTypes.number.isRequired,
-  h: PropTypes.number.isRequired,
-  children: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.element,
-  ]).isRequired,
-  translate: PropTypes.bool,
-  classes: PropTypes.string,
-}
-
-const defaultProps = {
-  translate: false,
-  classes: '',
-}
-
 const MapTooltipContainer = ({
   x,
   y,
@@ -67,7 +49,22 @@ const MapTooltipContainer = ({
   )
 }
 
-MapTooltipContainer.propTypes = propTypes
-MapTooltipContainer.defaultProps = defaultProps
+MapTooltipContainer.propTypes = {
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+  w: PropTypes.number.isRequired,
+  h: PropTypes.number.isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.array,
+    PropTypes.element,
+  ]).isRequired,
+  translate: PropTypes.bool,
+  classes: PropTypes.string,
+}
+
+MapTooltipContainer.defaultProps =  {
+  translate: false,
+  classes: '',
+}
 
 export default MapTooltipContainer
