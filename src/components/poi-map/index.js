@@ -14,6 +14,7 @@ import DeckGL from '@deck.gl/react'
 import { FlyToInterpolator } from '@deck.gl/core'
 import { StaticMap } from 'react-map-gl'
 import Geocoder from 'react-map-gl-geocoder'
+import { WebMercatorViewport } from '@deck.gl/core'
 
 import { FormControlLabel } from '@material-ui/core'
 import { Switch } from '@eqworks/lumen-ui'
@@ -142,6 +143,7 @@ const POIMap = ({
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
   const [zoom, setZoom] = useState(INIT_VIEW_STATE.zoom)
+  const [viewportBBOX, setViewportBBOX] = useState()
   const [showRadius, setShowRadius] = useState(false)
   const [showClusters, setShowClusters] = useState(false)
   const [clusterZoom, setClusterZoom] = useState(false)
@@ -204,7 +206,6 @@ const POIMap = ({
     }
     return []
   }, [mode, activePOI, cluster, showClusters, clusterZoom, POIType, createDrawMode, showRadius, showIcon])
-
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -460,12 +461,10 @@ const POIMap = ({
 
   // set state for clusterZoom
   useEffect(() => {
-    if (zoom && cluster && showClusters) {
-      if (layerVisibleData?.length) {
-        setClusterZoom(isClusterZoomLevel({ layerVisibleData, zoom }))
-      }
+    if (cluster && showClusters && layerVisibleData?.length && viewportBBOX?.length && zoom) {
+      setClusterZoom(isClusterZoomLevel({ layerVisibleData, viewportBBOX, zoom }))
     }
-  }, [layerVisibleData, zoom, cluster, showClusters])
+  }, [cluster, showClusters, layerVisibleData, viewportBBOX, zoom])
 
   // hide radius switch when we have clusters enabled and cluster level zoom
   useEffect(() => {
@@ -493,9 +492,7 @@ const POIMap = ({
     }
   }, [tooltipKeys, dataPropertyAccessor])
 
-  /**
-   * mapCanRender - conditions to render the map
-   */
+  // mapCanRender - conditions to render the map
   const mapCanRender = Boolean(useMemo(() =>
     (mapLayers.includes('POIEditDraw') && data[0]?.properties?.poiType === TYPE_POLYGON.code) ||
     (!mapLayers.includes('POIEditDraw') && data.length) ||
@@ -592,6 +589,7 @@ const POIMap = ({
             onViewStateChange={o => {
               const { viewState } = o
               setZoom(viewState.zoom)
+              setViewportBBOX(new WebMercatorViewport(viewState).getBounds())
             }}
             onInteractionStateChange={interactionState => {
               const{ inTransition } = interactionState
@@ -599,11 +597,13 @@ const POIMap = ({
                 setAllowDrawing(false)
               } else {
                 setAllowDrawing(true)
-                setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
               }
               setHoverInfo(null)
             }}
             getCursor={getCurrentCursor}
+            onAfterRender={() =>
+              setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
+            }
           >
             <StaticMap
               ref={mapRef}
