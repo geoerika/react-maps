@@ -22,76 +22,6 @@ import PeriodSelector from './controls/report-periods'
 
 setup(React.createElement)
 
-const propTypes = {
-  getReport: PropTypes.func.isRequired,
-  report_id: PropTypes.number.isRequired,
-  layer_id: PropTypes.number.isRequired,
-  map_id: PropTypes.number.isRequired,
-  radiusBasedOn: PropTypes.string,
-  radiusDataScale: PropTypes.string,
-  radii: PropTypes.array,
-  fillBasedOn: PropTypes.string,
-  fillDataScale: PropTypes.string,
-  fillColors: PropTypes.array,
-  onClick: PropTypes.func,
-  onHover: PropTypes.func,
-  opacity: PropTypes.number,
-  getRadius: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.array,
-  ]),
-  radiusUnits: PropTypes.string,
-  filled: PropTypes.bool,
-  getFillColor: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.array,
-  ]),
-  stroked: PropTypes.bool,
-  lineWidthUnits: PropTypes.string,
-  getLineWidth: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.array,
-  ]),
-  getLineColor: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.array,
-  ]),
-  showLegend: PropTypes.bool,
-  legendPosition: PropTypes.string,
-  defaultKeyMetric: PropTypes.string,
-  useTooltip: PropTypes.bool,
-}
-
-const defaultProps = {
-  radiusBasedOn: '',
-  radiusDataScale: 'linear',
-  radii: [5, 50],
-  fillBasedOn: '',
-  fillDataScale: 'linear',
-  fillColors: [interpolateBlues(0), interpolateBlues(1)],
-  onClick: undefined,
-  onHover: undefined,
-  opacity: 0.8,
-  getRadius: 10,
-  // radiusScale: 5,
-  radiusUnits: 'pixels',
-  // radiusMinPixels: 10,
-  // radiusMaxPixels: 100,
-  // getColor: () => null,
-  filled: true,
-  getFillColor: [255, 140, 0],
-  // lineWidthUnits,
-  // lineWidthMinPixels: 1,
-  // lineWidthMaxPixels: 10,
-  stroked: true,
-  lineWidthUnits: 'pixels',
-  getLineWidth: 2,
-  getLineColor: [0, 0, 0],
-  showLegend: false,
-  legendPosition: 'top-left',
-  useTooltip: false,
-}
-
 const SCALES = {
   'linear': scaleLinear,
   'quantile': scaleQuantile,
@@ -319,7 +249,7 @@ const ReportWIMap = ({
     opacity,
   ])
 
-  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, metrics })
+  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, data })
   
   const handleRadiusBasedOnChange = e => setRadiusBasedOn(e.target.value)
   const handleRadiusTypeChange = e => {
@@ -392,7 +322,76 @@ const ReportWIMap = ({
   )
 }
 
-ReportWIMap.propTypes = { ...propTypes, ...commonProps }
-ReportWIMap.defaultProps = { ...defaultProps, ...commonDefaultProps }
+ReportWIMap.propTypes = {
+  getReport: PropTypes.func.isRequired,
+  report_id: PropTypes.number.isRequired,
+  layer_id: PropTypes.number.isRequired,
+  map_id: PropTypes.number.isRequired,
+  radiusBasedOn: PropTypes.string,
+  radiusDataScale: PropTypes.string,
+  radii: PropTypes.array,
+  fillBasedOn: PropTypes.string,
+  fillDataScale: PropTypes.string,
+  fillColors: PropTypes.array,
+  onClick: PropTypes.func,
+  onHover: PropTypes.func,
+  opacity: PropTypes.number,
+  getRadius: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.array,
+  ]),
+  radiusUnits: PropTypes.string,
+  filled: PropTypes.bool,
+  getFillColor: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.array,
+  ]),
+  stroked: PropTypes.bool,
+  lineWidthUnits: PropTypes.string,
+  getLineWidth: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.array,
+  ]),
+  getLineColor: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.array,
+  ]),
+  showLegend: PropTypes.bool,
+  legendPosition: PropTypes.string,
+  defaultKeyMetric: PropTypes.string,
+  useTooltip: PropTypes.bool,
+  ...commonProps,
+}
+
+ReportWIMap.defaultProps = {
+  radiusBasedOn: '',
+  radiusDataScale: 'linear',
+  radii: [5, 50],
+  fillBasedOn: '',
+  fillDataScale: 'linear',
+  fillColors: [interpolateBlues(0), interpolateBlues(1)],
+  onClick: undefined,
+  onHover: undefined,
+  opacity: 0.8,
+  getRadius: 10,
+  // radiusScale: 5,
+  radiusUnits: 'pixels',
+  // radiusMinPixels: 10,
+  // radiusMaxPixels: 100,
+  // getColor: () => null,
+  filled: true,
+  getFillColor: [255, 140, 0],
+  // lineWidthUnits,
+  // lineWidthMinPixels: 1,
+  // lineWidthMaxPixels: 10,
+  stroked: true,
+  lineWidthUnits: 'pixels',
+  getLineWidth: 2,
+  getLineColor: [0, 0, 0],
+  showLegend: false,
+  legendPosition: 'top-left',
+  useTooltip: false,
+  ...commonDefaultProps,
+}
 
 export default ReportWIMap

@@ -20,38 +20,6 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   ...position,
 }))
 
-const propTypes = {
-  position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
-  legends: PropTypes.arrayOf(PropTypes.shape({
-    max: PropTypes.number,
-    min: PropTypes.number,
-    label: PropTypes.string,
-  })),
-  fillBasedOn: PropTypes.string,
-  metricAliases: PropTypes.object,
-  formatLegendTitle: PropTypes.func,
-  formatPropertyLabel: PropTypes.func,
-  formatData: PropTypes.object,
-  symbolLineColor: PropTypes.string,
-}
-
-const defaultProps = {
-  position: 'top-left',
-  legends: [
-    {
-      max: undefined,
-      min: undefined,
-      label: '',
-    },
-  ],
-  fillBasedOn: '',
-  metricAliases: undefined,
-  formatLegendTitle: d => d,
-  formatPropertyLabel: d => d,
-  formatData: undefined,
-  symbolLineColor: '',
-}
-
 const Legend = ({
   position,
   legends,
@@ -97,7 +65,38 @@ const Legend = ({
   )
 }
 
-Legend.propTypes = { ...propTypes, ...typographyPropTypes }
-Legend.defaultProps = { ...defaultProps,  ...typographyDefaultProps }
+Legend.propTypes = {
+  position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
+  legends: PropTypes.arrayOf(PropTypes.shape({
+    max: PropTypes.number,
+    min: PropTypes.number,
+    label: PropTypes.string,
+  })),
+  fillBasedOn: PropTypes.string,
+  metricAliases: PropTypes.object,
+  formatLegendTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
+  formatData: PropTypes.object,
+  symbolLineColor: PropTypes.string,
+  ...typographyPropTypes,
+}
+
+Legend.defaultProps = {
+  position: 'top-left',
+  legends: [
+    {
+      max: undefined,
+      min: undefined,
+      label: '',
+    },
+  ],
+  fillBasedOn: '',
+  metricAliases: undefined,
+  formatLegendTitle: d => d,
+  formatPropertyLabel: d => d,
+  formatData: undefined,
+  symbolLineColor: '',
+  ...typographyDefaultProps,
+}
 
 export default Legend

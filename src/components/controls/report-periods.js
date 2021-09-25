@@ -13,15 +13,6 @@ const ControlContainer = styled('div')`
   padding: 5px;
 `
 
-const propTypes = {
-  selectPeriod: PropTypes.func.isRequired,
-  selectPeriodType: PropTypes.func.isRequired,
-  periods: PropTypes.array,
-  selected: PropTypes.object,
-}
-
-const defaultProps = { periods: [], selected: {} }
-
 const formatDate = d => `${d.getUTCDate()}/${d.getUTCMonth() + 1}/${d.getUTCFullYear()}`
 
 export const PeriodSelector = ({
@@ -50,7 +41,13 @@ export const PeriodSelector = ({
   </ControlContainer>
 )
 
-PeriodSelector.propTypes = propTypes
-PeriodSelector.defaultProps = defaultProps
+PeriodSelector.propTypes = {
+  selectPeriod: PropTypes.func.isRequired,
+  selectPeriodType: PropTypes.func.isRequired,
+  periods: PropTypes.array,
+  selected: PropTypes.object,
+}
+
+PeriodSelector.defaultProps = { periods: [], selected: {} }
 
 export default PeriodSelector

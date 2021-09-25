@@ -31,30 +31,6 @@ const INIT_VIEW_STATE = {
   zoom: 2.5,
 }
 
-const propTypes = {
-  layers: PropTypes.array,
-  setDimensionsCb: PropTypes.func,
-  getTooltip: PropTypes.func,
-  getCursor: PropTypes.func,
-  viewStateOverride: PropTypes.object,
-  showLegend: PropTypes.bool,
-  position: PropTypes.string,
-  legends: PropTypes.array,
-  showTooltip: PropTypes.bool,
-  tooltipNode: PropTypes.node,
-}
-const defaultProps = {
-  layers: [],
-  setDimensionsCb: () => {},
-  getTooltip: () => {},
-  getCursor: () => {},
-  viewStateOverride: {},
-  showLegend: false,
-  position: 'top-left',
-  legends: [],
-  showTooltip: false,
-}
-
 const getPositionFromLngLat = ({ lngLat, ...viewState }) => new WebMercatorViewport({
   ...viewState,
 }).project(lngLat)
@@ -147,8 +123,31 @@ const Map = ({
   )
 }
 
+Map.propTypes = {
+  layers: PropTypes.array,
+  setDimensionsCb: PropTypes.func,
+  getTooltip: PropTypes.func,
+  getCursor: PropTypes.func,
+  viewStateOverride: PropTypes.object,
+  showLegend: PropTypes.bool,
+  position: PropTypes.string,
+  legends: PropTypes.array,
+  showTooltip: PropTypes.bool,
+  tooltipNode: PropTypes.node,
+  ...StaticMap.propTypes.current,
+}
 
-Map.propTypes = { ...propTypes, ...StaticMap.propTypes }
-Map.defaultProps = { ...defaultProps, ...StaticMap.defaultProps }
+Map.defaultProps = {
+  layers: [],
+  setDimensionsCb: () => {},
+  getTooltip: () => {},
+  getCursor: () => {},
+  viewStateOverride: {},
+  showLegend: false,
+  position: 'top-left',
+  legends: [],
+  showTooltip: false,
+  ...StaticMap.defaultProps,
+}
 
 export default Map

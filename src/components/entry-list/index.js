@@ -26,9 +26,6 @@ const Key = styled('div')`
 
 const Value = styled('div')``
 
-const propTypes = { object: PropTypes.object }
-const defaultProps = { object: {} }
-
 const EntryList = ({ object }) => (
   <EntryListContainer>
     {Object.entries(object).map(([key, value]) => (
@@ -39,7 +36,7 @@ const EntryList = ({ object }) => (
   </EntryListContainer>
 )
 
-EntryList.propTypes = propTypes
-EntryList.defaultProps = defaultProps
+EntryList.propTypes = { object: PropTypes.object }
+EntryList.defaultProps = { object: {} }
 
 export default EntryList

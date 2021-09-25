@@ -14,13 +14,6 @@ const ControlContainer = styled('div')`
   padding: 5px;
 `
 
-const propTypes = {
-  selected: PropTypes.string.isRequired,
-  callback: PropTypes.func.isRequired,
-  type: PropTypes.string.isRequired,
-  typeCallback: PropTypes.func.isRequired,
-}
-
 export const MetricSelector = ({
   selected,
   callback,
@@ -52,6 +45,11 @@ export const MetricSelector = ({
   </ControlContainer>
 )
 
-MetricSelector.propTypes = propTypes
+MetricSelector.propTypes = {
+  selected: PropTypes.string.isRequired,
+  callback: PropTypes.func.isRequired,
+  type: PropTypes.string.isRequired,
+  typeCallback: PropTypes.func.isRequired,
+}
 
 export default MetricSelector

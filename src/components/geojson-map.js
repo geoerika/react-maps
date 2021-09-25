@@ -11,61 +11,6 @@ import { useLegends, useMapData, useElevation, useFill } from '../hooks'
 import Map from './old-generic-map'
 
 
-const propTypes = {
-  fillBasedOnInit: PropTypes.string,
-  fillDataScale: PropTypes.string,
-  fillColors: PropTypes.array,
-  elevationBasedOnInit: PropTypes.string,
-  elevationDataScale: PropTypes.string,
-  elevations: PropTypes.array,
-  onClick: PropTypes.func,
-  onHover: PropTypes.func,
-  opacity: PropTypes.number,
-  filled: PropTypes.bool,
-  getFillColor: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.array,
-  ]),
-  getElevation: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.func,
-  ]),
-  // elevationScale
-  stroked: PropTypes.bool,
-  lineWidthUnits: PropTypes.string,
-  getLineWidth: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.func,
-  ]),
-  getLineColor: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.array,
-  ]),
-  showLegend: PropTypes.bool,
-  legendPosition: PropTypes.string,
-}
-
-const defaultProps = {
-  fillBasedOnInit: '',
-  fillDataScale: 'linear',
-  fillColors: [interpolateBlues(0), interpolateBlues(1)],
-  elevationBasedOnInit: '',
-  elevationDataScale: 'linear',
-  elevations: [0, 1000000],
-  onClick: undefined,
-  onHover: undefined,
-  opacity: 0.8,
-  filled: true,
-  getFillColor: [255, 140, 0],
-  getElevation: 0,
-  stroked: true,
-  lineWidthUnits: 'pixels',
-  getLineWidth: 2,
-  getLineColor: [0, 0, 0],
-  showLegend: false,
-  legendPosition: 'top-left',
-}
-
 const GeoJsonMap = ({
   fillBasedOnInit,
   fillDataScale,
@@ -157,7 +102,7 @@ const GeoJsonMap = ({
     opacity,
   ])
 
-  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, metrics })
+  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, data })
 
   return (
     <div>
@@ -190,7 +135,61 @@ const GeoJsonMap = ({
   )
 }
 
-GeoJsonMap.propTypes = { ...propTypes, ...commonProps }
-GeoJsonMap.defaultProps = { ...defaultProps, ...commonDefaultProps }
+GeoJsonMap.propTypes = {
+  fillBasedOnInit: PropTypes.string,
+  fillDataScale: PropTypes.string,
+  fillColors: PropTypes.array,
+  elevationBasedOnInit: PropTypes.string,
+  elevationDataScale: PropTypes.string,
+  elevations: PropTypes.array,
+  onClick: PropTypes.func,
+  onHover: PropTypes.func,
+  opacity: PropTypes.number,
+  filled: PropTypes.bool,
+  getFillColor: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.array,
+  ]),
+  getElevation: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.func,
+  ]),
+  // elevationScale
+  stroked: PropTypes.bool,
+  lineWidthUnits: PropTypes.string,
+  getLineWidth: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.func,
+  ]),
+  getLineColor: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.array,
+  ]),
+  showLegend: PropTypes.bool,
+  legendPosition: PropTypes.string,
+  ...commonProps,
+}
+
+GeoJsonMap.defaultProps = {
+  fillBasedOnInit: '',
+  fillDataScale: 'linear',
+  fillColors: [interpolateBlues(0), interpolateBlues(1)],
+  elevationBasedOnInit: '',
+  elevationDataScale: 'linear',
+  elevations: [0, 1000000],
+  onClick: undefined,
+  onHover: undefined,
+  opacity: 0.8,
+  filled: true,
+  getFillColor: [255, 140, 0],
+  getElevation: 0,
+  stroked: true,
+  lineWidthUnits: 'pixels',
+  getLineWidth: 2,
+  getLineColor: [0, 0, 0],
+  showLegend: false,
+  legendPosition: 'top-left',
+  ...commonDefaultProps,
+}
 
 export default GeoJsonMap

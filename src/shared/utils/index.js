@@ -8,6 +8,7 @@ import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
 import { SCALES } from '../../constants'
 import { color } from 'd3-color'
+import { extent } from 'd3-array'
 
 
 /**
@@ -176,36 +177,68 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
 }
 
 /**
- * setFinalLayerDataAccsessor - returns function or values to set deck.gl layer property (ex: fill colour, radius)
+ * getDataRange - returns array of min and max values of a data set
  * @param { object } param
+ * @param { array } param.data - data array
  * @param { string } param.dataKey - data attribute key
- * @param { function || number || array } param.getLayerProp - deck.gl layer data accessor
- * @param { function } param.layerDataScale - D3 scale function
- * @param { array } param.layerPropRange - array of range values for the deck.gl layer property
- * @param { object } param.metrics - object of {max, min} values of all data attribute keys
+ * @param { function } param.dataPropertyAccessor - function to access data attribute
+ * @return { array  } - array of min and max values
+ */
+export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
+  if (data?.length) {
+    return extent(data, d => dataPropertyAccessor(d)[dataKey])
+  }
+}
+
+/**
+ * setFinalLayerDataProperty - returns function or values to set deck.gl layer property (ex: fill colour, radius)
+ * @param { object } param
+ * @param { array } param.data - data array
+ * @param { number || string || array || object } param.value - value for (attribute data || layer prop) or data attribute key
+ * @param { number || string || array } param.defaultValue - default value attribute data || layer prop
+ * @param { function } param.dataScale - D3 scale function
+ * @param { array } param.valueOptions - array of range values for the deck.gl layer property
  * @param { function } param.dataPropertyAccessor - function to help access attribute data
+ * @param { string } param.highlightId - id of selected object on the map
  * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
  */
-export const setFinalLayerDataAccessor = ({
-  dataKey,
-  getLayerProp,
-  layerDataScale,
-  layerPropRange,
-  metrics,
+export const setFinalLayerDataProperty = ({
+  data,
+  value,
+  defaultValue,
+  dataScale,
+  valueOptions,
   dataPropertyAccessor = d => d,
   highlightId = null,
 }) => {
-  if (dataKey?.length) {
-    if (metrics[dataKey]?.max) {
-      const d3Fn = SCALES[layerDataScale]([
-        (metrics[dataKey] || { min: 0 }).min,
-        (metrics[dataKey] || { max: 10 }).max,
-      ], layerPropRange)
-      return (d) => d3Fn(dataPropertyAccessor(d)[dataKey])
-    }
-    return layerPropRange[0]
+  if (!value) {
+    return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
   }
-  return typeof getLayerProp === 'function' ? getLayerProp(highlightId) : getLayerProp
+  let layerData = data?.tileData?.length ? data.tileData : data
+
+  if (layerData?.length && value.field?.length) {
+    const sample = dataPropertyAccessor(layerData[0])
+    if (sample[value.field] === undefined) {
+      return defaultValue
+    }
+    const dataRange = getDataRange({ data: layerData, dataKey: value.field, dataPropertyAccessor })
+    if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
+      const d3Fn = SCALES[dataScale](dataRange, valueOptions)
+      // case for MVT layer
+      if (data?.tileData?.length) {
+        layerData = Object.fromEntries(data.tileData.map((item) =>
+          [item.geo_id, { Value: dataPropertyAccessor(item)[value.field] }]))
+        return ({ properties: { geo_id } }) => {
+          const { Value } = layerData[geo_id] || { Value: 0 }
+          return d3Fn(Value)
+        }
+      }
+      return (d) => d3Fn(dataPropertyAccessor(d)[value.field])
+    }
+    return valueOptions[0]
+  }
+
+  return typeof value === 'function' ? defaultValue(highlightId) : value
 }
 
 /**

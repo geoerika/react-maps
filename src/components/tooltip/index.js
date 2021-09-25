@@ -10,12 +10,8 @@ import {
   tooltipDefaultProps,
 } from '../../shared/map-props'
 
-setup(React.createElement)
 
-const propTypes = {
-  info: PropTypes.object.isRequired,
-  children: PropTypes.element.isRequired,
-}
+setup(React.createElement)
 
 const TooltipWrapper = styled('div')(({ info, typography, tooltipstyle }) => ({
   ...typography,
@@ -41,12 +37,15 @@ const Tooltip = ({ info, children, typography, tooltipProps }) => {
 }
 
 Tooltip.propTypes = {
+  info: PropTypes.object.isRequired,
+  children: PropTypes.element.isRequired,
   ...typographyPropTypes,
   ...tooltipPropTypes,
-  ...propTypes,
 }
+
 Tooltip.defaultProps = {
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
 }
+
 export default Tooltip

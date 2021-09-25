@@ -18,101 +18,16 @@ import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
 import {
   setView,
-  setFinalLayerDataAccessor,
+  setFinalLayerDataProperty,
   getArrayFillColors,
   getStrFillColor,
   getArrayGradientFillColors,
   setLegendOpacity,
 } from '../shared/utils'
-import { useMapData, useLegends } from '../hooks'
+import { useLegends } from '../hooks'
 
 
 const layerPool = ['FSALayer', 'GeoCohortLayer']
-
-const propTypes = {
-  reportFSAData: PropTypes.array.isRequired,
-  reportGeoCohortData: PropTypes.array.isRequired,
-  fillBasedOn: PropTypes.string,
-  fillDataScale: PropTypes.string,
-  fillColors: PropTypes.array,
-  elevationBasedOn: PropTypes.string,
-  elevationDataScale: PropTypes.string,
-  elevations: PropTypes.array,
-  onClick: PropTypes.func,
-  onHover: PropTypes.func,
-  opacity: PropTypes.number,
-  filled: PropTypes.bool,
-  getFillColor: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.array,
-  ]),
-  getElevation: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.func,
-  ]),
-  // elevationScale
-  stroked: PropTypes.bool,
-  lineWidthUnits: PropTypes.string,
-  getLineWidth: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.func,
-  ]),
-  getLineColor: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.array,
-  ]),
-  showLegend: PropTypes.bool,
-  legendPosition: PropTypes.string,
-  legendNode: PropTypes.node,
-  getCursor: PropTypes.func,
-  getTooltip: PropTypes.func,
-  showTooltip: PropTypes.bool,
-  tooltipNode: PropTypes.func,
-  dataAccessor: PropTypes.func,
-  dataPropertyAccessor: PropTypes.func,
-  pitch: PropTypes.number,
-  formatLegendTitle: PropTypes.func,
-  formatTooltipTitle: PropTypes.func,
-  formatPropertyLabel: PropTypes.func,
-  formatData: PropTypes.object,
-  setViewportBBox: PropTypes.func,
-  setApiBBox: PropTypes.func,
-}
-
-const defaultProps = {
-  fillBasedOn: '',
-  fillDataScale: 'linear',
-  fillColors: ['#bae0ff', '#0075ff'],
-  elevationBasedOn: '',
-  elevationDataScale: 'linear',
-  elevations: [0, 1000],
-  onClick: undefined,
-  onHover: undefined,
-  opacity: 0.5,
-  filled: true,
-  getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [255, 138, 0] : [0, 117, 255],
-  getElevation: 0,
-  stroked: true,
-  lineWidthUnits: 'pixels',
-  getLineWidth: 1,
-  getLineColor: [34, 66, 205],
-  showLegend: false,
-  legendPosition: 'top-left',
-  legendNode: undefined,
-  getTooltip: undefined,
-  showTooltip: false,
-  tooltipNode: tooltipNode,
-  getCursor: undefined,
-  pitch: 0,
-  dataAccessor: d => d,
-  dataPropertyAccessor: d => d,
-  formatLegendTitle: d => d,
-  formatTooltipTitle: d => d,
-  formatPropertyLabel: d => d,
-  formatData: undefined,
-  setViewportBBox: () => {},
-  setApiBBox: () => {},
-}
 
 const GeoCohortMap = ({
   reportFSAData,
@@ -143,7 +58,6 @@ const GeoCohortMap = ({
   tooltipKeys,
   typography,
   pitch,
-  dataAccessor,
   dataPropertyAccessor,
   formatLegendTitle,
   formatTooltipTitle,
@@ -206,20 +120,6 @@ const GeoCohortMap = ({
     }
   }, [onClick, width, height])
 
-  // set metrics and metricDispatch
-  const { metrics, metricDispatch } = useMapData({
-    dataAccessor,
-    dataPropertyAccessor,
-  })
-
-  useEffect(() => {
-    if (activeData?.length) {
-      metricDispatch({ type: 'data', payload : activeData })
-    }
-    // reset highlightObj when we get new report data
-    setHighlightObj(null)
-  }, [metricDispatch, activeData])
-
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
    * @returns { object } - object of tooltip keys
@@ -259,43 +159,43 @@ const GeoCohortMap = ({
         opacity,
         extruded: elevationBasedOn.length,
         filled,
-        getFillColor: setFinalLayerDataAccessor({
-          dataKey: fillBasedOn,
-          dataPropertyAccessor,
-          getLayerProp: getFillColor,
-          layerDataScale: fillDataScale,
+        getFillColor: setFinalLayerDataProperty({
+          data: activeData,
+          value: fillBasedOn ? { field: fillBasedOn } : getFillColor,
+          defaultValue: getFillColor,
+          dataScale: fillDataScale,
+          valueOptions: getArrayFillColors({ fillColors }),
           // we need to convert string format color (used in legend) to array format color for deck.gl
-          layerPropRange: getArrayFillColors({ fillColors }),
-          highlightId,
-          metrics,
-        }),
-        getElevation: setFinalLayerDataAccessor({
-          dataKey: elevationBasedOn,
           dataPropertyAccessor,
-          getLayerProp: getElevation,
-          layerDataScale: elevationDataScale,
-          layerPropRange: elevations,
-          metrics,
+          highlightId,
+        }),
+        getElevation: setFinalLayerDataProperty({
+          data: activeData,
+          value: elevationBasedOn ? { field: elevationBasedOn } : getElevation,
+          defaultValue: getElevation,
+          valueOptions: elevations,
+          dataScale: elevationDataScale,
+          dataPropertyAccessor,
         }),
         getLineWidth,
         getLineColor,
         updateTriggers: {
           getFillColor: [
+            activeData,
             fillBasedOn,
             dataPropertyAccessor,
             getFillColor,
             fillDataScale,
             fillColors,
             highlightId,
-            metrics,
           ],
           getElevation: [
+            activeData,
             elevationBasedOn,
             dataPropertyAccessor,
             getElevation,
             elevationDataScale,
             elevations,
-            metrics,
           ],
           getLineWidth: [getLineWidth],
           getLineColor: [getLineColor],
@@ -304,11 +204,11 @@ const GeoCohortMap = ({
       }),
     )}, [
     geoJsonLayerProps,
+    activeData,
     activeLayer,
     reportFSAData,
     reportGeoCohortData,
-    metrics,
-    highlightObj,
+    highlightObj?.GeoCohortItem,
     onClick,
     finalOnClick,
     onHover,
@@ -344,7 +244,8 @@ const GeoCohortMap = ({
     fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
     // convert array format color (used in deck.gl elevation fill) into str format color for legend
     objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
-    metrics,
+    data: activeLayer === 'FSALayer' ? reportFSAData : (reportGeoCohortData || []),
+    dataPropertyAccessor,
   })
 
   // set legend element
@@ -422,13 +323,88 @@ const GeoCohortMap = ({
 }
 
 GeoCohortMap.propTypes = {
-  ...propTypes,
+  reportFSAData: PropTypes.array.isRequired,
+  reportGeoCohortData: PropTypes.array.isRequired,
+  fillBasedOn: PropTypes.string,
+  fillDataScale: PropTypes.string,
+  fillColors: PropTypes.array,
+  elevationBasedOn: PropTypes.string,
+  elevationDataScale: PropTypes.string,
+  elevations: PropTypes.array,
+  onClick: PropTypes.func,
+  onHover: PropTypes.func,
+  opacity: PropTypes.number,
+  filled: PropTypes.bool,
+  getFillColor: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.array,
+  ]),
+  getElevation: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.func,
+  ]),
+  stroked: PropTypes.bool,
+  lineWidthUnits: PropTypes.string,
+  getLineWidth: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.func,
+  ]),
+  getLineColor: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.array,
+  ]),
+  showLegend: PropTypes.bool,
+  legendPosition: PropTypes.string,
+  legendNode: PropTypes.node,
+  getCursor: PropTypes.func,
+  getTooltip: PropTypes.func,
+  showTooltip: PropTypes.bool,
+  tooltipNode: PropTypes.func,
+  dataPropertyAccessor: PropTypes.func,
+  pitch: PropTypes.number,
+  formatLegendTitle: PropTypes.func,
+  formatTooltipTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
+  formatData: PropTypes.object,
+  setViewportBBox: PropTypes.func,
+  setApiBBox: PropTypes.func,
   ...commonProps,
   ...tooltipPropTypes,
   ...typographyPropTypes,
 }
+
 GeoCohortMap.defaultProps = {
-  ...defaultProps,
+  fillBasedOn: '',
+  fillDataScale: 'linear',
+  fillColors: ['#bae0ff', '#0075ff'],
+  elevationBasedOn: '',
+  elevationDataScale: 'linear',
+  elevations: [0, 1000],
+  onClick: undefined,
+  onHover: undefined,
+  opacity: 0.5,
+  filled: true,
+  getFillColor: highlightId => d => d?.GeoCohortItem === highlightId ? [255, 138, 0] : [0, 117, 255],
+  getElevation: 0,
+  stroked: true,
+  lineWidthUnits: 'pixels',
+  getLineWidth: 1,
+  getLineColor: [34, 66, 205],
+  showLegend: false,
+  legendPosition: 'top-left',
+  legendNode: undefined,
+  getTooltip: undefined,
+  showTooltip: false,
+  tooltipNode: tooltipNode,
+  getCursor: undefined,
+  pitch: 0,
+  dataPropertyAccessor: d => d,
+  formatLegendTitle: d => d,
+  formatTooltipTitle: d => d,
+  formatPropertyLabel: d => d,
+  formatData: undefined,
+  setViewportBBox: () => {},
+  setApiBBox: () => {},
   ...commonDefaultProps,
   ...tooltipDefaultProps,
   ...typographyDefaultProps,

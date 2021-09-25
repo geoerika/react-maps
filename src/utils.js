@@ -52,7 +52,8 @@ export const calculateReportWIMetrics = (agg, row) => ({
  */
 export const getCursor = ({ layers } = {}) => {
   if (layers?.length) {
-    const drawLayer = layers.find(layer => layer.id === 'edit-draw layer')
+    const drawLayer = layers.find(layer => {
+      return layer.id === 'edit-draw layer' || layer.id.includes('select')})
     if (drawLayer?.props?.visible) {
       return drawLayer.getCursor.bind(drawLayer)
     }

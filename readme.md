@@ -38,10 +38,12 @@ A React map component library for ATOM and Locus.
 
     Here is the sample of `.env`
     ```
-    MAPBOX_ACCESS_TOKEN="your mapbox key"
+    MAPBOX_ACCESS_TOKEN=
     API_HOST=
     API_STAGE=
     KEY_WARDEN_HOST=<keywarden api>
+    KEY_WARDEN_STAGE=
+    JWT=
     ```
 
 3. Storybook:

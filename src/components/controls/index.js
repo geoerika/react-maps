@@ -42,24 +42,6 @@ const ProgressBar = styled('div')`
   background-color: blue;
 `
 
-const propTypes = {
-  forward: PropTypes.func.isRequired,
-  rewind: PropTypes.func.isRequired,
-  startTimeline: PropTypes.func.isRequired,
-  stopTimeline: PropTypes.func.isRequired,
-  changeSpeed: PropTypes.func.isRequired,
-  reset: PropTypes.func.isRequired,
-  move: PropTypes.func.isRequired,
-  player: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.bool,
-  ]).isRequired,
-  direction: PropTypes.number.isRequired,
-  activeIndex: PropTypes.number.isRequired,
-  speed: PropTypes.number.isRequired,
-  timestamps: PropTypes.array.isRequired,
-}
-
 export const TimelineControls = ({
   forward,
   rewind,
@@ -97,6 +79,22 @@ export const TimelineControls = ({
   </ControlContainer>
 )
 
-TimelineControls.propTypes = propTypes
+TimelineControls.propTypes = {
+  forward: PropTypes.func.isRequired,
+  rewind: PropTypes.func.isRequired,
+  startTimeline: PropTypes.func.isRequired,
+  stopTimeline: PropTypes.func.isRequired,
+  changeSpeed: PropTypes.func.isRequired,
+  reset: PropTypes.func.isRequired,
+  move: PropTypes.func.isRequired,
+  player: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.bool,
+  ]).isRequired,
+  direction: PropTypes.number.isRequired,
+  activeIndex: PropTypes.number.isRequired,
+  speed: PropTypes.number.isRequired,
+  timestamps: PropTypes.array.isRequired,
+}
 
 export default TimelineControls

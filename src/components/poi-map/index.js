@@ -105,41 +105,6 @@ const INIT_VIEW = {
   emptyMap: INIT_VIEW_STATE,
 }
 
-const propTypes = {
-  POIData: PropTypes.array,
-  activePOI: PropTypes.object,
-  setActivePOI: PropTypes.func,
-  setDraftActivePOI: PropTypes.func,
-  onClickHandle: PropTypes.func,
-  mode: PropTypes.string,
-  cluster: PropTypes.bool,
-  controller: PropTypes.object,
-  forwardGeocoder: PropTypes.func,
-  geocoderOnResult: PropTypes.func,
-  dataPropertyAccessor: PropTypes.func,
-  formatTooltipTitle: PropTypes.func,
-  formatPropertyLabel: PropTypes.func,
-  formatData: PropTypes.object,
-}
-
-const defaultProps = {
-  POIData: [],
-  activePOI: null,
-  setActivePOI: () => {},
-  setDraftActivePOI: () => {},
-  onClickHandle: () => {},
-  mode: '',
-  cluster: false,
-  controller: { controller: true },
-  forwardGeocoder: () => {},
-  geocoderOnResult: () => {},
-  dataPropertyAccessor: d => d,
-  formatTooltipTitle: (title) => truncate(title, 20),
-  formatPropertyLabel: d => d,
-  formatData: formatDataPOI,
-}
-
-
 // DeckGL React component
 const POIMap = ({
   POIData,
@@ -350,11 +315,8 @@ const POIMap = ({
    */
   const onHover = useCallback((info) => {
     const { object } = info
-    if (object?.properties?.id || object?.cluster) {
-      setHoverInfo({ isHovering: true })
-      if (!object?.cluster) {
-        setHoverInfo({ ...info, isHovering: true })
-      }
+    if (object?.properties?.id && !object?.cluster) {
+      setHoverInfo({ ...info })
     } else  {
       setHoverInfo(null)
     }
@@ -636,17 +598,45 @@ const POIMap = ({
 }
 
 POIMap.propTypes = {
+  POIData: PropTypes.array,
+  activePOI: PropTypes.object,
+  setActivePOI: PropTypes.func,
+  setDraftActivePOI: PropTypes.func,
+  onClickHandle: PropTypes.func,
+  mode: PropTypes.string,
+  cluster: PropTypes.bool,
+  controller: PropTypes.object,
+  forwardGeocoder: PropTypes.func,
+  geocoderOnResult: PropTypes.func,
+  dataPropertyAccessor: PropTypes.func,
+  formatTooltipTitle: PropTypes.func,
+  formatPropertyLabel: PropTypes.func,
+  formatData: PropTypes.object,
   ...typographyPropTypes,
   ...tooltipPropTypes,
   ...POIMapProps,
-  ...propTypes,
   ...StaticMap.propTypes,
 }
+
 POIMap.defaultProps = {
+  POIData: [],
+  activePOI: null,
+  setActivePOI: () => {},
+  setDraftActivePOI: () => {},
+  onClickHandle: () => {},
+  mode: '',
+  cluster: false,
+  controller: { controller: true },
+  forwardGeocoder: () => {},
+  geocoderOnResult: () => {},
+  dataPropertyAccessor: d => d,
+  formatTooltipTitle: (title) => truncate(title, 20),
+  formatPropertyLabel: d => d,
+  formatData: formatDataPOI,
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
   ...POIMapDefaultProps,
-  ...defaultProps,
   ...StaticMap.defaultProps,
 }
+
 export default POIMap

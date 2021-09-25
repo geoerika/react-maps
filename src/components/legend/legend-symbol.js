@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
+
 setup(React.createElement)
 
 const Gradient = styled('div')`
@@ -42,33 +43,6 @@ const Height = styled('div')`
   border-top: 1px solid black;
   background-color: ${({ color }) => color};
 `
-
-const propTypes = {
-  symbolProps: PropTypes.shape({
-    type: PropTypes.string,
-    fillBasedOn: PropTypes.string,
-    max: PropTypes.number,
-    minColor: PropTypes.string,
-    maxColor: PropTypes.string,
-    dots: PropTypes.number,
-    size: PropTypes.number,
-    zeroRadiusSize: PropTypes.number,
-    symbolLineColor: PropTypes.string,
-  }),
-}
-const defaultProps = {
-  symbolProps: {
-    type: 'gradient',
-    fillBasedOn: '',
-    max: undefined,
-    minColor: 'rgb(0,0,0)',
-    maxColor: 'rgb(255,0,0)',
-    dots: 5,
-    size: 5,
-    zeroRadiusSize: 20,
-    symbolLineColor: 'rgb(0,0,0)',
-  },
-}
 
 const LegendSymbol = ({ symbolProps }) => {
   const { max, minColor, maxColor, dots, size, zeroRadiusSize, type, fillBasedOn, symbolLineColor } = symbolProps
@@ -138,7 +112,32 @@ const LegendSymbol = ({ symbolProps }) => {
   return <></>
 }
 
-LegendSymbol.propTypes = propTypes
-LegendSymbol.defaultProps = defaultProps
+LegendSymbol.propTypes = {
+  symbolProps: PropTypes.shape({
+    type: PropTypes.string,
+    fillBasedOn: PropTypes.string,
+    max: PropTypes.number,
+    minColor: PropTypes.string,
+    maxColor: PropTypes.string,
+    dots: PropTypes.number,
+    size: PropTypes.number,
+    zeroRadiusSize: PropTypes.number,
+    symbolLineColor: PropTypes.string,
+  }),
+}
+
+LegendSymbol.defaultProps = {
+  symbolProps: {
+    type: 'gradient',
+    fillBasedOn: '',
+    max: undefined,
+    minColor: 'rgb(0,0,0)',
+    maxColor: 'rgb(255,0,0)',
+    dots: 5,
+    size: 5,
+    zeroRadiusSize: 20,
+    symbolLineColor: 'rgb(0,0,0)',
+  },
+}
 
 export default LegendSymbol
