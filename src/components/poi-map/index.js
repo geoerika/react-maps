@@ -147,6 +147,8 @@ const POIMap = ({
   const [showRadius, setShowRadius] = useState(false)
   const [showClusters, setShowClusters] = useState(false)
   const [clusterZoom, setClusterZoom] = useState(false)
+  // used to block reset of view state when we transition from the cluster to the icon layer
+  const [clusterClick, setClusterClick] = useState(false)
   const [layerVisibleData, setLayerVisibleData] = useState()
   const mapContainerRef = useRef()
   const deckRef = useRef()
@@ -306,6 +308,11 @@ const POIMap = ({
    * @param { array } param.coordinate - coordinates of the clicked object
    */
   const onClick = useCallback(({ object, layer, coordinate }) => {
+    if (mapLayers.includes('POICluster')) {
+      setClusterClick(true)
+    } else {
+      setClusterClick(false)
+    }
     // if clicked object is a cluster, zoom in
     if (object?.cluster) {
       const [longitude, latitude] = coordinate
@@ -320,7 +327,7 @@ const POIMap = ({
       // custom onClick
       onClickHandle({ object, layer, coordinate }, setOnClickPayload)
     }
-  }, [setActivePOI, onClickHandle, height, width])
+  }, [mapLayers, setActivePOI, onClickHandle, height, width])
 
   /**
    * onHover - React hook that handles onHover event
@@ -366,10 +373,10 @@ const POIMap = ({
   useLayoutEffect(() => {
     if (((data?.length && mapLayers.length) ||
         (mapMode === 'emptyMap' && !data?.length && !mapLayers.length)) &&
-        width && height) {
+        width && height && !clusterClick) {
       viewStateDispatch(viewParam[mapMode])
     }
-  }, [data, mapLayers, width, height, viewParam, mapMode])
+  }, [data, mapLayers, width, height, viewParam, mapMode, clusterClick])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
@@ -503,7 +510,7 @@ const POIMap = ({
 
   return (
     <MapWrapper>
-      {POIType === TYPE_RADIUS.code && cluster && mode !=='edit' && !mode.startsWith('create-') && (
+      {POIType === TYPE_RADIUS.code && cluster && mapMode === 'display' && data?.length > 1 && (
         <SwitchContainerCluster>
           <FormControlLabel
             control={
@@ -518,8 +525,8 @@ const POIMap = ({
       )}
       {POIType === TYPE_RADIUS.code &&
         ((cluster && showClusters && !clusterZoom) || (cluster && !showClusters) || !cluster) &&
-        mode !=='edit' && !mode.startsWith('create-') && (
-        <SwitchContainerRadius clusterswitch={cluster ? 'yes' : undefined}>
+        mapMode === 'display' && (
+        <SwitchContainerRadius clusterswitch={cluster && data?.length > 1 ? 'yes' : undefined}>
           <FormControlLabel
             control={
               <Switch
