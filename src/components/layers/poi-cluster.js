@@ -62,7 +62,7 @@ class IconClusterLayer extends CompositeLayer {
     if (rebuildIndex) {
       const index = new Supercluster({
         maxZoom: props.superclusterZoom,
-        radius: props.getSuperclusterRadius({ zoom: this.context.viewport.zoom }),
+        radius: props.getSuperclusterRadius(this.context.viewport.zoom),
       })
       index.load(
         props.data.map(d => ({
