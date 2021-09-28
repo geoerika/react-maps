@@ -152,7 +152,7 @@ const POIMap = ({
   const mapContainerRef = useRef()
   const deckRef = useRef()
   const mapRef = useRef()
-  const [{ width, height }, setDimensions ] = useState({})
+  const [{ width, height }, setDimensions] = useState({})
 
   // React hook that sets POIType
   const POIType = useMemo(() => {
@@ -190,7 +190,7 @@ const POIMap = ({
       return ['POIEditDraw']
     }
     if (POIType === TYPE_RADIUS.code) {
-      if ((cluster && showClusters && !clusterZoom && showRadius) || showRadius) {
+      if (showRadius) {
         return ['POIGeoJson', 'POIIcon']
       }
       if (cluster && showClusters && clusterZoom) {
@@ -307,11 +307,7 @@ const POIMap = ({
    * @param { array } param.coordinate - coordinates of the clicked object
    */
   const onClick = useCallback(({ object, layer, coordinate }) => {
-    if (mapLayers.includes('POICluster')) {
-      setClusterClick(true)
-    } else {
-      setClusterClick(false)
-    }
+    setClusterClick(mapLayers.includes('POICluster'))
     // if clicked object is a cluster, zoom in
     if (object?.cluster) {
       const [longitude, latitude] = coordinate
@@ -375,6 +371,7 @@ const POIMap = ({
         width && height && !clusterClick) {
       viewStateDispatch(viewParam[mapMode])
     }
+    setClusterClick(false)
   }, [data, mapLayers, width, height, viewParam, mapMode, clusterClick])
 
   // React Hook to update viewState for onClick events
