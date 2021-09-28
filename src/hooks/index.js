@@ -292,27 +292,3 @@ export const useTimeline = (timestampInit, speedInterval) => {
 }
 
 export { useReport, useFullReport } from './report'
-
-/**
- * useResizeObserver - returns the dimensions of a changing HTML element
- * based on: https://github.com/plouc/nivo/blob/7d52c07/packages/core/src/hooks/useMeasure.js &
- *           https://github.com/EQWorks/snoke-builder-viz/pull/21/files
- * @param { object } ref - React ref
- * @returns { object } - dimensions { width, height } of an HTML element
- */
-export const useResizeObserver = (ref) => {
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-  const observer = useMemo(() =>
-    new ResizeObserver(([entry]) => setDimensions(entry.contentRect))
-  ,[])
-
-  useEffect(() => {
-    if (ref.current) {
-      observer.observe(ref.current)
-    }
-
-    return () => observer.disconnect()
-  }, [ref, observer])
-
-  return dimensions
-}
