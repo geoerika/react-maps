@@ -27,7 +27,6 @@ import tooltipNode from '../tooltip/tooltip-node'
 import { processLayers, isClusterZoomLevel } from './utils'
 import { setView, createCircleFromPointRadius, getCircleRadiusCentroid } from '../../shared/utils'
 import { getCursor, truncate, formatDataPOI } from '../../utils'
-import { useResizeObserver } from '../../hooks'
 import {
   typographyPropTypes,
   typographyDefaultProps,
@@ -153,7 +152,7 @@ const POIMap = ({
   const mapContainerRef = useRef()
   const deckRef = useRef()
   const mapRef = useRef()
-  const { width, height } = useResizeObserver(mapContainerRef)
+  const [{ width, height }, setDimensions ] = useState({})
 
   // React hook that sets POIType
   const POIType = useMemo(() => {
@@ -574,6 +573,13 @@ const POIMap = ({
             initialViewState={viewState}
             layers={layers}
             controller={controller}
+            onLoad={() => {
+              const { height, width } = deckRef?.current?.deck
+              setDimensions({ height, width })
+            }}
+            onResize={({ height, width }) => {
+              setDimensions({ height, width })
+            }}
             /**
              * USE once nebula.gl fixes selectedFeatureIndex out of range value cases (ie [], null)
              * onClick for edit mode to select feature for editing
