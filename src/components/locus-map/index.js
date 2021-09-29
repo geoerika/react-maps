@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useMemo, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
-import { setView, parseDeckGLLayerFromConfig } from './utils'
+import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
+import { setView, parseDeckGLLayerFromConfig, getTooltipParams } from './utils'
 import Map from '../generic-map'
+import MapTooltip from '../tooltip'
+import tooltipNode from '../tooltip/tooltip-node'
 
 
 const LocusMap = ({
@@ -131,6 +134,10 @@ const LocusMap = ({
     }
   }, [layerConfig, selectShape])
 
+  const showTooltip = useMemo(() => {
+    return Boolean(layerConfig.find(layer => layer.interactions.tooltip))
+  }, [layerConfig])
+
   return (
     <Map
       layers={Object.values(layers).map(o => o.deckLayer)}
@@ -139,6 +146,22 @@ const LocusMap = ({
       controller={controller}
       { ...mapConfig }
       getCursor={mapConfig.cursor(Object.values(layers).map(o => o.deckLayer))}
+      showTooltip={showTooltip}
+      renderTooltip={({ hoverInfo }) => {
+        const { tooltipProps, ...tooltipParams } = getTooltipParams({ hoverInfo })
+        return (
+          <MapTooltip
+            info={hoverInfo}
+            tooltipProps={tooltipProps}
+            typography={mapConfig?.typography || typographyDefaultProps.typography}
+          >
+            {tooltipNode({
+              ...tooltipParams,
+              params: hoverInfo.object,
+            })}
+          </MapTooltip>
+        )
+      }}
     />
   )
 }
@@ -147,10 +170,12 @@ LocusMap.propTypes = {
   dataConfig: PropTypes.array.isRequired,
   layerConfig: PropTypes.array.isRequired,
   mapConfig: PropTypes.object,
+  ...typographyPropTypes,
 }
 
 LocusMap.defaultProps = {
   mapConfig: {},
+  ...typographyDefaultProps,
 }
 
 export default LocusMap
