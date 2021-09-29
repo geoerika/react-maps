@@ -47,7 +47,13 @@ const Line = styled('hr')`
  * @param { object } param.params - object of deck.gl onHover event
  * @returns { Node } - node element
  */
-const tooltipNode = ({ tooltipKeys, formatData, formatTooltipTitle, formatPropertyLabel, params }) => {
+const tooltipNode = ({
+  tooltipKeys,
+  formatData = d => d,
+  formatTooltipTitle = d => d,
+  formatPropertyLabel = d => d,
+  params,
+}) => {
   const { name, id, metricKeys, nameAccessor, idAccessor, metricAccessor, metricAliases } = tooltipKeys
   return (
     <>
