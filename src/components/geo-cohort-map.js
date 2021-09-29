@@ -126,10 +126,10 @@ const GeoCohortMap = ({
    * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
    */
   const finalTooltipKeys = useMemo(() => {
-    const { name, nameAccessor } = tooltipKeys
-    let metricKeysArray = tooltipKeys?.metricKeys || []
+    const { name, nameAccessor, metricKeys } = tooltipKeys
+    let metricKeysArray = metricKeys || []
     // set metricKeys array if no custom keys are given
-    if (showTooltip && !tooltipKeys?.metricKeys) {
+    if (showTooltip && !metricKeys?.length) {
       ([elevationBasedOn, fillBasedOn]).forEach((key) => {
         if (key) {
           metricKeysArray.push(key)
