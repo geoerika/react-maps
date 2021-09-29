@@ -96,10 +96,10 @@ const QLReportMap = ({
    * @returns { Node } - object of keys { name, id, metricKeys }
    */
   const finalTooltipKeys = useMemo(() => {
-    const { name, id } = tooltipKeys
-    let metricKeysArray = tooltipKeys?.metricKeys || []
+    const { name, id, metricKeys } = tooltipKeys
+    let metricKeysArray = metricKeys || []
     // set metricKeys array if no custom keys are given
-    if (showTooltip && !tooltipKeys?.metricKeys?.length) {
+    if (showTooltip && !metricKeys?.length) {
       ([radiusBasedOn, fillBasedOn]).forEach((key) => {
         if (key) {
           metricKeysArray.push(key)
