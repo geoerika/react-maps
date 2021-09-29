@@ -147,7 +147,6 @@ const POIMap = ({
   const [showClusters, setShowClusters] = useState(false)
   const [clusterZoom, setClusterZoom] = useState(false)
   // used to block reset of view state when we transition from the cluster to the icon layer
-  const [clusterClick, setClusterClick] = useState(false)
   const [layerVisibleData, setLayerVisibleData] = useState()
   const mapContainerRef = useRef()
   const deckRef = useRef()
@@ -307,7 +306,6 @@ const POIMap = ({
    * @param { array } param.coordinate - coordinates of the clicked object
    */
   const onClick = useCallback(({ object, layer, coordinate }) => {
-    setClusterClick(mapLayers.includes('POICluster'))
     // if clicked object is a cluster, zoom in
     if (object?.cluster) {
       const [longitude, latitude] = coordinate
@@ -322,7 +320,7 @@ const POIMap = ({
       // custom onClick
       onClickHandle({ object, layer, coordinate }, setOnClickPayload)
     }
-  }, [mapLayers, setActivePOI, onClickHandle, height, width])
+  }, [setActivePOI, onClickHandle, height, width])
 
   /**
    * onHover - React hook that handles onHover event
@@ -366,13 +364,11 @@ const POIMap = ({
   // FIX: FlyToInterpolator doesn't seem to be trigerred when transitioning from empty map to some data
   // React Hook to handle setting up viewState based on POIs coordinates and deck map container size
   useLayoutEffect(() => {
-    if (((data?.length && mapLayers.length) ||
-        (mapMode === 'emptyMap' && !data?.length && !mapLayers.length)) &&
-        width && height && !clusterClick) {
+    if (((mapMode === 'emptyMap' && !data?.length) || data?.length) &&
+      viewParam && mapMode && width && height) {
       viewStateDispatch(viewParam[mapMode])
     }
-    setClusterClick(false)
-  }, [data, mapLayers, width, height, viewParam, mapMode, clusterClick])
+  }, [data, width, height, viewParam, mapMode])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
