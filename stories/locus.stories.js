@@ -13,8 +13,9 @@ import { Button } from '@eqworks/lumen-ui'
 import { LocusMap } from '../src'
 import { getCursor } from '../src/utils'
 
-import xwiData from './data/xwi-report.json'
 import poiRadiiTo from './data/pois-radii-to.json'
+import wiReportData from './data/wi-report.json'
+import xwiReportData from './data/xwi-report.json'
 import mvtData from './data/locus-map-mvt.json'
 
 
@@ -67,7 +68,8 @@ export default {
 }
 
 const dataConfig = [
-  { id: 'xwiReport-123', data: xwiData },
+  { id: 'xwiReport-123', data: xwiReportData },
+  { id: 'wiReportData-123', data: wiReportData },
   { id: 'poiGeojson-123', data: poiRadiiTo },
   { id: 'mvt-123',
     data: {
@@ -81,6 +83,7 @@ const dataConfig = [
 const GeoJSONLayerConfig = {
   layer: 'geojson',
   dataId: 'poiGeojson-123',
+  dataPropertyAccessor: d => d.properties,
   visualizations: {
     radius: {
       value: { field: 'radius' },
@@ -137,6 +140,43 @@ const ScatterPlotLayer2Config = {
   interactions: {},
 }
 
+const WIReportLayerConfig = {
+  layer: 'scatterplot',
+  dataId: 'wiReportData-123',
+  geometry: { longitude: 'lon', latitude: 'lat' },
+  visualizations: {
+    radius: {
+      value: { field: 'visits' },
+      valueOptions: [5, 15],
+      dataScale: 'linear',
+    },
+    fill: {
+      value: { field: 'repeat_visitors' },
+      valueOptions: [[214, 232, 253], [39, 85, 196]],
+      dataScale: 'linear',
+    },
+  },
+  interactions: {
+    // tooltip: true,
+    tooltip: {
+      // tooltipNode: null,
+      tooltipKeys: {
+        name: 'name',
+        id: 'poi_id',
+        // metricKeys: [],
+        // nameAccessor: () => {},
+        // idAccessor: () => {},
+        // metricAccessor: () => {},
+        // metricAliases: {},
+      },
+      // formatData: () => {},
+      // formatTooltipTitle: () => {},
+      // formatPropertyLabel: () => {},
+      // tooltipProps: {},
+    },
+  },
+}
+
 const selectLayerConfig = {
   layer: 'select',
   dataId: 'select-123',
@@ -171,7 +211,13 @@ const geojsonArgs = { layerConfig: [GeoJSONLayerConfig], dataConfig, mapConfig }
 
 export const GeoJSONLayer = Template.bind({})
 GeoJSONLayer.args = geojsonArgs
-GeoJSONLayer.storyName = 'GeoJSON Layer for WI & VWI Reports'
+GeoJSONLayer.storyName = 'GeoJSON Layer for POIs'
+
+const scatterplotArgs = { layerConfig: [WIReportLayerConfig], dataConfig, mapConfig }
+
+export const ScatterplotLayer = Template.bind({})
+ScatterplotLayer.args = scatterplotArgs
+ScatterplotLayer.storyName = 'Scatterplot Layer for WI & VWI reports - with tooltip'
 
 const xwiReportArgs = {
   layerConfig: [arcLayerConfig, ScatterPlotLayer1Config, ScatterPlotLayer2Config],
