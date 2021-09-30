@@ -85,7 +85,7 @@ const MapContainer = styled('div', forwardRef)`
 const INIT_VIEW_STATE = {
   pitch: 25,
   bearing: 0,
-  transitionDuration: 3000,
+  transitionDuration: 2000,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 52,
   longitude: -100,
@@ -450,11 +450,24 @@ const POIMap = ({
         onHover,
         mode,
         POIType,
+        zoom,
         selectedFeatureIndexes,
       } })
     }
     return []
-  }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
+  }, [
+    mapLayers,
+    layerPool,
+    mapProps,
+    data,
+    updatePOI,
+    onClick,
+    onHover,
+    mode,
+    POIType,
+    zoom,
+    selectedFeatureIndexes,
+  ])
 
   const getCurrentCursor = getCursor({ layers })
 

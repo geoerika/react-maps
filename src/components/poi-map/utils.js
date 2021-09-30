@@ -46,7 +46,7 @@ export const isClusterZoomLevel = ({ layerVisibleData, viewportBBOX, zoom }) => 
     return elem.objects ? [...agg, ...elem.objects] : [...agg, elem.object]
   }, [])
 
-  if (visiblePOIs?.length) {
+  if (visiblePOIs.length) {
     const getPosition = d => d.geometry.coordinates
     const index = new Supercluster({
       maxZoom: SUPERCLUSTER_ZOOM,
