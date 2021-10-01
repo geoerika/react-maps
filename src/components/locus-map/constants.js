@@ -1,6 +1,11 @@
 import { ScatterplotLayer, GeoJsonLayer, ArcLayer } from '@deck.gl/layers'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import { EditableGeoJsonLayer } from '@nebula.gl/layers'
+
+
+
+// ====[TODO] use individual hover events for each layer
+
 // ====[TODO] extensions? https://deck.gl/docs/api-reference/extensions/data-filter-extension
 
 /*
@@ -40,7 +45,6 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['radius', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
-      pickable: true,
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
     },
@@ -59,7 +63,6 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['radius', 'elevation', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
-      pickable: true,
       lineWidthUnits: 'pixels',
       pointRadiusUnits: 'pixels',
     },
@@ -94,7 +97,6 @@ export const LAYER_CONFIGURATIONS = {
     visualizations: ['fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
-      pickable: true,
       // extent: null, //[minX, minY, maxX, maxY]
       lineWidthUnits: 'pixels',
     },
