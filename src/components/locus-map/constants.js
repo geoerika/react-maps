@@ -3,7 +3,6 @@ import { MVTLayer } from '@deck.gl/geo-layers'
 import { EditableGeoJsonLayer } from '@nebula.gl/layers'
 
 
-
 // ====[TODO] use individual hover events for each layer
 
 // ====[TODO] extensions? https://deck.gl/docs/api-reference/extensions/data-filter-extension

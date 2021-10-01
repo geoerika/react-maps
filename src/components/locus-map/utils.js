@@ -10,7 +10,7 @@ export const parseDeckGLLayerFromConfig = ({
   layer,
   geometry,
   visualizations,
-  // interactions,
+  interactions,
   ...others
 }) => {
   const {
@@ -75,21 +75,24 @@ export const parseDeckGLLayerFromConfig = ({
     }, {}),
   })
 
+  const { click, hover, tooltip, highlight, labels } = interactions
+
   return data => new Layer({
     id,
     data: layer === 'MVT' ?
       data.tileGeom :
       (layer === 'select' ? { type: 'FeatureCollection', features: data } : data),
     // ====[TODO] logic for below
-    // pickable
     // updateTriggers
     mode,
     visualizations,
+    interactions,
     dataPropertyAccessor,
     ...defaultProps,
     ...others,
     ...propsWithData({ data }),
     ...geometryProps,
+    pickable: click || hover || tooltip || highlight || labels,
     onEdit: layer !== 'select' ?
       () => {} :
       ({ updatedData }) => {
@@ -183,7 +186,6 @@ export const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude
  */
 export const getTooltipParams = ({ hoverInfo }) => {
   const { layer: { props: layerProps } } = hoverInfo
-  console.log('layerProps: ', layerProps)
   const { dataPropertyAccessor } = layerProps
   const {
     tooltipKeys,
