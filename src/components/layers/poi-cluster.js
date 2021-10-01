@@ -10,6 +10,9 @@ import Supercluster from 'supercluster'
 import iconMapping from '../icons/cluster.json'
 import iconAtlas from '../icons/cluster.png'
 
+import { getSuperclusterRadius } from '../../shared/utils'
+import { CLUSTER_SIZE_SCALE, SUPERCLUSTER_ZOOM } from '../../constants'
+
 /**
  * getIconName - sets icon name for clusters
  * @param { object } d - POI data point
@@ -41,13 +44,11 @@ class IconClusterLayer extends CompositeLayer {
   static defaultProps = {
     id: 'icon-cluster',
     getPosition: d => d.geometry.coordinates,
-    pickable: true,
     iconAtlas,
     iconMapping,
-    sizeScale: 40,
-    superclusterZoom: 20,
-    getSuperclusterRadius: (viewportZoom, sizeScale) => 
-      viewportZoom > 15 ? sizeScale / 2 : sizeScale,
+    sizeScale: CLUSTER_SIZE_SCALE,
+    superclusterZoom: SUPERCLUSTER_ZOOM,
+    getSuperclusterRadius,
     visible: false,
   }
   
@@ -61,7 +62,7 @@ class IconClusterLayer extends CompositeLayer {
     if (rebuildIndex) {
       const index = new Supercluster({
         maxZoom: props.superclusterZoom,
-        radius: props.getSuperclusterRadius(this.context.viewport.zoom, props.sizeScale),
+        radius: props.getSuperclusterRadius(this.props.zoom),
       })
       index.load(
         props.data.map(d => ({
@@ -72,7 +73,7 @@ class IconClusterLayer extends CompositeLayer {
       this.setState({ index })
     }
 
-    const z = Math.floor(this.context.viewport.zoom)
+    const z = Math.floor(this.props.zoom)
     if (rebuildIndex || z !== this.state.z) {
       this.setState({
         data: this.state.index.getClusters([-180, -85, 180, 85], z),
@@ -101,7 +102,6 @@ class IconClusterLayer extends CompositeLayer {
       iconMapping,
       sizeScale,
       getPosition,
-      pickable,
       visible,
       ...props
     } = this.props
@@ -116,8 +116,8 @@ class IconClusterLayer extends CompositeLayer {
         getPosition,
         getIcon: d => getIconName(d),
         getSize: getIconSize(),
-        pickable,
         visible,
+        pickable: visible,
         ...props,
       }),
     )

@@ -14,6 +14,7 @@ import DeckGL from '@deck.gl/react'
 import { FlyToInterpolator } from '@deck.gl/core'
 import { StaticMap } from 'react-map-gl'
 import Geocoder from 'react-map-gl-geocoder'
+import { WebMercatorViewport } from '@deck.gl/core'
 
 import { FormControlLabel } from '@material-ui/core'
 import { Switch } from '@eqworks/lumen-ui'
@@ -23,14 +24,9 @@ import DrawButtonGroup from './draw-button-group'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 
-import {
-  processLayers,
-  setView,
-  createCircleFromPointRadius,
-  getCircleRadiusCentroid,
-} from '../../shared/utils'
+import { processLayers, isClusterZoomLevel } from './utils'
+import { setView, createCircleFromPointRadius, getCircleRadiusCentroid } from '../../shared/utils'
 import { getCursor, truncate, formatDataPOI } from '../../utils'
-import { useResizeObserver } from '../../hooks'
 import {
   typographyPropTypes,
   typographyDefaultProps,
@@ -50,13 +46,24 @@ setup(React.createElement)
 const MapWrapper = styled('div')`
 `
 
-const SwitchContainer = styled('div')`
+const SwitchContainerCluster = styled('div')`
   position: absolute;
   margin: 15px;
   z-index: 1;
   background-color: white;
   border-radius: 3px;
   padding: 5px;
+`
+
+const SwitchContainerRadius = styled('div')`
+  position: absolute;
+  margin: 15px;
+  margin-top: ${props => props.clusterswitch ? 60 : 15}px;
+  z-index: 1;
+  background-color: white;
+  border-radius: 3px;
+  padding: 5px;
+  width: 154px;
 `
 
 const DrawButtonContainer = styled('div')`
@@ -78,7 +85,7 @@ const MapContainer = styled('div', forwardRef)`
 const INIT_VIEW_STATE = {
   pitch: 25,
   bearing: 0,
-  transitionDuration: 3000,
+  transitionDuration: 2000,
   transitionInterpolator: new FlyToInterpolator(),
   latitude: 52,
   longitude: -100,
@@ -134,10 +141,17 @@ const POIMap = ({
   const [allowDrawing, setAllowDrawing] = useState(true)
   const [onClickPayload, setOnClickPayload] = useState({})
   const [hoverInfo, setHoverInfo] = useState(null)
+  const [zoom, setZoom] = useState(INIT_VIEW_STATE.zoom)
+  const [viewportBBOX, setViewportBBOX] = useState()
   const [showRadius, setShowRadius] = useState(false)
+  const [showClusters, setShowClusters] = useState(false)
+  const [clusterZoom, setClusterZoom] = useState(false)
+  // used to block reset of view state when we transition from the cluster to the icon layer
+  const [layerVisibleData, setLayerVisibleData] = useState()
   const mapContainerRef = useRef()
+  const deckRef = useRef()
   const mapRef = useRef()
-  const { width, height } = useResizeObserver(mapContainerRef)
+  const [{ width, height }, setDimensions] = useState({})
 
   // React hook that sets POIType
   const POIType = useMemo(() => {
@@ -178,7 +192,7 @@ const POIMap = ({
       if (showRadius) {
         return ['POIGeoJson', 'POIIcon']
       }
-      if (cluster) {
+      if (cluster && showClusters && clusterZoom) {
         return ['POICluster']
       }
       return ['POIIcon']
@@ -191,8 +205,7 @@ const POIMap = ({
       return ['POIGeoJson']
     }
     return []
-  }, [mode, activePOI, cluster, POIType, createDrawMode, showRadius, showIcon])
-
+  }, [mode, activePOI, cluster, showClusters, clusterZoom, POIType, createDrawMode, showRadius, showIcon])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -351,12 +364,11 @@ const POIMap = ({
   // FIX: FlyToInterpolator doesn't seem to be trigerred when transitioning from empty map to some data
   // React Hook to handle setting up viewState based on POIs coordinates and deck map container size
   useLayoutEffect(() => {
-    if (((data?.length && mapLayers.length) ||
-        (mapMode === 'emptyMap' && !data?.length && !mapLayers.length)) &&
-        width && height) {
+    if (((mapMode === 'emptyMap' && !data?.length) || data?.length) &&
+      viewParam && mapMode && width && height) {
       viewStateDispatch(viewParam[mapMode])
     }
-  }, [data, mapLayers, width, height, viewParam, mapMode])
+  }, [data, width, height, viewParam, mapMode])
 
   // React Hook to update viewState for onClick events
   useEffect(() => {
@@ -438,19 +450,46 @@ const POIMap = ({
         onHover,
         mode,
         POIType,
+        zoom,
         selectedFeatureIndexes,
       } })
     }
     return []
-  }, [mapLayers, layerPool, mapProps, data, updatePOI, onClick, onHover, mode, POIType, selectedFeatureIndexes])
+  }, [
+    mapLayers,
+    layerPool,
+    mapProps,
+    data,
+    updatePOI,
+    onClick,
+    onHover,
+    mode,
+    POIType,
+    zoom,
+    selectedFeatureIndexes,
+  ])
 
   const getCurrentCursor = getCursor({ layers })
 
+  // set state for clusterZoom
+  useEffect(() => {
+    if (cluster && showClusters && layerVisibleData?.length && viewportBBOX?.length && zoom) {
+      setClusterZoom(isClusterZoomLevel({ layerVisibleData, viewportBBOX, zoom }))
+    }
+  }, [cluster, showClusters, layerVisibleData, viewportBBOX, zoom])
+
+  // hide radius switch when we have clusters enabled and cluster level zoom
+  useEffect(() => {
+    if (cluster && clusterZoom && showClusters) {
+      setShowRadius(false)
+    }
+  }, [cluster, showClusters, clusterZoom])
+
   /**
- * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
- * @returns { object } - object of tooltip keys
- * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
- */
+   * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
+   * @returns { object } - object of tooltip keys
+   * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
+   */
   const finalTooltipKeys = useMemo(() => {
     const { id, idAccessor, name, nameAccessor } = tooltipKeys
     let metricKeysArray = tooltipKeys?.metricKeys || ['lon', 'lat']
@@ -465,9 +504,7 @@ const POIMap = ({
     }
   }, [tooltipKeys, dataPropertyAccessor])
 
-  /**
-   * mapCanRender - conditions to render the map
-   */
+  // mapCanRender - conditions to render the map
   const mapCanRender = Boolean(useMemo(() =>
     (mapLayers.includes('POIEditDraw') && data[0]?.properties?.poiType === TYPE_POLYGON.code) ||
     (!mapLayers.includes('POIEditDraw') && data.length) ||
@@ -478,8 +515,23 @@ const POIMap = ({
 
   return (
     <MapWrapper>
-      {POIType === TYPE_RADIUS.code && !cluster && mode !=='edit' && !mode.startsWith('create-') && (
-        <SwitchContainer>
+      {POIType === TYPE_RADIUS.code && cluster && mapMode === 'display' && data?.length > 1 && (
+        <SwitchContainerCluster>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showClusters}
+                onChange={() => setShowClusters(!showClusters)}
+              />
+            }
+            label='Show Clusters'
+          />
+        </SwitchContainerCluster>
+      )}
+      {POIType === TYPE_RADIUS.code &&
+        ((cluster && showClusters && !clusterZoom) || (cluster && !showClusters) || !cluster) &&
+        mapMode === 'display' && (
+        <SwitchContainerRadius clusterswitch={cluster && data?.length > 1 ? 'yes' : undefined}>
           <FormControlLabel
             control={
               <Switch
@@ -489,7 +541,7 @@ const POIMap = ({
             }
             label='Show Radius'
           />
-        </SwitchContainer>
+        </SwitchContainerRadius>
       )}
       <MapContainer ref={mapContainerRef}>
         {hoverInfo?.object &&
@@ -523,9 +575,17 @@ const POIMap = ({
         )}
         {mapCanRender && (
           <DeckGL
+            ref={deckRef}
             initialViewState={viewState}
             layers={layers}
             controller={controller}
+            onLoad={() => {
+              const { height, width } = deckRef?.current?.deck
+              setDimensions({ height, width })
+            }}
+            onResize={({ height, width }) => {
+              setDimensions({ height, width })
+            }}
             /**
              * USE once nebula.gl fixes selectedFeatureIndex out of range value cases (ie [], null)
              * onClick for edit mode to select feature for editing
@@ -545,6 +605,11 @@ const POIMap = ({
             //     data[0].properties.isOnMapEditing = false
             //   }
             // }}
+            onViewStateChange={o => {
+              const { viewState } = o
+              setZoom(viewState.zoom)
+              setViewportBBOX(new WebMercatorViewport(viewState).getBounds())
+            }}
             onInteractionStateChange={interactionState => {
               const{ inTransition } = interactionState
               if (inTransition) {
@@ -555,6 +620,9 @@ const POIMap = ({
               setHoverInfo(null)
             }}
             getCursor={getCurrentCursor}
+            onAfterRender={() =>
+              setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
+            }
           >
             <StaticMap
               ref={mapRef}

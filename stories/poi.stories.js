@@ -39,11 +39,11 @@ POIClusters.args = {
   cluster: true,
   ...displayArgs,
 }
-POIClusters.storyName = 'Point POIs - clusters with POICluster layer'
+POIClusters.storyName = 'Point POIs - using clusters with POICluster, POIIcon, & POIGeoJson layers'
 
 export const RadiiAndIcons = Template.bind({})
 RadiiAndIcons.args = { POIData: POIsRadiiTo, ...displayArgs }
-RadiiAndIcons.storyName = 'Point POIs - radii & icons with POIIcon & POIGeoJson layers'
+RadiiAndIcons.storyName = 'Point POIs - radii & icons with POIIcon & POIGeoJson layers - no clusters'
 
 export const PointPOIOne = Template.bind({})
 PointPOIOne.args = { POIData: [POIsRadiiTo[0]], ...displayArgs }

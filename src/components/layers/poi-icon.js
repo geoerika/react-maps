@@ -13,7 +13,6 @@ const defaultProps = {
   getIcon: () => 'marker',
   getPosition: d => d.geometry.coordinates,
   getSize: 5,
-  pickable: true,
   visible: false,
 }
 
@@ -22,10 +21,12 @@ const defaultProps = {
  * @param { object } props - props object for passing data and other attributes to POIIcon
  * @returns { instanceOf IconLayer}
  */
-const POIIcon = (props) =>
+const POIIcon = ({ visible, ...props }) =>
   new IconLayer({
     ...defaultProps,
     sizeScale: props.data.length === 1 ? 12 : (props.data.length < 8 ? 8 : 5),
+    visible,
+    pickable: visible,
     ...props,
   })
 
