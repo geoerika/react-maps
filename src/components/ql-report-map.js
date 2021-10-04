@@ -97,7 +97,7 @@ const QLReportMap = ({
    */
   const finalTooltipKeys = useMemo(() => {
     const { name, id, metricKeys } = tooltipKeys
-    let metricKeysArray = metricKeys || []
+    const metricKeysArray = [...(metricKeys || [])]
     // set metricKeys array if no custom keys are given
     if (showTooltip && !metricKeys?.length) {
       ([radiusBasedOn, fillBasedOn]).forEach((key) => {
