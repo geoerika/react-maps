@@ -196,7 +196,17 @@ const MVTLayerConfig = {
       dataScale: 'linear',
     },
   },
-  interactions: {},
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        id: 'id',
+        metricKeys: ['value'],
+        metricAccessor: d => d.properties,
+        metricAliases: { value: 'Median Income' },
+      },
+      formatData: { value: d => '$' + d },
+    },
+  },
   opacity: 0.2,
 }
 
@@ -247,7 +257,7 @@ const MVTLayerArgs = { layerConfig: [MVTLayerConfig], dataConfig, mapConfig: { .
 
 export const MVTLayer = Template.bind({})
 MVTLayer.args = MVTLayerArgs
-MVTLayer.storyName = 'MVT Layer with demographic data'
+MVTLayer.storyName = 'MVT Layer with demographic data - tooltip'
 
 export const SelectDataLayer = () => {
   const [selectShape, setSelectShape] = useState('circle')
