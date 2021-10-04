@@ -233,3 +233,18 @@ export const getTooltipParams = ({ hoverInfo }) => {
     tooltipProps,
   }
 }
+
+// ====[TODO] should we define also all geometry accessors for MVT layer?? Current solution is based on our MVT tegola files
+/**
+ * getObjectMVTData - gets all data attribute keys & values for a hovered MVT object
+ * @param { object } param
+ * @param { object } param.dataConfig - data configuration object for all map layers
+ * @param { object } param.hoverInfo - object of onHover event
+ * @returns { object } - object of data { key: value } pairs corresponding to an MVT object
+ */
+export const getObjectMVTData = ({ dataConfig, hoverInfo }) => {
+  const { layer: { props: { dataId, dataPropertyAccessor } } } = hoverInfo
+  const geo_id = hoverInfo.object.properties.geo_id
+  const tileData = dataConfig.find(data => data.id === dataId).data.tileData
+  return tileData.find(d => dataPropertyAccessor(d).geo_id === geo_id)
+}
