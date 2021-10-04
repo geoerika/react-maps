@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
-import { setView, parseDeckGLLayerFromConfig, getTooltipParams } from './utils'
+import { setView, parseDeckGLLayerFromConfig, getTooltipParams, getObjectMVTData } from './utils'
 import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
@@ -149,6 +149,9 @@ const LocusMap = ({
       showTooltip={showTooltip}
       renderTooltip={({ hoverInfo }) => {
         const { tooltipProps, ...tooltipParams } = getTooltipParams({ hoverInfo })
+        const objMVTData = hoverInfo.layer.id.includes('MVT') ?
+          getObjectMVTData({ dataConfig, hoverInfo }) :
+          {}
         return (
           <MapTooltip
             info={hoverInfo}
@@ -157,7 +160,13 @@ const LocusMap = ({
           >
             {tooltipNode({
               ...tooltipParams,
-              params: hoverInfo.object,
+              params: {
+                ...hoverInfo.object,
+                properties: {
+                  ...hoverInfo.object.properties,
+                  ...objMVTData,
+                },
+              },
             })}
           </MapTooltip>
         )
