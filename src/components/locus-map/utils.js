@@ -10,11 +10,10 @@ export const parseDeckGLLayerFromConfig = ({
   layer,
   geometry,
   visualizations,
-  // interactions,
+  interactions,
   ...others
 }) => {
   const {
-    dataPropertyAccessor = d => d,
     geometryAccessor = d => d,
     geometry: layerGeom,
     deckGLClass: Layer,
@@ -22,7 +21,7 @@ export const parseDeckGLLayerFromConfig = ({
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
 
-  const { layerMode } = others
+  const { layerMode, dataPropertyAccessor = d => d } = others
   let mode = null
 
   switch(layerMode) {
@@ -76,19 +75,24 @@ export const parseDeckGLLayerFromConfig = ({
     }, {}),
   })
 
+  const { click, hover, tooltip, highlight, labels } = interactions
+
   return data => new Layer({
     id,
     data: layer === 'MVT' ?
       data.tileGeom :
       (layer === 'select' ? { type: 'FeatureCollection', features: data } : data),
     // ====[TODO] logic for below
-    // pickable
     // updateTriggers
     mode,
+    visualizations,
+    interactions,
+    dataPropertyAccessor,
     ...defaultProps,
     ...others,
     ...propsWithData({ data }),
     ...geometryProps,
+    pickable: click || hover || tooltip || highlight || labels,
     onEdit: layer !== 'select' ?
       () => {} :
       ({ updatedData }) => {
@@ -172,4 +176,51 @@ export const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude
     }, [[180, 90], [-180, -90]])
 
   return [ minCoords, maxCoords ]
+}
+
+/**
+ * getTooltipParams - gets all props related to tooltip component
+ * @param { object } param
+ * @param { object } param.hoverInfo - object of hovered element on the map
+ * @returns { object } - object of tooltip component keys and values
+ */
+export const getTooltipParams = ({ hoverInfo }) => {
+  const { layer: { props: layerProps } } = hoverInfo
+  const { dataPropertyAccessor } = layerProps
+  const {
+    tooltipKeys,
+    formatData,
+    formatTooltipTitle,
+    formatPropertyLabel,
+    tooltipProps,
+  } = layerProps?.interactions?.tooltip
+  const { visualizations } = layerProps
+  const fillBasedOn  = visualizations?.fill?.value?.field
+  const radiusBasedOn  = visualizations?.radius?.value?.field
+  const elevationBasedOn  = visualizations?.elevation?.value?.field
+
+  const { name, id, metricKeys, nameAccessor, idAccessor } = tooltipKeys ? tooltipKeys : {}
+  const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
+  // set metricKeys array if no custom keys are given
+  if (!metricKeys?.length) {
+    ([radiusBasedOn, fillBasedOn, elevationBasedOn]).forEach((key) => {
+      if (key) {
+        metricKeysArray.push(key)
+      }
+    })
+  }
+  return {
+    tooltipKeys : {
+      name: name || 'name',
+      id: id || 'id',
+      nameAccessor: nameAccessor || dataPropertyAccessor,
+      idAccessor: idAccessor || dataPropertyAccessor,
+      metricKeys: metricKeysArray,
+      metricAccessor: dataPropertyAccessor,
+    },
+    formatData,
+    formatTooltipTitle,
+    formatPropertyLabel,
+    tooltipProps,
+  }
 }
