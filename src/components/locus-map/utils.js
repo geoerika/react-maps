@@ -200,7 +200,7 @@ export const getTooltipParams = ({ hoverInfo }) => {
   const elevationBasedOn  = visualizations?.elevation?.value?.field
 
   const { name, id, metricKeys, nameAccessor, idAccessor } = tooltipKeys ? tooltipKeys : {}
-  let metricKeysArray = tooltipKeys?.metricKeys || []
+  const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
   // set metricKeys array if no custom keys are given
   if (!metricKeys?.length) {
     ([radiusBasedOn, fillBasedOn, elevationBasedOn]).forEach((key) => {
