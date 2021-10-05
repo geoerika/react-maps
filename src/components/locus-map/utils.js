@@ -245,6 +245,6 @@ export const getTooltipParams = ({ hoverInfo }) => {
 export const getObjectMVTData = ({ dataConfig, hoverInfo }) => {
   const { layer: { props: { dataId, dataPropertyAccessor } } } = hoverInfo
   const geo_id = hoverInfo.object.properties.geo_id
-  const tileData = dataConfig.find(data => data.id === dataId).data.tileData
+  const tileData = dataConfig.find(data => data.id === dataId)?.data?.tileData
   return tileData.find(d => dataPropertyAccessor(d).geo_id === geo_id)
 }
