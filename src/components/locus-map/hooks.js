@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { getDataRange, getArrayGradientFillColors, setLegendOpacity } from '../../shared/utils'
+import { setLegendConfigs, getArrayGradientFillColors, setLegendOpacity } from '../../shared/utils'
 import { PROP_CONFIGURATIONS } from './constants'
 
 /**
@@ -12,7 +12,7 @@ import { PROP_CONFIGURATIONS } from './constants'
  */
 export const useLegends = ({ dataConfig, layerConfig }) => {
   const mapLegends = useMemo(() => {
-    const legends = []
+    let legends = []
     layerConfig.forEach(layer => {
       const { visualizations, opacity = 1, metricAliases, formatPropertyLabel, formatData } = layer
       const showLegend = layer.legend?.showLegend
@@ -32,62 +32,27 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
          * There is visually a difference between the legend opacity for color gradient and map opacity,
          * we need to adjust opacity for symbols in the legend to have a closer match
          */
-        const fillColors = getArrayGradientFillColors({
-          fillColors: visualizations?.fill?.valueOptions,
-          opacity: setLegendOpacity({ opacity }),
-        })
+        const fillColors = visualizations?.fill?.valueOptions ?
+          getArrayGradientFillColors({
+            fillColors: visualizations?.fill?.valueOptions,
+            opacity: setLegendOpacity({ opacity }),
+          }) : ''
 
-        const legendProps = {
+        const layerLegends = setLegendConfigs({
+          data,
+          dataPropertyAccessor,
+          elevationBasedOn,
+          fillBasedOn,
+          fillColors,
+          radiusBasedOn,
           metricAliases,
           formatLegendTitle,
           formatPropertyLabel,
           formatData,
           symbolLineColor,
-        }
-  
-        if (fillBasedOn && data?.length) {
-          // TODO support quantile/quantize
-          // i.e. different lengths of fillColors[]
-          const dataRange = getDataRange({ data, dataKey: fillBasedOn, dataPropertyAccessor })
-          legends.push({
-            minColor: fillColors[0],
-            maxColor: fillColors[1],
-            type: 'gradient',
-            min: dataRange[0],
-            max: dataRange[1],
-            label: fillBasedOn,
-            ...legendProps,
-          })
-        }
-    
-        if (elevationBasedOn && data?.length) {
-          const dataRange = getDataRange({ data, dataKey: elevationBasedOn, dataPropertyAccessor })
-          legends.push({
-            type: 'elevation',
-            minColor: fillColors[0],
-            maxColor: fillColors[1],
-            min: dataRange[0],
-            max: dataRange[1],
-            label: elevationBasedOn,
-            ...legendProps,
-          })
-        }
-    
-        if (radiusBasedOn && data?.length) {
-          const dataRange = getDataRange({ data, dataKey: radiusBasedOn, dataPropertyAccessor })
-          legends.push({
-            minColor: fillColors[0],
-            maxColor: fillColors[1],
-            type: 'size',
-            dots: 5,
-            size: 5,
-            zeroRadiusSize: 20,
-            min: dataRange[0],
-            max: dataRange[1],
-            label: radiusBasedOn,
-            ...legendProps,
-          })
-        }
+        })
+
+        legends = [...legends, ...layerLegends]
       }
     })
     return legends
