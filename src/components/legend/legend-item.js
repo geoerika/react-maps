@@ -57,8 +57,8 @@ const LegendItem = ({ legendItemProps }) => {
     max,
     label,
     metricAliases,
-    formatLegendTitle,
-    formatPropertyLabel,
+    formatLegendTitle = d => d,
+    formatPropertyLabel = d => d,
     formatData,
     type,
     ...symbolProps
