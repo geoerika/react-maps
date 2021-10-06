@@ -281,3 +281,74 @@ export const getSuperclusterRadius = ({ zoom, sizeScale = CLUSTER_SIZE_SCALE }) 
   zoom > 15 ?
     sizeScale / 2 :
     sizeScale
+
+/**
+ * setLegendConfigs - set config objects for all legends of a map layer
+ * @param { object } param
+ * @param { string } param.elevationBasedOn - data attribute key for elevation
+ * @param { string } param.fillBasedOn - data attribute key for fill
+ * @param { array } param.fillColors - array of string or array colors
+ * @param { string } param.objColor - string format colour 'rgb(r, g, b, opacity)'
+ * @param { string } param.radiusBasedOn - data attribute key for radius
+ * @param { array } param.data - data array
+ * @param { function } param.dataPropertyAccessor - function to access data attribute values in the data objects
+ * @param { object } param.legendProps - various other legend props:
+ *               {metricAliases, formatLegendTitle, formatPropertyLabel,formatData, symbolLineColor}
+ * @returns { array  } - array of legend config objects
+ */
+export const setLegendConfigs = ({
+  elevationBasedOn = '',
+  fillBasedOn = '',
+  fillColors,
+  objColor = '',
+  radiusBasedOn = '',
+  data = [],
+  dataPropertyAccessor = d => d,
+  ...legendProps
+}) => {
+  const legends = []
+  if (fillBasedOn.length && data?.length) {
+    // TODO support quantile/quantize
+    // i.e. different lengths of fillColors[]
+    const dataRange = getDataRange({ data, dataKey: fillBasedOn, dataPropertyAccessor })
+    legends.push({
+      minColor: fillColors[0],
+      maxColor: fillColors[1],
+      type: 'gradient',
+      min: dataRange[0],
+      max: dataRange[1],
+      label: fillBasedOn,
+      ...legendProps,
+    })
+  }
+
+  if (elevationBasedOn.length && data?.length) {
+    const dataRange = getDataRange({ data, dataKey: elevationBasedOn, dataPropertyAccessor })
+    legends.push({
+      type: 'elevation',
+      minColor: fillColors[0],
+      maxColor: objColor || fillColors[1],
+      min: dataRange[0],
+      max: dataRange[1],
+      label: elevationBasedOn,
+      ...legendProps,
+    })
+  }
+
+  if (radiusBasedOn.length && data?.length) {
+    const dataRange = getDataRange({ data, dataKey: radiusBasedOn, dataPropertyAccessor })
+    legends.push({
+      minColor: fillColors[0],
+      maxColor: objColor || fillColors[1],
+      type: 'size',
+      dots: 5,
+      size: 5,
+      zeroRadiusSize: 20,
+      min: dataRange[0],
+      max: dataRange[1],
+      label: radiusBasedOn,
+      ...legendProps,
+    })
+  }
+  return legends
+}
