@@ -13,6 +13,7 @@ export const useLegends = ({
   radiusBasedOn = '',
   data = [],
   dataPropertyAccessor = d => d,
+  ...legendProps
 }) => {
   const legends = useMemo(() => {
     const legends = []
@@ -27,6 +28,7 @@ export const useLegends = ({
         min: dataRange[0],
         max: dataRange[1],
         label: fillBasedOn,
+        ...legendProps,
       })
     }
 
@@ -39,6 +41,7 @@ export const useLegends = ({
         min: dataRange[0],
         max: dataRange[1],
         label: elevationBasedOn,
+        ...legendProps,
       })
     }
 
@@ -54,10 +57,20 @@ export const useLegends = ({
         min: dataRange[0],
         max: dataRange[1],
         label: radiusBasedOn,
+        ...legendProps,
       })
     }
     return legends
-  }, [elevationBasedOn, fillBasedOn, radiusBasedOn, fillColors, objColor, data, dataPropertyAccessor])
+  }, [
+    elevationBasedOn,
+    fillBasedOn,
+    radiusBasedOn,
+    fillColors,
+    objColor,
+    data,
+    dataPropertyAccessor,
+    legendProps,
+  ])
 
   return legends
 }
