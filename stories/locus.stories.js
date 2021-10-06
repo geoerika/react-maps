@@ -83,7 +83,6 @@ const dataConfig = [
 const GeoJSONLayerConfig = {
   layer: 'geojson',
   dataId: 'poiGeojson-123',
-  dataPropertyAccessor: d => d.properties,
   visualizations: {
     radius: {
       value: { field: 'radius' },
@@ -167,14 +166,15 @@ const WIReportLayerConfig = {
         // nameAccessor: () => {},
         // idAccessor: () => {},
         // metricAccessor: () => {},
-        // metricAliases: {},
       },
-      // formatData: () => {},
       // formatTooltipTitle: () => {},
-      // formatPropertyLabel: () => {},
       // tooltipProps: {},
     },
   },
+  legend: { showLegend: true },
+  // formatData: () => {},
+  // formatPropertyLabel: () => {},
+  // metricAliases: {},
 }
 
 const selectLayerConfig = {
@@ -208,10 +208,12 @@ const MVTLayerConfig = {
     },
   },
   opacity: 0.2,
+  legend: { showLegend: true },
 }
 
 const mapConfig = {
   cursor: (layers) => getCursor({ layers }),
+  legendPosition: 'bottom-right',
   mapboxApiAccessToken,
 }
 
