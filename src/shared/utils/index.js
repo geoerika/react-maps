@@ -247,18 +247,19 @@ export const getStrFillColor = ({ fillColor, opacity }) => {
 }
 
 /**
-* getArrayGradientFillColors - converts an array of string format colours ex. ["#0062d9", "#dd196b"]
+* getArrayGradientFillColors - converts an array of string or array format colours
 * in an array of rgba string format colours
 * @param { object } param
-* @param { string } param.fillColors - array of string format colours ['#0062d9', '#dd196b']
-* * @param { string } param.opacity - opacity value
+* @param { array } param.fillColors - array of string or array format colours
+                                      ex: ['#0062d9', '#dd196b'] or [[214, 232, 253], [39, 85, 196]]
+* @param { string } param.opacity - opacity value
 * @returns { array } - array of rgba string format colours ['rgb(r, g, b, opacity)']
 */
-export const getArrayGradientFillColors = ({ fillColors, opacity }) =>
-  fillColors.map(strColor => {
-    const arrayColor = strToArrayColor({ strColor })
+export const getArrayGradientFillColors = ({ fillColors, opacity }) => {
+  return fillColors.map(strColor => {
+    const arrayColor = Array.isArray(strColor) ? strColor : strToArrayColor({ strColor })
     return `rgba(${arrayColor[0]}, ${arrayColor[1]}, ${arrayColor[2]}, ${opacity})`
-  })
+  })}
 
 /**
  * setLegendOpacity - adjusts legend opacity to match closer to deck.gl layer opacity
