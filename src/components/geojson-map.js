@@ -8,6 +8,7 @@ import { GeoJsonLayer } from '@deck.gl/layers'
 import { interpolateBlues } from 'd3-scale-chromatic'
 
 import { useLegends, useMapData, useElevation, useFill } from '../hooks'
+import { getArrayGradientFillColors, setLegendOpacity } from '../shared/utils'
 import Map from './old-generic-map'
 
 
@@ -27,6 +28,7 @@ const GeoJsonMap = ({
   getLineColor,
   showLegend,
   legendPosition,
+  dataPropertyAccessor,
   mapboxApiAccessToken,
   ...geoJsonLayerProps
 }) => {
@@ -102,7 +104,20 @@ const GeoJsonMap = ({
     opacity,
   ])
 
-  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, data })
+  const legends = useLegends({
+    elevationBasedOn,
+    fillBasedOn,
+    data,
+    /**
+   * We convert an array of string format colors, into an array of rgba string format colours so we
+   * can use them in the Legend Gradient component
+   *
+   * There is visually a difference between the legend opacity for color gradient and map opacity,
+   * we need to adjust opacity for symbols in the legend to have a closer match
+   */
+    fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
+    dataPropertyAccessor,
+  })
 
   return (
     <div>
@@ -167,6 +182,7 @@ GeoJsonMap.propTypes = {
   ]),
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
+  dataPropertyAccessor: PropTypes.func,
   ...commonProps,
 }
 
@@ -189,6 +205,7 @@ GeoJsonMap.defaultProps = {
   getLineColor: [0, 0, 0],
   showLegend: false,
   legendPosition: 'top-left',
+  dataPropertyAccessor: d => d.properties,
   ...commonDefaultProps,
 }
 

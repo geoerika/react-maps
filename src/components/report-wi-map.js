@@ -11,6 +11,7 @@ import { color } from 'd3-color'
 import { useLegends, useFullReport, useTimeline } from '../hooks'
 import { hours, days } from '../constants'
 import { reportWI } from '../datasets'
+import { getStrFillColor, getArrayGradientFillColors, setLegendOpacity } from '../shared/utils'
 
 import Map from './old-generic-map'
 import Scatter from './layers/scatter-plot'
@@ -63,6 +64,7 @@ const ReportWIMap = ({
   showLegend,
   legendPosition,
   useTooltip,
+  dataPropertyAccessor,
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
@@ -249,7 +251,24 @@ const ReportWIMap = ({
     opacity,
   ])
 
-  const legends = useLegends({ radiusBasedOn, fillBasedOn, fillColors, data })
+  const legends = useLegends({
+    fillBasedOn,
+    /**
+     * We convert an array of string format colors, into an array of rgba string format colours so we
+     * can use them in the Legend Gradient component
+     *
+     * There is visually a difference between the legend opacity for color gradient and map opacity,
+     * we need to adjust opacity for symbols in the legend to have a closer match
+     */
+    fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
+    // convert array format color (used in deck.gl elevation fill) into str format color for legend
+    objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
+    data,
+    dataPropertyAccessor,
+    symbolLineColor: (typeof getLineColor !== 'function') ?
+      getStrFillColor({ fillColor: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
+      '',
+  })
   
   const handleRadiusBasedOnChange = e => setRadiusBasedOn(e.target.value)
   const handleRadiusTypeChange = e => {
@@ -360,6 +379,7 @@ ReportWIMap.propTypes = {
   legendPosition: PropTypes.string,
   defaultKeyMetric: PropTypes.string,
   useTooltip: PropTypes.bool,
+  dataPropertyAccessor: PropTypes.func,
   ...commonProps,
 }
 
@@ -391,6 +411,7 @@ ReportWIMap.defaultProps = {
   showLegend: false,
   legendPosition: 'top-left',
   useTooltip: false,
+  dataPropertyAccessor: d => d,
   ...commonDefaultProps,
 }
 
