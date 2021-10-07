@@ -1,7 +1,12 @@
 import { useMemo } from 'react'
 
-import { setLegendConfigs, getArrayGradientFillColors, setLegendOpacity } from '../../shared/utils'
-import { PROP_CONFIGURATIONS } from './constants'
+import {
+  setLegendConfigs,
+  getArrayGradientFillColors,
+  getStrFillColor,
+  setLegendOpacity,
+} from '../../shared/utils'
+import { LAYER_CONFIGURATIONS, PROP_CONFIGURATIONS } from './constants'
 
 /**
  * useLegends - React Hook to set legend config objects for all map layers
@@ -19,14 +24,18 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
       const formatLegendTitle = layer.legend?.formatLegendTitle
       if (showLegend) {
         let data = dataConfig.find(data => data.id === layer.dataId)?.data
-        data = data.tileData ? data.tileData : data
-        const dataPropertyAccessor = layer.dataPropertyAccessor || (d => d)
+        data = data?.tileData ? data.tileData : data
+        const dataPropertyAccessor = layer.dataPropertyAccessor ||
+          LAYER_CONFIGURATIONS[layer.layer]?.dataPropertyAccessor || (d => d)
         const fillBasedOn = visualizations?.fill?.value?.field
         const radiusBasedOn = visualizations?.radius?.value?.field
         const elevationBasedOn = visualizations?.elevation?.value?.field
-        const symbolLineColor = visualizations?.lineColor || PROP_CONFIGURATIONS.lineColor.defaultValue
+        const symbolLineColor = getStrFillColor({
+          fillColor: visualizations?.lineColor || PROP_CONFIGURATIONS.lineColor.defaultValue,
+          opacity: setLegendOpacity({ opacity }),
+        })
         /**
-         * We convert an array of string format colors, into an array of rgba string format colours so we
+         * We convert an array of array-format colors, into an array of rgba string format colours so we
          * can use them in the Legend Gradient component
          *
          * There is visually a difference between the legend opacity for color gradient and map opacity,
@@ -34,9 +43,12 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
          */
         const fillColors = visualizations?.fill?.valueOptions ?
           getArrayGradientFillColors({
-            fillColors: visualizations?.fill?.valueOptions,
+            fillColors: visualizations.fill.valueOptions,
             opacity: setLegendOpacity({ opacity }),
           }) : ''
+        const objColor = Array.isArray(visualizations?.fill?.value) ?
+          getStrFillColor({ fillColor: visualizations.fill.value, opacity: setLegendOpacity({ opacity }) }) :
+          ''
 
         const layerLegends = setLegendConfigs({
           data,
@@ -50,6 +62,7 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
           formatPropertyLabel,
           formatData,
           symbolLineColor,
+          objColor,
         })
 
         legends = [...legends, ...layerLegends]
