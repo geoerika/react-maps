@@ -93,7 +93,7 @@ export const FormatDataValues = Template.bind({})
 FormatDataValues.args = {
   ...TooltipWithCustomTootltipKeys.args,
   showLegend: true,
-  formatData: formatData,
+  formatData,
   ...mapArgs,
 }
 
