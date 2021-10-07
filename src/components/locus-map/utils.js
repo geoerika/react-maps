@@ -187,7 +187,13 @@ export const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude
  */
 export const getTooltipParams = ({ hoverInfo }) => {
   const { layer: { props: layerProps } } = hoverInfo
-  const { visualizations, dataPropertyAccessor, formatData, formatPropertyLabel } = layerProps
+  const {
+    visualizations,
+    dataPropertyAccessor,
+    formatData,
+    formatPropertyLabel,
+    metricAliases,
+  } = layerProps
   const { tooltipKeys, formatTooltipTitle, tooltipProps } = layerProps?.interactions?.tooltip
   const fillBasedOn  = visualizations?.fill?.value?.field
   const radiusBasedOn  = visualizations?.radius?.value?.field
@@ -200,7 +206,6 @@ export const getTooltipParams = ({ hoverInfo }) => {
     metricAccessor,
     nameAccessor,
     idAccessor,
-    metricAliases,
   } = tooltipKeys ? tooltipKeys : {}
   const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
   // set metricKeys array if no custom keys are given
