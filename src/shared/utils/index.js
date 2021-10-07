@@ -185,9 +185,13 @@ export const setFinalLayerDataProperty = ({
   if (!value) {
     return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
   }
+  // case for radius for GeoJSON layer
+  if (value.field && !dataScale && !valueOptions) {
+    return d => dataPropertyAccessor(d)[value.field]
+  }
   let layerData = data?.tileData?.length ? data.tileData : data
 
-  if (layerData?.length && value.field?.length) {
+  if (layerData?.length && value.field?.length && valueOptions?.length) {
     const sample = dataPropertyAccessor(layerData[0])
     if (sample[value.field] === undefined) {
       return defaultValue
@@ -241,7 +245,7 @@ export const getArrayFillColors = ({ fillColors }) =>
 * @param { string } param.opacity - opacity value
 * @returns { array } - string format colour 'rgb(r, g, b, opacity)'
 */
-export const getStrFillColor = ({ fillColor, opacity }) => {
+export const getStrFillColor = ({ fillColor, opacity = 1 }) => {
   const color = typeof fillColor === 'function' ? fillColor(0)(1) : fillColor
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
 }
