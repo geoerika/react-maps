@@ -16,6 +16,10 @@ import { LAYER_CONFIGURATIONS, PROP_CONFIGURATIONS } from './constants'
  * @returns { array } - array of legend config objects for all map layers
  */
 export const useLegends = ({ dataConfig, layerConfig }) => {
+  const dataMap = dataConfig.reduce((map, data) => {
+    map[data.id] = data
+    return map
+  }, {})
   const mapLegends = useMemo(() => {
     let legends = []
     layerConfig.forEach(layer => {
@@ -23,7 +27,7 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
       const showLegend = layer.legend?.showLegend
       const formatLegendTitle = layer.legend?.formatLegendTitle
       if (showLegend) {
-        let data = dataConfig.find(data => data.id === layer.dataId)?.data
+        let data = dataMap[layer.dataId]?.data || {}
         data = data?.tileData ? data.tileData : data
         const dataPropertyAccessor = layer.dataPropertyAccessor ||
           LAYER_CONFIGURATIONS[layer.layer]?.dataPropertyAccessor || (d => d)
@@ -69,6 +73,6 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
       }
     })
     return legends
-  }, [dataConfig, layerConfig])
+  }, [layerConfig, dataMap])
   return mapLegends
 }
