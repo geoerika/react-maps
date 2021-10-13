@@ -14,14 +14,15 @@ export const parseDeckGLLayerFromConfig = ({
   ...others
 }) => {
   const {
-    geometryAccessor = d => d,
     geometry: layerGeom,
     deckGLClass: Layer,
     defaultProps,
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
 
-  const { layerMode, dataPropertyAccessor = d => d } = others
+  const { layerMode } = others
+  const dataPropertyAccessor = others?.dataPropertyAccessor || LAYER_CONFIGURATIONS[layer]?.dataPropertyAccessor
+  const geometryAccessor = others?.geometry?.geometryAccessor
   let mode = null
 
   switch(layerMode) {
@@ -186,15 +187,14 @@ export const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude
  */
 export const getTooltipParams = ({ hoverInfo }) => {
   const { layer: { props: layerProps } } = hoverInfo
-  const { dataPropertyAccessor } = layerProps
   const {
-    tooltipKeys,
+    visualizations,
+    dataPropertyAccessor,
     formatData,
-    formatTooltipTitle,
     formatPropertyLabel,
-    tooltipProps,
-  } = layerProps?.interactions?.tooltip
-  const { visualizations } = layerProps
+    metricAliases,
+  } = layerProps
+  const { tooltipKeys, formatTooltipTitle, tooltipProps } = layerProps?.interactions?.tooltip
   const fillBasedOn  = visualizations?.fill?.value?.field
   const radiusBasedOn  = visualizations?.radius?.value?.field
   const elevationBasedOn  = visualizations?.elevation?.value?.field
@@ -206,7 +206,6 @@ export const getTooltipParams = ({ hoverInfo }) => {
     metricAccessor,
     nameAccessor,
     idAccessor,
-    metricAliases,
   } = tooltipKeys ? tooltipKeys : {}
   const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
   // set metricKeys array if no custom keys are given

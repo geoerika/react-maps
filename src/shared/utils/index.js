@@ -185,9 +185,13 @@ export const setFinalLayerDataProperty = ({
   if (!value) {
     return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
   }
+  // case for radius for GeoJSON layer
+  if (value.field && !dataScale && !valueOptions) {
+    return d => dataPropertyAccessor(d)[value.field]
+  }
   let layerData = data?.tileData?.length ? data.tileData : data
 
-  if (layerData?.length && value.field?.length) {
+  if (layerData?.length && value.field?.length && valueOptions?.length) {
     const sample = dataPropertyAccessor(layerData[0])
     if (sample[value.field] === undefined) {
       return defaultValue
@@ -241,24 +245,25 @@ export const getArrayFillColors = ({ fillColors }) =>
 * @param { string } param.opacity - opacity value
 * @returns { array } - string format colour 'rgb(r, g, b, opacity)'
 */
-export const getStrFillColor = ({ fillColor, opacity }) => {
+export const getStrFillColor = ({ fillColor, opacity = 1 }) => {
   const color = typeof fillColor === 'function' ? fillColor(0)(1) : fillColor
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
 }
 
 /**
-* getArrayGradientFillColors - converts an array of string format colours ex. ["#0062d9", "#dd196b"]
+* getArrayGradientFillColors - converts an array of string or array format colours
 * in an array of rgba string format colours
 * @param { object } param
-* @param { string } param.fillColors - array of string format colours ['#0062d9', '#dd196b']
-* * @param { string } param.opacity - opacity value
+* @param { array } param.fillColors - array of string or array format colours
+                                      ex: ['#0062d9', '#dd196b'] or [[214, 232, 253], [39, 85, 196]]
+* @param { string } param.opacity - opacity value
 * @returns { array } - array of rgba string format colours ['rgb(r, g, b, opacity)']
 */
-export const getArrayGradientFillColors = ({ fillColors, opacity }) =>
-  fillColors.map(strColor => {
-    const arrayColor = strToArrayColor({ strColor })
+export const getArrayGradientFillColors = ({ fillColors, opacity }) => {
+  return fillColors.map(strColor => {
+    const arrayColor = Array.isArray(strColor) ? strColor : strToArrayColor({ strColor })
     return `rgba(${arrayColor[0]}, ${arrayColor[1]}, ${arrayColor[2]}, ${opacity})`
-  })
+  })}
 
 /**
  * setLegendOpacity - adjusts legend opacity to match closer to deck.gl layer opacity
@@ -280,3 +285,74 @@ export const getSuperclusterRadius = ({ zoom, sizeScale = CLUSTER_SIZE_SCALE }) 
   zoom > 15 ?
     sizeScale / 2 :
     sizeScale
+
+/**
+ * setLegendConfigs - set config objects for all legends of a map layer
+ * @param { object } param
+ * @param { string } param.elevationBasedOn - data attribute key for elevation
+ * @param { string } param.fillBasedOn - data attribute key for fill
+ * @param { array } param.fillColors - array of string or array colors
+ * @param { string } param.objColor - string format colour 'rgb(r, g, b, opacity)'
+ * @param { string } param.radiusBasedOn - data attribute key for radius
+ * @param { array } param.data - data array
+ * @param { function } param.dataPropertyAccessor - function to access data attribute values in the data objects
+ * @param { object } param.legendProps - various other legend props:
+ *               {metricAliases, formatLegendTitle, formatPropertyLabel,formatData, symbolLineColor}
+ * @returns { array  } - array of legend config objects
+ */
+export const setLegendConfigs = ({
+  elevationBasedOn = '',
+  fillBasedOn = '',
+  fillColors,
+  objColor = '',
+  radiusBasedOn = '',
+  data = [],
+  dataPropertyAccessor = d => d,
+  ...legendProps
+}) => {
+  const legends = []
+  if (fillBasedOn.length && data?.length) {
+    // TODO support quantile/quantize
+    // i.e. different lengths of fillColors[]
+    const dataRange = getDataRange({ data, dataKey: fillBasedOn, dataPropertyAccessor })
+    legends.push({
+      minColor: fillColors[0],
+      maxColor: fillColors[1],
+      type: 'gradient',
+      min: dataRange[0],
+      max: dataRange[1],
+      label: fillBasedOn,
+      ...legendProps,
+    })
+  }
+
+  if (elevationBasedOn.length && data?.length) {
+    const dataRange = getDataRange({ data, dataKey: elevationBasedOn, dataPropertyAccessor })
+    legends.push({
+      type: 'elevation',
+      minColor: fillColors[0],
+      maxColor: objColor || fillColors[1],
+      min: dataRange[0],
+      max: dataRange[1],
+      label: elevationBasedOn,
+      ...legendProps,
+    })
+  }
+
+  if (radiusBasedOn.length && data?.length) {
+    const dataRange = getDataRange({ data, dataKey: radiusBasedOn, dataPropertyAccessor })
+    legends.push({
+      minColor: fillColors[0],
+      maxColor: objColor || fillColors[1],
+      type: 'size',
+      dots: 5,
+      size: 5,
+      zeroRadiusSize: 20,
+      min: dataRange[0],
+      max: dataRange[1],
+      label: radiusBasedOn,
+      ...legendProps,
+    })
+  }
+  return legends
+}

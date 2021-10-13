@@ -83,20 +83,27 @@ const dataConfig = [
 const GeoJSONLayerConfig = {
   layer: 'geojson',
   dataId: 'poiGeojson-123',
-  dataPropertyAccessor: d => d.properties,
   visualizations: {
     radius: {
       value: { field: 'radius' },
-      valueOptions: [5, 15],
-      dataScale: 'linear',
     },
     fill: {
-      value: { field: 'radius' },
-      valueOptions: [[214, 232, 253], [39, 85, 196]],
-      dataScale: 'linear',
+      value: [102, 108, 198],
     },
   },
-  interactions: {},
+  opacity: 0.3,
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        name: 'name',
+        id: 'id',
+        metricKeys: ['lon', 'lat'],
+        nameAccessor: d => d.properties,
+        idAccessor: d => d.properties,
+      },
+    },
+  },
+  legend: { showLegend: true },
 }
 
 const arcLayerConfig = {
@@ -111,7 +118,13 @@ const arcLayerConfig = {
     targetArcColor: { value: [251, 201, 78] },
     arcWidth: { value: 2 },
   },
-  interactions: {},
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        metricKeys: ['source_poi_id', 'target_poi_id', 'xvisit_visits', 'xvisit_unique_visitors'],
+      },
+    },
+  },
 }
 
 const ScatterPlotLayer1Config = {
@@ -124,7 +137,15 @@ const ScatterPlotLayer1Config = {
       value: [182, 38, 40],
     },
   },
-  interactions: {},
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        name: 'source_poi_name',
+        id: 'source_poi_id',
+        metricKeys: ['source_lon', 'source_lat'],
+      },
+    },
+  },
 }
 
 const ScatterPlotLayer2Config = {
@@ -137,7 +158,15 @@ const ScatterPlotLayer2Config = {
       value: [251, 201, 78],
     },
   },
-  interactions: {},
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        name: 'target_poi_name',
+        id: 'target_poi_id',
+        metricKeys: ['target_lon', 'target_lat'],
+      },
+    },
+  },
 }
 
 const WIReportLayerConfig = {
@@ -167,14 +196,16 @@ const WIReportLayerConfig = {
         // nameAccessor: () => {},
         // idAccessor: () => {},
         // metricAccessor: () => {},
-        // metricAliases: {},
       },
-      // formatData: () => {},
       // formatTooltipTitle: () => {},
-      // formatPropertyLabel: () => {},
       // tooltipProps: {},
     },
   },
+  legend: { showLegend: true },
+  // formatData: () => {},
+  // formatPropertyLabel: () => {},
+  // metricAliases: {},
+  opacity: 0.5,
 }
 
 const selectLayerConfig = {
@@ -202,16 +233,18 @@ const MVTLayerConfig = {
         id: 'id',
         metricKeys: ['value'],
         metricAccessor: d => d.properties,
-        metricAliases: { value: 'Median Income' },
       },
-      formatData: { value: d => '$' + d },
     },
   },
   opacity: 0.2,
+  legend: { showLegend: true },
+  metricAliases: { value: 'Median Income' },
+  formatData: { value: d => '$' + d },
 }
 
 const mapConfig = {
   cursor: (layers) => getCursor({ layers }),
+  legendPosition: 'bottom-right',
   mapboxApiAccessToken,
 }
 
@@ -227,7 +260,7 @@ const scatterplotArgs = { layerConfig: [WIReportLayerConfig], dataConfig, mapCon
 
 export const ScatterplotLayer = Template.bind({})
 ScatterplotLayer.args = scatterplotArgs
-ScatterplotLayer.storyName = 'Scatterplot Layer for WI & VWI reports - with tooltip'
+ScatterplotLayer.storyName = 'Scatterplot Layer for WI & VWI reports'
 
 const xwiReportArgs = {
   layerConfig: [arcLayerConfig, ScatterPlotLayer1Config, ScatterPlotLayer2Config],
@@ -257,7 +290,7 @@ const MVTLayerArgs = { layerConfig: [MVTLayerConfig], dataConfig, mapConfig: { .
 
 export const MVTLayer = Template.bind({})
 MVTLayer.args = MVTLayerArgs
-MVTLayer.storyName = 'MVT Layer with demographic data - tooltip'
+MVTLayer.storyName = 'MVT Layer with demographic data'
 
 export const SelectDataLayer = () => {
   const [selectShape, setSelectShape] = useState('circle')

@@ -9,6 +9,7 @@ import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
 import { useMapData, useLegends } from '../hooks'
+import { getArrayGradientFillColors, setLegendOpacity } from '../shared/utils'
 import Map from './old-generic-map'
 import Loader, { convertCSVtoJSON } from './loader'
 
@@ -25,6 +26,7 @@ const HexLayerMap = ({
   getColorWeight,
   showLegend,
   legendPosition,
+  dataPropertyAccessor,
   mapboxApiAccessToken,
   ...hexLayerProps
 }) => {
@@ -114,7 +116,20 @@ const HexLayerMap = ({
     metrics,
   ])
 
-  const legends = useLegends({ elevationBasedOn, fillBasedOn, fillColors, data })
+  const legends = useLegends({
+    elevationBasedOn,
+    fillBasedOn,
+    data,
+    /**
+     * We convert an array of string format colors, into an array of rgba string format colours so we
+     * can use them in the Legend Gradient component
+     *
+     * There is visually a difference between the legend opacity for color gradient and map opacity,
+     * we need to adjust opacity for symbols in the legend to have a closer match
+     */
+    fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
+    dataPropertyAccessor,
+  })
 
   return (
     <div>
@@ -160,6 +175,7 @@ HexLayerMap.propTypes = {
   getElevationWeight: PropTypes.func,
   showLegend: PropTypes.bool,
   legendPosition: PropTypes.string,
+  dataPropertyAccessor: PropTypes.func,
   ...commonProps,
 }
 
@@ -175,6 +191,7 @@ HexLayerMap.defaultProps = {
   getElevationWeight: () => 1,
   showLegend: false,
   legendPosition: 'top-left',
+  dataPropertyAccessor: d => d,
   ...commonDefaultProps,
 }
 

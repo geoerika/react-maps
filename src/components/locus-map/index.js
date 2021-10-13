@@ -2,10 +2,12 @@ import React, { useState, useEffect, useMemo, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
+import { useLegends } from './hooks'
 import { setView, parseDeckGLLayerFromConfig, getTooltipParams, getObjectMVTData } from './utils'
 import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
+import Legend from '../legend'
 
 
 const LocusMap = ({
@@ -138,6 +140,21 @@ const LocusMap = ({
     return Boolean(layerConfig.find(layer => layer.interactions.tooltip))
   }, [layerConfig])
 
+  // get all config data for all layer legends
+  const legends = useLegends({ dataConfig, layerConfig })
+
+  // set legend element
+  const legend = useMemo(() => {
+    return (mapConfig.legendNode ||
+      (legends?.length > 0 &&
+        <Legend
+          legends={legends}
+          position={mapConfig.legendPosition}
+          typograpy={mapConfig.typography}
+        />
+      )
+    )}, [legends, mapConfig.legendNode, mapConfig.legendPosition, mapConfig.typography])
+
   return (
     <Map
       layers={Object.values(layers).map(o => o.deckLayer)}
@@ -171,6 +188,7 @@ const LocusMap = ({
           </MapTooltip>
         )
       }}
+      legend={legend}
     />
   )
 }

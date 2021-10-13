@@ -20,7 +20,6 @@ import {
   setView,
   setFinalLayerDataProperty,
   getArrayFillColors,
-  getStrFillColor,
   getArrayGradientFillColors,
   setLegendOpacity,
 } from '../shared/utils'
@@ -243,48 +242,33 @@ const GeoCohortMap = ({
      */
     fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
     // convert array format color (used in deck.gl elevation fill) into str format color for legend
-    objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
     data: activeLayer === 'FSALayer' ? reportFSAData : (reportGeoCohortData || []),
+    metricAliases: tooltipKeys.metricAliases,
+    formatLegendTitle,
+    formatPropertyLabel,
+    formatData,
     dataPropertyAccessor,
   })
 
   // set legend element
   const legend = useMemo(() => {
-    const { metricAliases } = tooltipKeys
     return (
       showLegend &&
       (legendNode ||
         (legends?.length > 0 &&
           <Legend
             legends={legends}
-            fillBasedOn={fillBasedOn}
-            metricAliases={metricAliases}
-            formatLegendTitle={formatLegendTitle}
-            formatPropertyLabel={formatPropertyLabel}
-            formatData={formatData}
             position={legendPosition}
             typograpy={typography}
-            symbolLineColor={
-              (typeof getLineColor !== 'function') ?
-                getStrFillColor({ fillColor: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
-                ''
-            }
           />
         )
       )
     )}, [
     showLegend,
     legends,
-    fillBasedOn,
-    tooltipKeys,
     legendPosition,
-    formatLegendTitle,
-    formatPropertyLabel,
-    formatData,
     typography,
     legendNode,
-    getLineColor,
-    opacity,
   ])
 
   return (

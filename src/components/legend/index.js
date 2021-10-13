@@ -17,18 +17,13 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   backgroundColor: 'rgba(255,255,255,0.9)',
   padding: '0 1rem 1rem',
   borderRadius: '0.2rem',
+  marginBottom: '1rem',
   ...position,
 }))
 
 const Legend = ({
   position,
   legends,
-  fillBasedOn,
-  metricAliases,
-  formatLegendTitle,
-  formatPropertyLabel,
-  formatData,
-  symbolLineColor,
   typography,
 }) => {
   let objPosition = {}
@@ -50,12 +45,6 @@ const Legend = ({
             key={type}
             legendItemProps={{
               type,
-              metricAliases,
-              formatLegendTitle,
-              formatPropertyLabel,
-              formatData,
-              fillBasedOn,
-              symbolLineColor,
               ...legendProps,
             }}
           />
@@ -67,35 +56,12 @@ const Legend = ({
 
 Legend.propTypes = {
   position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
-  legends: PropTypes.arrayOf(PropTypes.shape({
-    max: PropTypes.number,
-    min: PropTypes.number,
-    label: PropTypes.string,
-  })),
-  fillBasedOn: PropTypes.string,
-  metricAliases: PropTypes.object,
-  formatLegendTitle: PropTypes.func,
-  formatPropertyLabel: PropTypes.func,
-  formatData: PropTypes.object,
-  symbolLineColor: PropTypes.string,
+  legends: PropTypes.array.isRequired,
   ...typographyPropTypes,
 }
 
 Legend.defaultProps = {
   position: 'top-left',
-  legends: [
-    {
-      max: undefined,
-      min: undefined,
-      label: '',
-    },
-  ],
-  fillBasedOn: '',
-  metricAliases: undefined,
-  formatLegendTitle: d => d,
-  formatPropertyLabel: d => d,
-  formatData: undefined,
-  symbolLineColor: '',
   ...typographyDefaultProps,
 }
 

@@ -31,6 +31,7 @@ export const LAYER_CONFIGURATIONS = {
   scatterplot: {
     notAClass: false,
     deckGLClass: ScatterplotLayer,
+    dataPropertyAccessor: d => d,
     geometry: {
       propName: 'getPosition',
       // ====[TODO] support [lon,lat] array?
@@ -63,12 +64,13 @@ export const LAYER_CONFIGURATIONS = {
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
       lineWidthUnits: 'pixels',
-      pointRadiusUnits: 'pixels',
+      pointRadiusUnits: 'meters',
     },
   },
   arc: {
     notAClass: false,
     deckGLClass: ArcLayer,
+    dataPropertyAccessor: d => d,
     geometry: {
       source: {
         propName: 'getSourcePosition',
@@ -103,7 +105,6 @@ export const LAYER_CONFIGURATIONS = {
   select: {
     notAClass: true,
     deckGLClass: EditableGeoJsonLayer,
-    dataPropertyAccessor: d => d,
     visualizations: [
       'fill',
       'lineWidth',
@@ -138,12 +139,12 @@ export const LAYER_CONFIGURATIONS = {
 // ====[NOTE] props that are available for configuration via UI
 export const PROP_CONFIGURATIONS = {
   fill: {
-    defaultValue: highlightId => d => d?.GeoCohortItem === highlightId ? [250, 175, 21] : [102, 108, 198],
+    defaultValue: [182, 38, 40],
     deckGLName: 'getFillColor',
     byProducts: { filled: true },
   },
   radius: {
-    defaultValue: 20,
+    defaultValue: 5,
     deckGLName: 'getRadius',
   },
   lineWidth: {

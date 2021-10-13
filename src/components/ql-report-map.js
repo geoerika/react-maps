@@ -207,46 +207,29 @@ const QLReportMap = ({
     objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
     data: reportData,
     dataPropertyAccessor,
+    metricAliases: tooltipKeys.metricAliases,
+    formatLegendTitle,
+    formatPropertyLabel,
+    formatData,
+    symbolLineColor: (typeof getLineColor !== 'function') ?
+      getStrFillColor({ fillColor: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
+      '',
   })
 
   // set legend element
   const legend = useMemo(() => {
-    const { metricAliases } = tooltipKeys
     return (
       showLegend &&
       (legendNode ||
         (legends?.length > 0 &&
           <Legend
             legends={legends}
-            fillBasedOn={fillBasedOn}
-            metricAliases={metricAliases}
-            formatLegendTitle={formatLegendTitle}
-            formatPropertyLabel={formatPropertyLabel}
-            formatData={formatData}
             position={legendPosition}
             typograpy={typography}
-            symbolLineColor={
-              (typeof getLineColor !== 'function') ?
-                getStrFillColor({ fillColor: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
-                ''
-            }
           />
         )
       )
-    )}, [
-    showLegend,
-    legends,
-    fillBasedOn,
-    tooltipKeys,
-    legendPosition,
-    formatLegendTitle,
-    formatPropertyLabel,
-    formatData,
-    typography,
-    legendNode,
-    getLineColor,
-    opacity,
-  ])
+    )}, [showLegend, legends, legendPosition, typography, legendNode])
 
   return (
     <Map

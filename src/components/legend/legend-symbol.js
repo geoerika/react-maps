@@ -45,12 +45,12 @@ const Height = styled('div')`
 `
 
 const LegendSymbol = ({ symbolProps }) => {
-  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type, fillBasedOn, symbolLineColor } = symbolProps
+  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type, symbolLineColor } = symbolProps
   if (type === 'elevation') {
     return (
       <Size max={max}>
         <HeightWrapper pos={'left'}>
-          <Height width={21} color={(fillBasedOn && !max) ? minColor : maxColor} />
+          <Height width={21} color={!max ? minColor : maxColor} />
         </HeightWrapper>
         {max > 0 &&
           <HeightWrapper>
@@ -79,7 +79,7 @@ const LegendSymbol = ({ symbolProps }) => {
           )) :
           <Circle
             size={zeroRadiusSize}
-            color={(fillBasedOn && !max) ? minColor : maxColor}
+            color={!max ? minColor : maxColor}
             max={max}
             linecolor={symbolLineColor}
           />
