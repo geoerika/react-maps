@@ -48,7 +48,7 @@ const MapWrapper = styled('div')`
 
 const SwitchContainerCluster = styled('div')`
   position: absolute;
-  margin: 15px;
+  margin: 10px;
   z-index: 1;
   background-color: white;
   border-radius: 3px;
@@ -57,13 +57,12 @@ const SwitchContainerCluster = styled('div')`
 
 const SwitchContainerRadius = styled('div')`
   position: absolute;
-  margin: 15px;
-  margin-top: ${props => props.clusterswitch ? 60 : 15}px;
+  margin: 10px;
+  margin-top: ${props => props.clusterswitch ? 50 : 10}px;
   z-index: 1;
   background-color: white;
   border-radius: 3px;
   padding: 5px;
-  width: 154px;
 `
 
 const DrawButtonContainer = styled('div')`
