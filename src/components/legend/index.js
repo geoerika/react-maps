@@ -14,10 +14,10 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   flexDirection: 'column',
   position: 'absolute',
   cursor: num_legends > 1 ? 'pointer' : 'default',
-  backgroundColor: 'rgba(255,255,255,0.9)',
-  padding: '0 1rem 1rem',
+  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  padding: '0 .75rem .75rem',
   borderRadius: '0.2rem',
-  marginBottom: '1rem',
+  marginBottom: '.5rem',
   ...position,
 }))
 
@@ -27,8 +27,8 @@ const Legend = ({
   typography,
 }) => {
   let objPosition = {}
-  objPosition[position.split('-')[0]] = '1rem'
-  objPosition[position.split('-')[1]] = '1rem'
+  objPosition[position.split('-')[0]] = '.5rem'
+  objPosition[position.split('-')[1]] = '.5rem'
   // const [activeLegend, setActiveLegend] = useState(0)
   // const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
 
