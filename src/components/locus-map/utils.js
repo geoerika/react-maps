@@ -143,11 +143,12 @@ export const setView = ({ dataGeomList, width, height }) => {
    * We need to reduce padding with map container shrinking size,
    * otherwise fitBounds breaks when padding is greater than map dimensions.
    */
-  const padding = dataLonDiff > -120 ?
-    Math.min(width, height) / 10 :
-    Math.min(width, height) / 2 > 75 ?
-      75 :
-      Math.min(width, height) / 4
+  let padding = Math.min(width, height) / 4
+  if (dataLonDiff > -120) {
+    padding = Math.min(width, height) / 10
+  } else if (Math.min(width, height) / 2 > 75) {
+    padding =  75
+  }
 
   const viewPort = new WebMercatorViewport({ width, height })
     .fitBounds(formattedGeoData, { padding })
