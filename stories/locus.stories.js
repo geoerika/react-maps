@@ -244,7 +244,7 @@ const MVTLayerConfig = {
 
 const mapConfig = {
   cursor: (layers) => getCursor({ layers }),
-  legendPosition: 'bottom-right',
+  legendPosition: 'top-right',
   mapboxApiAccessToken,
 }
 

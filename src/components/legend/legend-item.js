@@ -10,7 +10,7 @@ setup(React.createElement)
 
 const LegendBody = styled('div')`
   align-items: center;
-  margin-top: 1rem;
+  margin-top: .75rem;
 `
 
 const LegendTitle = styled('div')`

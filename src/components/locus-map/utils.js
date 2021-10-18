@@ -134,8 +134,24 @@ export const setView = ({ dataGeomList, width, height }) => {
       ]
     }, [[180, 90], [-180, -90]])
 
+  const dataLonDiff = formattedGeoData[0][0] - formattedGeoData[1][0]
+  /**
+   * -120 is the diff in longitude between the westernmost and easternmost points of
+   * North America: (-172 - (-52)) = -120
+   * Compare to the diff in longitude between westernmost point of NA and easternmost point of
+   * Australia: -172 - (+153) = -325
+   * We need to reduce padding with map container shrinking size,
+   * otherwise fitBounds breaks when padding is greater than map dimensions.
+   */
+  let padding = Math.min(width, height) / 4
+  if (dataLonDiff > -120) {
+    padding = Math.min(width, height) / 10
+  } else if (Math.min(width, height) / 2 > 75) {
+    padding =  75
+  }
+
   const viewPort = new WebMercatorViewport({ width, height })
-    .fitBounds(formattedGeoData, { padding: 50 })
+    .fitBounds(formattedGeoData, { padding })
 
   let { longitude, latitude, zoom } = viewPort
 
