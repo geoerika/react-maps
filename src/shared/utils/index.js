@@ -311,14 +311,18 @@ export const setLegendConfigs = ({
   dataPropertyAccessor = d => d,
   ...legendProps
 }) => {
+  const [minColor, maxColor] = fillColors && typeof fillColors === 'string' ?
+    [fillColors, fillColors] :
+    [fillColors?.[0] || objColor, fillColors?.[1] || objColor]
+
   const legends = []
   if (fillBasedOn.length && data?.length) {
     // TODO support quantile/quantize
     // i.e. different lengths of fillColors[]
     const dataRange = getDataRange({ data, dataKey: fillBasedOn, dataPropertyAccessor })
     legends.push({
-      minColor: fillColors[0],
-      maxColor: fillColors[1],
+      minColor,
+      maxColor,
       type: 'gradient',
       min: dataRange[0],
       max: dataRange[1],
@@ -331,8 +335,8 @@ export const setLegendConfigs = ({
     const dataRange = getDataRange({ data, dataKey: elevationBasedOn, dataPropertyAccessor })
     legends.push({
       type: 'elevation',
-      minColor: fillColors[0],
-      maxColor: objColor || fillColors[1],
+      minColor,
+      maxColor,
       min: dataRange[0],
       max: dataRange[1],
       label: elevationBasedOn,
@@ -343,8 +347,8 @@ export const setLegendConfigs = ({
   if (radiusBasedOn.length && data?.length) {
     const dataRange = getDataRange({ data, dataKey: radiusBasedOn, dataPropertyAccessor })
     legends.push({
-      minColor: fillColors[0],
-      maxColor: objColor || fillColors[1],
+      minColor,
+      maxColor,
       type: 'size',
       dots: 5,
       size: 5,
