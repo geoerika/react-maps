@@ -1,3 +1,5 @@
+// TODO - make Legend comp more customizable by size, right now it is rigid
+
 import React from 'react'
 import PropTypes from 'prop-types'
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
@@ -22,13 +24,14 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
 }))
 
 const Legend = ({
-  position,
+  legendPosition,
+  legendSize,
   legends,
   typography,
 }) => {
   let objPosition = {}
-  objPosition[position.split('-')[0]] = '.5rem'
-  objPosition[position.split('-')[1]] = '.5rem'
+  objPosition[legendPosition.split('-')[0]] = '.5rem'
+  objPosition[legendPosition.split('-')[1]] = '.5rem'
   // const [activeLegend, setActiveLegend] = useState(0)
   // const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
 
@@ -38,15 +41,12 @@ const Legend = ({
         num_legends={legends.length}
         // onClick={handleLegendChange}
         position={objPosition}
-        typography={typography}
+        typography={legendSize === 'full' ? typography : { ...typography, fontSize: '10px' }}
       >
         {legends.map(({ type, ...legendProps }) => (
           <LegendItem
             key={type}
-            legendItemProps={{
-              type,
-              ...legendProps,
-            }}
+            legendItemProps={{ type, legendSize, ...legendProps }}
           />
         ))}
       </LegendContainer>
@@ -55,13 +55,15 @@ const Legend = ({
 }
 
 Legend.propTypes = {
-  position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
+  legendPosition: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
+  legendSize: PropTypes.oneOf(['widget', 'full']),
   legends: PropTypes.array.isRequired,
   ...typographyPropTypes,
 }
 
 Legend.defaultProps = {
-  position: 'top-left',
+  legendPosition: 'top-left',
+  legendSize: 'full',
   ...typographyDefaultProps,
 }
 
