@@ -149,11 +149,10 @@ const LocusMap = ({
       (legends?.length > 0 &&
         <Legend
           legends={legends}
-          position={mapConfig.legendPosition}
-          typograpy={mapConfig.typography}
+          { ...mapConfig }
         />
       )
-    )}, [legends, mapConfig.legendNode, mapConfig.legendPosition, mapConfig.typography])
+    )}, [legends, mapConfig])
 
   return (
     <Map

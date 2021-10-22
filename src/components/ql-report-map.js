@@ -224,7 +224,7 @@ const QLReportMap = ({
         (legends?.length > 0 &&
           <Legend
             legends={legends}
-            position={legendPosition}
+            legendPosition={legendPosition}
             typograpy={typography}
           />
         )
