@@ -520,7 +520,15 @@ const POIMap = ({
             control={
               <Switch
                 checked={showClusters}
-                onChange={() => setShowClusters(!showClusters)}
+                onChange={() => {
+                  if (!showClusters) {
+                    setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
+                    const viewState = deckRef?.current?.deck.viewState?.['default-view']
+                    setZoom(viewState.zoom)
+                    setViewportBBOX(new WebMercatorViewport(viewState).getBounds())
+                  }
+                  setShowClusters(!showClusters)
+                }}
               />
             }
             label='Show Clusters'
@@ -606,8 +614,10 @@ const POIMap = ({
             // }}
             onViewStateChange={o => {
               const { viewState } = o
-              setZoom(viewState.zoom)
-              setViewportBBOX(new WebMercatorViewport(viewState).getBounds())
+              if (cluster && showClusters) {
+                setZoom(viewState.zoom)
+                setViewportBBOX(new WebMercatorViewport(viewState).getBounds())
+              }
             }}
             onInteractionStateChange={interactionState => {
               const{ inTransition } = interactionState
@@ -619,9 +629,11 @@ const POIMap = ({
               setHoverInfo(null)
             }}
             getCursor={getCurrentCursor}
-            onAfterRender={() =>
-              setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
-            }
+            onAfterRender={() => {
+              if (cluster && showClusters) {
+                setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
+              }
+            }}
           >
             <StaticMap
               ref={mapRef}
