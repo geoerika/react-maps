@@ -49,11 +49,16 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
           getArrayGradientFillColors({
             fillColors: visualizations.fill.valueOptions,
             opacity: setLegendOpacity({ opacity }),
-          }) : ''
+          }) : null
         const objColor = Array.isArray(visualizations?.fill?.value) ?
-          getStrFillColor({ fillColor: visualizations.fill.value, opacity: setLegendOpacity({ opacity }) }) :
-          ''
-
+          getStrFillColor({
+            fillColor: visualizations.fill.value,
+            opacity: setLegendOpacity({ opacity }),
+          }) :
+          getStrFillColor({
+            fillColor: PROP_CONFIGURATIONS.fill.defaultValue,
+            opacity: setLegendOpacity({ opacity }),
+          })
         const layerLegends = setLegendConfigs({
           data,
           dataPropertyAccessor,
@@ -68,7 +73,6 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
           symbolLineColor,
           objColor,
         })
-
         legends = [...legends, ...layerLegends]
       }
     })

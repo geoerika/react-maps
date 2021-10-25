@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
@@ -17,7 +16,7 @@ const LegendTitle = styled('div')`
   margin: 0 auto 10px auto;
   text-align: center;
   fontWeight: 700;
-  max-width: 160px;
+  max-width: ${({ legendelemwidth }) => legendelemwidth};
   overflow-wrap: anywhere;
 `
 
@@ -31,14 +30,8 @@ const LegendTextContainer = styled('div')`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: ${({ type, max }) =>
-    max > 0 ?
-      (type === 'size' ? '115px' : '128px') :
-      '20px'};
-  padding: ${({ type, max }) =>
-    max > 0 ?
-      (type === 'size' ? '0 5px 0 3px' : '0 0 0 3px') :
-      '0px'};
+  width: ${({ textcontainerwidth }) => textcontainerwidth};
+  padding: ${({ textcontainerpadding }) => textcontainerpadding};
   margin-top: 5px;
 `
 
@@ -48,7 +41,7 @@ const LegendText = styled('div')`
 `
 
 const LegendSymbolContainer = styled('div')`
-  width: ${({ max }) => max ? '120px' : '20px'};
+  width: ${({ max, legendelemwidth }) => max ? legendelemwidth : '20px'};
 `
 
 const LegendItem = ({ legendItemProps }) => {
@@ -61,8 +54,24 @@ const LegendItem = ({ legendItemProps }) => {
     formatPropertyLabel = d => d,
     formatData,
     type,
+    legendSize,
     ...symbolProps
   } = legendItemProps
+  const legendElemWidth = legendSize === 'full' ? '120px' : '80px'
+  let textContainerWidth = '20px'
+  if (max > 0 ) {
+    textContainerWidth = legendSize === 'full' ? '130px' : '90px'
+    if (type === 'size') {
+      textContainerWidth = legendElemWidth
+    }
+  }
+  let textContainerPadding = '0px'
+  if (max > 0) {
+    textContainerPadding = legendSize === 'full' ? '0 0 0 3px' : '0 3px 0 5px'
+    if (type === 'size' ) {
+      textContainerPadding = legendSize === 'full' ? '0 5px 0 3px' : '0'
+    }
+  }
   const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
   const [minValue, maxValue] = formatData?.[label] ?
     [formatData[label](min), formatData[label](max)] :
@@ -71,12 +80,15 @@ const LegendItem = ({ legendItemProps }) => {
     <>
       {max !== undefined && min !== undefined && (
         <LegendBody>
-          <LegendTitle>{title}</LegendTitle>
+          <LegendTitle legendelemwidth={legendElemWidth}>{title}</LegendTitle>
           <LegendElements>
-            <LegendSymbolContainer max={max}>
-              <LegendSymbol symbolProps={{ max, type, ...symbolProps }} />
+            <LegendSymbolContainer max={max} legendelemwidth={legendElemWidth}>
+              <LegendSymbol symbolProps={{ max, type, legendSize,...symbolProps }} />
             </LegendSymbolContainer>
-            <LegendTextContainer type={type} max={max}>
+            <LegendTextContainer
+              textcontainerpadding={textContainerPadding}
+              textcontainerwidth={textContainerWidth}
+            >
               <LegendText max={max}>{minValue.toLocaleString()}</LegendText>
               {max > 0 && <LegendText max={max}>{maxValue.toLocaleString()}</LegendText>}
             </LegendTextContainer>
@@ -97,9 +109,9 @@ LegendItem.propTypes = {
     formatPropertyLabel: PropTypes.func,
     formatData: PropTypes.object,
     type: PropTypes.string,
+    legendSize: PropTypes.string.isRequired,
     symbolProps: PropTypes.object,
   }),
-  ...typographyPropTypes,
 }
 
 LegendItem.defaultProps = {
@@ -114,7 +126,6 @@ LegendItem.defaultProps = {
     type: '',
     symbolProps: undefined,
   },
-  ...typographyDefaultProps,
 }
 
 export default LegendItem

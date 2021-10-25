@@ -250,11 +250,11 @@ const mapConfig = {
 
 const Template = (args) => <LocusMap {...args} />
 
-const geojsonArgs = { layerConfig: [GeoJSONLayerConfig], dataConfig, mapConfig }
+const geojsonArgs = { layerConfig: [GeoJSONLayerConfig], dataConfig, mapConfig: { ...mapConfig, legendSize: 'widget' } }
 
 export const GeoJSONLayer = Template.bind({})
 GeoJSONLayer.args = geojsonArgs
-GeoJSONLayer.storyName = 'GeoJSON Layer for POIs'
+GeoJSONLayer.storyName = 'GeoJSON Layer for POIs - widget-size Legend'
 
 const scatterplotArgs = { layerConfig: [WIReportLayerConfig], dataConfig, mapConfig }
 

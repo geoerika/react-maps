@@ -45,16 +45,26 @@ const Height = styled('div')`
 `
 
 const LegendSymbol = ({ symbolProps }) => {
-  const { max, minColor, maxColor, dots, size, zeroRadiusSize, type, symbolLineColor } = symbolProps
+  const {
+    max,
+    minColor,
+    maxColor,
+    dots,
+    size,
+    legendSize,
+    zeroRadiusSize,
+    type,
+    symbolLineColor,
+  } = symbolProps
   if (type === 'elevation') {
     return (
       <Size max={max}>
         <HeightWrapper pos={'left'}>
-          <Height width={21} color={!max ? minColor : maxColor} />
+          <Height width={legendSize === 'full' ? 21 : 16} color={!max ? minColor : maxColor} />
         </HeightWrapper>
         {max > 0 &&
           <HeightWrapper>
-            <Height width={84} color={maxColor} />
+            <Height width={legendSize === 'full' ? 84 : 50} color={maxColor} />
           </HeightWrapper>
         }
       </Size>
@@ -68,10 +78,10 @@ const LegendSymbol = ({ symbolProps }) => {
     return (
       <Size max={max}>
         {max > 0 ?
-          new Array(dots).fill(0).map((_, i) => (
+          new Array(legendSize === 'full' ? dots : 4).fill(0).map((_, i) => (
             <Circle
               key={i}
-              size={(i + 1) * size + size}
+              size={(i + .75) * size + size}
               color={maxColor}
               max={max}
               linecolor={symbolLineColor}
@@ -115,6 +125,7 @@ const LegendSymbol = ({ symbolProps }) => {
 LegendSymbol.propTypes = {
   symbolProps: PropTypes.shape({
     type: PropTypes.string,
+    legendSize: PropTypes.string.isRequired,
     fillBasedOn: PropTypes.string,
     max: PropTypes.number,
     minColor: PropTypes.string,
