@@ -136,23 +136,19 @@ const LocusMap = ({
     }
   }, [layerConfig, selectShape])
 
-  const showTooltip = useMemo(() => {
-    return Boolean(layerConfig.find(layer => layer.interactions.tooltip))
-  }, [layerConfig])
-
   // get all config data for all layer legends
   const legends = useLegends({ dataConfig, layerConfig })
 
   // set legend element
   const legend = useMemo(() => {
-    return (mapConfig.legendNode ||
+    return (mapConfig.showMapLegend && (mapConfig.legendNode ||
       (legends?.length > 0 &&
         <Legend
           legends={legends}
           { ...mapConfig }
         />
       )
-    )}, [legends, mapConfig])
+    ))}, [legends, mapConfig])
 
   return (
     <Map
@@ -161,8 +157,11 @@ const LocusMap = ({
       viewStateOverride={viewStateOverride}
       controller={controller}
       { ...mapConfig }
-      getCursor={mapConfig.cursor(Object.values(layers).map(o => o.deckLayer))}
-      showTooltip={showTooltip}
+      getCursor={mapConfig.cursor ?
+        mapConfig.cursor(Object.values(layers).map(o => o.deckLayer)) :
+        () => {}
+      }
+      showTooltip={mapConfig.showMapTooltip}
       renderTooltip={({ hoverInfo }) => {
         const { tooltipProps, ...tooltipParams } = getTooltipParams({ hoverInfo })
         const objMVTData = hoverInfo.layer.id.includes('MVT') ?
@@ -174,16 +173,18 @@ const LocusMap = ({
             tooltipProps={tooltipProps}
             typography={mapConfig?.typography || typographyDefaultProps.typography}
           >
-            {tooltipNode({
-              ...tooltipParams,
-              params: {
-                ...hoverInfo.object,
-                properties: {
-                  ...hoverInfo.object.properties,
-                  ...objMVTData,
+            {mapConfig.tooltipNode ||
+              tooltipNode({
+                ...tooltipParams,
+                params: {
+                  ...hoverInfo.object,
+                  properties: {
+                    ...hoverInfo.object.properties,
+                    ...objMVTData,
+                  },
                 },
-              },
-            })}
+              })
+            }
           </MapTooltip>
         )
       }}
@@ -195,12 +196,21 @@ const LocusMap = ({
 LocusMap.propTypes = {
   dataConfig: PropTypes.array.isRequired,
   layerConfig: PropTypes.array.isRequired,
-  mapConfig: PropTypes.object,
+  mapConfig: PropTypes.shape({
+    cursor: PropTypes.func,
+    legendPosition: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
+    legendSize: PropTypes.oneOf(['full', 'widget']),
+    legendNode: PropTypes.node,
+    showMapLegend: PropTypes.bool,
+    tooltipNode: PropTypes.node,
+    showMapTooltip: PropTypes.bool,
+    mapboxApiAccessToken: PropTypes.string.isRequired,
+    typography: PropTypes.object,
+  }).isRequired,
   ...typographyPropTypes,
 }
 
 LocusMap.defaultProps = {
-  mapConfig: {},
   ...typographyDefaultProps,
 }
 
