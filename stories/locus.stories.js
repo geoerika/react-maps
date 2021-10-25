@@ -38,18 +38,21 @@ const SelectButtonGroup = ({ setSelectShape }) => {
         startIcon={ <AddCircleOutlineOutlined />}
         size='small'
         type='secondary'
+        color='primary'
         onClick={() => setSelectShape('circle')}
       />
       <StyledButtonSelect
         startIcon={<AddBoxOutlined />}
         size='small'
         type='secondary'
+        color='primary'
         onClick={() => setSelectShape('rectangle')}
       />
       <StyledButtonSelect
         startIcon={<AddOutlined />}
         size='small'
         type='secondary'
+        color='primary'
         onClick={() => setSelectShape('polygon')}
       />
     </ButtonGroup>
