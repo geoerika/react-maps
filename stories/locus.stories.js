@@ -67,6 +67,15 @@ export default {
   component: LocusMap,
 }
 
+const mapConfig = {
+  showMapLegend: true,
+  showMapTooltip: true,
+  cursor: (layers) => getCursor({ layers }),
+  legendPosition: 'top-right',
+  legendSize: 'full',
+  mapboxApiAccessToken,
+}
+
 const dataConfig = [
   { id: 'xwiReport-123', data: xwiReportData },
   { id: 'wiReportData-123', data: wiReportData },
@@ -242,15 +251,13 @@ const MVTLayerConfig = {
   formatData: { value: d => '$' + d },
 }
 
-const mapConfig = {
-  cursor: (layers) => getCursor({ layers }),
-  legendPosition: 'top-right',
-  mapboxApiAccessToken,
-}
-
 const Template = (args) => <LocusMap {...args} />
 
-const geojsonArgs = { layerConfig: [GeoJSONLayerConfig], dataConfig, mapConfig: { ...mapConfig, legendSize: 'widget' } }
+const geojsonArgs = {
+  layerConfig: [GeoJSONLayerConfig],
+  dataConfig,
+  mapConfig: { ...mapConfig, legendSize: 'widget' },
+}
 
 export const GeoJSONLayer = Template.bind({})
 GeoJSONLayer.args = geojsonArgs
@@ -286,7 +293,11 @@ const initViewState = {
   width: 1580,
   zoom: 8.549383306739653,
 }
-const MVTLayerArgs = { layerConfig: [MVTLayerConfig], dataConfig, mapConfig: { ...mapConfig, initViewState } }
+const MVTLayerArgs = {
+  layerConfig: [MVTLayerConfig],
+  dataConfig,
+  mapConfig: { ...mapConfig, initViewState },
+}
 
 export const MVTLayer = Template.bind({})
 MVTLayer.args = MVTLayerArgs
@@ -319,6 +330,13 @@ const layerConfig = [
   ScatterPlotLayer1Config,
   ScatterPlotLayer2Config,
 ]
+
+export const NoLegendNoTooltip = Template.bind({})
+NoLegendNoTooltip.args = {
+  ...scatterplotArgs,
+  mapConfig: { ...mapConfig, showMapLegend: false, showMapTooltip: false },
+}
+NoLegendNoTooltip.storyName = 'Map with disabled legend & tooltip'
 
 const mapArgs = {
   layerConfig,
