@@ -38,18 +38,21 @@ const SelectButtonGroup = ({ setSelectShape }) => {
         startIcon={ <AddCircleOutlineOutlined />}
         size='small'
         type='secondary'
+        color='primary'
         onClick={() => setSelectShape('circle')}
       />
       <StyledButtonSelect
         startIcon={<AddBoxOutlined />}
         size='small'
         type='secondary'
+        color='primary'
         onClick={() => setSelectShape('rectangle')}
       />
       <StyledButtonSelect
         startIcon={<AddOutlined />}
         size='small'
         type='secondary'
+        color='primary'
         onClick={() => setSelectShape('polygon')}
       />
     </ButtonGroup>
@@ -65,6 +68,15 @@ const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STOR
 export default {
   title: 'Locus Map',
   component: LocusMap,
+}
+
+const mapConfig = {
+  showMapLegend: true,
+  showMapTooltip: true,
+  cursor: (layers) => getCursor({ layers }),
+  legendPosition: 'top-right',
+  legendSize: 'full',
+  mapboxApiAccessToken,
 }
 
 const dataConfig = [
@@ -242,15 +254,13 @@ const MVTLayerConfig = {
   formatData: { value: d => '$' + d },
 }
 
-const mapConfig = {
-  cursor: (layers) => getCursor({ layers }),
-  legendPosition: 'top-right',
-  mapboxApiAccessToken,
-}
-
 const Template = (args) => <LocusMap {...args} />
 
-const geojsonArgs = { layerConfig: [GeoJSONLayerConfig], dataConfig, mapConfig: { ...mapConfig, legendSize: 'widget' } }
+const geojsonArgs = {
+  layerConfig: [GeoJSONLayerConfig],
+  dataConfig,
+  mapConfig: { ...mapConfig, legendSize: 'widget' },
+}
 
 export const GeoJSONLayer = Template.bind({})
 GeoJSONLayer.args = geojsonArgs
@@ -286,7 +296,11 @@ const initViewState = {
   width: 1580,
   zoom: 8.549383306739653,
 }
-const MVTLayerArgs = { layerConfig: [MVTLayerConfig], dataConfig, mapConfig: { ...mapConfig, initViewState } }
+const MVTLayerArgs = {
+  layerConfig: [MVTLayerConfig],
+  dataConfig,
+  mapConfig: { ...mapConfig, initViewState },
+}
 
 export const MVTLayer = Template.bind({})
 MVTLayer.args = MVTLayerArgs
@@ -319,6 +333,13 @@ const layerConfig = [
   ScatterPlotLayer1Config,
   ScatterPlotLayer2Config,
 ]
+
+export const NoLegendNoTooltip = Template.bind({})
+NoLegendNoTooltip.args = {
+  ...scatterplotArgs,
+  mapConfig: { ...mapConfig, showMapLegend: false, showMapTooltip: false },
+}
+NoLegendNoTooltip.storyName = 'Map with disabled legend & tooltip'
 
 const mapArgs = {
   layerConfig,
