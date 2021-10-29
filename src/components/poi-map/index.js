@@ -155,7 +155,6 @@ const POIMap = ({
   // React hook that sets POIType
   const POIType = useMemo(() => {
     if (mode === 'create-point') {
-      setShowRadius(true)
       return TYPE_RADIUS.code
     }
     if (mode === 'create-polygon') {
@@ -163,48 +162,6 @@ const POIMap = ({
     }
     return activePOI?.properties?.poiType ? activePOI.properties.poiType : POIData[0]?.properties?.poiType
   }, [mode, activePOI, POIData])
-
-  // React hook that sets mapLayers - the layers used by POIMap during various map modes
-  const mapLayers = useMemo(() => {
-    if (mode === 'empty') {
-      return []
-    }
-    if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
-      // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
-      if (mode === 'create-polygon') {
-        // only show POIIcon layer when we have a 'Point' feature as activePOI while drawing POIs
-        if (activePOI?.geometry?.type === 'Point') {
-          return ['POIEditDraw', 'POIIcon']
-        }
-        return ['POIEditDraw']
-      }
-      if (mode === 'create-point') {
-        // disable drawing layer when we have edited radius while creating a POI, so we can display radius
-        if (activePOI?.properties?.radius) {
-          return ['POIGeoJson', 'POIIcon']
-        }
-        return ['POIEditDraw', 'POIIcon']
-      }
-      return ['POIEditDraw']
-    }
-    if (POIType === TYPE_RADIUS.code) {
-      if (showRadius) {
-        return ['POIGeoJson', 'POIIcon']
-      }
-      if (cluster && showClusters && clusterZoom) {
-        return ['POICluster']
-      }
-      return ['POIIcon']
-    }
-    if (POIType === TYPE_POLYGON.code) {
-      // we show an icon when the geocoder finds only a 'Point' feature and wants to display location on map
-      if (showIcon) {
-        return ['POIIcon']
-      }
-      return ['POIGeoJson']
-    }
-    return []
-  }, [mode, activePOI, cluster, showClusters, clusterZoom, POIType, createDrawMode, showRadius, showIcon])
 
   // React Hook to handle setting up data for DeckGL layers
   useEffect(() => {
@@ -243,7 +200,45 @@ const POIMap = ({
         prevCoordinates: activePOI.geometry.coordinates,
       }])
     }
-  }, [POIData, activePOI, mode, POIType, showIcon])
+  }, [POIData, activePOI, activePOI?.properties?.radius, mode, POIType, showIcon])
+
+  // React hook that sets mapLayers - the layers used by POIMap during various map modes
+  const mapLayers = useMemo(() => {
+    if (mode === 'empty') {
+      return []
+    }
+    if (mode === 'edit' || mode.endsWith('-draw') || createDrawMode) {
+      // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
+      if (mode === 'create-polygon') {
+        // only show POIIcon layer when we have a 'Point' feature as data[0] = activePOI while drawing POIs
+        if (data[0]?.geometry?.type === 'Point') {
+          return ['POIEditDraw', 'POIIcon']
+        }
+        return ['POIEditDraw']
+      }
+      if (mode === 'create-point') {
+        return ['POIEditDraw', 'POIIcon']
+      }
+      return ['POIEditDraw']
+    }
+    if (POIType === TYPE_RADIUS.code) {
+      if (showRadius || (mode === 'create-point' && data[0]?.properties?.radius)) {
+        return ['POIGeoJson', 'POIIcon']
+      }
+      if (cluster && showClusters && clusterZoom) {
+        return ['POICluster']
+      }
+      return ['POIIcon']
+    }
+    if (POIType === TYPE_POLYGON.code) {
+      // we show an icon when the geocoder finds only a 'Point' feature and wants to display location on map
+      if (showIcon) {
+        return ['POIIcon']
+      }
+      return ['POIGeoJson']
+    }
+    return []
+  }, [mode, data, cluster, showClusters, clusterZoom, POIType, createDrawMode, showRadius, showIcon])
 
   // define mapMode to separate functionality
   const mapMode = useMemo(() => {
