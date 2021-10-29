@@ -10,6 +10,7 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline'
 
 import { Button } from '@eqworks/lumen-ui'
 
+
 const basicIconButtonStyle = {
   paddingLeft: '20px',
   maxWidth: '35px',
@@ -18,9 +19,12 @@ const basicIconButtonStyle = {
   minHeight: '30px',
 }
 
-const StyledButtonDraw = withStyles({
-  root: basicIconButtonStyle,
-})(Button)
+const StyledButtonDraw = withStyles(theme => ({
+  root: {
+    ...basicIconButtonStyle,
+    borderColor: `${theme.palette.primary.main}`,
+  },
+}))(Button)
 
 const StyledButtonDelete = withStyles(theme => ({
   root: {
@@ -44,6 +48,7 @@ const DrawButtonGroup = ({ mode, setDrawModeOn, onErase }) => {
         startIcon={<DeleteOutlineIcon />}
         size='small'
         type='secondary'
+        color='red'
         onClick={onErase}
       />
     </ButtonGroup>
