@@ -53,7 +53,14 @@ const EDIT_DRAW_MODE = {
  * @returns { instanceOf EditableGeoJsonLayer}
  */
 const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeatureIndexes, visible }) => {
-
+  const {
+    editFillColour,
+    polygonFillColour,
+    editLineColour,
+    polygonLineColour,
+    lineWidth,
+    opacity,
+  } = mapProps
   const prevCoordinates = data[0]?.prevCoordinates
   const editDrawMode = mode === 'edit' ?
     (POIType === TYPE_RADIUS.code ? 'poi-radius-edit' : 'poi-edit') :
@@ -84,15 +91,21 @@ const POIEditDraw = ({ mapProps, data, updatePOI, mode, POIType, selectedFeature
       geojson: {
         ...defaultProps._subLayerProps.geojson,
         data,
-        getFillColor: () => mode === 'edit' ? mapProps.editFillColour : mapProps.polygonFillColour,
-        getLineColor: () => mode === 'edit' ? mapProps.editLineColour : mapProps.polygonLineColour,
-        getLineWidth: () => mapProps.lineWidth,
-        opacity: mapProps.opacity,
+        getFillColor: () => mode === 'edit' ? editFillColour : polygonFillColour,
+        getLineColor: () => mode === 'edit' ? editLineColour : polygonLineColour,
+        getLineWidth: () => lineWidth,
+        opacity,
         getRadius: d => {
           if (POIType === TYPE_RADIUS.code) {
             return d.properties.radius
           }
           return null
+        },
+        updateTriggers: {
+          getFillColor: [mode, editFillColour, polygonFillColour],
+          getLineColor: [mode, editLineColour, polygonLineColour],
+          getLineWidth: lineWidth,
+          getRadius: [POIType, data],
         },
       },
     },
