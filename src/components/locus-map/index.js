@@ -112,8 +112,10 @@ const LocusMap = ({
       let dataGeomList = []
       layerConfig.forEach(layer => {
         if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
-          const data = dataConfig.filter(elem => elem.id === layer.dataId)[0].data
-          dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
+          const data = dataConfig?.filter(elem => elem.id === layer.dataId)[0]?.data
+          if (data?.length) {
+            dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
+          }
         }
       })
       const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
