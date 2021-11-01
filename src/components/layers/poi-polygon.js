@@ -19,16 +19,29 @@ const defaultProps = {
  * @param { array } param.data - data array
  * @returns { instanceOf PolygonLayer } 
  */
-const POIPolygon = ({ mapProps, data, visible, ...props }) =>
-  new PolygonLayer({
+const POIPolygon = ({ mapProps, data, visible, ...props }) => {
+  const {
+    polygonFillColour,
+    lineColour,
+    lineWidth,
+    opacity,
+  } = mapProps
+
+  return new PolygonLayer({
     data,
     ...defaultProps,
-    getFillColor: () => mapProps.polygonFillColour,
-    getLineColor: () => mapProps.lineColour,
-    getLineWidth: () => mapProps.lineWidth,
-    opacity: mapProps.opacity,
+    getFillColor: () => polygonFillColour,
+    getLineColor: () => lineColour,
+    getLineWidth: () => lineWidth,
+    updateTriggers: {
+      getFillColor: polygonFillColour,
+      getLineColor: lineColour,
+      getLineWidth: lineWidth,
+    },
+    opacity,
     visible,
     pickable: visible,
     ...props,
   })
+}
 export default POIPolygon

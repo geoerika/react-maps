@@ -37,8 +37,17 @@ const defaultProps = {
  * @param { number } param.POIType - POI type
  * @returns { instanceOf GeoJsonLayer } 
  */
-const POIGeoJson = ({ data, mapProps, POIType, visible, ...props }) =>
-  new GeoJsonLayer({
+const POIGeoJson = ({ data, mapProps, POIType, visible, ...props }) => {
+  const {
+    fillColour,
+    polygonFillColour,
+    lineColour,
+    polygonLineColour,
+    lineWidth,
+    opacity,
+  } = mapProps
+
+  return new GeoJsonLayer({
     data,
     ...defaultProps,
     getRadius: d => {
@@ -49,22 +58,29 @@ const POIGeoJson = ({ data, mapProps, POIType, visible, ...props }) =>
     },
     getFillColor: () => {
       if (POIType === TYPE_RADIUS.code) {
-        return mapProps.fillColour
+        return fillColour
       }
-      return mapProps.polygonFillColour
+      return polygonFillColour
     },
     getLineColor: () => {
       if (POIType === TYPE_RADIUS.code) {
-        return mapProps.lineColour
+        return lineColour
       }
-      return mapProps.polygonLineColour
+      return polygonLineColour
     },
-    getLineWidth: () => mapProps.lineWidth,
-    opacity: mapProps.opacity,
+    getLineWidth: () => lineWidth,
+    updateTriggers: {
+      getRadius: [POIType, data],
+      getFillColor: [POIType, fillColour, polygonFillColour],
+      getLineColor: [POIType, lineColour, polygonLineColour],
+      getLineWidth: lineWidth,
+    },
+    opacity,
     transitions: data.length === 1 ? { ...defaultProps.transitions } : {},
     visible,
     pickable: visible,
     ...props,
   })
+}
 
 export default POIGeoJson
