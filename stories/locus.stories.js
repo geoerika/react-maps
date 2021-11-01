@@ -349,3 +349,25 @@ const mapArgs = {
 
 export const AllLayers = Template.bind({})
 AllLayers.args = mapArgs
+
+const noDataConfig = [
+  { id: 'xwiReport-123', data: [] },
+  { id: 'wiReportData-123', data: [] },
+  { id: 'poiGeojson-123', data: [] },
+  { id: 'mvt-123',
+    data: {
+      tileGeom: 'https://mapsource-dev.locus.place/maps/ct/{z}/{x}/{y}.vector.pbf?',
+      tileData: [],
+    },
+  },
+  { id: 'select-123', data: [] },
+]
+
+const noDataArgs = {
+  layerConfig,
+  dataConfig: noDataConfig,
+  mapConfig,
+}
+
+export const NoData = Template.bind({})
+NoData.args = noDataArgs
