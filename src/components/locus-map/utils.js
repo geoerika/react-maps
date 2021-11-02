@@ -81,7 +81,7 @@ export const parseDeckGLLayerFromConfig = ({
   return data => new Layer({
     id,
     data: layer === 'MVT' ?
-      data.tileGeom :
+      data?.tileGeom :
       (layer === 'select' ? { type: 'FeatureCollection', features: data } : data),
     // ====[TODO] logic for below
     // updateTriggers
@@ -108,6 +108,7 @@ export const parseDeckGLLayerFromConfig = ({
           setSelectShape(updatedData.features)
         }
       },
+    visible: Boolean(data?.length),
   })
 }
 
