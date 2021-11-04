@@ -171,6 +171,8 @@ export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
  * @param { function } param.dataScale - D3 scale function
  * @param { array } param.valueOptions - array of range values for the deck.gl layer property
  * @param { function } param.dataPropertyAccessor - function to help access attribute data
+ * @param { function } param.geometryAccessor - function to help access geometry keys
+ * @param { string } param.mvtGeoKey - geometry key for mvt layer
  * @param { string } param.highlightId - id of selected object on the map
  * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
  */
@@ -181,6 +183,8 @@ export const setFinalLayerDataProperty = ({
   dataScale,
   valueOptions,
   dataPropertyAccessor = d => d,
+  geometryAccessor = d => d,
+  mvtGeoKey,
   highlightId = null,
 }) => {
   if (!value) {
@@ -203,13 +207,21 @@ export const setFinalLayerDataProperty = ({
       // case for MVT layer
       if (data?.tileData?.length) {
         layerData = Object.fromEntries(data.tileData.map((item) =>
-          [item.geo_id, { Value: dataPropertyAccessor(item)[value.field] }]))
+          [geometryAccessor(item)[mvtGeoKey], { value: dataPropertyAccessor(item)[value.field] }]))
         return ({ properties: { geo_id } }) => {
-          const { Value } = layerData[geo_id] || { Value: 0 }
-          return d3Fn(Value)
+          const { value } = layerData[geo_id] || { value: 0 }
+          if (value || value === dataRange[0]) {
+            return d3Fn(value)
+          }
+          // tiles with no data values will be transparent
+          return [255, 255, 255, 0]
         }
       }
       return (d) => d3Fn(dataPropertyAccessor(d)[value.field])
+    }
+    // case for mvt layer: tiles with no data values will be transparent
+    if (data?.tileData?.length) {
+      return [255, 255, 255, 0]
     }
     return valueOptions[0]
   }
