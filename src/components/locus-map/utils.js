@@ -14,6 +14,7 @@ export const parseDeckGLLayerFromConfig = ({
   ...others
 }) => {
   const {
+    dataPropertyAccessor: layerPropertyAccessor,
     geometry: layerGeom,
     deckGLClass: Layer,
     defaultProps,
@@ -21,8 +22,10 @@ export const parseDeckGLLayerFromConfig = ({
   } = LAYER_CONFIGURATIONS[layer]
 
   const { layerMode } = others
-  const dataPropertyAccessor = others?.dataPropertyAccessor || LAYER_CONFIGURATIONS[layer]?.dataPropertyAccessor
-  const geometryAccessor = others?.geometry?.geometryAccessor
+  const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
+  const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
+  const mvtGeoKey = geometry?.geoKey || layerGeom?.geoKey
+
   let mode = null
 
   switch(layerMode) {
@@ -52,6 +55,9 @@ export const parseDeckGLLayerFromConfig = ({
       [layerGeom.target.propName] : layerGeom.target.propFn({ geometryAccessor, ...geometry.target }),
     }
   }
+  if (layer === 'MVT') {
+    geometryProps = { geoKey: mvtGeoKey, geometryAccessor }
+  }
 
   // ====[TODO] correct fallback logic for the above. Should throw an error or prompt someone to choose
 
@@ -69,6 +75,8 @@ export const parseDeckGLLayerFromConfig = ({
           data,
           defaultValue,
           dataPropertyAccessor,
+          mvtGeoKey,
+          geometryAccessor,
           highlightId,
         }),
         ...byProducts,
@@ -108,7 +116,7 @@ export const parseDeckGLLayerFromConfig = ({
           setSelectShape(updatedData.features)
         }
       },
-    visible: Boolean(data?.length),
+    visible: layer === 'MVT' ? Boolean(data?.tileData?.length) : Boolean(data?.length),
   })
 }
 
@@ -259,8 +267,8 @@ export const getTooltipParams = ({ hoverInfo }) => {
  * @returns { object } - object of data { key: value } pairs corresponding to an MVT object
  */
 export const getObjectMVTData = ({ dataConfig, hoverInfo }) => {
-  const { layer: { props: { dataId, dataPropertyAccessor } } } = hoverInfo
+  const { layer: { props: { dataId, geoKey, geometryAccessor } } } = hoverInfo
   const geo_id = hoverInfo.object.properties.geo_id
   const tileData = dataConfig.find(data => data.id === dataId)?.data?.tileData
-  return tileData.find(d => dataPropertyAccessor(d).geo_id === geo_id)
+  return tileData.find(d => geometryAccessor(d)[geoKey] === geo_id)
 }
