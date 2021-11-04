@@ -4,7 +4,16 @@ import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@n
 import { setFinalLayerDataProperty } from '../../shared/utils'
 import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS } from './constants'
 
-
+/**
+ * parseDeckGLLayerFromConfig - sets up layer props & returns deck.gl layer
+ * @param { object } param
+ * @param { string } param.id - deck.gl layer id
+ * @param { object } param.geometry - object of geometry props specific to layer
+ * @param { object } param.visualizations - object of layer visualisations
+ * @param { object } param.interactions - object of layer interactions (ex: click, tooltip)
+ * @param { object } param.others - the rest of layer configurations
+ * @returns { instanceOf } { deck.gl Layer } - deck.gl map layer
+ */
 export const parseDeckGLLayerFromConfig = ({
   id,
   layer,
@@ -127,7 +136,7 @@ export const parseDeckGLLayerFromConfig = ({
  * @param { array } param.dataGeomList - array of data arrays and associated geometry to display on the map
  * @param { number } param.width - deck container width
  * @param { number } param.height - deck container height
- * @return { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
+ * @returns { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
  */
 export const setView = ({ dataGeomList, width, height }) => {
 
