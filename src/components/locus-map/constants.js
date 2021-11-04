@@ -95,6 +95,7 @@ export const LAYER_CONFIGURATIONS = {
     notAClass: false,
     deckGLClass: MVTLayer,
     dataPropertyAccessor: d => d,
+    geometry: { geoKey: 'geo_id', geometryAccessor: d => d },
     visualizations: ['fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
