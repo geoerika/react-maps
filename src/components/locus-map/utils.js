@@ -4,7 +4,16 @@ import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@n
 import { setFinalLayerDataProperty } from '../../shared/utils'
 import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS } from './constants'
 
-
+/**
+ * parseDeckGLLayerFromConfig - sets up layer props & returns deck.gl layer
+ * @param { object } param
+ * @param { string } param.id - deck.gl layer id
+ * @param { object } param.geometry - object of geometry props specific to layer
+ * @param { object } param.visualizations - object of layer visualisations
+ * @param { object } param.interactions - object of layer interactions (ex: click, tooltip)
+ * @param { object } param.others - the rest of layer configurations
+ * @returns { instanceOf } { deck.gl Layer } - deck.gl map layer
+ */
 export const parseDeckGLLayerFromConfig = ({
   id,
   layer,
@@ -14,6 +23,7 @@ export const parseDeckGLLayerFromConfig = ({
   ...others
 }) => {
   const {
+    dataPropertyAccessor: layerPropertyAccessor,
     geometry: layerGeom,
     deckGLClass: Layer,
     defaultProps,
@@ -21,8 +31,10 @@ export const parseDeckGLLayerFromConfig = ({
   } = LAYER_CONFIGURATIONS[layer]
 
   const { layerMode } = others
-  const dataPropertyAccessor = others?.dataPropertyAccessor || LAYER_CONFIGURATIONS[layer]?.dataPropertyAccessor
-  const geometryAccessor = others?.geometry?.geometryAccessor
+  const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
+  const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
+  const mvtGeoKey = geometry?.geoKey || layerGeom?.geoKey
+
   let mode = null
 
   switch(layerMode) {
@@ -52,6 +64,9 @@ export const parseDeckGLLayerFromConfig = ({
       [layerGeom.target.propName] : layerGeom.target.propFn({ geometryAccessor, ...geometry.target }),
     }
   }
+  if (layer === 'MVT') {
+    geometryProps = { geoKey: mvtGeoKey, geometryAccessor }
+  }
 
   // ====[TODO] correct fallback logic for the above. Should throw an error or prompt someone to choose
 
@@ -69,6 +84,8 @@ export const parseDeckGLLayerFromConfig = ({
           data,
           defaultValue,
           dataPropertyAccessor,
+          mvtGeoKey,
+          geometryAccessor,
           highlightId,
         }),
         ...byProducts,
@@ -108,7 +125,7 @@ export const parseDeckGLLayerFromConfig = ({
           setSelectShape(updatedData.features)
         }
       },
-    visible: Boolean(data?.length),
+    visible: layer === 'MVT' ? Boolean(data?.tileData?.length) : Boolean(data?.length),
   })
 }
 
@@ -119,7 +136,7 @@ export const parseDeckGLLayerFromConfig = ({
  * @param { array } param.dataGeomList - array of data arrays and associated geometry to display on the map
  * @param { number } param.width - deck container width
  * @param { number } param.height - deck container height
- * @return { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
+ * @returns { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
  */
 export const setView = ({ dataGeomList, width, height }) => {
 
@@ -259,8 +276,8 @@ export const getTooltipParams = ({ hoverInfo }) => {
  * @returns { object } - object of data { key: value } pairs corresponding to an MVT object
  */
 export const getObjectMVTData = ({ dataConfig, hoverInfo }) => {
-  const { layer: { props: { dataId, dataPropertyAccessor } } } = hoverInfo
+  const { layer: { props: { dataId, geoKey, geometryAccessor } } } = hoverInfo
   const geo_id = hoverInfo.object.properties.geo_id
   const tileData = dataConfig.find(data => data.id === dataId)?.data?.tileData
-  return tileData.find(d => dataPropertyAccessor(d).geo_id === geo_id)
+  return tileData.find(d => geometryAccessor(d)[geoKey] === geo_id)
 }
