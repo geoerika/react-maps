@@ -160,6 +160,7 @@ export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
   if (data?.length) {
     return extent(data, d => dataPropertyAccessor(d)[dataKey])
   }
+  return []
 }
 
 /**
@@ -225,8 +226,7 @@ export const setFinalLayerDataProperty = ({
     }
     return valueOptions[0]
   }
-
-  return typeof value === 'function' ? defaultValue(highlightId) : value
+  return typeof value === 'function' ? value(highlightId) : value
 }
 
 /**
