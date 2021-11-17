@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useMemo, useReducer } from 'react'
+import React, { useState, useEffect, useMemo, useReducer, useCallback } from 'react'
 import PropTypes from 'prop-types'
+
+import { MVTLayer } from '@deck.gl/geo-layers'
+import tUnion from '@turf/union'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import { useLegends } from './hooks'
@@ -8,6 +11,7 @@ import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 import Legend from '../legend'
+import { LAYER_CONFIGURATIONS } from './constants'
 
 
 const LocusMap = ({
@@ -15,10 +19,12 @@ const LocusMap = ({
   layerConfig,
   mapConfig,
 }) => {
+  const [finalDataConfig, setFinalDataConfig] = useState([])
   const [viewStateOverride, setViewOverride] = useState({})
   const [{ height, width }, setDimensions] = useState({})
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [selectShape, setSelectShape] = useState([])
+  const [renderedFeatures, setRenderedFeatures] = useState([])
 
   // set controller for Map comp
   const controller = useMemo(() => {
@@ -45,7 +51,7 @@ const LocusMap = ({
         }
       }, {})
 
-      const layers = layerConfig.reduce((agg, layer, i) => {
+      let layers = layerConfig.reduce((agg, layer, i) => {
         const id = `layer-${layer.layer}-${new Date().getTime()}-${i}`
         // ====[TODO] fallback for invalid/missing dataId
         return {
@@ -61,6 +67,13 @@ const LocusMap = ({
           },
         }
       }, {})
+
+      layers = state.layers['MVTRenderedFeatures'] ?
+        {
+          ['MVTRenderedFeatures']: state.layers['MVTRenderedFeatures'],
+          ...layers,
+        } :
+        layers
       return {
         ...state,
         data,
@@ -97,22 +110,124 @@ const LocusMap = ({
       }
     }
 
+    if (type === 'get GeoJSONMVT') {
+      const { layer } = payload
+      return {
+        ...state,
+        layers: {
+          ...state.layers,
+          ...layer,
+        },
+      }
+    }
+
     return state
   }, { data: {}, layers: {} })
 
+  // get all geometry for polygons in the viewport from MVT binary file
+  const onViewportLoad = useCallback(tiles => {
+    let renderedTiles = []
+    tiles.forEach(tile => {
+      // data in world coordinates (WGS84)
+      renderedTiles = [...renderedTiles, ...tile.dataInWGS84]
+    })
+    setRenderedFeatures(renderedTiles)
+  }, [])
+
+  // create MVT layer to get all geometry for polygons in the viewport
+  useEffect(() => {
+    const geoJSONLayer = layerConfig.find(layer => layer?.layer === 'geojson')
+    if (geoJSONLayer) {
+      const geoJSONLayerData = dataConfig.find(layerData => layerData.id === geoJSONLayer.dataId).data
+      const id = 'MVTRenderedFeatures'
+      if (geoJSONLayerData?.tileGeom) {
+        const mvtLayer = new MVTLayer({
+          id,
+          data: geoJSONLayerData?.tileGeom,
+          getFillColor: [251, 201, 78],
+          pickable: true,
+          visible: true,
+          opacity: 0,
+          onViewportLoad,
+        })
+        configurableLayerDispatch({
+          type: 'get GeoJSONMVT',
+          payload: {
+            layer: {
+              [id]: { deckLayer: mvtLayer },
+            },
+          },
+        })
+      }
+    }
+  }, [layerConfig, dataConfig, onViewportLoad])
+
+  // set finalDataConfig, taking care of the case when reading geometry from MVT layer
+  useEffect(() => {
+    const geoJSONLayer = layerConfig.find(layer => layer?.layer === 'geojson')
+    if (geoJSONLayer) {
+      const dataId = geoJSONLayer?.dataId
+      const geoKey = geoJSONLayer?.geometry?.geoKey || LAYER_CONFIGURATIONS.MVT.geometry.geoKey
+      const layerData = dataConfig.find(layerData => layerData.id === dataId).data
+      const tileData = layerData?.tileData
+      if (tileData?.length) {
+        if (renderedFeatures?.length) {
+          const tileDataObj = tileData.reduce((objData, item) => {
+            const id = item[geoKey]
+            objData[id] = { ...item }
+            return objData
+          }, {})
+          // combine geometry from MVT layer with data
+          const combinedData = renderedFeatures.reduce((objData, item) => {
+            const id = item.properties?.geo_id
+            if (tileDataObj[id]) {
+              let newPoly = item
+              // merge polygons/multipolygons of a geo_id from different tiles into one single polygon/multipolygon
+              if (objData[id]) {
+                newPoly = tUnion(objData[id], item)
+              }
+              objData[id] = {
+                ...newPoly,
+                properties:
+                {
+                  ...item.properties,
+                  value: tileDataObj[id].value,
+                },
+              }
+            }
+            return objData
+          }, {})
+          const finalData = Object.values(combinedData)
+          // add final data array for geojson layer
+          setFinalDataConfig([...dataConfig.filter(o => o.id !== dataId), { id: dataId, data: finalData }])
+        }
+      } else {
+        setFinalDataConfig(dataConfig)
+      }
+    } else {
+      setFinalDataConfig(dataConfig)
+    }
+  }, [layerConfig, dataConfig, renderedFeatures])
+
   // set initial layers and their corresponding data
   useEffect(() => {
-    configurableLayerDispatch({ type: 'init', payload: { layerConfig, dataConfig } })
-  }, [layerConfig, dataConfig])
+    if (finalDataConfig.length) {
+      configurableLayerDispatch({
+        type: 'init',
+        payload: { layerConfig, dataConfig: finalDataConfig },
+      })
+    }
+  }, [layerConfig, finalDataConfig, dataConfig])
 
-  // adjust viewport based on data
+
+  // // adjust viewport based on data
   useEffect(() => {
-    if (width && height) {
+    if (width && height && finalDataConfig) {
       // recenter based on data
       let dataGeomList = []
       layerConfig.forEach(layer => {
         if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
-          const data = dataConfig?.filter(elem => elem.id === layer.dataId)[0]?.data
+          const data = finalDataConfig?.filter(elem => elem.id === layer.dataId)[0]?.data
           if (data?.length) {
             dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
           }
@@ -127,7 +242,7 @@ const LocusMap = ({
         }))
       }
     }
-  }, [dataConfig, layerConfig, selectShape, height, width])
+  }, [finalDataConfig, layerConfig, selectShape, height, width])
 
   // update state for 'select' layer
   useEffect(() => {
@@ -139,7 +254,7 @@ const LocusMap = ({
   }, [layerConfig, selectShape])
 
   // get all config data for all layer legends
-  const legends = useLegends({ dataConfig, layerConfig })
+  const legends = useLegends({ dataConfig: finalDataConfig, layerConfig })
 
   // set legend element
   const legend = useMemo(() => {
@@ -152,7 +267,11 @@ const LocusMap = ({
       )
     ))}, [legends, mapConfig])
 
-  return (
+  /**
+   * need to memoize map component so it doesn't render for each state change
+   * this eliminates errors in re-rendering layers on the map when state changes
+   */
+  const LocusMapMemo = useMemo(() => (
     <Map
       layers={Object.values(layers).map(o => o.deckLayer)}
       setDimensionsCb={(o) => setDimensions(o)}
@@ -192,7 +311,9 @@ const LocusMap = ({
       }}
       legend={legend}
     />
-  )
+  ), [controller, dataConfig, mapConfig, layers, legend, viewStateOverride ])
+
+  return LocusMapMemo
 }
 
 LocusMap.propTypes = {
