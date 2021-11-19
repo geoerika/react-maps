@@ -25,6 +25,7 @@ const LocusMap = ({
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [selectShape, setSelectShape] = useState([])
   const [renderedFeatures, setRenderedFeatures] = useState([])
+  const [renderCycleMVT, setRenderCycleMVT] = useState(0)
 
   // set controller for Map comp
   const controller = useMemo(() => {
@@ -127,10 +128,11 @@ const LocusMap = ({
   // get all geometry for polygons in the viewport from MVT binary file
   const onViewportLoad = useCallback(tiles => {
     let renderedTiles = []
-    tiles.forEach(tile => {
+    tiles?.forEach(tile => {
       // data in world coordinates (WGS84)
-      renderedTiles = [...renderedTiles, ...tile.dataInWGS84]
+      renderedTiles = tile.dataInWGS84 ? [...renderedTiles, ...tile.dataInWGS84] : renderedTiles
     })
+    setRenderCycleMVT(o => o + 1)
     setRenderedFeatures(renderedTiles)
   }, [])
 
@@ -171,7 +173,7 @@ const LocusMap = ({
       const layerData = dataConfig.find(layerData => layerData.id === dataId).data
       const tileData = layerData?.tileData
       if (tileData?.length) {
-        if (renderedFeatures?.length) {
+        if (renderedFeatures.length) {
           const tileDataObj = tileData.reduce((objData, item) => {
             const id = item[geoKey]
             objData[id] = { ...item }
@@ -222,27 +224,27 @@ const LocusMap = ({
 
   // // adjust viewport based on data
   useEffect(() => {
-    if (width && height && finalDataConfig) {
+    if (width && height && finalDataConfig.length && !renderCycleMVT) {
       // recenter based on data
       let dataGeomList = []
       layerConfig.forEach(layer => {
         if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
-          const data = finalDataConfig?.filter(elem => elem.id === layer.dataId)[0]?.data
+          const data = finalDataConfig.find(elem => elem.id === layer.dataId)?.data
           if (data?.length) {
             dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
           }
         }
       })
       const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
-      // don't adjust viewport when we select data on map by drawing shapes
-      if (!selectShape.length ) {
+      // don't adjust viewport when layer is 'arc', 'MVT', or 'select'
+      if (!selectShape.length) {
         setViewOverride(o => ({
           ...o,
           ...dataView,
         }))
       }
     }
-  }, [finalDataConfig, layerConfig, selectShape, height, width])
+  }, [finalDataConfig, layerConfig, selectShape, renderedFeatures, renderCycleMVT, height, width])
 
   // update state for 'select' layer
   useEffect(() => {
@@ -312,7 +314,6 @@ const LocusMap = ({
       legend={legend}
     />
   ), [controller, dataConfig, mapConfig, layers, legend, viewStateOverride ])
-
   return LocusMapMemo
 }
 
