@@ -53,8 +53,23 @@ const Map = ({
   mapboxApiAccessToken,
 }) => {
   const deckRef = useRef()
-  const [mapViewState, setMapViewState] = useState()
+  const [mapViewState, setMapViewState] = useState(INIT_VIEW_STATE)
   const [hoverInfo, setHoverInfo] = useState({})
+
+  useEffect(() => {
+    setMapViewState(o => ({
+      ...INIT_VIEW_STATE,
+      ...o,
+      ...initViewState,
+    }))
+  }, [initViewState])
+
+  useEffect(() => {
+    setMapViewState(o => ({
+      ...o,
+      pitch,
+    }))
+  }, [pitch])
 
   useLayoutEffect(() => {
     setMapViewState(o => ({
@@ -63,14 +78,6 @@ const Map = ({
       ...viewStateOverride,
     }))
   }, [viewStateOverride])
-
-  useEffect(() => {
-    setMapViewState(o => ({
-      ...INIT_VIEW_STATE,
-      ...o,
-      pitch,
-    }))
-  }, [pitch])
 
   /**
    * finalOnHover - React hook that handles the onHover event for deck.gl map
@@ -87,7 +94,7 @@ const Map = ({
       setHoverInfo(null)
     }
   }, [onHover, showTooltip])
-  
+
   return (
     <MapContainer>
       <DeckGL
@@ -95,7 +102,6 @@ const Map = ({
         onLoad={() => {
           const { height, width } = deckRef.current.deck
           setDimensionsCb({ height, width })
-          setMapViewState(initViewState || INIT_VIEW_STATE)
         }}
         onResize={({ height, width }) => {
           setDimensionsCb({ height, width })
