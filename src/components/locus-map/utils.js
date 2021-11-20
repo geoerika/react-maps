@@ -139,7 +139,6 @@ export const parseDeckGLLayerFromConfig = ({
  * @returns { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
  */
 export const setView = ({ dataGeomList, width, height }) => {
-
   const dataCoordinateArray = dataGeomList.map(({ data, longitude, latitude, geometryAccessor = d => d }) =>
     getDataCoordinates({ data, longitude, latitude, geometryAccessor })).flat()
 
@@ -190,20 +189,25 @@ export const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude
   let coordinateArray = []
   if (data[0]?.geometry?.type) {
     POIType = data[0]?.geometry?.type
-    coordinateArray = data.reduce((acc, point) => [...acc, point?.geometry?.coordinates], [])
+    coordinateArray = data.reduce((acc, item) => {
+      // POIType has to be read for each element as MVT binary file has a mix of polygons & multipolygons
+      POIType = item.geometry?.type
+      if (POIType === 'Polygon') {
+        return [...acc, ...item.geometry?.coordinates.flat()]
+      }
+      if (POIType === 'MultiPolygon') {
+        return [...acc, ...item.geometry?.coordinates.flat().flat()]
+      }
+      return [...acc, item.geometry?.coordinates]
+    }, [])
   } else {
-    coordinateArray = data.reduce((acc, point) =>
-      [...acc, [geometryAccessor(point)?.[longitude], geometryAccessor(point)?.[latitude]]], [])
+    coordinateArray = data.reduce((acc, item) =>
+      [...acc, [geometryAccessor(item)?.[longitude], geometryAccessor(item)?.[latitude]]], [])
   }
-  if (POIType === 'Polygon') {
-    coordinateArray = coordinateArray.flat().flat()
-  }
-  if (POIType === 'MultiPolygon') {
-    coordinateArray = coordinateArray.flat().flat().flat()
-  }
+
   const [minCoords, maxCoords] = coordinateArray.reduce(
-    ([[minLng, minLat], [maxLng, maxLat]], point) => {
-      const [lng, lat] = point
+    ([[minLng, minLat], [maxLng, maxLat]], item) => {
+      const [lng, lat] = item
       return [
         [Math.min(minLng, lng), Math.min(minLat, lat)],
         [Math.max(maxLng, lng), Math.max(maxLat, lat)],
