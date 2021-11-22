@@ -110,7 +110,7 @@ export const parseDeckGLLayerFromConfig = ({
     ...others,
     ...propsWithData({ data }),
     ...geometryProps,
-    pickable: click || hover || tooltip || highlight || labels,
+    pickable: Boolean(click || hover || tooltip || highlight || labels),
     onEdit: layer !== 'select' ?
       () => {} :
       ({ updatedData }) => {
@@ -231,8 +231,10 @@ export const getTooltipParams = ({ hoverInfo }) => {
     formatData,
     formatPropertyLabel,
     metricAliases,
+    interactions,
   } = layerProps
-  const { tooltipKeys, formatTooltipTitle, tooltipProps } = layerProps?.interactions?.tooltip
+
+  const { tooltipKeys, formatTooltipTitle, tooltipProps } = interactions?.tooltip || {}
   const fillBasedOn  = visualizations?.fill?.value?.field
   const radiusBasedOn  = visualizations?.radius?.value?.field
   const elevationBasedOn  = visualizations?.elevation?.value?.field
@@ -281,7 +283,7 @@ export const getTooltipParams = ({ hoverInfo }) => {
  */
 export const getObjectMVTData = ({ dataConfig, hoverInfo }) => {
   const { layer: { props: { dataId, geoKey, geometryAccessor } } } = hoverInfo
-  const geo_id = hoverInfo.object.properties.geo_id
-  const tileData = dataConfig.find(data => data.id === dataId)?.data?.tileData
-  return tileData.find(d => geometryAccessor(d)[geoKey] === geo_id)
+  const geo_id = hoverInfo.object.properties?.geo_id
+  const tileData = dataConfig?.find(data => data.id === dataId)?.data?.tileData
+  return tileData?.find(d => geometryAccessor(d)[geoKey] === geo_id) || {}
 }
