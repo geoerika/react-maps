@@ -147,9 +147,10 @@ const LocusMap = ({
           id,
           data: geoJSONLayerData?.tileGeom,
           getFillColor: [251, 201, 78],
-          pickable: true,
+          pickable: false,
           visible: true,
           opacity: 0,
+          showLegend: false,
           onViewportLoad,
         })
         configurableLayerDispatch({
@@ -221,7 +222,6 @@ const LocusMap = ({
     }
   }, [layerConfig, finalDataConfig, dataConfig])
 
-
   // // adjust viewport based on data
   useEffect(() => {
     if (width && height && finalDataConfig.length && !renderCycleMVT) {
@@ -288,32 +288,37 @@ const LocusMap = ({
       renderTooltip={({ hoverInfo }) => {
         const { tooltipProps, ...tooltipParams } = getTooltipParams({ hoverInfo })
         const objMVTData = hoverInfo.layer.id.includes('MVT') ?
-          getObjectMVTData({ dataConfig, hoverInfo }) :
+          getObjectMVTData({ dataConfig: finalDataConfig, hoverInfo }) :
           {}
-        return (
-          <MapTooltip
-            info={hoverInfo}
-            tooltipProps={tooltipProps}
-            typography={mapConfig?.typography || typographyDefaultProps.typography}
-          >
-            {mapConfig.tooltipNode ||
-              tooltipNode({
-                ...tooltipParams,
-                params: {
-                  ...hoverInfo.object,
-                  properties: {
-                    ...hoverInfo.object.properties,
-                    ...objMVTData,
+        const { layer : { props: { interactions } } } = hoverInfo
+        const tooltip = interactions?.tooltip
+        if (tooltip) {
+          return (
+            <MapTooltip
+              info={hoverInfo}
+              tooltipProps={tooltipProps}
+              typography={mapConfig.typography || typographyDefaultProps.typography}
+            >
+              {mapConfig.tooltipNode ||
+                tooltipNode({
+                  ...tooltipParams,
+                  params: {
+                    ...hoverInfo.object,
+                    properties: {
+                      ...hoverInfo.object.properties,
+                      ...objMVTData,
+                    },
                   },
-                },
-              })
-            }
-          </MapTooltip>
-        )
+                })
+              }
+            </MapTooltip>
+          )
+        }
+        return null
       }}
       legend={legend}
     />
-  ), [controller, dataConfig, mapConfig, layers, legend, viewStateOverride ])
+  ), [controller, finalDataConfig, mapConfig, layers, legend, viewStateOverride ])
   return LocusMapMemo
 }
 
