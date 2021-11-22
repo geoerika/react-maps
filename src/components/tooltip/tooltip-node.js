@@ -57,15 +57,17 @@ const tooltipNode = ({
   const { name, id, metricKeys, nameAccessor, idAccessor, metricAccessor, metricAliases } = tooltipKeys
   return (
     <>
-      {name && nameAccessor(params)?.[name] &&
+      {name && nameAccessor?.(params)?.[name] &&
         <Title>{formatTooltipTitle(nameAccessor(params)[name])}</Title>
       }
-      {id && idAccessor(params)?.[id] &&
+      {id && idAccessor?.(params)?.[id] &&
         <Id>{idAccessor(params)[id]}</Id>
       }
-      {metricKeys?.length && (
+      {metricKeys?.length > 0 && metricAccessor && (
         <div>
-          {(nameAccessor(params)?.[name] || idAccessor(params)?.[id]) && <Line/>}
+          {((nameAccessor?.(params)?.[name]) || (idAccessor?.(params)?.[id])) &&
+            <Line/>
+          }
           <TooltipAttributes>
             <Keys>
               {Object.entries(metricAccessor(params)).map(([key]) =>
@@ -77,7 +79,7 @@ const tooltipNode = ({
                 metricKeys.includes(key) &&
                 <div
                   key={key}
-                >{formatData?.[key] ? formatData?.[key](value) : value}
+                >{formatData[key] ? formatData[key](value) : value}
                 </div>)
               }
             </Values>
