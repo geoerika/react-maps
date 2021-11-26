@@ -68,6 +68,9 @@ const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STOR
 export default {
   title: 'Locus Map',
   component: LocusMap,
+  parameters: {
+    layout: 'fullscreen',
+  },
 }
 
 const mapConfig = {
@@ -343,7 +346,7 @@ export const SelectDataLayer = () => {
   const selectArgs = {
     layerConfig: [{ ...selectLayerConfig, layerMode: selectShape }, GeoJSONLayerConfig],
     dataConfig,
-    mapConfig,
+    mapConfig: { ...mapConfig, legendPosition: 'bottom-right' },
   }
 
   return (
