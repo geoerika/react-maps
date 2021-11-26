@@ -19,7 +19,7 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   backgroundColor: 'rgba(255, 255, 255, 0.9)',
   padding: '0 .75rem .75rem',
   borderRadius: '0.2rem',
-  marginBottom: '.5rem',
+  marginBottom: '1.8rem',
   ...position,
 }))
 
@@ -62,7 +62,7 @@ Legend.propTypes = {
 }
 
 Legend.defaultProps = {
-  legendPosition: 'top-left',
+  legendPosition: 'top-right',
   legendSize: 'full',
   ...typographyDefaultProps,
 }
