@@ -273,7 +273,7 @@ const LocusMap = ({
    * need to memoize map component so it doesn't render for each state change
    * this eliminates errors in re-rendering layers on the map when state changes
    */
-  const LocusMapMemo = useMemo(() => (
+  const locusMap = useMemo(() => (
     <Map
       layers={Object.values(layers).map(o => o.deckLayer)}
       setDimensionsCb={(o) => setDimensions(o)}
@@ -316,10 +316,15 @@ const LocusMap = ({
         }
         return null
       }}
-      legend={legend}
     />
-  ), [controller, finalDataConfig, mapConfig, layers, legend, viewStateOverride ])
-  return LocusMapMemo
+  ), [controller, finalDataConfig, mapConfig, layers, viewStateOverride ])
+
+  return (
+    <>
+      {locusMap}
+      {legend}
+    </>
+  )
 }
 
 LocusMap.propTypes = {
