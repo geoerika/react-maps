@@ -229,7 +229,7 @@ const selectLayerConfig = {
   layerMode: 'circle',
   visualizations: {},
   interactions: {},
-  opacity: 0.5,
+  opacity: 0.2,
 }
 
 const MVTLayerConfig = {
@@ -240,6 +240,13 @@ const MVTLayerConfig = {
       value: { field: 'value' },
       valueOptions: [[ 247, 254, 236], [10, 97, 11]],
       dataScale: 'linear',
+    },
+    // value key here helps the property of an MVT polygon with no data to be set transparent
+    lineColor: {
+      value: {
+        field: 'value',
+        customValue: [21, 116, 15],
+      },
     },
   },
   interactions: {
