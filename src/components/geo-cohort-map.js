@@ -92,12 +92,11 @@ const GeoCohortMap = ({
     return []
   }, [zoom, width, height, reportFSAData, reportGeoCohortData])
 
-  // set initial viewport to display all FSA polygons on the map
-  const initViewState = useMemo(() => {
+  // set viewport to display all FSA polygons on the map
+  useEffect(() => {
     if (reportFSAData?.length && width && height) {
-      return { ...setView({ data: reportFSAData, width, height }), pitch }
+      setViewOverride({ ...setView({ data: reportFSAData, width, height }), pitch })
     }
-    return null
   }, [reportFSAData, pitch, height, width])
 
   /**
@@ -298,7 +297,6 @@ const GeoCohortMap = ({
       )}
       legend={legend}
       pitch={pitch}
-      initViewState={initViewState}
       setZoom={setZoom}
       setCurrentViewport={setCurrentViewport}
       mapboxApiAccessToken={mapboxApiAccessToken}

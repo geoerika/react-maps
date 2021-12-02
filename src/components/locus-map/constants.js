@@ -65,6 +65,9 @@ export const LAYER_CONFIGURATIONS = {
     defaultProps: {
       lineWidthUnits: 'pixels',
       pointRadiusUnits: 'meters',
+      parameters: {
+        depthTest: false,
+      },
     },
   },
   arc: {
@@ -159,7 +162,7 @@ export const PROP_CONFIGURATIONS = {
     byProducts: { stroked: true },
   },
   elevation: {
-    defaultValue: 0,
+    defaultValue: [0, 1000],
     deckGLName: 'getElevation',
     byProducts: { extruded: true },
   },

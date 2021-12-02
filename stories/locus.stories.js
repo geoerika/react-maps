@@ -68,6 +68,9 @@ const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STOR
 export default {
   title: 'Locus Map',
   component: LocusMap,
+  parameters: {
+    layout: 'fullscreen',
+  },
 }
 
 const mapConfig = {
@@ -85,7 +88,7 @@ const dataConfig = [
   { id: 'poiGeojson-123', data: poiRadiiTo },
   { id: 'mvt-123',
     data: {
-      tileGeom: 'https://mapsource-dev.locus.place/maps/ct/{z}/{x}/{y}.vector.pbf?',
+      tileGeom: 'https://mapsource.locus.place/maps/ct/{z}/{x}/{y}.vector.pbf?',
       tileData: mvtData,
     },
   },
@@ -254,6 +257,36 @@ const MVTLayerConfig = {
   formatData: { value: d => '$' + d },
 }
 
+const GeoJSONMVTConfig = {
+  layer: 'geojson',
+  dataId: 'mvt-123',
+  dataPropertyAccessor: d => d.properties,
+  geometry: { geoKey: 'geo_id' },
+  visualizations: {
+    fill: {
+      value: { field: 'value' },
+      valueOptions: [[ 173, 214, 250], [ 24, 66, 153]],
+      dataScale: 'linear',
+    },
+    elevation: {
+      value: { field: 'value' },
+      valueOptions: [0, 1000],
+      dataScale: 'linear',
+    },
+  },
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        name: 'geo_id',
+        metricKeys: ['value'],
+        metricAccessor: d => d.properties,
+      },
+    },
+  },
+  opacity: 0.5,
+  legend: { showLegend: true },
+}
+
 const Template = (args) => <LocusMap {...args} />
 
 const geojsonArgs = {
@@ -283,18 +316,9 @@ XWIReportLayers.args = xwiReportArgs
 XWIReportLayers.storyName = 'Arc & Scatterplot Layers for XWI Reports'
 
 const initViewState = {
-  altitude: 1.5,
-  bearing: 0,
-  height: 958,
-  latitude: 43.4050109111904,
-  longitude: -79.2278102419036,
-  maxPitch: 60,
-  maxZoom: 20,
-  minPitch: 0,
-  minZoom: 0,
-  pitch: 0,
-  width: 1580,
-  zoom: 8.549383306739653,
+  latitude: 43.41,
+  longitude: -79.23,
+  zoom: 8.6,
 }
 const MVTLayerArgs = {
   layerConfig: [MVTLayerConfig],
@@ -306,13 +330,23 @@ export const MVTLayer = Template.bind({})
 MVTLayer.args = MVTLayerArgs
 MVTLayer.storyName = 'MVT Layer with demographic data'
 
+const GeoJSONMVTArgs = {
+  layerConfig: [GeoJSONMVTConfig],
+  dataConfig,
+  mapConfig: { ...mapConfig, initViewState, pitch: 45 },
+}
+
+export const GeoJSONMVTLayer = Template.bind({})
+GeoJSONMVTLayer.args = GeoJSONMVTArgs
+GeoJSONMVTLayer.storyName = 'GeoJSON polygon Layer with MVT tile geometry data'
+
 export const SelectDataLayer = () => {
   const [selectShape, setSelectShape] = useState('circle')
 
   const selectArgs = {
     layerConfig: [{ ...selectLayerConfig, layerMode: selectShape }, GeoJSONLayerConfig],
     dataConfig,
-    mapConfig,
+    mapConfig: { ...mapConfig, legendPosition: 'bottom-right' },
   }
 
   return (

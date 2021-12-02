@@ -1,6 +1,6 @@
 {
   "name": "@eqworks/react-maps",
-  "version": "0.7.6-alpha.1",
+  "version": "0.8.0-alpha.1",
   "description": "React maps",
   "author": "EQ Inc.",
   "license": "UNLICENSED",
@@ -43,6 +43,7 @@
     "@turf/circle": "^6.5.0",
     "@turf/distance": "^6.5.0",
     "@turf/helpers": "^6.5.0",
+    "@turf/union": "^6.5.0",
     "d3-array": "^3.1.1",
     "d3-color": "^3.0.1",
     "d3-scale": "^4.0.2",
