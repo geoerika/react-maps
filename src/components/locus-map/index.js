@@ -136,81 +136,100 @@ const LocusMap = ({
     setRenderedFeatures(renderedTiles)
   }, [])
 
+  /**
+   * case when reading geometry from MVT layer to use in a GeoJSON layer:
+   * get params of GeoJSON layer that uses MVT geom
+   */
+  const { geoJSONMVTLayerData, geoJSONMVTDataId, geoJSONMVTGeoKey } = useMemo(() => {
+    const geoJSONLayers = layerConfig?.filter(layer => layer?.layer === 'geojson')
+    const geomData = geoJSONLayers?.reduce((acc, layer) => {
+      const geoJSONLayerTileData = dataConfig.find(layerData => layerData.id === layer.dataId)
+      if (geoJSONLayerTileData?.data?.tileGeom) {
+        const { id, data } = geoJSONLayerTileData
+        const geoKey = geoJSONLayerTileData.geometry?.geoKey ||
+          LAYER_CONFIGURATIONS.MVT.geometry.geoKey
+        acc = {
+          geoJSONMVTLayerData: data,
+          geoJSONMVTDataId: id,
+          geoJSONMVTGeoKey: geoKey,
+        }
+      }
+      return acc
+    }, {})
+    return geomData
+  }, [layerConfig, dataConfig])
+
   // create MVT layer to get all geometry for polygons in the viewport
   useEffect(() => {
-    const geoJSONLayer = layerConfig.find(layer => layer?.layer === 'geojson')
-    if (geoJSONLayer) {
-      const geoJSONLayerData = dataConfig.find(layerData => layerData.id === geoJSONLayer.dataId).data
+    if (geoJSONMVTLayerData) {
       const id = 'MVTRenderedFeatures'
-      if (geoJSONLayerData?.tileGeom) {
-        const mvtLayer = new MVTLayer({
-          id,
-          data: geoJSONLayerData?.tileGeom,
-          getFillColor: [251, 201, 78],
-          pickable: false,
-          visible: true,
-          opacity: 0,
-          showLegend: false,
-          onViewportLoad,
-        })
-        configurableLayerDispatch({
-          type: 'get GeoJSONMVT',
-          payload: {
-            layer: {
-              [id]: { deckLayer: mvtLayer },
-            },
+      const mvtLayer = new MVTLayer({
+        id,
+        data: geoJSONMVTLayerData.tileGeom,
+        getFillColor: [251, 201, 78],
+        pickable: false,
+        visible: true,
+        opacity: 0,
+        showLegend: false,
+        onViewportLoad,
+      })
+      configurableLayerDispatch({
+        type: 'get GeoJSONMVT',
+        payload: {
+          layer: {
+            [id]: { deckLayer: mvtLayer },
           },
-        })
-      }
+        },
+      })
     }
-  }, [layerConfig, dataConfig, onViewportLoad])
+  }, [geoJSONMVTLayerData, onViewportLoad])
 
   // set finalDataConfig, taking care of the case when reading geometry from MVT layer
   useEffect(() => {
-    const geoJSONLayer = layerConfig.find(layer => layer?.layer === 'geojson')
-    if (geoJSONLayer) {
-      const dataId = geoJSONLayer?.dataId
-      const geoKey = geoJSONLayer?.geometry?.geoKey || LAYER_CONFIGURATIONS.MVT.geometry.geoKey
-      const layerData = dataConfig.find(layerData => layerData.id === dataId).data
-      const tileData = layerData?.tileData
+    if (geoJSONMVTLayerData) {
+      const { tileData } = geoJSONMVTLayerData
       if (tileData?.length) {
-        if (renderedFeatures.length) {
-          const tileDataObj = tileData.reduce((objData, item) => {
-            const id = item[geoKey]
-            objData[id] = { ...item }
-            return objData
-          }, {})
-          // combine geometry from MVT layer with data
-          const combinedData = renderedFeatures.reduce((objData, item) => {
-            const id = item.properties?.geo_id
-            if (tileDataObj[id]) {
-              let newPoly = item
-              // merge polygons/multipolygons of a geo_id from different tiles into one single polygon/multipolygon
-              if (objData[id]) {
-                newPoly = tUnion(objData[id], item)
-              }
-              objData[id] = {
-                ...newPoly,
-                properties:
-                {
-                  ...item.properties,
-                  value: tileDataObj[id].value,
-                },
-              }
+        const tileDataObj = tileData.reduce((objData, item) => {
+          const id = item[geoJSONMVTGeoKey]
+          objData[id] = { ...item }
+          return objData
+        }, {})
+        // combine geometry from MVT layer with data
+        const combinedData = renderedFeatures.reduce((objData, item) => {
+          const id = item.properties?.geo_id
+          if (tileDataObj[id]) {
+            let newPoly = item
+            // merge polygons/multipolygons of a geo_id from different tiles into one single polygon/multipolygon
+            if (objData[id]) {
+              newPoly = tUnion(objData[id], item)
             }
-            return objData
-          }, {})
-          const finalData = Object.values(combinedData)
-          // add final data array for geojson layer
-          setFinalDataConfig([...dataConfig.filter(o => o.id !== dataId), { id: dataId, data: finalData }])
-        }
+            objData[id] = {
+              ...newPoly,
+              properties:
+              {
+                ...item.properties,
+                value: tileDataObj[id].value,
+              },
+            }
+          }
+          return objData
+        }, {})
+        const finalData = Object.values(combinedData)
+        // add final data array for geojson layer
+        setFinalDataConfig([
+          ...dataConfig.filter(o => o.id !== geoJSONMVTDataId),
+          { id: geoJSONMVTDataId, data: finalData },
+        ])
       } else {
-        setFinalDataConfig(dataConfig)
+        setFinalDataConfig([
+          ...dataConfig.filter(o => o.id !== geoJSONMVTDataId),
+          { id: geoJSONMVTDataId, data: [] },
+        ])
       }
     } else {
       setFinalDataConfig(dataConfig)
     }
-  }, [layerConfig, dataConfig, renderedFeatures])
+  }, [dataConfig, renderedFeatures, geoJSONMVTLayerData, geoJSONMVTGeoKey, geoJSONMVTDataId])
 
   // set initial layers and their corresponding data
   useEffect(() => {
