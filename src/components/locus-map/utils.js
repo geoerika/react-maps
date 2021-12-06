@@ -110,7 +110,7 @@ export const parseDeckGLLayerFromConfig = ({
     ...others,
     ...propsWithData({ data }),
     ...geometryProps,
-    pickable: Boolean(click || hover || tooltip || highlight || labels),
+    pickable: Boolean(click || hover || tooltip || highlight || labels || (layer === 'select')),
     onEdit: layer !== 'select' ?
       () => {} :
       ({ updatedData }) => {
@@ -125,7 +125,7 @@ export const parseDeckGLLayerFromConfig = ({
           setSelectShape(updatedData.features)
         }
       },
-    visible: layer === 'MVT' ? Boolean(data?.tileData?.length) : Boolean(data?.length),
+    visible: Boolean(data?.length) || Boolean(data?.tileData?.length) || (layer === 'select'),
   })
 }
 

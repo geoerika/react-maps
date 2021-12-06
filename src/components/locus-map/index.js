@@ -30,8 +30,8 @@ const LocusMap = ({
   // set controller for Map comp
   const controller = useMemo(() => {
     const layerList = layerConfig.reduce((agg, layer) => [...agg, layer.layer], [])
-    if (layerList?.includes('select' )) {
-      return { doubleClickZoom: false }
+    if (layerList?.includes('select')) {
+      return { ...controller, doubleClickZoom: false }
     }
     return { controller: true }
   }, [layerConfig])

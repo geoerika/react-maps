@@ -192,39 +192,47 @@ export const setFinalLayerDataProperty = ({
     return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
   }
   // case for radius for GeoJSON layer
-  if (value.field && !dataScale && !valueOptions) {
+  if (value.field && !dataScale && !valueOptions && !data?.tileData?.length) {
     return d => dataPropertyAccessor(d)[value.field]
   }
   let layerData = data?.tileData?.length ? data.tileData : data
 
-  if (layerData?.length && value.field?.length && valueOptions?.length) {
-    const sample = dataPropertyAccessor(layerData[0])
-    if (sample[value.field] === undefined) {
-      return defaultValue
-    }
-    const dataRange = getDataRange({ data: layerData, dataKey: value.field, dataPropertyAccessor })
-    if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
-      const d3Fn = SCALES[dataScale](dataRange, valueOptions)
-      // case for MVT layer
-      if (data?.tileData?.length) {
-        layerData = Object.fromEntries(data.tileData.map((item) =>
-          [geometryAccessor(item)[mvtGeoKey], { value: dataPropertyAccessor(item)[value.field] }]))
-        return ({ properties: { geo_id } }) => {
-          const { value } = layerData[geo_id] || { value: 0 }
-          if (value || value === dataRange[0]) {
-            return d3Fn(value)
-          }
-          // tiles with no data values will be transparent
-          return [255, 255, 255, 0]
-        }
+  const setTileProp = ({ propValue, dataRange }) => {
+    layerData = Object.fromEntries(data.tileData.map((item) =>
+      [geometryAccessor(item)[mvtGeoKey], { value: dataPropertyAccessor(item)[value.field] }]))
+    return ({ properties: { geo_id } }) => {
+      const { value } = layerData[geo_id] || { value: 0 }
+      if (value || value === dataRange[0]) {
+        return typeof propValue === 'function' ? propValue(value) : propValue
       }
-      return (d) => d3Fn(dataPropertyAccessor(d)[value.field])
-    }
-    // case for mvt layer: tiles with no data values will be transparent
-    if (data?.tileData?.length) {
+      // tiles with no data values will be transparent
       return [255, 255, 255, 0]
     }
-    return valueOptions[0]
+  }
+
+  if (layerData?.length && value.field?.length) {
+    const dataRange = getDataRange({ data: layerData, dataKey: value.field, dataPropertyAccessor })
+    if (valueOptions?.length) {
+      const sample = dataPropertyAccessor(layerData[0])
+      if (sample[value.field] === undefined) {
+        return defaultValue
+      }
+
+      if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
+        const d3Fn = SCALES[dataScale](dataRange, valueOptions)
+        // case for MVT layer
+        if (data?.tileData?.length) {
+          return setTileProp({ propValue: d3Fn, dataRange })
+        }
+        return (d) => d3Fn(dataPropertyAccessor(d)[value.field])
+      }
+      return valueOptions[0]
+    }
+
+    // allow layer props with no data values and valueOptions, such as getLineColor in MVT layers, to be set transparent
+    if (data?.tileData?.length) {
+      return setTileProp({ propValue: value.customValue || defaultValue, dataRange })
+    }
   }
   return typeof value === 'function' ? value(highlightId) : value
 }
