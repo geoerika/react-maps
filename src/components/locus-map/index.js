@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useReducer, useCallback } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { MVTLayer } from '@deck.gl/geo-layers'
@@ -11,7 +11,6 @@ import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 import Legend from '../legend'
-import { LAYER_CONFIGURATIONS } from './constants'
 
 
 const LocusMap = ({
@@ -146,8 +145,7 @@ const LocusMap = ({
       const geoJSONLayerTileData = dataConfig.find(layerData => layerData.id === layer.dataId)
       if (geoJSONLayerTileData?.data?.tileGeom) {
         const { id, data } = geoJSONLayerTileData
-        const geoKey = geoJSONLayerTileData.geometry?.geoKey ||
-          LAYER_CONFIGURATIONS.MVT.geometry.geoKey
+        const geoKey = layer.geometry?.geoKey || ''
         acc = {
           geoJSONMVTLayerData: data,
           geoJSONMVTDataId: id,
@@ -186,7 +184,7 @@ const LocusMap = ({
 
   // set finalDataConfig, taking care of the case when reading geometry from MVT layer
   useEffect(() => {
-    if (geoJSONMVTLayerData) {
+    if (geoJSONMVTLayerData && geoJSONMVTGeoKey) {
       const { tileData } = geoJSONMVTLayerData
       if (tileData?.length) {
         const tileDataObj = tileData.reduce((objData, item) => {
@@ -208,7 +206,7 @@ const LocusMap = ({
               properties:
               {
                 ...item.properties,
-                value: tileDataObj[id].value,
+                ...tileDataObj[id],
               },
             }
           }
@@ -241,13 +239,14 @@ const LocusMap = ({
     }
   }, [layerConfig, finalDataConfig, dataConfig])
 
-  // // adjust viewport based on data
-  useEffect(() => {
+  // adjust viewport based on data
+  useLayoutEffect(() => {
     if (width && height && finalDataConfig.length && !renderCycleMVT) {
       // recenter based on data
       let dataGeomList = []
       layerConfig.forEach(layer => {
-        if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
+        // don't adjust viewport when layer is 'arc', 'MVT', 'geojson', or 'select'
+        if (!['arc', 'MVT', 'geojson', 'select'].includes(layer.layer)) {
           const data = finalDataConfig.find(elem => elem.id === layer.dataId)?.data
           if (data?.length) {
             dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
@@ -255,7 +254,6 @@ const LocusMap = ({
         }
       })
       const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
-      // don't adjust viewport when layer is 'arc', 'MVT', or 'select'
       if (!selectShape.length) {
         setViewOverride(o => ({
           ...o,
