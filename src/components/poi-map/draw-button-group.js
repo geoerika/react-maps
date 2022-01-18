@@ -1,56 +1,26 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { withStyles } from '@material-ui/core/styles'
+import { ButtonGroup, Button } from '@eqworks/lumen-labs'
+import { AddPin, AddSquare, Trash } from '@eqworks/lumen-labs/dist/icons'
 
-import ButtonGroup from '@material-ui/core/ButtonGroup'
-import AddBoxOutlinedIcon from '@material-ui/icons/AddBoxOutlined'
-import AddLocationOutlinedIcon from '@material-ui/icons/AddLocationOutlined'
-import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline'
-
-import { Button } from '@eqworks/lumen-ui'
-
-
-const basicIconButtonStyle = {
-  paddingLeft: '20px',
-  maxWidth: '35px',
-  minWidth: '35px',
-  maxHeight: '30px',
-  minHeight: '30px',
-}
-
-const StyledButtonDraw = withStyles(theme => ({
-  root: {
-    ...basicIconButtonStyle,
-    borderColor: `${theme.palette.primary.main}`,
-  },
-}))(Button)
-
-const StyledButtonDelete = withStyles(theme => ({
-  root: {
-    ...basicIconButtonStyle,
-    color: `${theme.palette.error.main}`,
-    borderColor: `${theme.palette.error.main}`,
-  },
-}))(Button)
 
 const DrawButtonGroup = ({ mode, setDrawModeOn, onErase }) => {
   return (
-    <ButtonGroup orientation='vertical'>
-      <StyledButtonDraw
-        startIcon={mode === 'create-point' ? <AddLocationOutlinedIcon /> : <AddBoxOutlinedIcon />}
-        size='small'
-        type='secondary'
-        color='primary'
+    <ButtonGroup variant='outlined' size='md' align='vertical'>
+      <Button
+        id='draw-button'
         onClick={setDrawModeOn}
-      />
-      <StyledButtonDelete
-        startIcon={<DeleteOutlineIcon />}
-        size='small'
-        type='secondary'
-        color='red'
+      >
+        {mode === 'create-point' ? <AddPin size='lg' /> : <AddSquare size='md' />}
+      </Button>
+      <Button
+        id='delete-button'
+        type='error'
         onClick={onErase}
-      />
+      >
+        <Trash size='md' fill='#b62628' />
+      </Button>
     </ButtonGroup>
   )
 }
