@@ -72,6 +72,8 @@ const GeoCohortMap = ({
   const [{ height, width }, setDimensions] = useState({})
   const [zoom, setZoom] = useState(1)
   const [currentViewport, setCurrentViewport] = useState()
+  // limits viewport adjusting by data to one time only, the first time when map loads with data
+  const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
 
   // calculate bbox coords for current viewport and extended area around
   useEffect(() => {
@@ -94,10 +96,11 @@ const GeoCohortMap = ({
 
   // set viewport to display all FSA polygons on the map
   useEffect(() => {
-    if (reportFSAData?.length && width && height) {
+    if (reportFSAData?.length && width && height && !viewportAdjustedByData) {
       setViewOverride({ ...setView({ data: reportFSAData, width, height }), pitch })
+      setViewportAdjustedByData(true)
     }
-  }, [reportFSAData, pitch, height, width])
+  }, [reportFSAData, pitch, height, width, viewportAdjustedByData])
 
   /**
    * finalOnClick - React hook that handles layer's onClick events
