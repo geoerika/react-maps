@@ -25,6 +25,8 @@ const LocusMap = ({
   const [selectShape, setSelectShape] = useState([])
   const [renderedFeatures, setRenderedFeatures] = useState([])
   const [renderCycleMVT, setRenderCycleMVT] = useState(0)
+  // limits viewport adjusting by data to one time only, the first time when map loads with data
+  const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
 
   // set controller for Map comp
   const controller = useMemo(() => {
@@ -241,14 +243,15 @@ const LocusMap = ({
 
   // adjust viewport based on data
   useLayoutEffect(() => {
-    if (width && height && finalDataConfig.length && !renderCycleMVT) {
+    if (width && height && finalDataConfig.length && !renderCycleMVT && !viewportAdjustedByData) {
       // recenter based on data
       let dataGeomList = []
       layerConfig.forEach(layer => {
         // don't adjust viewport when layer is 'arc', 'MVT', 'geojson', or 'select'
-        if (!['arc', 'MVT', 'geojson', 'select'].includes(layer.layer)) {
+        if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
           const data = finalDataConfig.find(elem => elem.id === layer.dataId)?.data
-          if (data?.length) {
+          // don't adjust viewport for geojson layer using mvt tile geom
+          if (data?.length && geoJSONMVTDataId !== layer.dataId) {
             dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
           }
         }
@@ -260,8 +263,20 @@ const LocusMap = ({
           ...dataView,
         }))
       }
+      // limit adjusting viewport by data only to first time loading of the map
+      setViewportAdjustedByData(true)
     }
-  }, [finalDataConfig, layerConfig, selectShape, renderedFeatures, renderCycleMVT, height, width])
+  }, [
+    finalDataConfig,
+    layerConfig,
+    selectShape,
+    renderedFeatures,
+    renderCycleMVT,
+    height,
+    width,
+    viewportAdjustedByData,
+    geoJSONMVTDataId,
+  ])
 
   // update state for 'select' layer
   useEffect(() => {
@@ -293,7 +308,7 @@ const LocusMap = ({
   const locusMap = useMemo(() => (
     <Map
       layers={Object.values(layers).map(o => o.deckLayer)}
-      setDimensionsCb={(o) => setDimensions(o)}
+      setDimensionsCb={o => setDimensions(o)}
       viewStateOverride={viewStateOverride}
       controller={controller}
       { ...mapConfig }
