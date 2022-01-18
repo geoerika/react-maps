@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useLayoutEffect, useRef, useEffect } from 'react'
+import React, { useState, useCallback, useLayoutEffect, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -52,17 +52,8 @@ const Map = ({
   controller,
   mapboxApiAccessToken,
 }) => {
-  const deckRef = useRef()
-  const [mapViewState, setMapViewState] = useState(INIT_VIEW_STATE)
+  const [mapViewState, setMapViewState] = useState(initViewState || INIT_VIEW_STATE)
   const [hoverInfo, setHoverInfo] = useState({})
-
-  useEffect(() => {
-    setMapViewState(o => ({
-      ...INIT_VIEW_STATE,
-      ...o,
-      ...initViewState,
-    }))
-  }, [initViewState])
 
   useEffect(() => {
     setMapViewState(o => ({
@@ -73,7 +64,6 @@ const Map = ({
 
   useLayoutEffect(() => {
     setMapViewState(o => ({
-      ...INIT_VIEW_STATE,
       ...o,
       ...viewStateOverride,
     }))
@@ -98,11 +88,6 @@ const Map = ({
   return (
     <MapContainer>
       <DeckGL
-        ref={deckRef}
-        onLoad={() => {
-          const { height, width } = deckRef.current.deck
-          setDimensionsCb({ height, width })
-        }}
         onResize={({ height, width }) => {
           setDimensionsCb({ height, width })
         }}
