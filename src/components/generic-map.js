@@ -52,7 +52,7 @@ const Map = ({
   controller,
   mapboxApiAccessToken,
 }) => {
-  const [mapViewState, setMapViewState] = useState(initViewState || INIT_VIEW_STATE)
+  const [mapViewState, setMapViewState] = useState({ ...(initViewState || INIT_VIEW_STATE), pitch })
   const [hoverInfo, setHoverInfo] = useState({})
 
   useEffect(() => {
@@ -94,7 +94,7 @@ const Map = ({
         onViewStateChange={o => {
           const { viewState, interactionState } = o
           const{ isDragging, inTransition, isZooming, isPanning, isRotating } = interactionState
-          setMapViewState(viewState)
+          setMapViewState(() => ({ ...viewState, pitch }))
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
           // send zoom and viewState to parent comp
