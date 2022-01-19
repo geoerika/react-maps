@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { ButtonGroup, Button } from '@eqworks/lumen-labs'
-import { Add, AddSquare, AddCircle } from '@eqworks/lumen-labs/dist/icons'
+import { Icons } from '@eqworks/lumen-labs'
 
 import { LocusMap } from '../src'
 import { getCursor } from '../src/utils'
@@ -15,30 +15,24 @@ import mvtData from './data/locus-map-mvt.json'
 
 const SelectButtonGroup = ({ setSelectShape }) => {
   return (
-    <ButtonGroup>
+    <ButtonGroup variant='outlined' size='md'>
       <Button
         id='select-circle'
-        variant='outlined'
-        size='md'
         onClick={ () => setSelectShape('circle') }
       >
-        <AddCircle size='md' />
+        <Icons.AddCircle size='md' />
       </Button>
       <Button
         id='select-rectangle'
-        variant='outlined'
-        size='md'
         onClick={ () => setSelectShape('rectangle') }
       >
-        <AddSquare size='md' />
+        <Icons.AddSquare size='md' />
       </Button>
       <Button
         id='select-polygon'
-        variant='outlined'
-        size='md'
         onClick={ () => setSelectShape('polygon') }
       >
-        <Add size='md' />
+        <Icons.Add size='md' />
       </Button>
     </ButtonGroup>
   )
