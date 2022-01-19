@@ -16,9 +16,10 @@ import { StaticMap } from 'react-map-gl'
 import Geocoder from 'react-map-gl-geocoder'
 import { WebMercatorViewport } from '@deck.gl/core'
 
-import { FormControlLabel } from '@material-ui/core'
-import { Switch } from '@eqworks/lumen-ui'
+import { SwitchRect } from '@eqworks/lumen-labs'
 import { styled, setup } from 'goober'
+
+import { useDebounce } from 'use-debounce'
 
 import DrawButtonGroup from './draw-button-group'
 import MapTooltip from '../tooltip'
@@ -43,16 +44,16 @@ import {
 
 setup(React.createElement)
 
-const MapWrapper = styled('div')`
-`
+const MapWrapper = styled('div')``
 
 const SwitchContainerCluster = styled('div')`
   position: absolute;
   margin: 10px;
   z-index: 1;
-  background-color: white;
-  border-radius: 3px;
-  padding: 5px;
+  background-color: rgb(254, 254, 254);
+  border-radius: 0.125rem;
+  padding: 5px 7px 5px 7px;
+  font-size: 0.875rem;
 `
 
 const SwitchContainerRadius = styled('div')`
@@ -60,17 +61,16 @@ const SwitchContainerRadius = styled('div')`
   margin: 10px;
   margin-top: ${props => props.clusterswitch ? 50 : 10}px;
   z-index: 1;
-  background-color: white;
-  border-radius: 3px;
-  padding: 5px;
+  background-color: rgb(254, 254, 254);
+  border-radius: 0.125rem;
+  padding: 5px 7px 5px 7px;
+  font-size: 0.875rem;
 `
 
 const DrawButtonContainer = styled('div')`
   position: absolute;
   right: 15px;
   z-index: 1;
-  background-color: white;
-  border-radius: 3px;
 `
 
 const MapContainer = styled('div', forwardRef)`
@@ -144,6 +144,7 @@ const POIMap = ({
   const [viewportBBOX, setViewportBBOX] = useState()
   const [showRadius, setShowRadius] = useState(false)
   const [showClusters, setShowClusters] = useState(false)
+  const [debouncedShowClusters] = useDebounce(showClusters, 5)
   const [clusterZoom, setClusterZoom] = useState(false)
   // used to block reset of view state when we transition from the cluster to the icon layer
   const [layerVisibleData, setLayerVisibleData] = useState()
@@ -511,22 +512,20 @@ const POIMap = ({
     <MapWrapper>
       {POIType === TYPE_RADIUS.code && cluster && mapMode === 'display' && data?.length > 1 && (
         <SwitchContainerCluster>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showClusters}
-                onChange={() => {
-                  if (!showClusters) {
-                    setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
-                    const viewState = deckRef?.current?.deck.viewState?.['default-view']
-                    setZoom(viewState.zoom)
-                    setViewportBBOX(new WebMercatorViewport(viewState).getBounds())
-                  }
-                  setShowClusters(!showClusters)
-                }}
-              />
-            }
+          <SwitchRect
+            id='switch-cluster'
+            checked={debouncedShowClusters}
+            onChange={() => {
+              if (!showClusters) {
+                setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
+                const viewState = deckRef?.current?.deck.viewState?.['default-view']
+                setZoom(viewState.zoom)
+                setViewportBBOX(new WebMercatorViewport(viewState).getBounds())
+              }
+              setShowClusters(!showClusters)
+            }}
             label='Show Clusters'
+            classes={{ label: 'ml-2' }}
           />
         </SwitchContainerCluster>
       )}
@@ -534,14 +533,12 @@ const POIMap = ({
         ((cluster && showClusters && !clusterZoom) || (cluster && !showClusters) || !cluster) &&
         mapMode === 'display' && (
         <SwitchContainerRadius clusterswitch={cluster && data?.length > 1 ? 'yes' : undefined}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showRadius}
-                onChange={() => setShowRadius(!showRadius)}
-              />
-            }
+          <SwitchRect
+            id='switch-radius'
+            checked={showRadius}
+            onChange={() => setShowRadius(!showRadius)}
             label='Show Radius'
+            classes={{ label: 'ml-2' }}
           />
         </SwitchContainerRadius>
       )}

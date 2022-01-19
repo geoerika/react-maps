@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { LoginContextProvider } from '@eqworks/common-login'
+import { Authenticated } from '@eqworks/common-login'
+
+import { Button } from '@eqworks/lumen-labs'
 
 import { POIMap } from '../src'
-import AuthMapWrapper from './auth-map-wrapper'
 
 import POIsRadii from './data/pois-radii'
 import POIsRadiiTo from './data/pois-radii-to'
@@ -70,7 +71,12 @@ export const PointPOIActivePOIAndRadiusChange = () => {
   return (
     <div>
       <p style={{ color: 'red' }}>FIRST: select a POI on the map!</p>
-      <button onClick={changeRadius}>Change Radius</button>
+      <Button
+        variant='outlined'
+        size='md'
+        onClick={changeRadius}
+      >Change Radius
+      </Button>
       {POIsRadiiTo.length > 0 &&
         <POIMap
           POIData={POIsRadiiTo}
@@ -116,29 +122,25 @@ DrawPolygon.args = { mode: 'polygon-draw', ...drawArgs }
 DrawPolygon.storyName = 'Draw Polygon POIs - POIEditDraw layer'
 
 export const CreatePointPOI = () => (
-  <LoginContextProvider>
-    <AuthMapWrapper>
-      <POIMap
-        {...drawArgs}
-        mode={'create-point'}
-        forwardGeocoder={forwardGeocoder}
-        geocoderOnResult={geocoderOnResult}
-      />
-    </AuthMapWrapper>
-  </LoginContextProvider>
+  <Authenticated product='locus'>
+    <POIMap
+      {...drawArgs}
+      mode={'create-point'}
+      forwardGeocoder={forwardGeocoder}
+      geocoderOnResult={geocoderOnResult}
+    />
+  </Authenticated>
 )
 CreatePointPOI.parameters = { layout: 'fullscreen' }
 
 export const CreatePolygonPOI = () => (
-  <LoginContextProvider>
-    <AuthMapWrapper>
-      <POIMap
-        {...drawArgs}
-        mode={'create-polygon'}
-        forwardGeocoder={forwardGeocoder}
-        geocoderOnResult={geocoderOnResult}
-      />
-    </AuthMapWrapper>
-  </LoginContextProvider>
+  <Authenticated product='locus'>
+    <POIMap
+      {...drawArgs}
+      mode={'create-polygon'}
+      forwardGeocoder={forwardGeocoder}
+      geocoderOnResult={geocoderOnResult}
+    />
+  </Authenticated>
 )
 CreatePolygonPOI.parameters = { layout: 'fullscreen' }

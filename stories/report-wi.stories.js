@@ -2,9 +2,8 @@ import React from 'react'
 
 import axios from 'axios'
 
-import { LoginContextProvider } from '@eqworks/common-login'
+import { Authenticated } from '@eqworks/common-login'
 import { ReportMap } from '../src'
-import AuthMapWrapper from './auth-map-wrapper'
 import FO from './locus/actions'
 
 
@@ -36,11 +35,9 @@ const mapArgs = {
 }
 
 const Template = (args) =>
-  <LoginContextProvider>
-    <AuthMapWrapper>
-      <ReportMap {...args} />
-    </AuthMapWrapper>
-  </LoginContextProvider>
+  <Authenticated product='locus'>
+    <ReportMap {...args} />
+  </Authenticated>
 
 
 export const BasicReport = Template.bind({})

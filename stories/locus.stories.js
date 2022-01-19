@@ -1,14 +1,8 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
-import { withStyles } from '@material-ui/core/styles'
-
-import ButtonGroup from '@material-ui/core/ButtonGroup'
-import AddCircleOutlineOutlined from '@material-ui/icons/AddCircleOutlineOutlined'
-import AddBoxOutlined from '@material-ui/icons/AddBoxOutlined'
-import AddOutlined from '@material-ui/icons/AddOutlined'
-
-import { Button } from '@eqworks/lumen-ui'
+import { ButtonGroup, Button } from '@eqworks/lumen-labs'
+import { Icons } from '@eqworks/lumen-labs'
 
 import { LocusMap } from '../src'
 import { getCursor } from '../src/utils'
@@ -19,42 +13,27 @@ import xwiReportData from './data/xwi-report.json'
 import mvtData from './data/locus-map-mvt.json'
 
 
-const basicIconButtonStyle = {
-  paddingLeft: '20px',
-  maxWidth: '35px',
-  minWidth: '35px',
-  maxHeight: '30px',
-  minHeight: '30px',
-}
-
-const StyledButtonSelect = withStyles({
-  root: basicIconButtonStyle,
-})(Button)
-
 const SelectButtonGroup = ({ setSelectShape }) => {
   return (
-    <ButtonGroup orientation='horizontal'>
-      <StyledButtonSelect
-        startIcon={ <AddCircleOutlineOutlined />}
-        size='small'
-        type='secondary'
-        color='primary'
-        onClick={() => setSelectShape('circle')}
-      />
-      <StyledButtonSelect
-        startIcon={<AddBoxOutlined />}
-        size='small'
-        type='secondary'
-        color='primary'
-        onClick={() => setSelectShape('rectangle')}
-      />
-      <StyledButtonSelect
-        startIcon={<AddOutlined />}
-        size='small'
-        type='secondary'
-        color='primary'
-        onClick={() => setSelectShape('polygon')}
-      />
+    <ButtonGroup variant='outlined' size='md'>
+      <Button
+        id='select-circle'
+        onClick={ () => setSelectShape('circle') }
+      >
+        <Icons.AddCircle size='md' />
+      </Button>
+      <Button
+        id='select-rectangle'
+        onClick={ () => setSelectShape('rectangle') }
+      >
+        <Icons.AddSquare size='md' />
+      </Button>
+      <Button
+        id='select-polygon'
+        onClick={ () => setSelectShape('polygon') }
+      >
+        <Icons.Add size='md' />
+      </Button>
     </ButtonGroup>
   )
 }
@@ -86,7 +65,8 @@ const dataConfig = [
   { id: 'xwiReport-123', data: xwiReportData },
   { id: 'wiReportData-123', data: wiReportData },
   { id: 'poiGeojson-123', data: poiRadiiTo },
-  { id: 'mvt-123',
+  {
+    id: 'mvt-123',
     data: {
       tileGeom: 'https://mapsource.locus.place/maps/ct/{z}/{x}/{y}.vector.pbf?',
       tileData: mvtData,
@@ -238,7 +218,7 @@ const MVTLayerConfig = {
   visualizations: {
     fill: {
       value: { field: 'value' },
-      valueOptions: [[ 247, 254, 236], [10, 97, 11]],
+      valueOptions: [[247, 254, 236], [10, 97, 11]],
       dataScale: 'linear',
     },
     // value key here helps the property of an MVT polygon with no data to be set transparent
@@ -272,7 +252,7 @@ const GeoJSONMVTConfig = {
   visualizations: {
     fill: {
       value: { field: 'value' },
-      valueOptions: [[ 173, 214, 250], [ 24, 66, 153]],
+      valueOptions: [[173, 214, 250], [24, 66, 153]],
       dataScale: 'linear',
     },
     elevation: {
@@ -358,8 +338,8 @@ export const SelectDataLayer = () => {
 
   return (
     <div>
-      <p style={{ color: 'red' }}>FIRST: choose shape to select data!</p>
-      <SelectButtonGroup setSelectShape={setSelectShape} />
+      <p style={ { color: 'red' } }>FIRST: choose shape to select data!</p>
+      <SelectButtonGroup setSelectShape={ setSelectShape } />
       <LocusMap { ...selectArgs } />
     </div>
   )
@@ -395,7 +375,8 @@ const noDataConfig = [
   { id: 'xwiReport-123', data: [] },
   { id: 'wiReportData-123', data: [] },
   { id: 'poiGeojson-123', data: [] },
-  { id: 'mvt-123',
+  {
+    id: 'mvt-123',
     data: {
       tileGeom: 'https://mapsource-dev.locus.place/maps/ct/{z}/{x}/{y}.vector.pbf?',
       tileData: [],
