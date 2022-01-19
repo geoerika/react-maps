@@ -52,7 +52,8 @@
     "react-map-gl": "^6.1.17",
     "react-map-gl-geocoder": "^2.2.0",
     "react-query": "^2.12.1",
-    "supercluster": "^7.1.4"
+    "supercluster": "^7.1.4",
+    "use-debounce": "^7.0.1"
   },
   "peerDependencies": {
     "@eqworks/lumen-labs": "^0.1.0-alpha.24",
