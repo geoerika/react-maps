@@ -19,6 +19,8 @@ import { WebMercatorViewport } from '@deck.gl/core'
 import { SwitchRect } from '@eqworks/lumen-labs'
 import { styled, setup } from 'goober'
 
+import { useDebounce } from 'use-debounce'
+
 import DrawButtonGroup from './draw-button-group'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
@@ -142,6 +144,7 @@ const POIMap = ({
   const [viewportBBOX, setViewportBBOX] = useState()
   const [showRadius, setShowRadius] = useState(false)
   const [showClusters, setShowClusters] = useState(false)
+  const [debouncedShowClusters] = useDebounce(showClusters, 5)
   const [clusterZoom, setClusterZoom] = useState(false)
   // used to block reset of view state when we transition from the cluster to the icon layer
   const [layerVisibleData, setLayerVisibleData] = useState()
@@ -511,7 +514,7 @@ const POIMap = ({
         <SwitchContainerCluster>
           <SwitchRect
             id='switch-cluster'
-            checked={showClusters}
+            checked={debouncedShowClusters}
             onChange={() => {
               if (!showClusters) {
                 setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
