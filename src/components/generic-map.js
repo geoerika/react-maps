@@ -52,7 +52,7 @@ const Map = ({
   controller,
   mapboxApiAccessToken,
 }) => {
-  const [mapViewState, setMapViewState] = useState({ ...(initViewState || INIT_VIEW_STATE), pitch })
+  const [mapViewState, setMapViewState] = useState({ ...INIT_VIEW_STATE, ...initViewState, pitch })
   const [hoverInfo, setHoverInfo] = useState({})
 
   useEffect(() => {
