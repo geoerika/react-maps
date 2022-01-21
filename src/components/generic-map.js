@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useLayoutEffect, useEffect } from 'react'
+import React, { useState, useCallback, useLayoutEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -55,19 +55,13 @@ const Map = ({
   const [mapViewState, setMapViewState] = useState({ ...INIT_VIEW_STATE, ...initViewState, pitch })
   const [hoverInfo, setHoverInfo] = useState({})
 
-  useEffect(() => {
-    setMapViewState(o => ({
-      ...o,
-      pitch,
-    }))
-  }, [pitch])
-
   useLayoutEffect(() => {
     setMapViewState(o => ({
       ...o,
       ...viewStateOverride,
+      pitch,
     }))
-  }, [viewStateOverride])
+  }, [pitch, viewStateOverride])
 
   /**
    * finalOnHover - React hook that handles the onHover event for deck.gl map
@@ -94,7 +88,7 @@ const Map = ({
         onViewStateChange={o => {
           const { viewState, interactionState } = o
           const{ isDragging, inTransition, isZooming, isPanning, isRotating } = interactionState
-          setMapViewState(() => ({ ...viewState, pitch }))
+          setMapViewState(o => ({ ...o, ...viewState }))
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
           // send zoom and viewState to parent comp
