@@ -62,17 +62,20 @@ const QLReportMap = ({
   const [viewStateOverride, setViewOverride] = useState({})
   const [highlightId, setHighlightId] = useState(0)
   const [{ height, width }, setDimensions] = useState({})
+  // limits viewport adjusting by data to one time only, the first time when map loads with data
+  const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
 
   useEffect(() => {
-    if (width && height) {
+    if (width && height && reportData?.length && !viewportAdjustedByData) {
       // recenter based on data
       const dataView = setView({ data: reportData, width, height })
       setViewOverride(o => ({
         ...o,
         ...dataView,
       }))
+      setViewportAdjustedByData(true)
     }
-  }, [reportData, height, width])
+  }, [reportData, height, width, viewportAdjustedByData])
 
   /**
    * finalOnClick - React hook that handles layer's onClick events

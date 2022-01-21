@@ -11,6 +11,7 @@ import poiRadiiTo from './data/pois-radii-to.json'
 import wiReportData from './data/wi-report.json'
 import xwiReportData from './data/xwi-report.json'
 import mvtData from './data/locus-map-mvt.json'
+import fsaGeojsonData from './data/locus-map-fsa.json'
 
 
 const SelectButtonGroup = ({ setSelectShape }) => {
@@ -70,6 +71,13 @@ const dataConfig = [
     data: {
       tileGeom: 'https://mapsource.locus.place/maps/ct/{z}/{x}/{y}.vector.pbf?',
       tileData: mvtData,
+    },
+  },
+  {
+    id: 'fsa-geojson-123',
+    data: {
+      tileGeom: 'https://mapsource.locus.place/maps/fsa/{z}/{x}/{y}.vector.pbf?',
+      tileData: fsaGeojsonData,
     },
   },
   { id: 'select-123', data: [] },
@@ -265,7 +273,6 @@ const GeoJSONMVTConfig = {
     tooltip: {
       tooltipKeys: {
         name: 'geo_id',
-        metricKeys: ['value'],
         metricAccessor: d => d.properties,
       },
     },
@@ -274,7 +281,38 @@ const GeoJSONMVTConfig = {
   legend: { showLegend: true },
 }
 
-const Template = (args) => <LocusMap {...args} />
+const GeoJSONfsaMVTConfig = {
+  layer: 'geojson',
+  dataId: 'fsa-geojson-123',
+  dataPropertyAccessor: d => d.properties,
+  geometry: { geoKey: 'geo_ca_fsa' },
+  visualizations: {
+    fill: {
+      value: { field: 'visits' },
+      valueOptions: [[173, 214, 250], [24, 66, 153]],
+      dataScale: 'linear',
+    },
+    elevation: {
+      value: { field: 'unique_visitors' },
+      valueOptions: [0, 1000],
+      dataScale: 'linear',
+    },
+  },
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        name: 'geo_ca_fsa',
+        metricKeys: ['visits', 'unique_visitors'],
+        metricAccessor: d => d.properties,
+      },
+    },
+  },
+  visible: false,
+  opacity: 0.1,
+  legend: { showLegend: true },
+}
+
+const Template = (args) => <LocusMap { ...args } />
 
 const geojsonArgs = {
   layerConfig: [GeoJSONLayerConfig],
@@ -302,11 +340,12 @@ export const XWIReportLayers = Template.bind({})
 XWIReportLayers.args = xwiReportArgs
 XWIReportLayers.storyName = 'Arc & Scatterplot Layers for XWI Reports'
 
-const initViewState = {
+let initViewState = {
   latitude: 43.41,
   longitude: -79.23,
   zoom: 8.6,
 }
+
 const MVTLayerArgs = {
   layerConfig: [MVTLayerConfig],
   dataConfig,
@@ -326,6 +365,22 @@ const GeoJSONMVTArgs = {
 export const GeoJSONMVTLayer = Template.bind({})
 GeoJSONMVTLayer.args = GeoJSONMVTArgs
 GeoJSONMVTLayer.storyName = 'GeoJSON polygon Layer with MVT tile geometry data'
+
+initViewState = {
+  latitude: 44.41,
+  longitude: -79.23,
+  zoom: 7,
+}
+
+const GeoJSONfsaMVTArgs = {
+  layerConfig: [GeoJSONfsaMVTConfig],
+  dataConfig,
+  mapConfig: { ...mapConfig, initViewState, pitch: 45 },
+}
+
+export const GeoJSONfsaMVTLayer = Template.bind({})
+GeoJSONfsaMVTLayer.args = GeoJSONfsaMVTArgs
+GeoJSONfsaMVTLayer.storyName = 'GeoJSON FSA polygon Layer with MVT tile geometry data'
 
 export const SelectDataLayer = () => {
   const [selectShape, setSelectShape] = useState('circle')
@@ -379,6 +434,13 @@ const noDataConfig = [
     id: 'mvt-123',
     data: {
       tileGeom: 'https://mapsource-dev.locus.place/maps/ct/{z}/{x}/{y}.vector.pbf?',
+      tileData: [],
+    },
+  },
+  {
+    id: 'fsa-geojson-123',
+    data: {
+      tileGeom: 'https://mapsource.locus.place/maps/fsa/{z}/{x}/{y}.vector.pbf?',
       tileData: [],
     },
   },
