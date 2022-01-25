@@ -4,6 +4,7 @@ import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@n
 import { setFinalLayerDataProperty } from '../../shared/utils'
 import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS } from './constants'
 
+
 /**
  * parseDeckGLLayerFromConfig - sets up layer props & returns deck.gl layer
  * @param { object } param
@@ -20,6 +21,7 @@ export const parseDeckGLLayerFromConfig = ({
   geometry,
   visualizations,
   interactions,
+  setProcessingMapData,
   ...others
 }) => {
   const {
@@ -66,6 +68,13 @@ export const parseDeckGLLayerFromConfig = ({
   }
   if (layer === 'MVT') {
     geometryProps = { geoKey: mvtGeoKey, geometryAccessor }
+  }
+
+  // signals that MVT tiles are loaded and the Loader in LocusMap can be removed
+  const onViewportLoad = tiles => {
+    if (tiles?.length) {
+      setProcessingMapData(false)
+    }
   }
 
   // ====[TODO] correct fallback logic for the above. Should throw an error or prompt someone to choose
@@ -125,6 +134,7 @@ export const parseDeckGLLayerFromConfig = ({
           setSelectShape(updatedData.features)
         }
       },
+    onViewportLoad: layer === 'MVT' ? onViewportLoad : null,
     visible: Boolean(data?.length) || Boolean(data?.tileData?.length) || (layer === 'select'),
   })
 }
