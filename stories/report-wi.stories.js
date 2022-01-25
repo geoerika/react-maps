@@ -14,7 +14,7 @@ const jwt = window.localStorage.getItem('auth_jwt')
 const api = axios.create({
   baseURL: [
     process.env.API_HOST || process.env.STORYBOOK_API_HOST || 'http://localhost:3000',
-    process.env.API_STAGE || process.env.STORYBOOK_API_STAGE,
+    process.env.API_STAGE || process.env.STORYBOOK_API_STAGE || '',
   ].filter(v => v).join('/'),
   headers: { 'eq-api-jwt': jwt },
 })
