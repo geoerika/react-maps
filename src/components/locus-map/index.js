@@ -192,7 +192,7 @@ const LocusMap = ({
         getFillColor: [251, 201, 78],
         pickable: false,
         visible: true,
-        opacity: 0.3,
+        opacity: 0,
         showLegend: false,
         onViewportLoad,
       })

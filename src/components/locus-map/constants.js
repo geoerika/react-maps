@@ -103,6 +103,8 @@ export const LAYER_CONFIGURATIONS = {
     interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
     defaultProps: {
       // extent: null, //[minX, minY, maxX, maxY]
+      minZoom: 0,
+      maxZoom: 23,
       lineWidthUnits: 'pixels',
     },
   },
