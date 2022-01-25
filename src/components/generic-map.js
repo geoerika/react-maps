@@ -49,6 +49,7 @@ const Map = ({
   initViewState,
   setZoom,
   setCurrentViewport,
+  setProcessingMapData,
   controller,
   mapboxApiAccessToken,
 }) => {
@@ -103,6 +104,13 @@ const Map = ({
             setHighlightObj(null)
           }
         }}
+        onInteractionStateChange={(interactionState) => {
+          const{ isDragging, inTransition, isZooming, isPanning, isRotating } = interactionState
+          // when interaction with map ends, resets processingMapData state to show Loader component
+          if ([isDragging, isZooming, isPanning, isRotating, inTransition].every(action => action === false)) {
+            setProcessingMapData(true)
+          }
+        }}
         initialViewState={mapViewState}
         views={ MAP_VIEW }
         layers={layers}
@@ -143,6 +151,8 @@ Map.propTypes = {
   pitch: PropTypes.number,
   setZoom: PropTypes.func,
   setCurrentViewport: PropTypes.func,
+  onHover: PropTypes.func,
+  setProcessingMapData: PropTypes.func,
   controller: PropTypes.object,
   ...StaticMap.propTypes,
   ...commonProps,
@@ -163,6 +173,8 @@ Map.defaultProps = {
   setZoom: () => {},
   setCurrentViewport: () => {},
   controller: { controller: true },
+  onHover: () => {},
+  setProcessingMapData: () => {},
   ...StaticMap.defaultProps,
   ...commonDefaultProps,
 }
