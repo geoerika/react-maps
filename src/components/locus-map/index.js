@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import tUnion from '@turf/union'
 
-import { Loader } from '@eqworks/lumen-labs'
+import { Loader, getTailwindConfigColor } from '@eqworks/lumen-labs'
 import { styled, setup } from 'goober'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
@@ -19,8 +19,16 @@ import Legend from '../legend'
 setup(React.createElement)
 
 const LoaderWrapper = styled('div')`
-  margin: 0.5rem 1.5rem;
+  margin: 1rem;
   position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${getTailwindConfigColor('secondary-50')};
+  width: 2rem;
+  height: 2rem;
+  border-radius: 2rem;
+  opacity: 0.9;
 `
 
 const LocusMap = ({
@@ -408,7 +416,10 @@ const LocusMap = ({
       {legend}
       {processingMapData && !loaderTimeout &&
         <LoaderWrapper>
-          <Loader open classes={{ icon: 'text-primary-700' }} />
+          <Loader
+            open={processingMapData && !loaderTimeout}
+            classes={{ icon: 'text-primary-700' }}
+          />
         </LoaderWrapper>
       }
     </>
