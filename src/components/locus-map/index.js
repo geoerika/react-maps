@@ -4,6 +4,9 @@ import PropTypes from 'prop-types'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import tUnion from '@turf/union'
 
+import { Loader, getTailwindConfigColor } from '@eqworks/lumen-labs'
+import { styled, setup } from 'goober'
+
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import { useLegends } from './hooks'
 import { setView, parseDeckGLLayerFromConfig, getTooltipParams, getObjectMVTData } from './utils'
@@ -12,6 +15,21 @@ import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 import Legend from '../legend'
 
+
+setup(React.createElement)
+
+const LoaderWrapper = styled('div')`
+  margin: 1rem;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${getTailwindConfigColor('secondary-50')};
+  width: 2rem;
+  height: 2rem;
+  border-radius: 2rem;
+  opacity: 0.9;
+`
 
 const LocusMap = ({
   dataConfig,
@@ -27,6 +45,16 @@ const LocusMap = ({
   const [renderCycleMVT, setRenderCycleMVT] = useState(0)
   // limits viewport adjusting by data to one time only, the first time when map loads with data
   const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
+  const [processingMapData, setProcessingMapData] = useState(true)
+  const [loaderTimeout, setLoaderTimeout] = useState(false)
+
+  // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
+  useEffect(() => {
+    if (processingMapData) {
+      setTimeout(() => setLoaderTimeout(true), 10000)
+    }
+    setLoaderTimeout(false)
+  }, [processingMapData])
 
   // set controller for Map comp
   const controller = useMemo(() => {
@@ -65,6 +93,7 @@ const LocusMap = ({
               selectedFeatureIndexes,
               setSelectShape,
               id,
+              setProcessingMapData,
             })(data[dataIdMap[layer.dataId]]),
           },
         }
@@ -141,8 +170,10 @@ const LocusMap = ({
    * case when reading geometry from MVT layer to use in a GeoJSON layer:
    * get params of GeoJSON layer that uses MVT geom
    */
-  const { geoJSONMVTLayerData, geoJSONMVTDataId, geoJSONMVTGeoKey } = useMemo(() => {
+  const { geoJSONMVTLayerData, geoJSONMVTDataId, geoJSONMVTGeoKey, visbleMVTLayer } = useMemo(() => {
     const geoJSONLayers = layerConfig?.filter(layer => layer?.layer === 'geojson')
+    const visbleMVTLayer = layerConfig.some(layer => layer.layer === 'MVT' &&
+      (layer.visible === undefined || (layer.visible !== undefined && layer.visible)))
     const geomData = geoJSONLayers?.reduce((acc, layer) => {
       const geoJSONLayerTileData = dataConfig.find(layerData => layerData.id === layer.dataId)
       if (geoJSONLayerTileData?.data?.tileGeom) {
@@ -156,7 +187,7 @@ const LocusMap = ({
       }
       return acc
     }, {})
-    return geomData
+    return { ...geomData, visbleMVTLayer }
   }, [layerConfig, dataConfig])
 
   // create MVT layer to get all geometry for polygons in the viewport
@@ -230,6 +261,22 @@ const LocusMap = ({
       setFinalDataConfig(dataConfig)
     }
   }, [dataConfig, renderedFeatures, geoJSONMVTLayerData, geoJSONMVTGeoKey, geoJSONMVTDataId])
+
+  // set up condition for Loader render
+  useEffect(() => {
+    setProcessingMapData(true)
+    // finalDataConfig cannot tell us when an MVT layer finishes loading tiles on the map
+    if (finalDataConfig?.length && !visbleMVTLayer) {
+      if (geoJSONMVTLayerData?.tileData?.length) {
+        const finalGeoJSONMVTData = finalDataConfig.find(({ id }) => id === geoJSONMVTDataId)
+        if (finalGeoJSONMVTData?.data?.[0]?.properties) {
+          setProcessingMapData(false)
+        }
+      } else {
+        setProcessingMapData(false)
+      }
+    }
+  }, [layerConfig, dataConfig, geoJSONMVTLayerData, geoJSONMVTDataId, visbleMVTLayer, finalDataConfig, renderedFeatures])
 
   // set initial layers and their corresponding data
   useEffect(() => {
@@ -348,13 +395,33 @@ const LocusMap = ({
         }
         return null
       }}
+      setProcessingMapData={geoJSONMVTLayerData || visbleMVTLayer ?
+        setProcessingMapData :
+        () => {}
+      }
     />
-  ), [controller, finalDataConfig, mapConfig, layers, viewStateOverride ])
+  ), [
+    controller,
+    finalDataConfig,
+    mapConfig,
+    layers,
+    viewStateOverride,
+    geoJSONMVTLayerData,
+    visbleMVTLayer,
+  ])
 
   return (
     <>
       {locusMap}
       {legend}
+      {processingMapData && !loaderTimeout &&
+        <LoaderWrapper>
+          <Loader
+            open={processingMapData && !loaderTimeout}
+            classes={{ icon: 'text-primary-700' }}
+          />
+        </LoaderWrapper>
+      }
     </>
   )
 }
@@ -370,6 +437,8 @@ LocusMap.propTypes = {
     showMapLegend: PropTypes.bool,
     tooltipNode: PropTypes.node,
     showMapTooltip: PropTypes.bool,
+    initViewState: PropTypes.object,
+    pitch: PropTypes.number,
     mapboxApiAccessToken: PropTypes.string.isRequired,
     typography: PropTypes.object,
   }).isRequired,

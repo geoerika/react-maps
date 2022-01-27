@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types'
 
+import { getTailwindConfigColor } from '@eqworks/lumen-labs'
+
 export const commonProps = {
   mapboxApiAccessToken: PropTypes.string.isRequired,
 }
@@ -39,9 +41,9 @@ export const tooltipPropTypes = {
   tooltipProps: PropTypes.shape({
     backgroundColor: PropTypes.string.isRequired,
     boxShadow: PropTypes.string.isRequired,
-    border: PropTypes.string.isRequired,
     borderRadius: PropTypes.string.isRequired,
     padding: PropTypes.string.isRequired,
+    opacity: PropTypes.number.isRequired,
   }),
 }
 
@@ -56,11 +58,11 @@ export const tooltipDefaultProps = {
     metricAliases: {},
   },
   tooltipProps: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: getTailwindConfigColor('secondary-50'),
     boxShadow: '0 2px 8px 0 rgba(12, 12, 13, 0.15)',
-    border: '1px solid rgba(255, 255, 255)',
     borderRadius: '3px',
     padding: '8px',
+    opacity: 0.9,
   },  
 }
 

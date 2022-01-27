@@ -2,8 +2,11 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
-import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
+
+import { getTailwindConfigColor } from '@eqworks/lumen-labs'
 import { styled, setup } from 'goober'
+
+import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 
 import LegendItem from './legend-item'
 
@@ -16,10 +19,11 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   flexDirection: 'column',
   position: 'absolute',
   cursor: num_legends > 1 ? 'pointer' : 'default',
-  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  backgroundColor: getTailwindConfigColor('secondary-50'),
   padding: '0 .75rem .75rem',
   borderRadius: '0.2rem',
   marginBottom: '1.8rem',
+  opacity: 0.9,
   ...position,
 }))
 
