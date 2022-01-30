@@ -8,6 +8,7 @@ import tDistance from '@turf/distance'
 import { SCALES, CLUSTER_SIZE_SCALE } from '../../constants'
 import { color } from 'd3-color'
 import { extent } from 'd3-array'
+import Values from 'values.js'
 
 
 /**
@@ -238,6 +239,27 @@ export const setFinalLayerDataProperty = ({
 }
 
 /**
+ * getSchemeColorValues - generates colour for fill and stroke if the map is provided with only a
+ *                         base schemeColour value
+ * @param { string || Array } schemeColor - string or array format colour
+ * @returns { object  } - { newLineColor, newColorValue, newColorValueOptions } object of
+ *                        colour values for fill and line colour to be used by deck.gl layers
+ */
+export const getSchemeColorValues = (schemeColor) => {
+  const arraySchemeColor = Array.isArray(schemeColor) ?
+    schemeColor :
+    strToArrayColor({ strColor: schemeColor })
+  const color = new Values(Array.isArray(schemeColor) ?
+    arrayToRGBAStrColor({ color: schemeColor }) :
+    schemeColor)
+  return {
+    newLineColor: color.shade(50).rgb,
+    newColorValue: arraySchemeColor,
+    newColorValueOptions: [color.tint(90).rgb, arraySchemeColor],
+  }
+}
+
+/**
  * strToArrayColor - transforms a string format color ex.'#0062d9' into an array of rgb color values
  * @param { object } param
  * @param { string } param.strColor - string format color
@@ -260,15 +282,15 @@ export const getArrayFillColors = ({ fillColors }) =>
   })
 
 /**
-* getStrFillColor - converts an array format colour [r, g, b] in a string format colour
+* arrayToRGBAStrColor - converts an array format colour [r, g, b] in a string format colour
 * @param { object } param
-* @param { array || function } param.getFillColor - function or array of Deck.gl layer fill colours
+* @param { array || function } param.color - function or array of Deck.gl layer fill colours
 * @param { string } param.opacity - opacity value
 * @returns { array } - string format colour 'rgb(r, g, b, opacity)'
 */
-export const getStrFillColor = ({ fillColor, opacity = 1 }) => {
-  const color = typeof fillColor === 'function' ? fillColor(0)(1) : fillColor
-  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${opacity})`
+export const arrayToRGBAStrColor = ({ color, opacity = 1 }) => {
+  const finalColor = typeof color === 'function' ? color(0)(1) : color
+  return `rgba(${finalColor[0]}, ${finalColor[1]}, ${finalColor[2]}, ${opacity})`
 }
 
 /**
