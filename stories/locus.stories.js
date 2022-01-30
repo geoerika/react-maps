@@ -324,11 +324,31 @@ export const GeoJSONLayer = Template.bind({})
 GeoJSONLayer.args = geojsonArgs
 GeoJSONLayer.storyName = 'GeoJSON Layer for POIs - widget-size Legend'
 
+const geojsonSchemeColourArgs = {
+  layerConfig: [{ ...GeoJSONLayerConfig, schemeColor: '#167108' }],
+  dataConfig,
+  mapConfig,
+}
+
+export const GeoJSONLayerSchemeColour = Template.bind({})
+GeoJSONLayerSchemeColour.args = geojsonSchemeColourArgs
+GeoJSONLayerSchemeColour.storyName = 'GeoJSON Layer with string format scheme colour'
+
 const scatterplotArgs = { layerConfig: [WIReportLayerConfig], dataConfig, mapConfig }
 
 export const ScatterplotLayer = Template.bind({})
 ScatterplotLayer.args = scatterplotArgs
 ScatterplotLayer.storyName = 'Scatterplot Layer for WI & VWI reports'
+
+const scatterplotSchemeColourArgs = {
+  layerConfig: [{ ...WIReportLayerConfig, schemeColor: [97, 21, 143] }],
+  dataConfig,
+  mapConfig,
+}
+
+export const ScatterplotLayerSchemeColour = Template.bind({})
+ScatterplotLayerSchemeColour.args = scatterplotSchemeColourArgs
+ScatterplotLayerSchemeColour.storyName = 'Scatterplot Layer with array format scheme colour'
 
 const xwiReportArgs = {
   layerConfig: [arcLayerConfig, ScatterPlotLayer1Config, ScatterPlotLayer2Config],
