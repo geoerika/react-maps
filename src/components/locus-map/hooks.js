@@ -3,8 +3,10 @@ import { useMemo } from 'react'
 import {
   setLegendConfigs,
   getArrayGradientFillColors,
-  getStrFillColor,
+  arrayToRGBAStrColor,
+  strToArrayColor,
   setLegendOpacity,
+  getSchemeColorValues,
 } from '../../shared/utils'
 import { LAYER_CONFIGURATIONS, PROP_CONFIGURATIONS } from './constants'
 
@@ -32,10 +34,38 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
       const fillBasedOn = visualizations?.fill?.value?.field
       const radiusBasedOn = visualizations?.radius?.value?.field
       const elevationBasedOn = visualizations?.elevation?.value?.field
-      const symbolLineColor = getStrFillColor({
-        fillColor: visualizations?.lineColor || PROP_CONFIGURATIONS.lineColor.defaultValue,
+
+      const { schemeColor } = layer
+      // generate colours for stroke and fill from the base schemeColour
+      const {
+        newLineColor,
+        newColorValue,
+        newColorValueOptions,
+      } = schemeColor ? getSchemeColorValues(schemeColor) : {}
+
+      // set symbolLineColor param
+      let symbolLineColor = arrayToRGBAStrColor({
+        color: PROP_CONFIGURATIONS.lineColor.defaultValue,
         opacity: setLegendOpacity({ opacity }),
       })
+      if (visualizations?.lineColor?.value) {
+        const visLineColor = visualizations.lineColor.value.customValue ?
+          visualizations.lineColor.value.customValue :
+          visualizations.lineColor.value
+        symbolLineColor = arrayToRGBAStrColor({
+          color: Array.isArray(visLineColor) ?
+            visLineColor :
+            strToArrayColor({ strColor: visLineColor }),
+          opacity: setLegendOpacity({ opacity }),
+        })
+      }
+      if (newLineColor) {
+        symbolLineColor = arrayToRGBAStrColor({
+          color: newLineColor,
+          opacity: setLegendOpacity({ opacity }),
+        })
+      }
+
       /**
        * We convert an array of array-format colors, into an array of rgba string format colours so we
        * can use them in the Legend Gradient component
@@ -43,17 +73,41 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
        * There is visually a difference between the legend opacity for color gradient and map opacity,
        * we need to adjust opacity for symbols in the legend to have a closer match
        */
-      const fillColors = visualizations?.fill?.valueOptions ?
-        getArrayGradientFillColors({
+      let fillColors = null
+      if (visualizations?.fill?.valueOptions) {
+        fillColors = getArrayGradientFillColors({
           fillColors: visualizations.fill.valueOptions,
           opacity: setLegendOpacity({ opacity }),
-        }) : null
-      const objColor = getStrFillColor({
-        fillColor: Array.isArray(visualizations?.fill?.value) ?
-          visualizations.fill.value :
-          PROP_CONFIGURATIONS.fill.defaultValue,
+        })
+      }
+      if (newColorValueOptions) {
+        fillColors = getArrayGradientFillColors({
+          fillColors: newColorValueOptions,
+          opacity: setLegendOpacity({ opacity }),
+        })
+      }
+
+      // colour for map symbols when fill is not based on data
+      let objColor = arrayToRGBAStrColor({
+        color: PROP_CONFIGURATIONS.fill.defaultValue,
         opacity: setLegendOpacity({ opacity }),
       })
+      if (Array.isArray(visualizations?.fill?.value)) {
+        const colorVal = visualizations.fill.value
+        objColor = arrayToRGBAStrColor({
+          color: Array.isArray(colorVal) ?
+            colorVal :
+            strToArrayColor({ strColor: colorVal }),
+          opacity: setLegendOpacity({ opacity }),
+        })
+      }
+      if (newColorValue) {
+        objColor = arrayToRGBAStrColor({
+          color: newColorValue,
+          opacity: setLegendOpacity({ opacity }),
+        })
+      }
+
       const layerLegends = setLegendConfigs({
         data,
         dataPropertyAccessor,
