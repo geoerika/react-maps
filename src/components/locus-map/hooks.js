@@ -20,63 +20,57 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
     map[data.id] = data
     return map
   }, {})
-  const mapLegends = useMemo(() => {
-    let legends = []
-    layerConfig.forEach(layer => {
-      const { visualizations, opacity = 1, metricAliases, formatPropertyLabel, formatData } = layer
-      const showLegend = layer.legend?.showLegend
-      const formatLegendTitle = layer.legend?.formatLegendTitle
-      if (showLegend) {
-        let data = dataMap[layer.dataId]?.data || {}
-        data = data?.tileData ? data.tileData : data
-        const dataPropertyAccessor = layer.dataPropertyAccessor ||
-          LAYER_CONFIGURATIONS[layer.layer]?.dataPropertyAccessor || (d => d)
-        const fillBasedOn = visualizations?.fill?.value?.field
-        const radiusBasedOn = visualizations?.radius?.value?.field
-        const elevationBasedOn = visualizations?.elevation?.value?.field
-        const symbolLineColor = getStrFillColor({
-          fillColor: visualizations?.lineColor || PROP_CONFIGURATIONS.lineColor.defaultValue,
+  const mapLegends = useMemo(() => layerConfig.reduce((layerList, layer) => {
+    const { visualizations, opacity = 1, metricAliases, formatPropertyLabel, formatData } = layer
+    const showLegend = layer.legend?.showLegend
+    const formatLegendTitle = layer.legend?.formatLegendTitle
+    if (showLegend) {
+      let data = dataMap[layer.dataId]?.data || {}
+      data = data?.tileData ? data.tileData : data
+      const dataPropertyAccessor = layer.dataPropertyAccessor ||
+        LAYER_CONFIGURATIONS[layer.layer]?.dataPropertyAccessor || (d => d)
+      const fillBasedOn = visualizations?.fill?.value?.field
+      const radiusBasedOn = visualizations?.radius?.value?.field
+      const elevationBasedOn = visualizations?.elevation?.value?.field
+      const symbolLineColor = getStrFillColor({
+        fillColor: visualizations?.lineColor || PROP_CONFIGURATIONS.lineColor.defaultValue,
+        opacity: setLegendOpacity({ opacity }),
+      })
+      /**
+       * We convert an array of array-format colors, into an array of rgba string format colours so we
+       * can use them in the Legend Gradient component
+       *
+       * There is visually a difference between the legend opacity for color gradient and map opacity,
+       * we need to adjust opacity for symbols in the legend to have a closer match
+       */
+      const fillColors = visualizations?.fill?.valueOptions ?
+        getArrayGradientFillColors({
+          fillColors: visualizations.fill.valueOptions,
           opacity: setLegendOpacity({ opacity }),
-        })
-        /**
-         * We convert an array of array-format colors, into an array of rgba string format colours so we
-         * can use them in the Legend Gradient component
-         *
-         * There is visually a difference between the legend opacity for color gradient and map opacity,
-         * we need to adjust opacity for symbols in the legend to have a closer match
-         */
-        const fillColors = visualizations?.fill?.valueOptions ?
-          getArrayGradientFillColors({
-            fillColors: visualizations.fill.valueOptions,
-            opacity: setLegendOpacity({ opacity }),
-          }) : null
-        const objColor = Array.isArray(visualizations?.fill?.value) ?
-          getStrFillColor({
-            fillColor: visualizations.fill.value,
-            opacity: setLegendOpacity({ opacity }),
-          }) :
-          getStrFillColor({
-            fillColor: PROP_CONFIGURATIONS.fill.defaultValue,
-            opacity: setLegendOpacity({ opacity }),
-          })
-        const layerLegends = setLegendConfigs({
-          data,
-          dataPropertyAccessor,
-          elevationBasedOn,
-          fillBasedOn,
-          fillColors,
-          radiusBasedOn,
-          metricAliases,
-          formatLegendTitle,
-          formatPropertyLabel,
-          formatData,
-          symbolLineColor,
-          objColor,
-        })
-        legends = [...legends, ...layerLegends]
-      }
-    })
-    return legends
-  }, [layerConfig, dataMap])
+        }) : null
+      const objColor = getStrFillColor({
+        fillColor: Array.isArray(visualizations?.fill?.value) ?
+          visualizations.fill.value :
+          PROP_CONFIGURATIONS.fill.defaultValue,
+        opacity: setLegendOpacity({ opacity }),
+      })
+      const layerLegends = setLegendConfigs({
+        data,
+        dataPropertyAccessor,
+        elevationBasedOn,
+        fillBasedOn,
+        fillColors,
+        radiusBasedOn,
+        metricAliases,
+        formatLegendTitle,
+        formatPropertyLabel,
+        formatData,
+        symbolLineColor,
+        objColor,
+      })
+      layerList = [...layerList, ...layerLegends]
+    }
+    return layerList
+  }, []), [layerConfig, dataMap])
   return mapLegends
 }
