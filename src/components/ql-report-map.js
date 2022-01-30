@@ -19,7 +19,7 @@ import {
   setView,
   setFinalLayerDataProperty,
   getArrayFillColors,
-  getStrFillColor,
+  arrayToRGBAStrColor,
   getArrayGradientFillColors,
   setLegendOpacity,
 } from '../shared/utils'
@@ -207,7 +207,7 @@ const QLReportMap = ({
      */
     fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
     // convert array format color (used in deck.gl elevation fill) into str format color for legend
-    objColor: getStrFillColor({ fillColor: getFillColor, opacity: setLegendOpacity({ opacity }) }),
+    objColor: arrayToRGBAStrColor({ color: getFillColor, opacity: setLegendOpacity({ opacity }) }),
     data: reportData,
     dataPropertyAccessor,
     metricAliases: tooltipKeys.metricAliases,
@@ -215,7 +215,7 @@ const QLReportMap = ({
     formatPropertyLabel,
     formatData,
     symbolLineColor: (typeof getLineColor !== 'function') ?
-      getStrFillColor({ fillColor: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
+      arrayToRGBAStrColor({ color: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
       '',
   })
 
