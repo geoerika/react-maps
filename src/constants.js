@@ -32,3 +32,24 @@ export const LEGEND_TYPE = {
   elevation: 'elevation',
   gradient: 'gradient',
 }
+
+export const LEGEND_SIZE = {
+  small: {
+    label: 'sm',
+    width: 120,
+  },
+  large: {
+    label: 'lg',
+    width: 80,
+  },
+  zeroValues: {
+    width: 20,
+  },
+}
+
+export const LEGEND_SIZE_LABELS = Object.values(LEGEND_SIZE).reduce((agg, { label }) => {
+  agg = label ? [...agg, label] : agg
+  return agg
+}, [])
+
+export const LEGEND_POSITION = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
