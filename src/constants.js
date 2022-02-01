@@ -26,3 +26,9 @@ export const SCALES = {
 
 export const CLUSTER_SIZE_SCALE = 40
 export const SUPERCLUSTER_ZOOM = 20
+
+export const LEGEND_TYPE = {
+  size: 'size',
+  elevation: 'elevation',
+  gradient: 'gradient',
+}
