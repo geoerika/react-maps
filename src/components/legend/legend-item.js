@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
-import { LEGEND_TYPE } from '../../constants'
+import { LEGEND_TYPE, LEGEND_SIZE } from '../../constants'
 
 
 setup(React.createElement)
@@ -17,7 +17,7 @@ const LegendTitle = styled('div')`
   margin: 0 auto 10px auto;
   text-align: center;
   fontWeight: 700;
-  max-width: ${({ legendelemwidth }) => legendelemwidth};
+  max-width: ${({ legendelemwidth }) => legendelemwidth}px;
   overflow-wrap: anywhere;
 `
 
@@ -45,7 +45,7 @@ const LegendTextMax = styled('div', forwardRef)`
 `
 
 const LegendSymbolContainer = styled('div')`
-  width: ${({ max, legendelemwidth }) => max ? legendelemwidth : '20px'};
+  width: ${({ max, legendelemwidth }) => max ? legendelemwidth : 20}px;
   margin-left: ${({ symbolcontainerleftmargin }) => symbolcontainerleftmargin}px;
 `
 
@@ -62,7 +62,7 @@ const LegendItem = ({ legendItemProps }) => {
     legendSize,
     ...symbolProps
   } = legendItemProps
-  const legendElemWidth = legendSize === 'full' ? '120px' : '80px'
+  const legendElemWidth = legendSize === LEGEND_SIZE.large.label ? 120 : 80
 
   const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
   const [minValue, maxValue] = formatData?.[label] ?
@@ -78,7 +78,7 @@ const LegendItem = ({ legendItemProps }) => {
    * text container width for gradient and elevation legends, where value labels centres align with
    * the edges of the legend symbol container
    */
-  let textContainerWidth = textMinWidth / 2 + textMaxWidth / 2 + (legendSize === 'full' ? 120 : 80)
+  let textContainerWidth = textMinWidth / 2 + textMaxWidth / 2 + legendElemWidth
 
   // for radius symbols, the width is different, we position text centred with the margin symbols
   let symbolContainerLeftMargin = 0

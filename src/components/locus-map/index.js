@@ -14,6 +14,7 @@ import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 import Legend from '../legend'
+import { LEGEND_SIZE_LABELS, LEGEND_POSITION } from '../../constants'
 
 
 setup(React.createElement)
@@ -431,8 +432,8 @@ LocusMap.propTypes = {
   layerConfig: PropTypes.array.isRequired,
   mapConfig: PropTypes.shape({
     cursor: PropTypes.func,
-    legendPosition: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
-    legendSize: PropTypes.oneOf(['full', 'widget']),
+    legendPosition: PropTypes.oneOf([...LEGEND_POSITION]),
+    legendSize: PropTypes.oneOf([...LEGEND_SIZE_LABELS]),
     legendNode: PropTypes.node,
     showMapLegend: PropTypes.bool,
     tooltipNode: PropTypes.node,

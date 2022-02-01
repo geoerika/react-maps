@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
+import { LEGEND_SIZE } from '../../constants'
+
 
 setup(React.createElement)
 
@@ -60,11 +62,11 @@ const LegendSymbol = ({ symbolProps }) => {
     return (
       <Size max={max}>
         <HeightWrapper pos={'left'}>
-          <Height width={legendSize === 'full' ? 21 : 16} color={!max ? minColor : maxColor} />
+          <Height width={legendSize === LEGEND_SIZE.large.label ? 21 : 16} color={!max ? minColor : maxColor} />
         </HeightWrapper>
         {max > 0 &&
           <HeightWrapper>
-            <Height width={legendSize === 'full' ? 84 : 50} color={maxColor} />
+            <Height width={legendSize === LEGEND_SIZE.large.label ? 84 : 50} color={maxColor} />
           </HeightWrapper>
         }
       </Size>
@@ -78,7 +80,7 @@ const LegendSymbol = ({ symbolProps }) => {
     return (
       <Size max={max}>
         {max > 0 ?
-          new Array(legendSize === 'full' ? dots : 4).fill(0).map((_, i) => (
+          new Array(legendSize === LEGEND_SIZE.large.label ? dots : 4).fill(0).map((_, i) => (
             <Circle
               key={i}
               size={(i + .75) * size + size}
