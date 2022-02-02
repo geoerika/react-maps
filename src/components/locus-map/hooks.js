@@ -17,7 +17,7 @@ import { LAYER_CONFIGURATIONS, PROP_CONFIGURATIONS } from './constants'
  * @param { object } param.layerConfig - layer configuration object for map
  * @returns { array } - array of legend config objects for all map layers
  */
-export const useLegends = ({ dataConfig, layerConfig }) => {
+export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
   const dataMap = dataConfig.reduce((map, data) => {
     map[data.id] = data
     return map
@@ -121,10 +121,11 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
         formatData,
         symbolLineColor,
         objColor,
+        legendSize,
       })
       layerList = [...layerList, ...layerLegends]
     }
     return layerList
-  }, []), [layerConfig, dataMap])
+  }, []), [layerConfig, dataMap, legendSize])
   return mapLegends
 }

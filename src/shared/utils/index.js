@@ -5,7 +5,13 @@ import { point } from '@turf/helpers'
 import tCentroid from '@turf/centroid'
 import tBBox from '@turf/bbox'
 import tDistance from '@turf/distance'
-import { SCALES, CLUSTER_SIZE_SCALE } from '../../constants'
+import {
+  SCALES,
+  CLUSTER_SIZE_SCALE,
+  LEGEND_SIZE,
+  LEGEND_DOTS,
+  LEGEND_RADIUS_SIZE,
+} from '../../constants'
 import { color } from 'd3-color'
 import { extent } from 'd3-array'
 import Values from 'values.js'
@@ -351,6 +357,7 @@ export const setLegendConfigs = ({
   radiusBasedOn = '',
   data = [],
   dataPropertyAccessor = d => d,
+  legendSize = LEGEND_SIZE.large.label,
   ...legendProps
 }) => {
   const [minColor, maxColor] = fillColors && typeof fillColors === 'string' ?
@@ -392,9 +399,9 @@ export const setLegendConfigs = ({
       minColor,
       maxColor,
       type: 'size',
-      dots: 5,
-      size: 5,
-      zeroRadiusSize: 20,
+      dots: LEGEND_DOTS[legendSize],
+      size: LEGEND_RADIUS_SIZE.default,
+      zeroRadiusSize: LEGEND_RADIUS_SIZE.zero,
       min: dataRange[0],
       max: dataRange[1],
       label: radiusBasedOn,

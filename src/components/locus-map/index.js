@@ -336,7 +336,7 @@ const LocusMap = ({
   }, [layerConfig, selectShape])
 
   // get all config data for all layer legends
-  const legends = useLegends({ dataConfig: finalDataConfig, layerConfig })
+  const legends = useLegends({ dataConfig: finalDataConfig, layerConfig, legendSize: mapConfig?.legendSize })
 
   // set legend element
   const legend = useMemo(() => {
