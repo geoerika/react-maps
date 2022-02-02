@@ -52,7 +52,7 @@ const LocusMap = ({
   // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
   useEffect(() => {
     if (processingMapData) {
-      setTimeout(() => setLoaderTimeout(true), 10000)
+      setTimeout(() => setLoaderTimeout(true), 20000)
     }
     setLoaderTimeout(false)
   }, [processingMapData])
