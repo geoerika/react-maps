@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
-import { LEGEND_SIZE } from '../../constants'
+import { LEGEND_SIZE, LEGEND_DOTS, LEGEND_RADIUS_SIZE } from '../../constants'
 
 
 setup(React.createElement)
@@ -146,8 +146,8 @@ LegendSymbol.defaultProps = {
     max: undefined,
     minColor: 'rgb(0,0,0)',
     maxColor: 'rgb(255,0,0)',
-    dots: 5,
-    size: 5,
+    dots: LEGEND_DOTS.lg,
+    size: LEGEND_RADIUS_SIZE.default,
     zeroRadiusSize: 20,
     symbolLineColor: 'rgb(0,0,0)',
   },

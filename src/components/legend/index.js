@@ -67,7 +67,7 @@ Legend.propTypes = {
 
 Legend.defaultProps = {
   legendPosition: 'top-right',
-  legendSize: LEGEND_SIZE.large,
+  legendSize: LEGEND_SIZE.large.label,
   ...typographyDefaultProps,
 }
 
