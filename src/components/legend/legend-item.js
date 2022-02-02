@@ -68,7 +68,9 @@ const LegendItem = ({ legendItemProps }) => {
     ...symbolProps
   } = legendItemProps
 
-  const legendElemWidth = max ? LEGEND_SYMBOL_WIDTH[legendSize] : LEGEND_SYMBOL_WIDTH.zero
+  const legendElemWidth = min !== max && max > 0 ?
+    LEGEND_SYMBOL_WIDTH[legendSize] :
+    LEGEND_SYMBOL_WIDTH.zero
   const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
   const [minValue, maxValue] = formatData?.[label] ?
     [formatData[label](min), formatData[label](max)] :
@@ -85,25 +87,26 @@ const LegendItem = ({ legendItemProps }) => {
    * text container width for gradient and elevation legends, where value labels centres align with
    * the edges of the legend symbol container
    */
-  let textContainerWidth = textMinWidth &&  textMaxWidth ?
+  let textContainerWidth = min !== max && max > 0 && textMinWidth && textMaxWidth ?
     textMinWidth / 2 + textMaxWidth / 2 + legendElemWidth :
-    legendElemWidth
+    textMinWidth || 0
 
   // for radius symbols, the width is different, we position text centred with the margin symbols
   let symbolContainerLeftMargin = 0
   let textContainerLeftMargin = 0
 
-  if (textMinWidth && type !== LEGEND_TYPE.size) {
+  // don't adjust margins when we have no data variance
+  if (min !== max && max > 0 && textMinWidth && type !== LEGEND_TYPE.size) {
     symbolContainerLeftMargin = textMinWidth / 2
   }
 
-  if (textMinWidth && type === LEGEND_TYPE.size) {
+  if (min !== max && max > 0 && textMinWidth && type === LEGEND_TYPE.size) {
     const { dots, size } = symbolProps
     // for radius (size) width is samller, as the value labels align with the centers of the edge circles
     textContainerWidth = !isNaN(size) && size && !isNaN(dots) && dots ?
       textContainerWidth - (2.5 + dots) * size / 2 : // half of each circle size
       textContainerWidth
-    const smallSymbolRadius = !isNaN(size) && size ? .75 * size / 2 : 0
+    const smallSymbolRadius = !isNaN(size) && size ? 1.75 * size / 2 : 0
     if (smallSymbolRadius <= textMinWidth / 2) {
       symbolContainerLeftMargin = textMinWidth / 2 - smallSymbolRadius
     } else {
