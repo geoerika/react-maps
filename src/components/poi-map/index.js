@@ -48,33 +48,33 @@ const MapWrapper = styled('div')``
 
 const SwitchContainerCluster = styled('div')`
   position: absolute;
-  margin: 10px;
+  margin: 0.625rem;
   z-index: 1;
   background-color: rgb(254, 254, 254);
   border-radius: 0.125rem;
-  padding: 5px 7px 5px 7px;
+  padding: 0.315rem 0.45rem;
   font-size: 0.875rem;
 `
 
 const SwitchContainerRadius = styled('div')`
   position: absolute;
-  margin: 10px;
-  margin-top: ${props => props.clusterswitch ? 50 : 10}px;
+  margin: 0.625rem;
+  margin-top: ${props => props.clusterswitch ? 3.125 : 0.625}rem;
   z-index: 1;
   background-color: rgb(254, 254, 254);
   border-radius: 0.125rem;
-  padding: 5px 7px 5px 7px;
+  padding: 0.315rem 0.45rem;
   font-size: 0.875rem;
 `
 
 const DrawButtonContainer = styled('div')`
   position: absolute;
-  right: 15px;
+  right: 1rem;
   z-index: 1;
 `
 
 const MapContainer = styled('div', forwardRef)`
-  padding: 15px;
+  padding: 1rem;
   width: 100%;
   height: 100%;
   position: absolute;

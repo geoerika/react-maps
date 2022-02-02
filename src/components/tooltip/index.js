@@ -19,8 +19,8 @@ const TooltipWrapper = styled('div')(({ info, typography, tooltipstyle }) => ({
   position: 'absolute',
   zIndex: 1,
   pointerEvents: 'none',
-  left: `calc(${info.x}px + 10px)`,
-  top: `calc(${info.y}px + 10px)`,
+  left: `calc(${info.x}px + 0.7rem)`,
+  top: `calc(${info.y}px + 0.7rem)`,
 }))
 
 // Tooltip component - general tooltip for maps

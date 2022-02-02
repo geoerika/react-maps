@@ -399,6 +399,7 @@ export const setLegendConfigs = ({
       minColor,
       maxColor,
       type: 'size',
+      // TO DO - use to customize legend symbol for radius/size
       dots: LEGEND_DOTS[legendSize],
       size: LEGEND_RADIUS_SIZE.default,
       zeroRadiusSize: LEGEND_RADIUS_SIZE.zero,

@@ -10,21 +10,21 @@ setup(React.createElement)
 
 const LegendBody = styled('div')`
   align-items: center;
-  margin-top: .75rem;
+  margin-top: 0.75rem;
 `
 
 const LegendTitle = styled('div')`
-  margin: 0 auto 10px auto;
+  margin: 0 auto 0.625rem auto;
   text-align: center;
   fontWeight: 700;
-  max-width: ${({ legendelemwidth }) => legendelemwidth}px;
+  max-width: ${({ legendelemwidth }) => legendelemwidth}rem;
   overflow-wrap: anywhere;
 `
 
 const LegendElements = styled('div')`
   display: flex;
   flex-direction: column;
-  margin-left: ${({ legendelementsleftmargin }) => legendelementsleftmargin}px;
+  margin-left: ${({ legendelementsleftmargin }) => legendelementsleftmargin}rem;
   ${({ max }) => max ? '' : 'align-items: center'};
 `
 
@@ -32,9 +32,9 @@ const LegendTextContainer = styled('div')`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: ${({ textcontainerwidth }) => textcontainerwidth}px;
-  margin-left: ${({ textcontainerleftmargin }) => textcontainerleftmargin}px;
-  margin-top: 5px;
+  width: ${({ textcontainerwidth }) => textcontainerwidth}rem;
+  margin-left: ${({ textcontainerleftmargin }) => textcontainerleftmargin}rem;
+  margin-top: 0.325rem;
 `
 
 const LegendTextMin = styled('div', forwardRef)`
@@ -46,8 +46,8 @@ const LegendTextMax = styled('div', forwardRef)`
 `
 
 const LegendSymbolContainer = styled('div')`
-  width: ${({ legendelemwidth }) => legendelemwidth}px;
-  margin-left: ${({ symbolcontainerleftmargin }) => symbolcontainerleftmargin}px;
+  width: ${({ legendelemwidth }) => legendelemwidth}rem;
+  margin-left: ${({ symbolcontainerleftmargin }) => symbolcontainerleftmargin}rem;
 `
 
 const LegendItem = ({ legendItemProps }) => {
@@ -74,10 +74,12 @@ const LegendItem = ({ legendItemProps }) => {
     [formatData[label](min), formatData[label](max)] :
     [min, max]
 
+  const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2)
+
   const textMin = useRef(null)
   const textMax = useRef(null)
-  const textMinWidth = textMin.current?.getBoundingClientRect()?.width
-  const textMaxWidth = textMax.current?.getBoundingClientRect()?.width
+  const textMinWidth = textMin.current?.getBoundingClientRect()?.width / fontSize
+  const textMaxWidth = textMax.current?.getBoundingClientRect()?.width / fontSize
 
   /*
    * text container width for gradient and elevation legends, where value labels centres align with

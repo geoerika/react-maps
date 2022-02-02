@@ -21,8 +21,9 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   cursor: num_legends > 1 ? 'pointer' : 'default',
   backgroundColor: getTailwindConfigColor('secondary-50'),
   padding: '0 .75rem .75rem',
-  borderRadius: '0.2rem',
-  marginBottom: '1.8rem',
+  borderRadius: '0.15rem',
+  marginBottom: '1.5rem',
+  boxShadow: '0 0.125rem 0.5rem 0 rgba(12, 12, 13, 0.15)',
   opacity: 0.9,
   ...position,
 }))
@@ -46,7 +47,7 @@ const Legend = ({
         num_legends={legends.length}
         // onClick={handleLegendChange}
         position={objPosition}
-        typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '10px' }}
+        typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
       >
         {legends.map(({ type, ...legendProps }) => (
           <LegendItem

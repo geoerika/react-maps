@@ -45,12 +45,23 @@ export const LEGEND_DOTS = {
   sm: 4,
 }
 export const LEGEND_RADIUS_SIZE = {
-  default: 5,
-  zero: 20,
+  default: 0.325,
+  zero: 1.25,
 }
 
 export const  LEGEND_SYMBOL_WIDTH = {
-  lg: 120,
-  sm: 80,
-  zero: 20,
+  lg: 7.5,
+  sm: 5,
+  zero: 1.25,
+}
+
+export const LEGEND_HEIGHT = {
+  left: {
+    lg: 1.325,
+    sm: 1,
+  },
+  right: {
+    lg: 5.25,
+    sm: 3.125,
+  },
 }

@@ -3,13 +3,13 @@ import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
-import { LEGEND_SIZE, LEGEND_DOTS, LEGEND_RADIUS_SIZE } from '../../constants'
+import { LEGEND_DOTS, LEGEND_RADIUS_SIZE, LEGEND_HEIGHT } from '../../constants'
 
 
 setup(React.createElement)
 
 const Gradient = styled('div')`
-  height: 15px;
+  height: 1rem;
   margin: auto;
   background-image: linear-gradient(${({ mincolor, maxcolor }) => `to right, ${mincolor}, ${maxcolor}`});
 `
@@ -23,26 +23,26 @@ const Size = styled('div')`
 
 const Circle = styled('div')`
   box-sizing: border-box;
-  width: ${({ size }) => `${size}px`};
-  height: ${({ size }) => `${size}px`};
-  border: 1px solid ${({ linecolor }) => linecolor};
-  border-radius: ${({ size }) => `${size / 2}px`};
+  width: ${({ size }) => `${size}rem`};
+  height: ${({ size }) => `${size}rem`};
+  border: 0.065rem solid ${({ linecolor }) => linecolor};
+  border-radius: ${({ size }) => `${size / 2}rem`};
   background-color: ${({ color }) => color};
 `
 
 const HeightWrapper = styled('div')`
-  border-left: ${({ pos }) => pos ? '1px solid black' : ''};
-  border-right: ${({ pos }) => pos ? '' : '1px solid black'};
-  height: 15px;
+  border-left: ${({ pos }) => pos ? '0.065rem solid black' : ''};
+  border-right: ${({ pos }) => pos ? '' : '0.065rem solid black'};
+  height: 1rem;
   display: flex;
   align-items: center;
 `
 
 const Height = styled('div')`
-  width: ${({ width }) => width}px;
-  height: 7px;
-  border-bottom: 1px solid black;
-  border-top: 1px solid black;
+  width: ${({ width }) => width}rem;
+  height: 0.5rem;
+  border-bottom: 0.065rem solid black;
+  border-top: 0.065rem solid black;
   background-color: ${({ color }) => color};
 `
 
@@ -62,11 +62,11 @@ const LegendSymbol = ({ symbolProps }) => {
     return (
       <Size max={max}>
         <HeightWrapper pos={'left'}>
-          <Height width={legendSize === LEGEND_SIZE.large ? 21 : 16} color={!max ? minColor : maxColor} />
+          <Height width={LEGEND_HEIGHT.left[legendSize]} color={!max ? minColor : maxColor} />
         </HeightWrapper>
         {max > 0 &&
           <HeightWrapper>
-            <Height width={legendSize === LEGEND_SIZE.large ? 84 : 50} color={maxColor} />
+            <Height width={LEGEND_HEIGHT.right[legendSize]} color={maxColor} />
           </HeightWrapper>
         }
       </Size>
@@ -80,7 +80,7 @@ const LegendSymbol = ({ symbolProps }) => {
     return (
       <Size max={max}>
         {max > 0 ?
-          new Array(legendSize === LEGEND_SIZE.large ? dots : 4).fill(0).map((_, i) => (
+          new Array(dots ? dots: LEGEND_DOTS[legendSize]).fill(0).map((_, i) => (
             <Circle
               key={i}
               size={(i + .75) * size + size}
@@ -148,7 +148,7 @@ LegendSymbol.defaultProps = {
     maxColor: 'rgb(255,0,0)',
     dots: LEGEND_DOTS.lg,
     size: LEGEND_RADIUS_SIZE.default,
-    zeroRadiusSize: 20,
+    zeroRadiusSize: LEGEND_RADIUS_SIZE.zero,
     symbolLineColor: 'rgb(0,0,0)',
   },
 }
