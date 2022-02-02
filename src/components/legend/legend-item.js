@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
-import { LEGEND_TYPE, LEGEND_SIZE } from '../../constants'
+import { LEGEND_TYPE, LEGEND_SYMBOL_WIDTH } from '../../constants'
 
 
 setup(React.createElement)
@@ -24,6 +24,7 @@ const LegendTitle = styled('div')`
 const LegendElements = styled('div')`
   display: flex;
   flex-direction: column;
+  ${({ max }) => max ? '' : 'align-items: center'};
 `
 
 const LegendTextContainer = styled('div')`
@@ -32,7 +33,6 @@ const LegendTextContainer = styled('div')`
   justify-content: space-between;
   width: ${({ textcontainerwidth }) => textcontainerwidth}px;
   margin-left: ${({ textcontainerleftmargin }) => textcontainerleftmargin}px;
-  margin-right: ${({ textcontainerrightmargin }) => textcontainerrightmargin}px;
   margin-top: 5px;
 `
 
@@ -45,7 +45,7 @@ const LegendTextMax = styled('div', forwardRef)`
 `
 
 const LegendSymbolContainer = styled('div')`
-  width: ${({ max, legendelemwidth }) => max ? legendelemwidth : 20}px;
+  width: ${({ legendelemwidth }) => legendelemwidth}px;
   margin-left: ${({ symbolcontainerleftmargin }) => symbolcontainerleftmargin}px;
 `
 
@@ -62,8 +62,7 @@ const LegendItem = ({ legendItemProps }) => {
     legendSize,
     ...symbolProps
   } = legendItemProps
-  const legendElemWidth = legendSize === LEGEND_SIZE.large.label ? 120 : 80
-
+  const legendElemWidth = max ? LEGEND_SYMBOL_WIDTH[legendSize] : LEGEND_SYMBOL_WIDTH.zero
   const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
   const [minValue, maxValue] = formatData?.[label] ?
     [formatData[label](min), formatData[label](max)] :
@@ -102,10 +101,9 @@ const LegendItem = ({ legendItemProps }) => {
     <>
       {max !== undefined && min !== undefined && (
         <LegendBody>
-          <LegendTitle legendelemwidth={legendElemWidth}>{title}</LegendTitle>
-          <LegendElements>
+          <LegendTitle legendelemwidth={LEGEND_SYMBOL_WIDTH[legendSize]}>{title}</LegendTitle>
+          <LegendElements max={max}>
             <LegendSymbolContainer
-              max={max}
               legendelemwidth={legendElemWidth}
               symbolcontainerleftmargin={symbolContainerLeftMargin}
             >
@@ -115,8 +113,8 @@ const LegendItem = ({ legendItemProps }) => {
               textcontainerwidth={textContainerWidth}
               textcontainerleftmargin={textContainerLeftMargin}
             >
-              <LegendTextMin max={max} ref={textMin}>{minValue.toLocaleString()}</LegendTextMin>
-              {max > 0 && <LegendTextMax max={max} ref={textMax}>{maxValue.toLocaleString()}</LegendTextMax>}
+              <LegendTextMin ref={textMin}>{minValue.toLocaleString()}</LegendTextMin>
+              {max > 0 && <LegendTextMax ref={textMax}>{maxValue.toLocaleString()}</LegendTextMax>}
             </LegendTextContainer>
           </LegendElements>
         </LegendBody>
