@@ -34,23 +34,9 @@ export const LEGEND_TYPE = {
 }
 
 export const LEGEND_SIZE = {
-  small: {
-    label: 'sm',
-    width: 120,
-  },
-  large: {
-    label: 'lg',
-    width: 80,
-  },
-  zeroValues: {
-    width: 20,
-  },
+  small: 'sm',
+  large: 'lg',
 }
-
-export const LEGEND_SIZE_LABELS = Object.values(LEGEND_SIZE).reduce((agg, { label }) => {
-  agg = label ? [...agg, label] : agg
-  return agg
-}, [])
 
 export const LEGEND_POSITION = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
 

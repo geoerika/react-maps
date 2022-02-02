@@ -357,7 +357,7 @@ export const setLegendConfigs = ({
   radiusBasedOn = '',
   data = [],
   dataPropertyAccessor = d => d,
-  legendSize = LEGEND_SIZE.large.label,
+  legendSize = LEGEND_SIZE.large,
   ...legendProps
 }) => {
   const [minColor, maxColor] = fillColors && typeof fillColors === 'string' ?

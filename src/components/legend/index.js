@@ -8,7 +8,7 @@ import { styled, setup } from 'goober'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import LegendItem from './legend-item'
-import { LEGEND_SIZE, LEGEND_SIZE_LABELS, LEGEND_POSITION } from '../../constants'
+import { LEGEND_SIZE, LEGEND_POSITION } from '../../constants'
 
 
 setup(React.createElement)
@@ -46,7 +46,7 @@ const Legend = ({
         num_legends={legends.length}
         // onClick={handleLegendChange}
         position={objPosition}
-        typography={legendSize === LEGEND_SIZE.large.label ? typography : { ...typography, fontSize: '10px' }}
+        typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '10px' }}
       >
         {legends.map(({ type, ...legendProps }) => (
           <LegendItem
@@ -61,14 +61,14 @@ const Legend = ({
 
 Legend.propTypes = {
   legendPosition: PropTypes.oneOf([...LEGEND_POSITION]),
-  legendSize: PropTypes.oneOf([...LEGEND_SIZE_LABELS]),
+  legendSize: PropTypes.oneOf([...Object.values(LEGEND_SIZE)]),
   legends: PropTypes.array.isRequired,
   ...typographyPropTypes,
 }
 
 Legend.defaultProps = {
   legendPosition: 'top-right',
-  legendSize: LEGEND_SIZE.large.label,
+  legendSize: LEGEND_SIZE.large,
   ...typographyDefaultProps,
 }
 
