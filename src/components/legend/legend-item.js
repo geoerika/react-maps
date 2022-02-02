@@ -78,32 +78,39 @@ const LegendItem = ({ legendItemProps }) => {
 
   const textMin = useRef(null)
   const textMax = useRef(null)
-  const textMinWidth = textMin.current?.getBoundingClientRect()?.width / fontSize
-  const textMaxWidth = textMax.current?.getBoundingClientRect()?.width / fontSize
+  const textMinWidth = fontSize ? textMin.current?.getBoundingClientRect()?.width / fontSize : 0
+  const textMaxWidth = fontSize ? textMax.current?.getBoundingClientRect()?.width / fontSize : 0
 
   /*
    * text container width for gradient and elevation legends, where value labels centres align with
    * the edges of the legend symbol container
    */
-  let textContainerWidth = textMinWidth / 2 + textMaxWidth / 2 + legendElemWidth
+  let textContainerWidth = textMinWidth &&  textMaxWidth ?
+    textMinWidth / 2 + textMaxWidth / 2 + legendElemWidth :
+    legendElemWidth
 
   // for radius symbols, the width is different, we position text centred with the margin symbols
   let symbolContainerLeftMargin = 0
   let textContainerLeftMargin = 0
-  if (type !== LEGEND_TYPE.size) {
+
+  if (textMinWidth && type !== LEGEND_TYPE.size) {
     symbolContainerLeftMargin = textMinWidth / 2
   }
-  if (type === LEGEND_TYPE.size) {
+
+  if (textMinWidth && type === LEGEND_TYPE.size) {
     const { dots, size } = symbolProps
     // for radius (size) width is samller, as the value labels align with the centers of the edge circles
-    textContainerWidth = textContainerWidth - (2.5 + dots) * size / 2 // half of each circle size
-    const smallSymbolRadius = 1.75 * size / 2
+    textContainerWidth = !isNaN(size) && size && !isNaN(dots) && dots ?
+      textContainerWidth - (2.5 + dots) * size / 2 : // half of each circle size
+      textContainerWidth
+    const smallSymbolRadius = !isNaN(size) && size ? .75 * size / 2 : 0
     if (smallSymbolRadius <= textMinWidth / 2) {
       symbolContainerLeftMargin = textMinWidth / 2 - smallSymbolRadius
     } else {
       textContainerLeftMargin = smallSymbolRadius - textMinWidth / 2
     }
   }
+
   // set symbolMarginLeft as the maxium left margin value of all legend item symbols
   useEffect(() => {
     if (symbolContainerLeftMargin) {
