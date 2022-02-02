@@ -1,6 +1,6 @@
 // TODO - make Legend comp more customizable by size, right now it is rigid
 
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { getTailwindConfigColor } from '@eqworks/lumen-labs'
@@ -33,6 +33,7 @@ const Legend = ({
   legends,
   typography,
 }) => {
+  const [symbolMarginLeft, setSymbolMarginLeft] = useState(0)
   let objPosition = {}
   objPosition[legendPosition.split('-')[0]] = '.5rem'
   objPosition[legendPosition.split('-')[1]] = '.5rem'
@@ -50,7 +51,7 @@ const Legend = ({
         {legends.map(({ type, ...legendProps }) => (
           <LegendItem
             key={type}
-            legendItemProps={{ type, legendSize, ...legendProps }}
+            legendItemProps={{ type, legendSize, symbolMarginLeft, setSymbolMarginLeft, ...legendProps }}
           />
         ))}
       </LegendContainer>
