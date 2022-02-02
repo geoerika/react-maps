@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
-import { LEGEND_DOTS, LEGEND_RADIUS_SIZE, LEGEND_HEIGHT } from '../../constants'
+import { LEGEND_DOTS, LEGEND_RADIUS_SIZE, LEGEND_HEIGHT_WIDTH } from '../../constants'
 
 
 setup(React.createElement)
@@ -62,11 +62,11 @@ const LegendSymbol = ({ symbolProps }) => {
     return (
       <Size max={max}>
         <HeightWrapper pos={'left'}>
-          <Height width={LEGEND_HEIGHT.left[legendSize]} color={!max ? minColor : maxColor} />
+          <Height width={LEGEND_HEIGHT_WIDTH.left[legendSize]} color={!max ? minColor : maxColor} />
         </HeightWrapper>
         {max > 0 &&
           <HeightWrapper>
-            <Height width={LEGEND_HEIGHT.right[legendSize]} color={maxColor} />
+            <Height width={LEGEND_HEIGHT_WIDTH.right[legendSize]} color={maxColor} />
           </HeightWrapper>
         }
       </Size>

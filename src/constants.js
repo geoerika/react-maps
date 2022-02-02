@@ -55,7 +55,7 @@ export const  LEGEND_SYMBOL_WIDTH = {
   zero: 1.25,
 }
 
-export const LEGEND_HEIGHT = {
+export const LEGEND_HEIGHT_WIDTH = {
   left: {
     lg: 1.325,
     sm: 1,
