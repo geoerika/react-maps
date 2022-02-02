@@ -53,3 +53,18 @@ export const LEGEND_SIZE_LABELS = Object.values(LEGEND_SIZE).reduce((agg, { labe
 }, [])
 
 export const LEGEND_POSITION = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+
+export const LEGEND_DOTS = {
+  lg: 5,
+  sm: 4,
+}
+export const LEGEND_RADIUS_SIZE = {
+  default: 5,
+  zero: 20,
+}
+
+export const  LEGEND_SYMBOL_WIDTH = {
+  lg: 120,
+  sm: 80,
+  zero: 20,
+}
