@@ -1,4 +1,4 @@
-import React, { useRef, forwardRef } from 'react'
+import React, { useState, useEffect, useRef, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { styled, setup } from 'goober'
 
@@ -24,6 +24,7 @@ const LegendTitle = styled('div')`
 const LegendElements = styled('div')`
   display: flex;
   flex-direction: column;
+  margin-left: ${({ legendelementsleftmargin }) => legendelementsleftmargin}px;
   ${({ max }) => max ? '' : 'align-items: center'};
 `
 
@@ -50,6 +51,8 @@ const LegendSymbolContainer = styled('div')`
 `
 
 const LegendItem = ({ legendItemProps }) => {
+  const [legendElementsLeftMargin, setLegendElementsLeftMargin] = useState(0)
+
   const {
     min,
     max,
@@ -60,8 +63,11 @@ const LegendItem = ({ legendItemProps }) => {
     formatData,
     type,
     legendSize,
+    symbolMarginLeft,
+    setSymbolMarginLeft,
     ...symbolProps
   } = legendItemProps
+
   const legendElemWidth = max ? LEGEND_SYMBOL_WIDTH[legendSize] : LEGEND_SYMBOL_WIDTH.zero
   const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
   const [minValue, maxValue] = formatData?.[label] ?
@@ -96,13 +102,26 @@ const LegendItem = ({ legendItemProps }) => {
       textContainerLeftMargin = smallSymbolRadius - textMinWidth / 2
     }
   }
+  // set symbolMarginLeft as the maxium left margin value of all legend item symbols
+  useEffect(() => {
+    if (symbolContainerLeftMargin) {
+      setSymbolMarginLeft(prev => Math.max(prev, symbolContainerLeftMargin))
+    }
+  }, [symbolContainerLeftMargin, setSymbolMarginLeft])
+
+  // adjust LegendElement left margin so the legend symbols of all legends align vertically
+  useEffect(() => {
+    if (symbolMarginLeft > symbolContainerLeftMargin) {
+      setLegendElementsLeftMargin(symbolMarginLeft - symbolContainerLeftMargin)
+    }
+  }, [symbolMarginLeft, symbolContainerLeftMargin])
 
   return (
     <>
       {max !== undefined && min !== undefined && (
         <LegendBody>
           <LegendTitle legendelemwidth={LEGEND_SYMBOL_WIDTH[legendSize]}>{title}</LegendTitle>
-          <LegendElements max={max}>
+          <LegendElements max={max} legendelementsleftmargin={legendElementsLeftMargin}>
             <LegendSymbolContainer
               legendelemwidth={legendElemWidth}
               symbolcontainerleftmargin={symbolContainerLeftMargin}
@@ -135,6 +154,8 @@ LegendItem.propTypes = {
     type: PropTypes.string,
     legendSize: PropTypes.string.isRequired,
     symbolProps: PropTypes.object,
+    symbolMarginLeft: PropTypes.number,
+    setSymbolMarginLeft: PropTypes.func,
   }),
 }
 
@@ -149,6 +170,8 @@ LegendItem.defaultProps = {
     formatData: undefined,
     type: '',
     symbolProps: undefined,
+    symbolMarginLeft: 0,
+    setSymbolMarginLeft: () => {},
   },
 }
 
