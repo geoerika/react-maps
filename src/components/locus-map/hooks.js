@@ -92,8 +92,8 @@ export const useLegends = ({ dataConfig, layerConfig }) => {
         color: PROP_CONFIGURATIONS.fill.defaultValue,
         opacity: setLegendOpacity({ opacity }),
       })
-      if (Array.isArray(visualizations?.fill?.value)) {
-        const colorVal = visualizations.fill.value
+      const colorVal = visualizations?.fill?.value
+      if (!colorVal?.field) {
         objColor = arrayToRGBAStrColor({
           color: Array.isArray(colorVal) ?
             colorVal :
