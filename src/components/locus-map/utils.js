@@ -1,7 +1,7 @@
 import { WebMercatorViewport } from '@deck.gl/core'
 import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@nebula.gl/edit-modes'
 
-import { setFinalLayerDataProperty } from '../../shared/utils'
+import { setFinalLayerDataProperty, getSchemeColorValues } from '../../shared/utils'
 import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS } from './constants'
 
 
@@ -77,7 +77,13 @@ export const parseDeckGLLayerFromConfig = ({
     }
   }
 
-  // ====[TODO] correct fallback logic for the above. Should throw an error or prompt someone to choose
+  const { schemeColor } = others
+  // generate colours for stroke and fill from the base schemeColour
+  const {
+    newLineColor,
+    newColorValue,
+    newColorValueOptions,
+  } = schemeColor ? getSchemeColorValues(schemeColor) : {}
 
   // ====[TODO] calculate field extents in advance, so every configurable aspect doesn't need to
   const propsWithData = ({ data, highlightId }) => ({
@@ -85,12 +91,26 @@ export const parseDeckGLLayerFromConfig = ({
     // =========] and provide the defaults from PROP_CONFIG
     ...layerVisualizations.reduce((agg, name) => {
       const config = visualizations[name] || {}
+      let { value, valueOptions } = config
+      // change colour values with schemeColour generated colours
+      if (schemeColor && name === 'lineColor') {
+        value = newLineColor
+      }
+      if (!value?.field && schemeColor && name === 'fill') {
+        value = newColorValue
+      }
+      if (value?.field && schemeColor && name === 'fill') {
+        valueOptions = newColorValueOptions
+      }
       const { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
+
       return {
         ...agg,
         [deckGLName]: setFinalLayerDataProperty({
           ...config,
           data,
+          value,
+          valueOptions,
           defaultValue,
           dataPropertyAccessor,
           mvtGeoKey,
