@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
+import { useLegendItemElements } from './hooks'
 import { LEGEND_TYPE, LEGEND_SYMBOL_WIDTH } from '../../constants'
 
 
@@ -57,11 +58,6 @@ const LegendItem = ({ legendItemProps }) => {
   const {
     min,
     max,
-    label,
-    metricAliases,
-    formatLegendTitle = d => d,
-    formatPropertyLabel = d => d,
-    formatData,
     type,
     legendSize,
     symbolMarginLeft,
@@ -70,13 +66,7 @@ const LegendItem = ({ legendItemProps }) => {
     ...symbolProps
   } = legendItemProps
 
-  const legendElemWidth = min !== max && max > 0 ?
-    LEGEND_SYMBOL_WIDTH[legendSize] :
-    LEGEND_SYMBOL_WIDTH.zero
-  const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
-  const [minValue, maxValue] = formatData?.[label] ?
-    [formatData[label](min), formatData[label](max)] :
-    [min, max]
+  const { legendElemWidth, title, minValue, maxValue } = useLegendItemElements({ legendItemProps })
 
   const textMin = useRef(null)
   const textMax = useRef(null)
