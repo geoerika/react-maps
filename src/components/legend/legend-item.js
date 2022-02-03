@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, forwardRef } from 'react'
+import React, { useMemo, useEffect, useRef, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { styled, setup } from 'goober'
 
@@ -50,8 +50,9 @@ const LegendSymbolContainer = styled('div')`
   margin-left: ${({ symbolcontainerleftmargin }) => symbolcontainerleftmargin}rem;
 `
 
+const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2) || 16
+
 const LegendItem = ({ legendItemProps }) => {
-  const [legendElementsLeftMargin, setLegendElementsLeftMargin] = useState(0)
 
   const {
     min,
@@ -76,8 +77,6 @@ const LegendItem = ({ legendItemProps }) => {
   const [minValue, maxValue] = formatData?.[label] ?
     [formatData[label](min), formatData[label](max)] :
     [min, max]
-
-  const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2)
 
   const textMin = useRef(null)
   const textMax = useRef(null)
@@ -122,10 +121,11 @@ const LegendItem = ({ legendItemProps }) => {
   }, [symbolContainerLeftMargin, setSymbolMarginLeft])
 
   // adjust LegendElement left margin so the legend symbols of all legends align vertically
-  useEffect(() => {
+  const legendElementsLeftMargin = useMemo(() => {
     if (symbolMarginLeft > symbolContainerLeftMargin) {
-      setLegendElementsLeftMargin(symbolMarginLeft - symbolContainerLeftMargin)
+      return symbolMarginLeft - symbolContainerLeftMargin
     }
+    return 0
   }, [symbolMarginLeft, symbolContainerLeftMargin])
 
   // reveal Legend only after the textContainerWidth has been calculated
