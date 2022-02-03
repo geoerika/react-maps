@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
-import { useLegendItemElements, useLegendItemDimensions } from './hooks'
-import { LEGEND_TYPE, LEGEND_SYMBOL_WIDTH } from '../../constants'
+import { useLegendItemElements, useValueRangeWidth, useLegendItemDimensions } from './hooks'
+import { LEGEND_SYMBOL_WIDTH } from '../../constants'
 
 
 setup(React.createElement)
@@ -51,8 +51,6 @@ const LegendSymbolContainer = styled('div')`
   margin-left: ${({ symbolcontainerleftmargin }) => symbolcontainerleftmargin}rem;
 `
 
-const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2) || 16
-
 const LegendItem = ({ legendItemProps }) => {
 
   const {
@@ -70,8 +68,8 @@ const LegendItem = ({ legendItemProps }) => {
 
   const textMin = useRef(null)
   const textMax = useRef(null)
-  const textMinWidth = fontSize ? textMin.current?.getBoundingClientRect()?.width / fontSize : 0
-  const textMaxWidth = fontSize ? textMax.current?.getBoundingClientRect()?.width / fontSize : 0
+
+  const [textMinWidth, textMaxWidth] = useValueRangeWidth({ textMin, textMax })
 
   const { textContainerWidth, symbolContainerLeftMargin, textContainerLeftMargin } =
     useLegendItemDimensions({ legendItemProps,  legendElemWidth, textMinWidth, textMaxWidth })

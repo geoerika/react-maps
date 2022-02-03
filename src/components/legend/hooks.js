@@ -30,6 +30,24 @@ export const useLegendItemElements = ({ legendItemProps }) => {
   return { legendElemWidth, title, minValue, maxValue }
 }
 
+const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2) || 16
+
+/**
+ * useValueRangeWidth - React Hook which returns the widths for the range values (rem)
+ * @param { object } param
+ * @param { object } param.textMin - ref to lower value in a legend item
+ * @param { object } param.textMax - ref to higher value in a legend item
+ * @returns { array } - array of legend item range value widths (rem)
+ */
+export const useValueRangeWidth = ({ textMin, textMax }) => {
+  return fontSize ?
+    [
+      textMin.current?.getBoundingClientRect()?.width / fontSize,
+      textMax.current?.getBoundingClientRect()?.width / fontSize,
+    ] :
+    [0, 0]
+}
+
 /**
  * useLegendItemDimensions - React Hook which calculates textContainerWidth, symbolContainerLeftMargin,
  *                           textContainerLeftMargin of a Legend Item
