@@ -65,6 +65,7 @@ const LegendItem = ({ legendItemProps }) => {
     legendSize,
     symbolMarginLeft,
     setSymbolMarginLeft,
+    setOpacity,
     ...symbolProps
   } = legendItemProps
 
@@ -84,14 +85,13 @@ const LegendItem = ({ legendItemProps }) => {
   const textMaxWidth = fontSize ? textMax.current?.getBoundingClientRect()?.width / fontSize : 0
 
   /*
-   * text container width for gradient and elevation legends, where value labels centres align with
+   * text container width for gradient and elevation legends, where value label centres align with
    * the edges of the legend symbol container
    */
   let textContainerWidth = min !== max && max > 0 && textMinWidth && textMaxWidth ?
     textMinWidth / 2 + textMaxWidth / 2 + legendElemWidth :
     textMinWidth || 0
 
-  // for radius symbols, the width is different, we position text centred with the margin symbols
   let symbolContainerLeftMargin = 0
   let textContainerLeftMargin = 0
 
@@ -128,6 +128,13 @@ const LegendItem = ({ legendItemProps }) => {
     }
   }, [symbolMarginLeft, symbolContainerLeftMargin])
 
+  // reveal Legend only after the textContainerWidth has been calculated
+  useEffect(() => {
+    if (textContainerWidth) {
+      setOpacity(0.9)
+    }
+  }, [textContainerWidth, setOpacity])
+
   return (
     <>
       {max !== undefined && min !== undefined && (
@@ -163,11 +170,12 @@ LegendItem.propTypes = {
     formatLegendTitle: PropTypes.func,
     formatPropertyLabel: PropTypes.func,
     formatData: PropTypes.object,
-    type: PropTypes.string,
+    type: PropTypes.string.isRequired,
     legendSize: PropTypes.string.isRequired,
     symbolProps: PropTypes.object,
-    symbolMarginLeft: PropTypes.number,
-    setSymbolMarginLeft: PropTypes.func,
+    symbolMarginLeft: PropTypes.number.isRequired,
+    setSymbolMarginLeft: PropTypes.func.isRequired,
+    setOpacity: PropTypes.func.isRequired,
   }),
 }
 
@@ -180,10 +188,7 @@ LegendItem.defaultProps = {
     formatLegendTitle: d => d,
     formatPropertyLabel: d => d,
     formatData: undefined,
-    type: '',
     symbolProps: undefined,
-    symbolMarginLeft: 0,
-    setSymbolMarginLeft: () => {},
   },
 }
 

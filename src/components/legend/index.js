@@ -13,7 +13,7 @@ import { LEGEND_SIZE, LEGEND_POSITION } from '../../constants'
 
 setup(React.createElement)
 
-const LegendContainer = styled('div')(({ num_legends, position, typography }) => ({
+const LegendContainer = styled('div')(({ num_legends, position, typography, opacity }) => ({
   ...typography,
   display: 'flex',
   flexDirection: 'column',
@@ -24,7 +24,7 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   borderRadius: '0.15rem',
   marginBottom: '1.5rem',
   boxShadow: '0 0.125rem 0.5rem 0 rgba(12, 12, 13, 0.15)',
-  opacity: 0.9,
+  opacity,
   ...position,
 }))
 
@@ -35,6 +35,7 @@ const Legend = ({
   typography,
 }) => {
   const [symbolMarginLeft, setSymbolMarginLeft] = useState(0)
+  const [opacity, setOpacity] = useState(0)
   let objPosition = {}
   objPosition[legendPosition.split('-')[0]] = '.5rem'
   objPosition[legendPosition.split('-')[1]] = '.5rem'
@@ -48,11 +49,21 @@ const Legend = ({
         // onClick={handleLegendChange}
         position={objPosition}
         typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
+        opacity={opacity}
       >
         {legends.map(({ type, ...legendProps }) => (
           <LegendItem
             key={type}
-            legendItemProps={{ type, legendSize, symbolMarginLeft, setSymbolMarginLeft, ...legendProps }}
+            legendItemProps={
+              {
+                type,
+                legendSize,
+                symbolMarginLeft,
+                setSymbolMarginLeft,
+                setOpacity,
+                ...legendProps,
+              }
+            }
           />
         ))}
       </LegendContainer>
