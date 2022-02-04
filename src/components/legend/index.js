@@ -1,19 +1,19 @@
 // TODO - make Legend comp more customizable by size, right now it is rigid
 
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { getTailwindConfigColor } from '@eqworks/lumen-labs'
 import { styled, setup } from 'goober'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
-
 import LegendItem from './legend-item'
+import { LEGEND_SIZE, LEGEND_POSITION } from '../../constants'
 
 
 setup(React.createElement)
 
-const LegendContainer = styled('div')(({ num_legends, position, typography }) => ({
+const LegendContainer = styled('div')(({ num_legends, position, typography, opacity }) => ({
   ...typography,
   display: 'flex',
   flexDirection: 'column',
@@ -21,9 +21,10 @@ const LegendContainer = styled('div')(({ num_legends, position, typography }) =>
   cursor: num_legends > 1 ? 'pointer' : 'default',
   backgroundColor: getTailwindConfigColor('secondary-50'),
   padding: '0 .75rem .75rem',
-  borderRadius: '0.2rem',
-  marginBottom: '1.8rem',
-  opacity: 0.9,
+  borderRadius: '0.15rem',
+  marginBottom: '1.5rem',
+  boxShadow: '0 0.125rem 0.5rem 0 rgba(12, 12, 13, 0.15)',
+  opacity,
   ...position,
 }))
 
@@ -33,6 +34,8 @@ const Legend = ({
   legends,
   typography,
 }) => {
+  const [symbolMarginLeft, setSymbolMarginLeft] = useState(0)
+  const [opacity, setOpacity] = useState(0)
   let objPosition = {}
   objPosition[legendPosition.split('-')[0]] = '.5rem'
   objPosition[legendPosition.split('-')[1]] = '.5rem'
@@ -45,12 +48,22 @@ const Legend = ({
         num_legends={legends.length}
         // onClick={handleLegendChange}
         position={objPosition}
-        typography={legendSize === 'full' ? typography : { ...typography, fontSize: '10px' }}
+        typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
+        opacity={opacity}
       >
         {legends.map(({ type, ...legendProps }) => (
           <LegendItem
             key={type}
-            legendItemProps={{ type, legendSize, ...legendProps }}
+            legendItemProps={
+              {
+                type,
+                legendSize,
+                symbolMarginLeft,
+                setSymbolMarginLeft,
+                setOpacity,
+                ...legendProps,
+              }
+            }
           />
         ))}
       </LegendContainer>
@@ -59,15 +72,15 @@ const Legend = ({
 }
 
 Legend.propTypes = {
-  legendPosition: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
-  legendSize: PropTypes.oneOf(['widget', 'full']),
+  legendPosition: PropTypes.oneOf([...LEGEND_POSITION]),
+  legendSize: PropTypes.oneOf([...Object.values(LEGEND_SIZE)]),
   legends: PropTypes.array.isRequired,
   ...typographyPropTypes,
 }
 
 Legend.defaultProps = {
   legendPosition: 'top-right',
-  legendSize: 'full',
+  legendSize: LEGEND_SIZE.large,
   ...typographyDefaultProps,
 }
 

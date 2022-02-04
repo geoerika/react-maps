@@ -5,15 +5,15 @@ import { styled, setup } from 'goober'
 setup(React.createElement)
 
 const Title = styled('div')`
-  margin: 0px;
+  margin: 0;
   fontWeight: 700;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 `
 const Id = styled('div')`
-  margin: 0px;
-  font-size: 10px;
+  margin: 0;
+  font-size: 0.625rem;
   color: #808080;
   display: flex;
   flex-direction: column;
@@ -22,7 +22,7 @@ const Id = styled('div')`
 const TooltipAttributes = styled('div')`
   display: grid;
   grid-template-columns: auto auto;
-  grid-gap: 10px;
+  grid-gap: 0.625rem;
 `
 const Keys = styled('div')`
   fontWeight: 600;
@@ -35,7 +35,7 @@ const Values = styled('div')`
   align-items: flex-end;
 `
 const Line = styled('hr')`
-  border-top: 1px solid #6c6c6c;
+  border-top: 0.065rem solid #6c6c6c;
 `
 
 /**

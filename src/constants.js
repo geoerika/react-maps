@@ -26,3 +26,42 @@ export const SCALES = {
 
 export const CLUSTER_SIZE_SCALE = 40
 export const SUPERCLUSTER_ZOOM = 20
+
+export const LEGEND_TYPE = {
+  size: 'size',
+  elevation: 'elevation',
+  gradient: 'gradient',
+}
+
+export const LEGEND_SIZE = {
+  small: 'sm',
+  large: 'lg',
+}
+
+export const LEGEND_POSITION = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+
+export const LEGEND_DOTS = {
+  lg: 5,
+  sm: 4,
+}
+export const LEGEND_RADIUS_SIZE = {
+  default: 0.325,
+  zero: 1.25,
+}
+
+export const  LEGEND_SYMBOL_WIDTH = {
+  lg: 7.5,
+  sm: 5,
+  zero: 1.25,
+}
+
+export const LEGEND_HEIGHT_WIDTH = {
+  left: {
+    lg: 1.325,
+    sm: 1,
+  },
+  right: {
+    lg: 5.25,
+    sm: 3.125,
+  },
+}

@@ -59,9 +59,9 @@ export const tooltipDefaultProps = {
   },
   tooltipProps: {
     backgroundColor: getTailwindConfigColor('secondary-50'),
-    boxShadow: '0 2px 8px 0 rgba(12, 12, 13, 0.15)',
-    borderRadius: '3px',
-    padding: '8px',
+    boxShadow: '0 0.125rem 0.5rem 0 rgba(12, 12, 13, 0.15)',
+    borderRadius: '0.15rem',
+    padding: '0.5rem',
     opacity: 0.9,
   },  
 }

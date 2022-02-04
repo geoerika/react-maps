@@ -58,7 +58,7 @@ const mapConfig = {
   showMapTooltip: true,
   cursor: (layers) => getCursor({ layers }),
   legendPosition: 'top-right',
-  legendSize: 'full',
+  legendSize: 'lg',
   mapboxApiAccessToken,
 }
 
@@ -317,7 +317,7 @@ const Template = (args) => <LocusMap { ...args } />
 const geojsonArgs = {
   layerConfig: [GeoJSONLayerConfig],
   dataConfig,
-  mapConfig: { ...mapConfig, legendSize: 'widget' },
+  mapConfig: { ...mapConfig, legendSize: 'sm', legendPosition: 'bottom-left' },
 }
 
 export const GeoJSONLayer = Template.bind({})

@@ -14,6 +14,7 @@ import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 import Legend from '../legend'
+import { LEGEND_SIZE, LEGEND_POSITION } from '../../constants'
 
 
 setup(React.createElement)
@@ -51,7 +52,7 @@ const LocusMap = ({
   // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
   useEffect(() => {
     if (processingMapData) {
-      setTimeout(() => setLoaderTimeout(true), 10000)
+      setTimeout(() => setLoaderTimeout(true), 20000)
     }
     setLoaderTimeout(false)
   }, [processingMapData])
@@ -335,7 +336,7 @@ const LocusMap = ({
   }, [layerConfig, selectShape])
 
   // get all config data for all layer legends
-  const legends = useLegends({ dataConfig: finalDataConfig, layerConfig })
+  const legends = useLegends({ dataConfig: finalDataConfig, layerConfig, legendSize: mapConfig?.legendSize })
 
   // set legend element
   const legend = useMemo(() => {
@@ -431,8 +432,8 @@ LocusMap.propTypes = {
   layerConfig: PropTypes.array.isRequired,
   mapConfig: PropTypes.shape({
     cursor: PropTypes.func,
-    legendPosition: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
-    legendSize: PropTypes.oneOf(['full', 'widget']),
+    legendPosition: PropTypes.oneOf([...LEGEND_POSITION]),
+    legendSize: PropTypes.oneOf([...Object.values(LEGEND_SIZE)]),
     legendNode: PropTypes.node,
     showMapLegend: PropTypes.bool,
     tooltipNode: PropTypes.node,
