@@ -43,6 +43,7 @@ const Map = ({
   viewStateOverride,
   legend,
   onHover,
+  onClick,
   showTooltip,
   renderTooltip,
   pitch,
@@ -118,10 +119,11 @@ const Map = ({
         onHover={finalOnHover}
         getTooltip={getTooltip}
         getCursor={getCursor}
-        onClick={({ object }) => {
-          if(!object) {
+        onClick={info => {
+          if(!info?.object) {
             setHighlightObj(null)
           }
+          onClick(info)
         }}
       >
         <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
@@ -152,6 +154,7 @@ Map.propTypes = {
   setZoom: PropTypes.func,
   setCurrentViewport: PropTypes.func,
   onHover: PropTypes.func,
+  onClick: PropTypes.func,
   setProcessingMapData: PropTypes.func,
   controller: PropTypes.object,
   ...StaticMap.propTypes,
@@ -174,6 +177,7 @@ Map.defaultProps = {
   setCurrentViewport: () => {},
   controller: { controller: true },
   onHover: () => {},
+  onClick: () => {},
   setProcessingMapData: () => {},
   ...StaticMap.defaultProps,
   ...commonDefaultProps,
