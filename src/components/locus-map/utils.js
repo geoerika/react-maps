@@ -35,6 +35,7 @@ export const parseDeckGLLayerFromConfig = ({
   const { layerMode } = others
   const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
   const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
+  const layerGeometry = geometry || layerGeom
   const mvtGeoKey = geometry?.geoKey || layerGeom?.geoKey
 
   let mode = null
@@ -139,6 +140,7 @@ export const parseDeckGLLayerFromConfig = ({
     ...others,
     ...propsWithData({ data }),
     ...geometryProps,
+    layerGeometry,
     pickable: Boolean(click || hover || tooltip || highlight || labels || (layer === 'select')),
     onEdit: layer !== 'select' ?
       () => {} :
