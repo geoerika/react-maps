@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, forwardRef } from 'react'
+import React, { useMemo, useEffect, useRef, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
-import { LEGEND_TYPE, LEGEND_SYMBOL_WIDTH } from '../../constants'
+import { getLegendItemElements, getValueRangeWidth, getLegendItemDimensions } from './utils'
+import { LEGEND_SYMBOL_WIDTH } from '../../constants'
 
 
 setup(React.createElement)
@@ -51,16 +52,10 @@ const LegendSymbolContainer = styled('div')`
 `
 
 const LegendItem = ({ legendItemProps }) => {
-  const [legendElementsLeftMargin, setLegendElementsLeftMargin] = useState(0)
 
   const {
     min,
     max,
-    label,
-    metricAliases,
-    formatLegendTitle = d => d,
-    formatPropertyLabel = d => d,
-    formatData,
     type,
     legendSize,
     symbolMarginLeft,
@@ -69,50 +64,15 @@ const LegendItem = ({ legendItemProps }) => {
     ...symbolProps
   } = legendItemProps
 
-  const legendElemWidth = min !== max && max > 0 ?
-    LEGEND_SYMBOL_WIDTH[legendSize] :
-    LEGEND_SYMBOL_WIDTH.zero
-  const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
-  const [minValue, maxValue] = formatData?.[label] ?
-    [formatData[label](min), formatData[label](max)] :
-    [min, max]
-
-  const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2)
+  const { legendElemWidth, title, minValue, maxValue } = getLegendItemElements({ legendItemProps })
 
   const textMin = useRef(null)
   const textMax = useRef(null)
-  const textMinWidth = fontSize ? textMin.current?.getBoundingClientRect()?.width / fontSize : 0
-  const textMaxWidth = fontSize ? textMax.current?.getBoundingClientRect()?.width / fontSize : 0
 
-  /*
-   * text container width for gradient and elevation legends, where value label centres align with
-   * the edges of the legend symbol container
-   */
-  let textContainerWidth = min !== max && max > 0 && textMinWidth && textMaxWidth ?
-    textMinWidth / 2 + textMaxWidth / 2 + legendElemWidth :
-    textMinWidth || 0
+  const [textMinWidth, textMaxWidth] = getValueRangeWidth({ textMin, textMax })
 
-  let symbolContainerLeftMargin = 0
-  let textContainerLeftMargin = 0
-
-  // don't adjust margins when we have no data variance
-  if (min !== max && max > 0 && textMinWidth && type !== LEGEND_TYPE.size) {
-    symbolContainerLeftMargin = textMinWidth / 2
-  }
-
-  if (min !== max && max > 0 && textMinWidth && type === LEGEND_TYPE.size) {
-    const { dots, size } = symbolProps
-    // for radius (size) width is samller, as the value labels align with the centers of the edge circles
-    textContainerWidth = !isNaN(size) && size && !isNaN(dots) && dots ?
-      textContainerWidth - (2.5 + dots) * size / 2 : // half of each circle size
-      textContainerWidth
-    const smallSymbolRadius = !isNaN(size) && size ? 1.75 * size / 2 : 0
-    if (smallSymbolRadius <= textMinWidth / 2) {
-      symbolContainerLeftMargin = textMinWidth / 2 - smallSymbolRadius
-    } else {
-      textContainerLeftMargin = smallSymbolRadius - textMinWidth / 2
-    }
-  }
+  const { textContainerWidth, symbolContainerLeftMargin, textContainerLeftMargin } =
+    getLegendItemDimensions({ legendItemProps,  legendElemWidth, textMinWidth, textMaxWidth })
 
   // set symbolMarginLeft as the maxium left margin value of all legend item symbols
   useEffect(() => {
@@ -122,10 +82,11 @@ const LegendItem = ({ legendItemProps }) => {
   }, [symbolContainerLeftMargin, setSymbolMarginLeft])
 
   // adjust LegendElement left margin so the legend symbols of all legends align vertically
-  useEffect(() => {
+  const legendElementsLeftMargin = useMemo(() => {
     if (symbolMarginLeft > symbolContainerLeftMargin) {
-      setLegendElementsLeftMargin(symbolMarginLeft - symbolContainerLeftMargin)
+      return symbolMarginLeft - symbolContainerLeftMargin
     }
+    return 0
   }, [symbolMarginLeft, symbolContainerLeftMargin])
 
   // reveal Legend only after the textContainerWidth has been calculated
