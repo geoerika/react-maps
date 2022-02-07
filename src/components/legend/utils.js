@@ -2,12 +2,12 @@ import { LEGEND_TYPE, LEGEND_SYMBOL_WIDTH } from '../../constants'
 
 
 /**
- * useLegendItemElements - React Hook which returns legendElemWidth, title, minValue, maxValue for a legend
+ * getLegendItemElements - returns legendElemWidth, title, minValue, maxValue for a legend
  * @param { object } param
  * @param { object } param.legendItemProps - object of legend item properties
  * @returns { object } - { legendElemWidth, title, minValue, maxValue } object of values for legend
  */
-export const useLegendItemElements = ({ legendItemProps }) => {
+export const getLegendItemElements = ({ legendItemProps }) => {
   const {
     min,
     max,
@@ -33,13 +33,13 @@ export const useLegendItemElements = ({ legendItemProps }) => {
 const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2) || 16
 
 /**
- * useValueRangeWidth - React Hook which returns the widths for the range values (rem)
+ * getValueRangeWidth - returns the widths for the range values (rem)
  * @param { object } param
  * @param { object } param.textMin - ref to lower value in a legend item
  * @param { object } param.textMax - ref to higher value in a legend item
  * @returns { array } - array of legend item range value widths (rem)
  */
-export const useValueRangeWidth = ({ textMin, textMax }) => {
+export const getValueRangeWidth = ({ textMin, textMax }) => {
   return fontSize ?
     [
       textMin.current?.getBoundingClientRect()?.width / fontSize,
@@ -49,7 +49,7 @@ export const useValueRangeWidth = ({ textMin, textMax }) => {
 }
 
 /**
- * useLegendItemDimensions - React Hook which calculates textContainerWidth, symbolContainerLeftMargin,
+ * getLegendItemDimensions - calculates textContainerWidth, symbolContainerLeftMargin,
  *                           textContainerLeftMargin of a Legend Item
  * @param { object } param
  * @param { object } param.legendItemProps - object of legend item properties
@@ -59,7 +59,7 @@ export const useValueRangeWidth = ({ textMin, textMax }) => {
  * @returns { object } - { textContainerWidth, symbolContainerLeftMargin, textContainerLeftMargin } -
  *                        object of sizing values to style different containers in a legen item (rem)
  */
-export const useLegendItemDimensions = ({
+export const getLegendItemDimensions = ({
   legendItemProps,
   legendElemWidth,
   textMinWidth,

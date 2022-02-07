@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
-import { useLegendItemElements, useValueRangeWidth, useLegendItemDimensions } from './hooks'
+import { getLegendItemElements, getValueRangeWidth, getLegendItemDimensions } from './utils'
 import { LEGEND_SYMBOL_WIDTH } from '../../constants'
 
 
@@ -64,15 +64,15 @@ const LegendItem = ({ legendItemProps }) => {
     ...symbolProps
   } = legendItemProps
 
-  const { legendElemWidth, title, minValue, maxValue } = useLegendItemElements({ legendItemProps })
+  const { legendElemWidth, title, minValue, maxValue } = getLegendItemElements({ legendItemProps })
 
   const textMin = useRef(null)
   const textMax = useRef(null)
 
-  const [textMinWidth, textMaxWidth] = useValueRangeWidth({ textMin, textMax })
+  const [textMinWidth, textMaxWidth] = getValueRangeWidth({ textMin, textMax })
 
   const { textContainerWidth, symbolContainerLeftMargin, textContainerLeftMargin } =
-    useLegendItemDimensions({ legendItemProps,  legendElemWidth, textMinWidth, textMaxWidth })
+    getLegendItemDimensions({ legendItemProps,  legendElemWidth, textMinWidth, textMaxWidth })
 
   // set symbolMarginLeft as the maxium left margin value of all legend item symbols
   useEffect(() => {
