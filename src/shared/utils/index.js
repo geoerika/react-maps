@@ -167,7 +167,7 @@ export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
   if (data?.length) {
     let [min, max] = extent(data, d => dataPropertyAccessor(d)[dataKey])
     if (min === max && max !== 0) {
-      [min, max] = max > 0 ? [0, max] : [min, 0]
+      [min, max] = [Math.min(0, min), Math.max(0, max)]
     }
     return [min, max]
   }
