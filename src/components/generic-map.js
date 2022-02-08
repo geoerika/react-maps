@@ -108,7 +108,7 @@ const Map = ({
         onInteractionStateChange={(interactionState) => {
           const{ isDragging, inTransition, isZooming, isPanning, isRotating } = interactionState
           // when interaction with map ends, resets processingMapData state to show Loader component
-          if ([isDragging, isZooming, isPanning, isRotating, inTransition].every(action => action === false)) {
+          if ([isDragging, isZooming, isPanning, isRotating, inTransition].every(action => !action)) {
             setProcessingMapData(true)
           }
         }}
