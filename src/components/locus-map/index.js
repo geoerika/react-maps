@@ -48,14 +48,12 @@ const LocusMap = ({
   // limits viewport adjusting by data to one time only, the first time when map loads with data
   const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
   const [processingMapData, setProcessingMapData] = useState(true)
-  const [loaderTimeout, setLoaderTimeout] = useState(false)
 
   // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
   useEffect(() => {
     if (processingMapData) {
-      setTimeout(() => setLoaderTimeout(true), 20000)
+      setTimeout(() => setProcessingMapData(false), 20000)
     }
-    setLoaderTimeout(false)
   }, [processingMapData])
 
   // set controller for Map comp
@@ -330,7 +328,7 @@ const LocusMap = ({
     if (finalDataConfig?.length && !visbleMVTLayer) {
       if (geoJSONMVTLayerData?.tileData?.length) {
         const finalGeoJSONMVTData = finalDataConfig.find(({ id }) => id === geoJSONMVTDataId)
-        if (finalGeoJSONMVTData?.data?.[0]?.properties) {
+        if (!renderedFeatures.length || finalGeoJSONMVTData?.data?.[0]?.properties) {
           setProcessingMapData(false)
         }
       } else {
@@ -477,10 +475,10 @@ const LocusMap = ({
     <>
       {locusMap}
       {legend}
-      {processingMapData && !loaderTimeout &&
+      {processingMapData &&
         <LoaderWrapper>
           <Loader
-            open={processingMapData && !loaderTimeout}
+            open={processingMapData}
             classes={{ icon: 'text-primary-700' }}
           />
         </LoaderWrapper>
