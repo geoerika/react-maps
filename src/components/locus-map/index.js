@@ -10,6 +10,7 @@ import { styled, setup } from 'goober'
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import { useLegends } from './hooks'
 import { setView, parseDeckGLLayerFromConfig, getTooltipParams, getObjectMVTData } from './utils'
+import { setView as simpleSetView } from '../../shared/utils'
 import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
@@ -47,14 +48,12 @@ const LocusMap = ({
   // limits viewport adjusting by data to one time only, the first time when map loads with data
   const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
   const [processingMapData, setProcessingMapData] = useState(true)
-  const [loaderTimeout, setLoaderTimeout] = useState(false)
 
   // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
   useEffect(() => {
     if (processingMapData) {
-      setTimeout(() => setLoaderTimeout(true), 20000)
+      setTimeout(() => setProcessingMapData(false), 20000)
     }
-    setLoaderTimeout(false)
   }, [processingMapData])
 
   // set controller for Map comp
@@ -65,6 +64,65 @@ const LocusMap = ({
     }
     return { controller: true }
   }, [layerConfig])
+
+  /**
+   * finalOnClick - React hook that handles map's onClick events
+   * @param { object } param
+   * @param { object } param.info - clicked map object info
+   */
+  const finalOnClick = useCallback(info => {
+    if (typeof mapConfig?.onClick === 'function') {
+      mapConfig?.onClick(info)
+    } else if (info.object) {  // when click event occurs, map will zoom in on the clicked object
+      const obj = info.object
+      let [data, longitude, latitude, zoom] = [[],0,0]
+      // case for GeoJSON objects
+      if (obj.geometry && obj.type === 'Feature') {
+        data = [obj]
+      } else if (info.layer.props.layerGeometry.source && info.layer.props.layerGeometry.target) {
+        // arc layer object
+        ['source', 'target'].forEach(point => {
+          const { longitude, latitude, geometryAccessor = d => d } =
+            info.layer.props.layerGeometry[point]
+          data = [
+            ...data,
+            {
+              type: 'Feature',
+              geometry: {
+                coordinates: [
+                  obj[geometryAccessor(longitude)],
+                  obj[geometryAccessor(latitude)],
+                ],
+                type: 'Point',
+              },
+              properties: obj,
+            },
+          ]
+        })
+      } else {
+        // case for Scatterplot point
+        const { longitude, latitude, geometryAccessor = d => d }  = info.layer.props.layerGeometry
+        data = [{
+          type: 'Feature',
+          geometry: {
+            coordinates: [
+              obj[geometryAccessor(longitude)],
+              obj[geometryAccessor(latitude)],
+            ],
+            type: 'Point',
+          },
+          properties: obj,
+        }]
+      }
+      [longitude, latitude, zoom] = [...Object.values(simpleSetView({ data, height, width }))]
+      setViewOverride(o => ({
+        ...o,
+        longitude,
+        latitude,
+        zoom,
+      }))
+    }
+  }, [mapConfig, width, height])
 
   // set state for layers and data
   const [{ layers }, configurableLayerDispatch] = useReducer((state, { type, payload }) => {
@@ -270,7 +328,7 @@ const LocusMap = ({
     if (finalDataConfig?.length && !visbleMVTLayer) {
       if (geoJSONMVTLayerData?.tileData?.length) {
         const finalGeoJSONMVTData = finalDataConfig.find(({ id }) => id === geoJSONMVTDataId)
-        if (finalGeoJSONMVTData?.data?.[0]?.properties) {
+        if (!renderedFeatures.length || finalGeoJSONMVTData?.data?.[0]?.properties) {
           setProcessingMapData(false)
         }
       } else {
@@ -396,6 +454,7 @@ const LocusMap = ({
         }
         return null
       }}
+      onClick={finalOnClick}
       setProcessingMapData={geoJSONMVTLayerData || visbleMVTLayer ?
         setProcessingMapData :
         () => {}
@@ -409,16 +468,17 @@ const LocusMap = ({
     viewStateOverride,
     geoJSONMVTLayerData,
     visbleMVTLayer,
+    finalOnClick,
   ])
 
   return (
     <>
       {locusMap}
       {legend}
-      {processingMapData && !loaderTimeout &&
+      {processingMapData &&
         <LoaderWrapper>
           <Loader
-            open={processingMapData && !loaderTimeout}
+            open={processingMapData}
             classes={{ icon: 'text-primary-700' }}
           />
         </LoaderWrapper>

@@ -165,7 +165,11 @@ export const getCircleRadiusCentroid = ({ polygon }) => {
  */
 export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
   if (data?.length) {
-    return extent(data, d => dataPropertyAccessor(d)[dataKey])
+    let [min, max] = extent(data, d => dataPropertyAccessor(d)[dataKey])
+    if (min === max && max !== 0) {
+      [min, max] = [Math.min(0, min), Math.max(0, max)]
+    }
+    return [min, max]
   }
   return []
 }
@@ -225,7 +229,7 @@ export const setFinalLayerDataProperty = ({
         return defaultValue
       }
 
-      if (dataRange.length >= 2 && dataRange[0] !== dataRange[1]) {
+      if (dataRange[0] !== dataRange[1]) {
         const d3Fn = SCALES[dataScale](dataRange, valueOptions)
         // case for MVT layer
         if (data?.tileData?.length) {

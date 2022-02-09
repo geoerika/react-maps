@@ -43,6 +43,7 @@ const Map = ({
   viewStateOverride,
   legend,
   onHover,
+  onClick,
   showTooltip,
   renderTooltip,
   pitch,
@@ -107,7 +108,7 @@ const Map = ({
         onInteractionStateChange={(interactionState) => {
           const{ isDragging, inTransition, isZooming, isPanning, isRotating } = interactionState
           // when interaction with map ends, resets processingMapData state to show Loader component
-          if ([isDragging, isZooming, isPanning, isRotating, inTransition].every(action => action === false)) {
+          if ([isDragging, isZooming, isPanning, isRotating, inTransition].every(action => !action)) {
             setProcessingMapData(true)
           }
         }}
@@ -118,10 +119,11 @@ const Map = ({
         onHover={finalOnHover}
         getTooltip={getTooltip}
         getCursor={getCursor}
-        onClick={({ object }) => {
-          if(!object) {
+        onClick={info => {
+          if(!info?.object) {
             setHighlightObj(null)
           }
+          onClick(info)
         }}
       >
         <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
@@ -152,6 +154,7 @@ Map.propTypes = {
   setZoom: PropTypes.func,
   setCurrentViewport: PropTypes.func,
   onHover: PropTypes.func,
+  onClick: PropTypes.func,
   setProcessingMapData: PropTypes.func,
   controller: PropTypes.object,
   ...StaticMap.propTypes,
@@ -174,6 +177,7 @@ Map.defaultProps = {
   setCurrentViewport: () => {},
   controller: { controller: true },
   onHover: () => {},
+  onClick: () => {},
   setProcessingMapData: () => {},
   ...StaticMap.defaultProps,
   ...commonDefaultProps,
