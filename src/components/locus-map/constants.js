@@ -166,7 +166,12 @@ export const PROP_CONFIGURATIONS = {
   elevation: {
     defaultValue: [0, 1000],
     deckGLName: 'getElevation',
-    byProducts: { extruded: true },
+    byProducts: {
+      extruded: true,
+      parameters: {
+        depthTest: true,
+      },
+    },
   },
   sourceArcColor: {
     defaultValue: [24, 66, 153],
