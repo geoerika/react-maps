@@ -192,7 +192,7 @@ export const setFinalLayerDataProperty = ({
   data,
   value,
   defaultValue,
-  dataScale,
+  dataScale = 'linear',
   valueOptions,
   dataPropertyAccessor = d => d,
   geometryAccessor = d => d,
@@ -202,8 +202,8 @@ export const setFinalLayerDataProperty = ({
   if (!value) {
     return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
   }
-  // case for radius for GeoJSON layer
-  if (value.field && !dataScale && !valueOptions && !data?.tileData?.length) {
+  // case for radius for GeoJSON layer - there are no valueOption for this layer
+  if (value.field && !valueOptions && !data?.tileData?.length) {
     return d => dataPropertyAccessor(d)[value.field]
   }
   let layerData = data?.tileData?.length ? data.tileData : data
@@ -263,7 +263,7 @@ export const getSchemeColorValues = (schemeColor) => {
     arrayToRGBAStrColor({ color: schemeColor }) :
     schemeColor)
   return {
-    newLineColor: color.shade(50).rgb,
+    newLineColor: color.shade(30).rgb,
     newColorValue: arraySchemeColor,
     newColorValueOptions: [color.tint(90).rgb, arraySchemeColor],
   }

@@ -179,12 +179,10 @@ const WIReportLayerConfig = {
   visualizations: {
     radius: {
       value: { field: 'visits' },
-      valueOptions: [5, 15],
       dataScale: 'linear',
     },
     fill: {
       value: { field: 'repeat_visitors' },
-      valueOptions: [[214, 232, 253], [39, 85, 196]],
       dataScale: 'linear',
     },
   },
@@ -215,7 +213,11 @@ const selectLayerConfig = {
   layer: 'select',
   dataId: 'select-123',
   layerMode: 'circle',
-  visualizations: {},
+  visualizations: {
+    fill: {
+      value: [229, 118, 99],
+    },
+  },
   interactions: {},
   opacity: 0.2,
 }
@@ -294,7 +296,7 @@ const GeoJSONfsaMVTConfig = {
     },
     elevation: {
       value: { field: 'unique_visitors' },
-      valueOptions: [0, 1000],
+      valueOptions: [0, 40000],
       dataScale: 'linear',
     },
   },
@@ -307,8 +309,8 @@ const GeoJSONfsaMVTConfig = {
       },
     },
   },
-  visible: false,
-  opacity: 0.1,
+  visible: true,
+  opacity: 0.3,
   legend: { showLegend: true },
 }
 
@@ -338,7 +340,7 @@ const scatterplotArgs = { layerConfig: [WIReportLayerConfig], dataConfig, mapCon
 
 export const ScatterplotLayer = Template.bind({})
 ScatterplotLayer.args = scatterplotArgs
-ScatterplotLayer.storyName = 'Scatterplot Layer for WI & VWI reports'
+ScatterplotLayer.storyName = 'Scatterplot Layer for WI & VWI reports with default values for radius & fill'
 
 const scatterplotSchemeColourArgs = {
   layerConfig: [{ ...WIReportLayerConfig, schemeColor: [97, 21, 143] }],
@@ -384,7 +386,7 @@ const GeoJSONMVTArgs = {
 
 export const GeoJSONMVTLayer = Template.bind({})
 GeoJSONMVTLayer.args = GeoJSONMVTArgs
-GeoJSONMVTLayer.storyName = 'GeoJSON polygon Layer with MVT tile geometry data'
+GeoJSONMVTLayer.storyName = 'GeoJSON CT polygon Layer with MVT tile geometry data'
 
 initViewState = {
   latitude: 44.41,

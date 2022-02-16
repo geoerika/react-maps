@@ -68,6 +68,7 @@ export const LAYER_CONFIGURATIONS = {
       parameters: {
         depthTest: false,
       },
+      extruded: false,
     },
   },
   arc: {
@@ -142,15 +143,26 @@ export const LAYER_CONFIGURATIONS = {
   },
 }
 
+export const LAYER_TYPES = Object.keys(LAYER_CONFIGURATIONS).reduce((acc, curr) => {
+  acc[curr] = curr
+  return acc
+}, {})
+
 // ====[NOTE] props that are available for configuration via UI
 export const PROP_CONFIGURATIONS = {
   fill: {
-    defaultValue: [182, 38, 40],
+    defaultValue: {
+      value: [54, 111, 228],
+      valueOptions: [[214, 232, 253],[54, 111, 228]],
+    },
     deckGLName: 'getFillColor',
     byProducts: { filled: true },
   },
   radius: {
-    defaultValue: 5,
+    defaultValue: {
+      value: 10,
+      valueOptions: [5, 15],
+    },
     deckGLName: 'getRadius',
   },
   lineWidth: {
@@ -159,26 +171,34 @@ export const PROP_CONFIGURATIONS = {
     byProducts: { stroked: true },
   },
   lineColor: {
-    defaultValue: [42, 42, 42],
+    defaultValue: [39, 85, 196],
     deckGLName: 'getLineColor',
     byProducts: { stroked: true },
   },
   elevation: {
     defaultValue: [0, 1000],
     deckGLName: 'getElevation',
-    byProducts: { extruded: true },
+    byProducts: {
+      extruded: true,
+      parameters: {
+        depthTest: true,
+      },
+    },
   },
   sourceArcColor: {
-    defaultValue: [24, 66, 153],
+    defaultValue: [54, 111, 228],
     deckGLName: 'getSourceColor',
+    byProducts: { stroked: true },
   },
   targetArcColor: {
     defaultValue: [250, 175, 21],
     deckGLName: 'getTargetColor',
+    byProducts: { stroked: true },
   },
   arcWidth: {
     defaultValue: 1,
     deckGLName: 'getWidth',
+    byProducts: { stroked: true },
   },
   arcHeight: {
     defaultValue: 1,
@@ -213,3 +233,8 @@ export const PROP_CONFIGURATIONS = {
     deckGLName: 'getEditHandlePointRadius',
   },
 }
+
+export const PROP_TYPES = Object.keys(PROP_CONFIGURATIONS).reduce((acc, curr) => {
+  acc[curr] = curr
+  return acc
+}, {})
