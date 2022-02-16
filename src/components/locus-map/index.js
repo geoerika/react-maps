@@ -49,6 +49,9 @@ const LocusMap = ({
   const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
   const [processingMapData, setProcessingMapData] = useState(true)
 
+  const selectMode = useMemo(() =>
+    layerConfig.find(layer => layer.layer === 'select' && layer.visible !== false), [layerConfig])
+
   // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
   useEffect(() => {
     if (processingMapData) {
@@ -73,7 +76,7 @@ const LocusMap = ({
   const finalOnClick = useCallback(info => {
     if (typeof mapConfig?.onClick === 'function') {
       mapConfig?.onClick(info)
-    } else if (info.object) {  // when click event occurs, map will zoom in on the clicked object
+    } else if (info.object && !selectMode) {  // when click event occurs, map will zoom in on the clicked object
       const obj = info.object
       let [data, longitude, latitude, zoom] = [[],0,0]
       // case for GeoJSON objects
@@ -122,7 +125,7 @@ const LocusMap = ({
         zoom,
       }))
     }
-  }, [mapConfig, width, height])
+  }, [mapConfig, selectMode, width, height])
 
   // set state for layers and data
   const [{ layers }, configurableLayerDispatch] = useReducer((state, { type, payload }) => {
