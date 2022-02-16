@@ -157,11 +157,19 @@ export const parseDeckGLLayerFromConfig = ({
 
   const { click, hover, tooltip, highlight, labels } = interactions
 
+  const setLayerData = (data) => {
+    if (layer === LAYER_CONFIGURATIONS.MVT.name) {
+      return data?.tileGeom
+    }
+    if (layer === LAYER_CONFIGURATIONS.select.name) {
+      return { type: 'FeatureCollection', features: data }
+    }
+    return data
+  }
+
   return data => new Layer({
     id,
-    data: layer === 'MVT' ?
-      data?.tileGeom :
-      (layer === 'select' ? { type: 'FeatureCollection', features: data } : data),
+    data: setLayerData(data),
     // ====[TODO] logic for below
     // updateTriggers
     mode,
@@ -172,8 +180,9 @@ export const parseDeckGLLayerFromConfig = ({
     ...propsWithData({ data }),
     ...geometryProps,
     layerGeometry,
-    pickable: Boolean(click || hover || tooltip || highlight || labels || (layer === 'select')),
-    onEdit: layer !== 'select' ?
+    pickable: Boolean(click || hover || tooltip || highlight || labels ||
+      (layer === LAYER_CONFIGURATIONS.select.name )),
+    onEdit: layer !== LAYER_CONFIGURATIONS.select.name  ?
       () => {} :
       ({ updatedData }) => {
         const { setSelectShape } = others
@@ -187,8 +196,9 @@ export const parseDeckGLLayerFromConfig = ({
           setSelectShape(updatedData.features)
         }
       },
-    onViewportLoad: layer === 'MVT' ? onViewportLoad : null,
-    visible: Boolean(data?.length) || Boolean(data?.tileData?.length) || (layer === 'select'),
+    onViewportLoad: layer === LAYER_CONFIGURATIONS.MVT.name  ? onViewportLoad : null,
+    visible: Boolean(data?.length) || Boolean(data?.tileData?.length) ||
+      (layer === LAYER_CONFIGURATIONS.select.name),
     ...others,
   })
 }
