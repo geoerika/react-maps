@@ -263,7 +263,7 @@ export const getSchemeColorValues = (schemeColor) => {
     arrayToRGBAStrColor({ color: schemeColor }) :
     schemeColor)
   return {
-    newLineColor: color.shade(50).rgb,
+    newLineColor: color.shade(30).rgb,
     newColorValue: arraySchemeColor,
     newColorValueOptions: [color.tint(90).rgb, arraySchemeColor],
   }
