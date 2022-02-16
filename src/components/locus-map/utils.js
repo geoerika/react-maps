@@ -2,7 +2,7 @@ import { WebMercatorViewport } from '@deck.gl/core'
 import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@nebula.gl/edit-modes'
 
 import { setFinalLayerDataProperty, getSchemeColorValues } from '../../shared/utils'
-import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS } from './constants'
+import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS,  LAYER_TYPES, PROP_TYPES } from './constants'
 
 
 /**
@@ -67,7 +67,7 @@ export const parseDeckGLLayerFromConfig = ({
       [layerGeom.target.propName] : layerGeom.target.propFn({ geometryAccessor, ...geometry.target }),
     }
   }
-  if (layer === LAYER_CONFIGURATIONS.MVT.name) {
+  if (layer === LAYER_TYPES.MVT) {
     geometryProps = { geoKey: mvtGeoKey, geometryAccessor }
   }
 
@@ -104,7 +104,7 @@ export const parseDeckGLLayerFromConfig = ({
       let value = config?.value
       // no valueOptions needed for radius for GeoJSON layer
       let valueOptions =
-        layer === LAYER_CONFIGURATIONS.geojson.name && name === PROP_CONFIGURATIONS.radius.name?
+        layer === LAYER_TYPES.geojson && name === PROP_TYPES.radius?
           null:
           config?.valueOptions || defaultValue.valueOptions
 
@@ -113,13 +113,13 @@ export const parseDeckGLLayerFromConfig = ({
       }
 
       // change colour values with schemeColour generated colours
-      if (schemeColor && name === PROP_CONFIGURATIONS.lineColor.name) {
+      if (schemeColor && name === PROP_TYPES.lineColor) {
         value = newLineColor
       }
-      if (!value?.field && schemeColor && name ===  PROP_CONFIGURATIONS.fill.name) {
+      if (!value?.field && schemeColor && name ===  PROP_TYPES.fill) {
         value = newColorValue
       }
-      if (value?.field && schemeColor && name === PROP_CONFIGURATIONS.fill.name) {
+      if (value?.field && schemeColor && name === PROP_TYPES.fill) {
         valueOptions = newColorValueOptions
       }
 
@@ -129,7 +129,7 @@ export const parseDeckGLLayerFromConfig = ({
        * however, for LocusMap we set it true unless a user provides a custom value, as with the
        * case for all byProducts
        */
-      if (name === PROP_CONFIGURATIONS.elevation.name) {
+      if (name === PROP_TYPES.elevation) {
         [extruded, parameters] = value?.field ?
           [byProducts.extruded, byProducts.parameters] :
           [defaultProps.extruded, defaultProps.parameters]
@@ -158,10 +158,10 @@ export const parseDeckGLLayerFromConfig = ({
   const { click, hover, tooltip, highlight, labels } = interactions
 
   const setLayerData = (data) => {
-    if (layer === LAYER_CONFIGURATIONS.MVT.name) {
+    if (layer === LAYER_TYPES.MVT) {
       return data?.tileGeom
     }
-    if (layer === LAYER_CONFIGURATIONS.select.name) {
+    if (layer === LAYER_TYPES.select) {
       return { type: 'FeatureCollection', features: data }
     }
     return data
@@ -181,8 +181,8 @@ export const parseDeckGLLayerFromConfig = ({
     ...geometryProps,
     layerGeometry,
     pickable: Boolean(click || hover || tooltip || highlight || labels ||
-      (layer === LAYER_CONFIGURATIONS.select.name )),
-    onEdit: layer !== LAYER_CONFIGURATIONS.select.name  ?
+      (layer === LAYER_TYPES.select)),
+    onEdit: layer !== LAYER_TYPES.select ?
       () => {} :
       ({ updatedData }) => {
         const { setSelectShape } = others
@@ -196,9 +196,9 @@ export const parseDeckGLLayerFromConfig = ({
           setSelectShape(updatedData.features)
         }
       },
-    onViewportLoad: layer === LAYER_CONFIGURATIONS.MVT.name  ? onViewportLoad : null,
+    onViewportLoad: layer === LAYER_TYPES.MVT  ? onViewportLoad : null,
     visible: Boolean(data?.length) || Boolean(data?.tileData?.length) ||
-      (layer === LAYER_CONFIGURATIONS.select.name),
+      (layer === LAYER_TYPES.select),
     ...others,
   })
 }
