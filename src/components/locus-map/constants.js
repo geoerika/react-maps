@@ -29,7 +29,6 @@ import { EditableGeoJsonLayer } from '@nebula.gl/layers'
 // ====[NOTE] consumed by UI to define how a user can interact with a given layer
 export const LAYER_CONFIGURATIONS = {
   scatterplot: {
-    name: 'scatterplot',
     notAClass: false,
     deckGLClass: ScatterplotLayer,
     dataPropertyAccessor: d => d,
@@ -51,7 +50,6 @@ export const LAYER_CONFIGURATIONS = {
     },
   },
   geojson: {
-    name: 'geojson',
     notAClass: false,
     deckGLClass: GeoJsonLayer,
     dataPropertyAccessor: d => d.properties,
@@ -74,7 +72,6 @@ export const LAYER_CONFIGURATIONS = {
     },
   },
   arc: {
-    name: 'arc',
     notAClass: false,
     deckGLClass: ArcLayer,
     dataPropertyAccessor: d => d,
@@ -99,7 +96,6 @@ export const LAYER_CONFIGURATIONS = {
     defaultProps: {},
   },
   MVT: {
-    name: 'MVT',
     notAClass: false,
     deckGLClass: MVTLayer,
     dataPropertyAccessor: d => d,
@@ -114,7 +110,6 @@ export const LAYER_CONFIGURATIONS = {
     },
   },
   select: {
-    name: 'select',
     notAClass: true,
     deckGLClass: EditableGeoJsonLayer,
     visualizations: [
@@ -148,10 +143,14 @@ export const LAYER_CONFIGURATIONS = {
   },
 }
 
+export const LAYER_TYPES = Object.keys(LAYER_CONFIGURATIONS).reduce((acc, curr) => {
+  acc[curr] = curr
+  return acc
+}, {})
+
 // ====[NOTE] props that are available for configuration via UI
 export const PROP_CONFIGURATIONS = {
   fill: {
-    name: 'fill',
     defaultValue: {
       value: [54, 111, 228],
       valueOptions: [[214, 232, 253],[54, 111, 228]],
@@ -160,7 +159,6 @@ export const PROP_CONFIGURATIONS = {
     byProducts: { filled: true },
   },
   radius: {
-    name: 'radius',
     defaultValue: {
       value: 10,
       valueOptions: [5, 15],
@@ -168,19 +166,16 @@ export const PROP_CONFIGURATIONS = {
     deckGLName: 'getRadius',
   },
   lineWidth: {
-    name: 'lineWidth',
     defaultValue: 1,
     deckGLName: 'getLineWidth',
     byProducts: { stroked: true },
   },
   lineColor: {
-    name: 'lineColor',
     defaultValue: [39, 85, 196],
     deckGLName: 'getLineColor',
     byProducts: { stroked: true },
   },
   elevation: {
-    name: 'elevation',
     defaultValue: [0, 1000],
     deckGLName: 'getElevation',
     byProducts: {
@@ -201,49 +196,45 @@ export const PROP_CONFIGURATIONS = {
     byProducts: { stroked: true },
   },
   arcWidth: {
-    name: 'arcWidth',
     defaultValue: 1,
     deckGLName: 'getWidth',
     byProducts: { stroked: true },
   },
   arcHeight: {
-    name: 'arcHeight',
     defaultValue: 1,
     deckGLName: 'getHeight',
   },
   arcTilt: {
-    name: 'arcTilt',
     defaultValue: 0,
     deckGLName: 'getTilt',
   },
   tentativeFillColor: {
-    name: 'tentativeFillColor',
     defaultValue: [253, 217, 114],
     deckGLName: 'getTentativeFillColor',
   },
   tentativeLineColor: {
-    name: 'tentativeLineColor',
     defaultValue: [215, 142, 15],
     deckGLName: 'getTentativeLineColor',
   },
   tentativeLineWidth: {
-    name: 'tentativeLineWidth',
     defaultValue: 2,
     deckGLName: 'getTentativeLineWidth',
   },
   editHandlePointColor: {
-    name: 'editHandlePointColor',
     defaultValue: [182, 38, 40],
     deckGLName: 'getEditHandlePointColor',
   },
   editHandlePointOutlineColor: {
-    name: 'editHandlePointOutlineColor',
     defaultValue: [255, 255, 255],
     deckGLName: 'getEditHandlePointOutlineColor',
   },
   editHandlePointRadius: {
-    name: 'editHandlePointRadius',
     defaultValue: 4,
     deckGLName: 'getEditHandlePointRadius',
   },
 }
+
+export const PROP_TYPES = Object.keys(PROP_CONFIGURATIONS).reduce((acc, curr) => {
+  acc[curr] = curr
+  return acc
+}, {})
