@@ -67,7 +67,7 @@ export const parseDeckGLLayerFromConfig = ({
       [layerGeom.target.propName] : layerGeom.target.propFn({ geometryAccessor, ...geometry.target }),
     }
   }
-  if (layer === 'MVT') {
+  if (layer === LAYER_CONFIGURATIONS.MVT.name) {
     geometryProps = { geoKey: mvtGeoKey, geometryAccessor }
   }
 
@@ -86,24 +86,54 @@ export const parseDeckGLLayerFromConfig = ({
     newColorValueOptions,
   } = schemeColor ? getSchemeColorValues(schemeColor) : {}
 
+  let extruded, parameters
+
   // ====[TODO] calculate field extents in advance, so every configurable aspect doesn't need to
   const propsWithData = ({ data, highlightId }) => ({
     // ====[TODO] trim invalid visualization values for a given layer
-    // =========] and provide the defaults from PROP_CONFIG
     ...layerVisualizations.reduce((agg, name) => {
       const config = visualizations[name] || {}
-      let { value, valueOptions } = config
+      // let { value, valueOptions } = config
+      let { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
+
+      /*
+       * there is a complication with 'defaultValue' for radius & fill, both need a default value
+       * for the cases when a 'value' and a 'valueOptions' are not provided by the user, hence the
+       * changes below
+       */
+      let value = config?.value
+      // no valueOptions needed for radius for GeoJSON layer
+      let valueOptions =
+        layer === LAYER_CONFIGURATIONS.geojson.name && name === PROP_CONFIGURATIONS.radius.name?
+          null:
+          config?.valueOptions || defaultValue.valueOptions
+
+      if (defaultValue && !Array.isArray(defaultValue) && typeof defaultValue === 'object') {
+        defaultValue = defaultValue.value
+      }
+
       // change colour values with schemeColour generated colours
-      if (schemeColor && name === 'lineColor') {
+      if (schemeColor && name === PROP_CONFIGURATIONS.lineColor.name) {
         value = newLineColor
       }
-      if (!value?.field && schemeColor && name === 'fill') {
+      if (!value?.field && schemeColor && name ===  PROP_CONFIGURATIONS.fill.name) {
         value = newColorValue
       }
-      if (value?.field && schemeColor && name === 'fill') {
+      if (value?.field && schemeColor && name === PROP_CONFIGURATIONS.fill.name) {
         valueOptions = newColorValueOptions
       }
-      const { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
+
+      /*
+       * out of all byProducts, 'extruded' and 'parameters.depthTest' props have to be generally
+       * false, except when a layer uses elevation; stroked is by default false in deck.gl layers,
+       * however, for LocusMap we set it true unless a user provides a custom value, as with the
+       * case for all byProducts
+       */
+      if (name === PROP_CONFIGURATIONS.elevation.name) {
+        [extruded, parameters] = value?.field ?
+          [byProducts.extruded, byProducts.parameters] :
+          [defaultProps.extruded, defaultProps.parameters]
+      }
 
       return {
         ...agg,
@@ -119,6 +149,8 @@ export const parseDeckGLLayerFromConfig = ({
           highlightId,
         }),
         ...byProducts,
+        extruded,
+        parameters,
       }
     }, {}),
   })
@@ -137,7 +169,6 @@ export const parseDeckGLLayerFromConfig = ({
     interactions,
     dataPropertyAccessor,
     ...defaultProps,
-    ...others,
     ...propsWithData({ data }),
     ...geometryProps,
     layerGeometry,
@@ -158,6 +189,7 @@ export const parseDeckGLLayerFromConfig = ({
       },
     onViewportLoad: layer === 'MVT' ? onViewportLoad : null,
     visible: Boolean(data?.length) || Boolean(data?.tileData?.length) || (layer === 'select'),
+    ...others,
   })
 }
 
