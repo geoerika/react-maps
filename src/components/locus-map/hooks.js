@@ -73,18 +73,20 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
        * There is visually a difference between the legend opacity for color gradient and map opacity,
        * we need to adjust opacity for symbols in the legend to have a closer match
        */
-      let fillColors = visualizations?.fill?.valueOptions ?
-        getArrayGradientFillColors({
+      const [colorMin, colorMax] = PROP_CONFIGURATIONS.fill.defaultValue.valueOptions || []
+      let fillColors =  getArrayGradientFillColors({
+        fillColors: [
+          arrayToRGBAStrColor({ color: colorMin }),
+          arrayToRGBAStrColor({ color: colorMax }),
+        ],
+        opacity: setLegendOpacity({ opacity }),
+      })
+      if (visualizations?.fill?.valueOptions) {
+        fillColors = getArrayGradientFillColors({
           fillColors: visualizations.fill.valueOptions,
           opacity: setLegendOpacity({ opacity }),
-        }) :
-        getArrayGradientFillColors({
-          fillColors: [
-            arrayToRGBAStrColor({ color: PROP_CONFIGURATIONS.fill.defaultValue.valueOptions?.[0] }),
-            arrayToRGBAStrColor({ color: PROP_CONFIGURATIONS.fill.defaultValue.valueOptions?.[1] }),
-          ],
-          opacity: setLegendOpacity({ opacity }),
         })
+      }
       if (newColorValueOptions) {
         fillColors = getArrayGradientFillColors({
           fillColors: newColorValueOptions,
