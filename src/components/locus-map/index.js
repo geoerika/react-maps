@@ -513,6 +513,7 @@ LocusMap.propTypes = {
     tooltipNode: PropTypes.node,
     showMapTooltip: PropTypes.bool,
     initViewState: PropTypes.object,
+    setCurrentViewport: PropTypes.func,
     pitch: PropTypes.number,
     mapboxApiAccessToken: PropTypes.string.isRequired,
     typography: PropTypes.object,
