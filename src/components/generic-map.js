@@ -120,9 +120,7 @@ const Map = ({
           // send zoom and viewState to parent comp
           if ([isDragging, isZooming, isPanning, isRotating].every(action => !action)) {
             setZoom(viewState.zoom)
-            if (viewState.zoom >= 10) {
-              setCurrentViewport(viewState)
-            }
+            setCurrentViewport(viewState)
           }
           // reset highlightObj when we are actively interacting with the map in other ways
           if ([isDragging, isZooming, isPanning, isRotating].some(action => !action)) {
