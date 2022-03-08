@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useMemo, useReducer, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useReducer, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
 import { MVTLayer } from '@deck.gl/geo-layers'
@@ -39,7 +39,7 @@ const LocusMap = ({
   mapConfig,
 }) => {
   const [finalDataConfig, setFinalDataConfig] = useState([])
-  const [viewStateOverride, setViewOverride] = useState({})
+  const [viewStateOverride, setViewStateOverride] = useState({})
   const [{ height, width }, setDimensions] = useState({})
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
   const [selectShape, setSelectShape] = useState([])
@@ -118,7 +118,7 @@ const LocusMap = ({
         }]
       }
       [longitude, latitude, zoom] = [...Object.values(simpleSetView({ data, height, width }))]
-      setViewOverride(o => ({
+      setViewStateOverride(o => ({
         ...o,
         longitude,
         latitude,
@@ -232,11 +232,11 @@ const LocusMap = ({
    * case when reading geometry from MVT layer to use in a GeoJSON layer:
    * get params of GeoJSON layer that uses MVT geom
    */
-  const { geoJSONMVTLayerData, geoJSONMVTDataId, geoJSONMVTGeoKey, visbleMVTLayer } = useMemo(() => {
+  const { geoJSONMVTLayerData, geoJSONMVTDataId, geoJSONMVTGeoKey, geoJSONMVTLayer, visbleMVTLayer } = useMemo(() => {
     const geoJSONLayers = layerConfig?.filter(layer => layer?.layer === 'geojson')
     const visbleMVTLayer = layerConfig.some(layer => layer.layer === 'MVT' &&
       (layer.visible === undefined || (layer.visible !== undefined && layer.visible)))
-    const geomData = geoJSONLayers?.reduce((acc, layer) => {
+    const geoJSONMVT = geoJSONLayers?.reduce((acc, layer) => {
       const geoJSONLayerTileData = dataConfig.find(layerData => layerData.id === layer.dataId)
       if (geoJSONLayerTileData?.data?.tileGeom) {
         const { id, data } = geoJSONLayerTileData
@@ -245,11 +245,12 @@ const LocusMap = ({
           geoJSONMVTLayerData: data,
           geoJSONMVTDataId: id,
           geoJSONMVTGeoKey: geoKey,
+          geoJSONMVTLayer: layer,
         }
       }
       return acc
     }, {})
-    return { ...geomData, visbleMVTLayer }
+    return { ...geoJSONMVT, visbleMVTLayer }
   }, [layerConfig, dataConfig])
 
   // create MVT layer to get all geometry for polygons in the viewport
@@ -257,6 +258,7 @@ const LocusMap = ({
     if (geoJSONMVTLayerData) {
       const id = 'MVTRenderedFeatures'
       const mvtLayer = new MVTLayer({
+        ...geoJSONMVTLayer,
         id,
         data: geoJSONMVTLayerData.tileGeom,
         getFillColor: [251, 201, 78],
@@ -275,7 +277,7 @@ const LocusMap = ({
         },
       })
     }
-  }, [geoJSONMVTLayerData, onViewportLoad])
+  }, [geoJSONMVTLayerData, geoJSONMVTLayer, onViewportLoad])
 
   // set finalDataConfig, taking care of the case when reading geometry from MVT layer
   useEffect(() => {
@@ -338,7 +340,15 @@ const LocusMap = ({
         setProcessingMapData(false)
       }
     }
-  }, [layerConfig, dataConfig, geoJSONMVTLayerData, geoJSONMVTDataId, visbleMVTLayer, finalDataConfig, renderedFeatures])
+  }, [
+    layerConfig,
+    dataConfig,
+    geoJSONMVTLayerData,
+    geoJSONMVTDataId,
+    visbleMVTLayer,
+    finalDataConfig,
+    renderedFeatures,
+  ])
 
   // set initial layers and their corresponding data
   useEffect(() => {
@@ -351,7 +361,7 @@ const LocusMap = ({
   }, [layerConfig, finalDataConfig, dataConfig])
 
   // adjust viewport based on data
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (width && height && finalDataConfig.length && !renderCycleMVT && !viewportAdjustedByData) {
       // recenter based on data
       let dataGeomList = []
@@ -367,7 +377,7 @@ const LocusMap = ({
       })
       const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
       if (!selectShape.length) {
-        setViewOverride(o => ({
+        setViewStateOverride(o => ({
           ...o,
           ...dataView,
         }))
@@ -378,6 +388,7 @@ const LocusMap = ({
   }, [
     finalDataConfig,
     layerConfig,
+    mapConfig,
     selectShape,
     renderedFeatures,
     renderCycleMVT,
@@ -502,6 +513,7 @@ LocusMap.propTypes = {
     tooltipNode: PropTypes.node,
     showMapTooltip: PropTypes.bool,
     initViewState: PropTypes.object,
+    setCurrentViewport: PropTypes.func,
     pitch: PropTypes.number,
     mapboxApiAccessToken: PropTypes.string.isRequired,
     typography: PropTypes.object,

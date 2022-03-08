@@ -77,7 +77,7 @@ const GeoCohortMap = ({
 
   // calculate bbox coords for current viewport and extended area around
   useEffect(() => {
-    if (currentViewport?.zoom) {
+    if (currentViewport?.zoom >= 10) {
       setViewportBBox(new WebMercatorViewport(currentViewport).getBounds())
       setApiBBox(new WebMercatorViewport({ ...currentViewport, zoom: 9 }).getBounds())
     }
@@ -97,7 +97,7 @@ const GeoCohortMap = ({
   // set viewport to display all FSA polygons on the map
   useEffect(() => {
     if (reportFSAData?.length && width && height && !viewportAdjustedByData) {
-      setViewOverride({ ...setView({ data: reportFSAData, width, height }), pitch })
+      setViewOverride({ ...setView({ data: reportFSAData, width, height }) })
       setViewportAdjustedByData(true)
     }
   }, [reportFSAData, pitch, height, width, viewportAdjustedByData])

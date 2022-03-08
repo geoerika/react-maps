@@ -9,4 +9,5 @@ ignores: [
     "@storybook/*",
     "size-limit",
     "@size-limit/*",
+    "tailwindcss",
 ]
