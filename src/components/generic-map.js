@@ -149,8 +149,14 @@ const Map = ({
           }
           onClick(info)
         }}
+        glOptions={{
+          preserveDrawingBuffer: true,  // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
+        }}
       >
-        <StaticMap mapboxApiAccessToken={mapboxApiAccessToken} />
+        <StaticMap
+          mapboxApiAccessToken={mapboxApiAccessToken}
+          preserveDrawingBuffer
+        />
       </DeckGL>
       {legend}
       {showTooltip && hoverInfo?.object && typeof renderTooltip === 'function' && (
