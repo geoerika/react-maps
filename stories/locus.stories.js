@@ -208,6 +208,23 @@ const WIReportLayerConfig = {
   // metricAliases: {},
   opacity: 0.5,
 }
+const WIReportLabelLayerConfig = {
+  layer: 'text',
+  dataId: 'wiReportData-123',
+  geometry: { longitude: 'lon', latitude: 'lat' },
+  visualizations: {
+    text: {
+      value: {
+        title: 'poi_id',
+        valueKeys: ['visits', 'repeat_visitors'],
+      },
+    },
+    color: {
+      value: '#60158f',
+    },
+  },
+  opacity: 1,
+}
 
 const selectLayerConfig = {
   layer: 'select',
@@ -343,14 +360,14 @@ ScatterplotLayer.args = scatterplotArgs
 ScatterplotLayer.storyName = 'Scatterplot Layer for WI & VWI reports with default values for radius & fill'
 
 const scatterplotSchemeColourArgs = {
-  layerConfig: [{ ...WIReportLayerConfig, schemeColor: [97, 21, 143] }],
+  layerConfig: [{ ...WIReportLayerConfig, schemeColor: [97, 21, 143] }, WIReportLabelLayerConfig],
   dataConfig,
   mapConfig,
 }
 
 export const ScatterplotLayerSchemeColour = Template.bind({})
 ScatterplotLayerSchemeColour.args = scatterplotSchemeColourArgs
-ScatterplotLayerSchemeColour.storyName = 'Scatterplot Layer with array format scheme colour'
+ScatterplotLayerSchemeColour.storyName = 'Scatterplot Layer with array format scheme colour and Text Layer for labels'
 
 const xwiReportArgs = {
   layerConfig: [arcLayerConfig, ScatterPlotLayer1Config, ScatterPlotLayer2Config],
