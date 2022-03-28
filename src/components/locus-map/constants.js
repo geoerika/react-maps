@@ -1,4 +1,4 @@
-import { ScatterplotLayer, GeoJsonLayer, ArcLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, GeoJsonLayer, ArcLayer, TextLayer } from '@deck.gl/layers'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import { EditableGeoJsonLayer } from '@nebula.gl/layers'
 
@@ -43,10 +43,11 @@ export const LAYER_CONFIGURATIONS = {
     },
     // validator: (d) => Array.isArray(d) && d.every(row => DEFAULT_GEOMETRY_KEYS.latitude.some(key => validKey(row[key], 'number')) && DEFAULT_GEOMETRY_KEYS.longitude.some(key => validKey(row[key], 'number'))),
     visualizations: ['radius', 'fill', 'lineWidth', 'lineColor'],
-    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight'],
     defaultProps: {
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
+      sizeScale: 1,
     },
   },
   geojson: {
@@ -61,7 +62,7 @@ export const LAYER_CONFIGURATIONS = {
     // ====[TODO] radius isn't always valid, so how do we turn it off?
     // =========] GeoJson is EITHER radius around geometry.coordinates OR just coordinates
     visualizations: ['radius', 'elevation', 'fill', 'lineWidth', 'lineColor'],
-    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight'],
     defaultProps: {
       lineWidthUnits: 'pixels',
       pointRadiusUnits: 'meters',
@@ -69,6 +70,7 @@ export const LAYER_CONFIGURATIONS = {
         depthTest: false,
       },
       extruded: false,
+      sizeScale: 1,
     },
   },
   arc: {
@@ -101,12 +103,13 @@ export const LAYER_CONFIGURATIONS = {
     dataPropertyAccessor: d => d,
     geometry: { geoKey: 'geo_id', geometryAccessor: d => d },
     visualizations: ['fill', 'lineWidth', 'lineColor'],
-    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight'],
     defaultProps: {
       // extent: null, //[minX, minY, maxX, maxY]
       minZoom: 0,
       maxZoom: 23,
       lineWidthUnits: 'pixels',
+      sizeScale: 1,
     },
   },
   select: {
@@ -139,6 +142,25 @@ export const LAYER_CONFIGURATIONS = {
           },
         },
       },
+    },
+  },
+  text: {
+    notAClass: false,
+    deckGLClass: TextLayer,
+    dataPropertyAccessor: d => d,
+    geometry: {
+      propName: 'getPosition',
+      propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
+        [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
+      longitude: { type: 'number' },
+      latitude: { type: 'number' },
+    },
+    visualizations: ['text', 'size', 'color', 'angle', 'anchor', 'alignment', 'pixelOffset'],
+    interactions: ['tooltip', 'hover', 'highlight'],
+    defaultProps: {
+      sizeScale: 1,
+      fontFamily: '"Open Sans", sans-serif',
+      bilboard: true,
     },
   },
 }
@@ -184,6 +206,34 @@ export const PROP_CONFIGURATIONS = {
         depthTest: true,
       },
     },
+  },
+  text: {
+    defaultValue: '',
+    deckGLName: 'getText',
+  },
+  color: {
+    defaultValue: [0, 0, 0],
+    deckGLName: 'getColor',
+  },
+  size: {
+    defaultValue: 14,
+    deckGLName: 'getSize',
+  },
+  angle: {
+    defaultValue: 0,
+    deckGLName: 'getAngle',
+  },
+  anchor: {
+    defaultValue: 'start',
+    deckGLName: 'getTextAnchor',
+  },
+  alignment: {
+    defaultValue: 'bottom',
+    deckGLName: 'getAlignmentBaseline',
+  },
+  pixelOffset: {
+    defaultValue: [10, -10],
+    deckGLName: 'getPixelOffset',
   },
   sourceArcColor: {
     defaultValue: [54, 111, 228],
