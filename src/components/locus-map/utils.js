@@ -1,7 +1,7 @@
 import { WebMercatorViewport } from '@deck.gl/core'
 import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@nebula.gl/edit-modes'
 
-import { setFinalLayerDataProperty, getSchemeColorValues } from '../../shared/utils'
+import { setFinalLayerDataProperty, getSchemeColorValues, strToArrayColor } from '../../shared/utils'
 import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS,  LAYER_TYPES, PROP_TYPES } from './constants'
 
 
@@ -20,7 +20,7 @@ export const parseDeckGLLayerFromConfig = ({
   layer,
   geometry,
   visualizations,
-  interactions,
+  interactions = {},
   setProcessingMapData,
   ...others
 }) => {
@@ -32,7 +32,7 @@ export const parseDeckGLLayerFromConfig = ({
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
 
-  const { layerMode } = others
+  const { layerMode, formatData } = others
   const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
   const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
   const layerGeometry = geometry || layerGeom
@@ -93,7 +93,6 @@ export const parseDeckGLLayerFromConfig = ({
     // ====[TODO] trim invalid visualization values for a given layer
     ...layerVisualizations.reduce((agg, name) => {
       const config = visualizations[name] || {}
-      // let { value, valueOptions } = config
       let { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
 
       /*
@@ -123,6 +122,11 @@ export const parseDeckGLLayerFromConfig = ({
         valueOptions = newColorValueOptions
       }
 
+      // convert color value for text layer in an array format
+      if (value && name === PROP_TYPES.color && typeof value === 'string') {
+        value = strToArrayColor({ strColor: value })
+      }
+
       /*
        * out of all byProducts, 'extruded' and 'parameters.depthTest' props have to be generally
        * false, except when a layer uses elevation; stroked is by default false in deck.gl layers,
@@ -147,6 +151,7 @@ export const parseDeckGLLayerFromConfig = ({
           mvtGeoKey,
           geometryAccessor,
           highlightId,
+          formatData,
         }),
         ...byProducts,
         extruded,
