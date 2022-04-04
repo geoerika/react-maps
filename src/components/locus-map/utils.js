@@ -115,7 +115,7 @@ export const parseDeckGLLayerFromConfig = ({
       if (schemeColor && name === PROP_TYPES.lineColor) {
         value = newLineColor
       }
-      if (!value?.field && schemeColor && name ===  PROP_TYPES.fill) {
+      if (!value?.field && schemeColor && [PROP_TYPES.fill, PROP_TYPES.color].includes(name)) {
         value = newColorValue
       }
       if (value?.field && schemeColor && name === PROP_TYPES.fill) {
