@@ -151,7 +151,9 @@ export const LAYER_CONFIGURATIONS = {
     geometry: {
       propName: 'getPosition',
       propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
-        [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
+        d.type === 'Feature' && d.geometry?.type === 'Point' ?
+          d.geometry.coordinates :
+          [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
       longitude: { type: 'number' },
       latitude: { type: 'number' },
     },
@@ -160,7 +162,6 @@ export const LAYER_CONFIGURATIONS = {
     defaultProps: {
       sizeScale: 1,
       fontFamily: '"Open Sans", sans-serif',
-      bilboard: true,
     },
   },
 }
