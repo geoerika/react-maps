@@ -8,6 +8,7 @@ import { LocusMap } from '../src'
 import { getCursor } from '../src/utils'
 
 import poiRadiiTo from './data/pois-radii-to.json'
+import regionGeoJSON from './data/locus-region-geojson.json'
 import wiReportData from './data/wi-report.json'
 import xwiReportData from './data/xwi-report.json'
 import mvtData from './data/locus-map-mvt.json'
@@ -66,6 +67,7 @@ const dataConfig = [
   { id: 'xwiReport-123', data: xwiReportData },
   { id: 'wiReportData-123', data: wiReportData },
   { id: 'poiGeojson-123', data: poiRadiiTo },
+  { id: 'regionGeojson-123', data: regionGeoJSON },
   {
     id: 'mvt-123',
     data: {
@@ -122,6 +124,51 @@ const textGeoJSONLayerConfig = {
     },
     size: { value: 14 },
     pixelOffset: { value: [0, 0] },
+  },
+}
+
+const polygonGeoJSONLayerConfig = {
+  layer: 'geojson',
+  dataId: 'regionGeojson-123',
+  visualizations: {
+    fill: {
+      value: {
+        field: 'Visits (sum)',
+      },
+    },
+  },
+  opacity: 0.3,
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        id: 'Address region',
+        metricKeys: ['Visits (sum)'],
+        nameAccessor: d => d.properties,
+        idAccessor: d => d.properties,
+      },
+    },
+  },
+  legend: { showLegend: true },
+}
+
+const polygonTextGeoJSONLayerConfig = {
+  layer: 'text',
+  dataId: 'regionGeojson-123',
+  dataPropertyAccessor: d => d.properties,
+  geometry: {
+    longitude: 'longitude',
+    latitude: 'latitude',
+    geometryAccessor: d => d.properties,
+  },
+  visualizations: {
+    text: {
+      value: {
+        title: 'Address region',
+        valueKeys: ['Visits (sum)'],
+      },
+    },
+    size: { value: 14 },
+    pixelOffset: { value: [-30, 0] },
   },
 }
 
@@ -379,8 +426,8 @@ const textGeoJSONMVTConfig = {
   dataPropertyAccessor: d => d.properties,
   geometry: {
     geoKey: 'geo_ca_fsa',
-    longitude: 'lon',
-    latitude: 'lat',
+    longitude: 'longitude',
+    latitude: 'latitude',
     geometryAccessor: d => d.properties,
   },
   visualizations: {
@@ -414,7 +461,17 @@ const geojsonSchemeColourArgs = {
 
 export const GeoJSONLayerSchemeColour = Template.bind({})
 GeoJSONLayerSchemeColour.args = geojsonSchemeColourArgs
-GeoJSONLayerSchemeColour.storyName = 'GeoJSON Layer with string format scheme colour $ Text layer for labels'
+GeoJSONLayerSchemeColour.storyName = 'GeoJSON Layer with string format scheme colour & Text Layer for labels'
+
+const polygonGeojsonArgs = {
+  layerConfig: [polygonGeoJSONLayerConfig, polygonTextGeoJSONLayerConfig],
+  dataConfig,
+  mapConfig,
+}
+
+export const polygonGeoJSONLayer = Template.bind({})
+polygonGeoJSONLayer.args = polygonGeojsonArgs
+polygonGeoJSONLayer.storyName = 'GeoJSON Polygon Layer with Text Layer for labels'
 
 const scatterplotArgs = { layerConfig: [WIReportLayerConfig], dataConfig, mapConfig }
 
@@ -466,7 +523,7 @@ const GeoJSONMVTArgs = {
 
 export const GeoJSONMVTLayer = Template.bind({})
 GeoJSONMVTLayer.args = GeoJSONMVTArgs
-GeoJSONMVTLayer.storyName = 'GeoJSON CT polygon Layer with MVT tile geometry data'
+GeoJSONMVTLayer.storyName = 'GeoJSON CT polygon Layer with MVT geometry data'
 
 initViewState = {
   latitude: 44.41,
@@ -482,7 +539,7 @@ const GeoJSONfsaMVTArgs = {
 
 export const GeoJSONfsaMVTLayer = Template.bind({})
 GeoJSONfsaMVTLayer.args = GeoJSONfsaMVTArgs
-GeoJSONfsaMVTLayer.storyName = 'GeoJSON FSA polygon Layer with MVT tile geometry data'
+GeoJSONfsaMVTLayer.storyName = 'GeoJSON FSA Polygon Layer with MVT geometry data'
 
 const GeoJSONMVTLabelArgs = {
   layerConfig: [GeoJSONMVTLabelConfig, textGeoJSONMVTConfig],
@@ -492,7 +549,7 @@ const GeoJSONMVTLabelArgs = {
 
 export const GeoJSONMVTLabelLayer = Template.bind({})
 GeoJSONMVTLabelLayer.args = GeoJSONMVTLabelArgs
-GeoJSONMVTLabelLayer.storyName = 'GeoJSON FSA polygon Layer with MVT tile geometry data & Text Layer for labels'
+GeoJSONMVTLabelLayer.storyName = 'GeoJSON FSA polygon Layer with MVT geometry data & Text Layer for labels'
 
 export const SelectDataLayer = () => {
   const [selectShape, setSelectShape] = useState('circle')
