@@ -309,7 +309,7 @@ const LocusMap = ({
               newPoly = tUnion(objData[id], item)
             }
             const centre = tCenter(newPoly)
-            const [lon, lat] = textGeoJSONMVTLayer && centre?.geometry ?
+            const [longitude, latitude] = textGeoJSONMVTLayer && centre?.geometry ?
               centre.geometry.coordinates :
               []
             objData[id] = {
@@ -318,8 +318,8 @@ const LocusMap = ({
               {
                 ...item.properties,
                 ...tileDataObj[id],
-                lon,
-                lat,
+                longitude,
+                latitude,
               },
             }
           }
@@ -338,10 +338,41 @@ const LocusMap = ({
         ])
       }
     } else {
-      setFinalDataConfig(dataConfig)
+      const textLayer = layerConfig?.find(layer =>
+        layer.layer === 'text' &&
+        layer.dataId !== geoJSONMVTDataId)
+      const textLayerData = dataConfig?.find(data => data.id === textLayer?.dataId)?.data
+      let finalData = textLayerData
+      // enrich geoJSON data objects with centre coordinates of polygons for text layer if required
+      if (textLayer && textLayerData?.[0]?.type === 'Feature' &&
+        ['Polygon', 'Multipolygon'].includes(textLayerData[0].geometry?.type)) {
+        finalData = finalData?.reduce((acc, d) => {
+          const centre = tCenter(d)
+          const [longitude, latitude] = centre?.geometry?.coordinates || []
+          return [
+            ...acc,
+            {
+              ...d,
+              properties: {
+                ...d.properties,
+                longitude,
+                latitude,
+              },
+            },
+          ]
+        }, [])
+        const { dataId } = textLayer || {}
+        setFinalDataConfig([
+          ...dataConfig.filter(o => o.id !== dataId),
+          { id: dataId, data: finalData },
+        ])
+      } else {
+        setFinalDataConfig(dataConfig)
+      }
     }
   }, [
     dataConfig,
+    layerConfig,
     renderedFeatures,
     geoJSONMVTLayerData,
     geoJSONMVTGeoKey,
