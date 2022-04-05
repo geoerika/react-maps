@@ -1,6 +1,7 @@
 import { ScatterplotLayer, GeoJsonLayer, ArcLayer, TextLayer } from '@deck.gl/layers'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import { EditableGeoJsonLayer } from '@nebula.gl/layers'
+import { GEOJSON_TYPES } from '../../constants'
 
 
 // ====[TODO] use individual hover events for each layer
@@ -151,7 +152,7 @@ export const LAYER_CONFIGURATIONS = {
     geometry: {
       propName: 'getPosition',
       propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
-        d.type === 'Feature' && d.geometry?.type === 'Point' ?
+        d.type === 'Feature' && d.geometry?.type === GEOJSON_TYPES.point ?
           d.geometry.coordinates :
           [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
       longitude: { type: 'number' },

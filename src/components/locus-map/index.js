@@ -16,7 +16,7 @@ import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 import Legend from '../legend'
-import { LEGEND_SIZE, LEGEND_POSITION } from '../../constants'
+import { LEGEND_SIZE, LEGEND_POSITION, GEOJSON_TYPES } from '../../constants'
 
 
 setup(React.createElement)
@@ -97,7 +97,7 @@ const LocusMap = ({
                   obj[geometryAccessor(longitude)],
                   obj[geometryAccessor(latitude)],
                 ],
-                type: 'Point',
+                type: GEOJSON_TYPES.point,
               },
               properties: obj,
             },
@@ -113,7 +113,7 @@ const LocusMap = ({
               obj[geometryAccessor(longitude)],
               obj[geometryAccessor(latitude)],
             ],
-            type: 'Point',
+            type: GEOJSON_TYPES.point,
           },
           properties: obj,
         }]
@@ -345,7 +345,7 @@ const LocusMap = ({
       let finalData = textLayerData
       // enrich geoJSON data objects with centre coordinates of polygons for text layer if required
       if (textLayer && textLayerData?.[0]?.type === 'Feature' &&
-        ['Polygon', 'Multipolygon'].includes(textLayerData[0].geometry?.type)) {
+        [GEOJSON_TYPES.polygon, GEOJSON_TYPES.multipolygon].includes(textLayerData[0].geometry?.type)) {
         finalData = finalData?.reduce((acc, d) => {
           const centre = tCenter(d)
           const [longitude, latitude] = centre?.geometry?.coordinates || []

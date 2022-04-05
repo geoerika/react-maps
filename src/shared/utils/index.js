@@ -11,6 +11,7 @@ import {
   LEGEND_SIZE,
   LEGEND_DOTS,
   LEGEND_RADIUS_SIZE,
+  GEOJSON_TYPES,
 } from '../../constants'
 import { color } from 'd3-color'
 import { extent } from 'd3-array'
@@ -30,7 +31,7 @@ export const setView = ({ data, width, height }) => {
   let viewData = data
 
   // for lists <100 radii, set viewport to fit radius for all POIs
-  if (data[0]?.geometry?.type === 'Point' && data?.length < 100) {
+  if (data[0]?.geometry?.type === GEOJSON_TYPES.point && data?.length < 100) {
     viewData = []
     data.forEach(point => {
       if (point?.properties?.radius) {
@@ -74,7 +75,7 @@ export const setView = ({ data, width, height }) => {
   let { longitude, latitude, zoom } = viewPort
 
   // set a lower value zoom for a point with small or inexistent radius to have better map perspective
-  if (data?.length === 1 && data[0].geometry?.type === 'Point' &&
+  if (data?.length === 1 && data[0].geometry?.type === GEOJSON_TYPES.point &&
       (!data[0].properties?.radius || data[0].properties?.radius < 10)) {
     zoom = Math.min(zoom, 18)
   }
@@ -93,13 +94,13 @@ export const getDataCoordinates = ({ data }) => {
   if (data[0]?.geometry?.type) {
     coordinateArray = data.reduce((acc, point) => {
       const POIType = point.geometry?.type
-      if (POIType === 'Point') {
+      if (POIType === GEOJSON_TYPES.point) {
         return [...acc, point.geometry.coordinates]
       }
-      if (POIType === 'Polygon') {
+      if (POIType === GEOJSON_TYPES.polygon) {
         return [...acc, ...point.geometry.coordinates?.flat()]
       }
-      if (POIType === 'MultiPolygon') {
+      if (POIType === GEOJSON_TYPES.multipolygon) {
         return [...acc, ...point.geometry.coordinates?.flat().flat()]
       }
     }, [])

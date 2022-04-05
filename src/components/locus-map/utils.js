@@ -2,7 +2,13 @@ import { WebMercatorViewport } from '@deck.gl/core'
 import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@nebula.gl/edit-modes'
 
 import { setFinalLayerDataProperty, getSchemeColorValues, strToArrayColor } from '../../shared/utils'
-import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS,  LAYER_TYPES, PROP_TYPES } from './constants'
+import {
+  PROP_CONFIGURATIONS,
+  LAYER_CONFIGURATIONS,
+  LAYER_TYPES,
+  PROP_TYPES,
+} from './constants'
+import { GEOJSON_TYPES } from '../../constants'
 
 
 /**
@@ -271,10 +277,10 @@ export const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude
     coordinateArray = data.reduce((acc, item) => {
       // POIType has to be read for each element as MVT binary file has a mix of polygons & multipolygons
       POIType = item.geometry?.type
-      if (POIType === 'Polygon') {
+      if (POIType === GEOJSON_TYPES.polygon) {
         return [...acc, ...item.geometry?.coordinates.flat()]
       }
-      if (POIType === 'MultiPolygon') {
+      if (POIType === GEOJSON_TYPES.multipolygon) {
         return [...acc, ...item.geometry?.coordinates.flat().flat()]
       }
       return [...acc, item.geometry?.coordinates]
