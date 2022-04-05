@@ -37,6 +37,7 @@
     "@nebula.gl/edit-modes": "^0.23.8",
     "@nebula.gl/layers": "^0.23.8",
     "@turf/bbox": "^6.5.0",
+    "@turf/center": "^6.5.0",
     "@turf/centroid": "^6.5.0",
     "@turf/circle": "^6.5.0",
     "@turf/distance": "^6.5.0",
