@@ -260,8 +260,8 @@ export const setFinalLayerDataProperty = ({
  * getSchemeColorValues - generates colour for fill and stroke if the map is provided with only a
  *                         base schemeColour value
  * @param { string || Array } schemeColor - string or array format colour
- * @returns { object  } - { newLineColor, newColorValue, newColorValueOptions } object of
- *                        colour values for fill and line colour to be used by deck.gl layers
+ * @returns { object  } - { newLineColor, newLabelColor, newColorValue, newColorValueOptions } object
+ *                        of colour values for fill and line colour to be used by deck.gl layers
  */
 export const getSchemeColorValues = (schemeColor) => {
   const arraySchemeColor = Array.isArray(schemeColor) ?
@@ -272,6 +272,7 @@ export const getSchemeColorValues = (schemeColor) => {
     schemeColor)
   return {
     newLineColor: color.shade(30).rgb,
+    newLabelColor: color.shade(40).rgb,
     newColorValue: arraySchemeColor,
     newColorValueOptions: [color.tint(90).rgb, arraySchemeColor],
   }
