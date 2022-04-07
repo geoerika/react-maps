@@ -88,6 +88,7 @@ export const parseDeckGLLayerFromConfig = ({
   // generate colours for stroke and fill from the base schemeColour
   const {
     newLineColor,
+    newLabelColor,
     newColorValue,
     newColorValueOptions,
   } = schemeColor ? getSchemeColorValues(schemeColor) : {}
@@ -121,11 +122,14 @@ export const parseDeckGLLayerFromConfig = ({
       if (schemeColor && name === PROP_TYPES.lineColor) {
         value = newLineColor
       }
-      if (!value?.field && schemeColor && [PROP_TYPES.fill, PROP_TYPES.color].includes(name)) {
+      if (!value?.field && schemeColor && name === PROP_TYPES.fill) {
         value = newColorValue
       }
       if (value?.field && schemeColor && name === PROP_TYPES.fill) {
         valueOptions = newColorValueOptions
+      }
+      if (!value?.field && schemeColor && name === PROP_TYPES.color && layer === LAYER_TYPES.text) {
+        value = newLabelColor
       }
 
       // convert color value for text layer in an array format

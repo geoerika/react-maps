@@ -170,6 +170,7 @@ const polygonTextGeoJSONLayerConfig = {
     size: { value: 14 },
     pixelOffset: { value: [-30, 0] },
   },
+  schemeColor: [54, 111, 228],
 }
 
 const arcLayerConfig = {
