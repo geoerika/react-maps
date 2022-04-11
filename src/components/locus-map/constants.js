@@ -158,11 +158,24 @@ export const LAYER_CONFIGURATIONS = {
       longitude: { type: 'number' },
       latitude: { type: 'number' },
     },
-    visualizations: ['text', 'size', 'color', 'angle', 'anchor', 'alignment', 'pixelOffset'],
+    visualizations: [
+      'text',
+      'size',
+      'color',
+      'angle',
+      'anchor',
+      'alignment',
+      'pixelOffset',
+      'backgroundPadding',
+      'backgroundColor',
+      'borderColor',
+      'borderWidth',
+    ],
     interactions: ['tooltip', 'hover', 'highlight'],
     defaultProps: {
       sizeScale: 1,
       fontFamily: '"Open Sans", sans-serif',
+      background: true,
     },
   },
 }
@@ -214,7 +227,7 @@ export const PROP_CONFIGURATIONS = {
     deckGLName: 'getText',
   },
   color: {
-    defaultValue: [0, 0, 0],
+    defaultValue: [42, 42, 42],
     deckGLName: 'getColor',
   },
   size: {
@@ -236,6 +249,22 @@ export const PROP_CONFIGURATIONS = {
   pixelOffset: {
     defaultValue: [10, -10],
     deckGLName: 'getPixelOffset',
+  },
+  backgroundPadding: {
+    defaultValue: [6, 4, 6, 4],
+    deckGLName: 'backgroundPadding',
+  },
+  backgroundColor: {
+    defaultValue: [239, 242, 247],
+    deckGLName: 'backgroundColor',
+  },
+  borderColor: {
+    defaultValue: [0, 0, 0, 255],
+    deckGLName: 'getBorderColor',
+  },
+  borderWidth: {
+    defaultValue: 0,
+    deckGLName: 'getBorderWidth',
   },
   sourceArcColor: {
     defaultValue: [54, 111, 228],
