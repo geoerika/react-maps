@@ -1,5 +1,6 @@
-ignore-dirs: ["dist", "node_modules", "storybook-static"]
-ignores: [
+{
+  "ignore-dirs": ["dist", "node_modules", "storybook-static"],
+  "ignores": [
     "jest",
     "jest-*",
     "eslint",
@@ -9,4 +10,6 @@ ignores: [
     "@storybook/*",
     "size-limit",
     "@size-limit/*",
-]
+    "gl-matrix"
+  ]
+}  
