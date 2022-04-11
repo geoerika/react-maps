@@ -47,18 +47,18 @@ export const parseDeckGLLayerFromConfig = ({
   let mode = null
 
   switch(layerMode) {
-  case 'circle':
-    mode = DrawCircleByDiameterMode
-    break
-  case 'rectangle':
-    mode = DrawRectangleMode
-    break
-  case 'polygon':
-    mode = DrawPolygonMode
-    break
-  default:
-    mode = undefined
-    break
+    case 'circle':
+      mode = DrawCircleByDiameterMode
+      break
+    case 'rectangle':
+      mode = DrawRectangleMode
+      break
+    case 'polygon':
+      mode = DrawPolygonMode
+      break
+    default:
+      mode = undefined
+      break
   }
 
   // ====[NOTE] if a layer requires explicit geometry (all except GeoJson?)
