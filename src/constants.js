@@ -65,3 +65,9 @@ export const LEGEND_HEIGHT_WIDTH = {
     sm: 3.125,
   },
 }
+
+export const GEOJSON_TYPES = {
+  point: 'Point',
+  polygon: 'Polygon',
+  multipolygon: 'MultiPolygon',
+}

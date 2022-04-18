@@ -39,6 +39,7 @@ import {
 import {
   TYPE_POLYGON,
   TYPE_RADIUS,
+  GEOJSON_TYPES,
 } from '../../constants'
 
 
@@ -212,7 +213,7 @@ const POIMap = ({
       // this allows displaying an icon on the POI location found by Geodeocder and when drawing a Polygon
       if (mode === 'create-polygon') {
         // only show POIIcon layer when we have a 'Point' feature as data[0] = activePOI while drawing POIs
-        if (data[0]?.geometry?.type === 'Point') {
+        if (data[0]?.geometry?.type === GEOJSON_TYPES.point) {
           return ['POIEditDraw', 'POIIcon']
         }
         return ['POIEditDraw']
@@ -653,7 +654,7 @@ const POIMap = ({
                        * particular case when we only find a 'Point' feature and not a 'Polygon'
                        * and we want to display location on the map
                        */
-                      if (POIType === 1 && feature?.geometry?.type === 'Point') {
+                      if (POIType === 1 && feature?.geometry?.type === GEOJSON_TYPES.point) {
                         setShowIcon(true)
                       }
                     })

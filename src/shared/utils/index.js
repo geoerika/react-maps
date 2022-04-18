@@ -11,6 +11,7 @@ import {
   LEGEND_SIZE,
   LEGEND_DOTS,
   LEGEND_RADIUS_SIZE,
+  GEOJSON_TYPES,
 } from '../../constants'
 import { color } from 'd3-color'
 import { extent } from 'd3-array'
@@ -30,7 +31,7 @@ export const setView = ({ data, width, height }) => {
   let viewData = data
 
   // for lists <100 radii, set viewport to fit radius for all POIs
-  if (data[0]?.geometry?.type === 'Point' && data?.length < 100) {
+  if (data[0]?.geometry?.type === GEOJSON_TYPES.point && data?.length < 100) {
     viewData = []
     data.forEach(point => {
       if (point?.properties?.radius) {
@@ -74,7 +75,7 @@ export const setView = ({ data, width, height }) => {
   let { longitude, latitude, zoom } = viewPort
 
   // set a lower value zoom for a point with small or inexistent radius to have better map perspective
-  if (data?.length === 1 && data[0].geometry?.type === 'Point' &&
+  if (data?.length === 1 && data[0].geometry?.type === GEOJSON_TYPES.point &&
       (!data[0].properties?.radius || data[0].properties?.radius < 10)) {
     zoom = Math.min(zoom, 18)
   }
@@ -93,13 +94,13 @@ export const getDataCoordinates = ({ data }) => {
   if (data[0]?.geometry?.type) {
     coordinateArray = data.reduce((acc, point) => {
       const POIType = point.geometry?.type
-      if (POIType === 'Point') {
+      if (POIType === GEOJSON_TYPES.point) {
         return [...acc, point.geometry.coordinates]
       }
-      if (POIType === 'Polygon') {
+      if (POIType === GEOJSON_TYPES.polygon) {
         return [...acc, ...point.geometry.coordinates?.flat()]
       }
-      if (POIType === 'MultiPolygon') {
+      if (POIType === GEOJSON_TYPES.multipolygon) {
         return [...acc, ...point.geometry.coordinates?.flat().flat()]
       }
     }, [])
@@ -186,6 +187,7 @@ export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
  * @param { function } param.geometryAccessor - function to help access geometry keys
  * @param { string } param.mvtGeoKey - geometry key for mvt layer
  * @param { string } param.highlightId - id of selected object on the map
+ * @param { object } param.formatData - object of { key: function } pairs to format values for individual data keys
  * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
  */
 export const setFinalLayerDataProperty = ({
@@ -198,9 +200,14 @@ export const setFinalLayerDataProperty = ({
   geometryAccessor = d => d,
   mvtGeoKey,
   highlightId = null,
+  formatData = {},
 }) => {
-  if (!value) {
+  if (!value && isNaN(value)) {
     return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
+  }
+  // case for text layer
+  if (value.title) {
+    return d => getLabel(d)({ value, dataPropertyAccessor, formatData })
   }
   // case for radius for GeoJSON layer - there are no valueOption for this layer
   if (value.field && !valueOptions && !data?.tileData?.length) {
@@ -245,6 +252,7 @@ export const setFinalLayerDataProperty = ({
       return setTileProp({ propValue: value.customValue || defaultValue, dataRange })
     }
   }
+
   return typeof value === 'function' ? value(highlightId) : value
 }
 
@@ -252,8 +260,8 @@ export const setFinalLayerDataProperty = ({
  * getSchemeColorValues - generates colour for fill and stroke if the map is provided with only a
  *                         base schemeColour value
  * @param { string || Array } schemeColor - string or array format colour
- * @returns { object  } - { newLineColor, newColorValue, newColorValueOptions } object of
- *                        colour values for fill and line colour to be used by deck.gl layers
+ * @returns { object  } - { newLineColor, newLabelColor, newColorValue, newColorValueOptions } object
+ *                        of colour values for fill and line colour to be used by deck.gl layers
  */
 export const getSchemeColorValues = (schemeColor) => {
   const arraySchemeColor = Array.isArray(schemeColor) ?
@@ -264,6 +272,7 @@ export const getSchemeColorValues = (schemeColor) => {
     schemeColor)
   return {
     newLineColor: color.shade(30).rgb,
+    newLabelColor: color.shade(40).rgb,
     newColorValue: arraySchemeColor,
     newColorValueOptions: [color.tint(90).rgb, arraySchemeColor],
   }
@@ -414,4 +423,29 @@ export const setLegendConfigs = ({
     })
   }
   return legends
+}
+
+/**
+ * getLabel - creates Text Layer label for each data point
+ * @param { object } d - data element object
+ * @param { object } param
+ * @param { object } param.value - { title, valueKeys } object
+ * @param { function } param.dataPropertyAccessor - function to access data properties
+ * @param { object } param.formatData - object of { key: function } pairs
+ * @returns { string } - string value of Label/Text for Text Layer
+ */
+const getLabel = d => ({ value, dataPropertyAccessor, formatData }) => {
+  let labelValues = ''
+  const labelKeyValue = d => ({ valueKey }) => dataPropertyAccessor(d)[valueKey]
+
+  const getFormatLabelValue = d => ({ valueKey, labelKeyValue, formatData }) => formatData[valueKey] ?
+    formatData[valueKey](labelKeyValue(d)({ valueKey })) :
+    labelKeyValue(d)({ valueKey })
+
+  const getLabelValue = ({ valueKey }) =>
+    `\n${valueKey}: ${getFormatLabelValue(d)({ valueKey, labelKeyValue, formatData })}`
+
+  labelValues = value?.valueKeys?.reduce((acc, valueKey) => acc + getLabelValue({ valueKey }), '')
+
+  return `${dataPropertyAccessor(d)[value.title]}${labelValues.length ? labelValues : ''}`
 }

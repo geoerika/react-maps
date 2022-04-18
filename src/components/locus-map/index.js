@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 
 import { MVTLayer } from '@deck.gl/geo-layers'
 import tUnion from '@turf/union'
+import tCenter from '@turf/center'
 
 import { Loader, getTailwindConfigColor } from '@eqworks/lumen-labs'
 import { styled, setup } from 'goober'
@@ -15,7 +16,7 @@ import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 import Legend from '../legend'
-import { LEGEND_SIZE, LEGEND_POSITION } from '../../constants'
+import { LEGEND_SIZE, LEGEND_POSITION, GEOJSON_TYPES } from '../../constants'
 
 
 setup(React.createElement)
@@ -96,7 +97,7 @@ const LocusMap = ({
                   obj[geometryAccessor(longitude)],
                   obj[geometryAccessor(latitude)],
                 ],
-                type: 'Point',
+                type: GEOJSON_TYPES.point,
               },
               properties: obj,
             },
@@ -112,7 +113,7 @@ const LocusMap = ({
               obj[geometryAccessor(longitude)],
               obj[geometryAccessor(latitude)],
             ],
-            type: 'Point',
+            type: GEOJSON_TYPES.point,
           },
           properties: obj,
         }]
@@ -232,8 +233,15 @@ const LocusMap = ({
    * case when reading geometry from MVT layer to use in a GeoJSON layer:
    * get params of GeoJSON layer that uses MVT geom
    */
-  const { geoJSONMVTLayerData, geoJSONMVTDataId, geoJSONMVTGeoKey, geoJSONMVTLayer, visbleMVTLayer } = useMemo(() => {
-    const geoJSONLayers = layerConfig?.filter(layer => layer?.layer === 'geojson')
+  const {
+    geoJSONMVTLayerData,
+    geoJSONMVTDataId,
+    geoJSONMVTGeoKey,
+    geoJSONMVTLayer,
+    visibleMVTLayer,
+    textGeoJSONMVTLayer,
+  } = useMemo(() => {
+    const geoJSONLayers = layerConfig?.filter(layer => layer.layer === 'geojson')
     const visbleMVTLayer = layerConfig.some(layer => layer.layer === 'MVT' &&
       (layer.visible === undefined || (layer.visible !== undefined && layer.visible)))
     const geoJSONMVT = geoJSONLayers?.reduce((acc, layer) => {
@@ -250,7 +258,9 @@ const LocusMap = ({
       }
       return acc
     }, {})
-    return { ...geoJSONMVT, visbleMVTLayer }
+    const textGeoJSONMVTLayer = layerConfig?.find(layer =>
+      layer.layer === 'text' && layer.dataId === geoJSONMVT.geoJSONMVTDataId)
+    return { ...geoJSONMVT, visbleMVTLayer, textGeoJSONMVTLayer }
   }, [layerConfig, dataConfig])
 
   // create MVT layer to get all geometry for polygons in the viewport
@@ -298,12 +308,18 @@ const LocusMap = ({
             if (objData[id]) {
               newPoly = tUnion(objData[id], item)
             }
+            const centre = tCenter(newPoly)
+            const [longitude, latitude] = textGeoJSONMVTLayer && centre?.geometry ?
+              centre.geometry.coordinates :
+              []
             objData[id] = {
               ...newPoly,
               properties:
               {
                 ...item.properties,
                 ...tileDataObj[id],
+                longitude,
+                latitude,
               },
             }
           }
@@ -322,15 +338,53 @@ const LocusMap = ({
         ])
       }
     } else {
-      setFinalDataConfig(dataConfig)
+      const textLayer = layerConfig?.find(layer =>
+        layer.layer === 'text' &&
+        layer.dataId !== geoJSONMVTDataId)
+      const textLayerData = dataConfig?.find(data => data.id === textLayer?.dataId)?.data
+      let finalData = textLayerData
+      // enrich geoJSON data objects with centre coordinates of polygons for text layer if required
+      if (textLayer && textLayerData?.[0]?.type === 'Feature' &&
+        [GEOJSON_TYPES.polygon, GEOJSON_TYPES.multipolygon].includes(textLayerData[0].geometry?.type)) {
+        finalData = finalData?.reduce((acc, d) => {
+          const centre = tCenter(d)
+          const [longitude, latitude] = centre?.geometry?.coordinates || []
+          return [
+            ...acc,
+            {
+              ...d,
+              properties: {
+                ...d.properties,
+                longitude,
+                latitude,
+              },
+            },
+          ]
+        }, [])
+        const { dataId } = textLayer || {}
+        setFinalDataConfig([
+          ...dataConfig.filter(o => o.id !== dataId),
+          { id: dataId, data: finalData },
+        ])
+      } else {
+        setFinalDataConfig(dataConfig)
+      }
     }
-  }, [dataConfig, renderedFeatures, geoJSONMVTLayerData, geoJSONMVTGeoKey, geoJSONMVTDataId])
+  }, [
+    dataConfig,
+    layerConfig,
+    renderedFeatures,
+    geoJSONMVTLayerData,
+    geoJSONMVTGeoKey,
+    geoJSONMVTDataId,
+    textGeoJSONMVTLayer,
+  ])
 
   // set up condition for Loader render
   useEffect(() => {
     setProcessingMapData(true)
     // finalDataConfig cannot tell us when an MVT layer finishes loading tiles on the map
-    if (finalDataConfig?.length && !visbleMVTLayer) {
+    if (finalDataConfig?.length && !visibleMVTLayer) {
       if (geoJSONMVTLayerData?.tileData?.length) {
         const finalGeoJSONMVTData = finalDataConfig.find(({ id }) => id === geoJSONMVTDataId)
         if (!renderedFeatures.length || finalGeoJSONMVTData?.data?.[0]?.properties) {
@@ -345,7 +399,7 @@ const LocusMap = ({
     dataConfig,
     geoJSONMVTLayerData,
     geoJSONMVTDataId,
-    visbleMVTLayer,
+    visibleMVTLayer,
     finalDataConfig,
     renderedFeatures,
   ])
@@ -469,7 +523,7 @@ const LocusMap = ({
         return null
       }}
       onClick={finalOnClick}
-      setProcessingMapData={geoJSONMVTLayerData || visbleMVTLayer ?
+      setProcessingMapData={geoJSONMVTLayerData || visibleMVTLayer ?
         setProcessingMapData :
         () => {}
       }
@@ -481,7 +535,7 @@ const LocusMap = ({
     layers,
     viewStateOverride,
     geoJSONMVTLayerData,
-    visbleMVTLayer,
+    visibleMVTLayer,
     finalOnClick,
   ])
 

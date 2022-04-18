@@ -1,8 +1,14 @@
 import { WebMercatorViewport } from '@deck.gl/core'
 import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@nebula.gl/edit-modes'
 
-import { setFinalLayerDataProperty, getSchemeColorValues } from '../../shared/utils'
-import { PROP_CONFIGURATIONS, LAYER_CONFIGURATIONS,  LAYER_TYPES, PROP_TYPES } from './constants'
+import { setFinalLayerDataProperty, getSchemeColorValues, strToArrayColor } from '../../shared/utils'
+import {
+  PROP_CONFIGURATIONS,
+  LAYER_CONFIGURATIONS,
+  LAYER_TYPES,
+  PROP_TYPES,
+} from './constants'
+import { GEOJSON_TYPES } from '../../constants'
 
 
 /**
@@ -20,7 +26,7 @@ export const parseDeckGLLayerFromConfig = ({
   layer,
   geometry,
   visualizations,
-  interactions,
+  interactions = {},
   setProcessingMapData,
   ...others
 }) => {
@@ -32,7 +38,7 @@ export const parseDeckGLLayerFromConfig = ({
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
 
-  const { layerMode } = others
+  const { layerMode, formatData } = others
   const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
   const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
   const layerGeometry = geometry || layerGeom
@@ -41,18 +47,18 @@ export const parseDeckGLLayerFromConfig = ({
   let mode = null
 
   switch(layerMode) {
-  case 'circle':
-    mode = DrawCircleByDiameterMode
-    break
-  case 'rectangle':
-    mode = DrawRectangleMode
-    break
-  case 'polygon':
-    mode = DrawPolygonMode
-    break
-  default:
-    mode = undefined
-    break
+    case 'circle':
+      mode = DrawCircleByDiameterMode
+      break
+    case 'rectangle':
+      mode = DrawRectangleMode
+      break
+    case 'polygon':
+      mode = DrawPolygonMode
+      break
+    default:
+      mode = undefined
+      break
   }
 
   // ====[NOTE] if a layer requires explicit geometry (all except GeoJson?)
@@ -82,6 +88,7 @@ export const parseDeckGLLayerFromConfig = ({
   // generate colours for stroke and fill from the base schemeColour
   const {
     newLineColor,
+    newLabelColor,
     newColorValue,
     newColorValueOptions,
   } = schemeColor ? getSchemeColorValues(schemeColor) : {}
@@ -93,7 +100,6 @@ export const parseDeckGLLayerFromConfig = ({
     // ====[TODO] trim invalid visualization values for a given layer
     ...layerVisualizations.reduce((agg, name) => {
       const config = visualizations[name] || {}
-      // let { value, valueOptions } = config
       let { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
 
       /*
@@ -116,11 +122,19 @@ export const parseDeckGLLayerFromConfig = ({
       if (schemeColor && name === PROP_TYPES.lineColor) {
         value = newLineColor
       }
-      if (!value?.field && schemeColor && name ===  PROP_TYPES.fill) {
+      if (!value?.field && schemeColor && name === PROP_TYPES.fill) {
         value = newColorValue
       }
       if (value?.field && schemeColor && name === PROP_TYPES.fill) {
         valueOptions = newColorValueOptions
+      }
+      if (!value?.field && schemeColor && name === PROP_TYPES.color && layer === LAYER_TYPES.text) {
+        value = newLabelColor
+      }
+
+      // convert color value for text layer in an array format
+      if (value && name === PROP_TYPES.color && typeof value === 'string') {
+        value = strToArrayColor({ strColor: value })
       }
 
       /*
@@ -147,6 +161,7 @@ export const parseDeckGLLayerFromConfig = ({
           mvtGeoKey,
           geometryAccessor,
           highlightId,
+          formatData,
         }),
         ...byProducts,
         extruded,
@@ -266,10 +281,10 @@ export const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude
     coordinateArray = data.reduce((acc, item) => {
       // POIType has to be read for each element as MVT binary file has a mix of polygons & multipolygons
       POIType = item.geometry?.type
-      if (POIType === 'Polygon') {
+      if (POIType === GEOJSON_TYPES.polygon) {
         return [...acc, ...item.geometry?.coordinates.flat()]
       }
-      if (POIType === 'MultiPolygon') {
+      if (POIType === GEOJSON_TYPES.multipolygon) {
         return [...acc, ...item.geometry?.coordinates.flat().flat()]
       }
       return [...acc, item.geometry?.coordinates]

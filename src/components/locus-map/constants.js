@@ -1,6 +1,7 @@
-import { ScatterplotLayer, GeoJsonLayer, ArcLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, GeoJsonLayer, ArcLayer, TextLayer } from '@deck.gl/layers'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import { EditableGeoJsonLayer } from '@nebula.gl/layers'
+import { GEOJSON_TYPES } from '../../constants'
 
 
 // ====[TODO] use individual hover events for each layer
@@ -43,10 +44,11 @@ export const LAYER_CONFIGURATIONS = {
     },
     // validator: (d) => Array.isArray(d) && d.every(row => DEFAULT_GEOMETRY_KEYS.latitude.some(key => validKey(row[key], 'number')) && DEFAULT_GEOMETRY_KEYS.longitude.some(key => validKey(row[key], 'number'))),
     visualizations: ['radius', 'fill', 'lineWidth', 'lineColor'],
-    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight'],
     defaultProps: {
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
+      sizeScale: 1,
     },
   },
   geojson: {
@@ -61,7 +63,7 @@ export const LAYER_CONFIGURATIONS = {
     // ====[TODO] radius isn't always valid, so how do we turn it off?
     // =========] GeoJson is EITHER radius around geometry.coordinates OR just coordinates
     visualizations: ['radius', 'elevation', 'fill', 'lineWidth', 'lineColor'],
-    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight'],
     defaultProps: {
       lineWidthUnits: 'pixels',
       pointRadiusUnits: 'meters',
@@ -69,6 +71,7 @@ export const LAYER_CONFIGURATIONS = {
         depthTest: false,
       },
       extruded: false,
+      sizeScale: 1,
     },
   },
   arc: {
@@ -101,12 +104,13 @@ export const LAYER_CONFIGURATIONS = {
     dataPropertyAccessor: d => d,
     geometry: { geoKey: 'geo_id', geometryAccessor: d => d },
     visualizations: ['fill', 'lineWidth', 'lineColor'],
-    interactions: ['click', 'hover', 'tooltip', 'highlight', 'labels'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight'],
     defaultProps: {
       // extent: null, //[minX, minY, maxX, maxY]
       minZoom: 0,
       maxZoom: 23,
       lineWidthUnits: 'pixels',
+      sizeScale: 1,
     },
   },
   select: {
@@ -139,6 +143,39 @@ export const LAYER_CONFIGURATIONS = {
           },
         },
       },
+    },
+  },
+  text: {
+    notAClass: false,
+    deckGLClass: TextLayer,
+    dataPropertyAccessor: d => d,
+    geometry: {
+      propName: 'getPosition',
+      propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
+        d.type === 'Feature' && d.geometry?.type === GEOJSON_TYPES.point ?
+          d.geometry.coordinates :
+          [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
+      longitude: { type: 'number' },
+      latitude: { type: 'number' },
+    },
+    visualizations: [
+      'text',
+      'size',
+      'color',
+      'angle',
+      'anchor',
+      'alignment',
+      'pixelOffset',
+      'backgroundPadding',
+      'backgroundColor',
+      'borderColor',
+      'borderWidth',
+    ],
+    interactions: ['tooltip', 'hover', 'highlight'],
+    defaultProps: {
+      sizeScale: 1,
+      fontFamily: '"Open Sans", sans-serif',
+      background: true,
     },
   },
 }
@@ -184,6 +221,50 @@ export const PROP_CONFIGURATIONS = {
         depthTest: true,
       },
     },
+  },
+  text: {
+    defaultValue: '',
+    deckGLName: 'getText',
+  },
+  color: {
+    defaultValue: [42, 42, 42],
+    deckGLName: 'getColor',
+  },
+  size: {
+    defaultValue: 14,
+    deckGLName: 'getSize',
+  },
+  angle: {
+    defaultValue: 0,
+    deckGLName: 'getAngle',
+  },
+  anchor: {
+    defaultValue: 'start',
+    deckGLName: 'getTextAnchor',
+  },
+  alignment: {
+    defaultValue: 'bottom',
+    deckGLName: 'getAlignmentBaseline',
+  },
+  pixelOffset: {
+    defaultValue: [10, -10],
+    deckGLName: 'getPixelOffset',
+  },
+  backgroundPadding: {
+    defaultValue: [6, 4, 6, 4],
+    deckGLName: 'backgroundPadding',
+  },
+  backgroundColor: {
+    defaultValue: [239, 242, 247],
+    deckGLName: 'backgroundColor',
+  },
+  borderColor: {
+    defaultValue: [0, 0, 0, 255],
+    deckGLName: 'getBorderColor',
+  },
+  borderWidth: {
+    defaultValue: 0,
+    deckGLName: 'getBorderWidth',
   },
   sourceArcColor: {
     defaultValue: [54, 111, 228],
