@@ -122,7 +122,6 @@ const textGeoJSONLayerConfig = {
         valueKeys: ['radius'],
       },
     },
-    size: { value: 14 },
     pixelOffset: { value: [0, 0] },
   },
 }
@@ -169,8 +168,8 @@ const polygonTextGeoJSONLayerConfig = {
     },
     size: { value: 14 },
     pixelOffset: { value: [-30, 0] },
+    anchor: { value: 'start' },
   },
-  schemeColor: [54, 111, 228],
 }
 
 const arcLayerConfig = {
@@ -283,10 +282,8 @@ const WIReportLabelLayerConfig = {
         valueKeys: ['visits', 'repeat_visitors'],
       },
     },
-    color: {
-      value: '#60158f',
-    },
   },
+  schemeColor: [97, 21, 143],
   opacity: 1,
 }
 

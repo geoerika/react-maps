@@ -33,7 +33,7 @@ module.exports = {
   rules: {
     'comma-dangle': ['error', 'always-multiline'],
     'eol-last': ['error', 'always'],
-    indent: ['error', 2],
+    indent: ['error', 2, { 'SwitchCase': 1 }],
     'object-curly-spacing': ['error', 'always'],
     quotes: ['error', 'single', { 'avoidEscape': true }],
     'react/display-name': 'off', // TODO: many false-positives until react eslint plugin updates
