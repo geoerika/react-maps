@@ -89,7 +89,7 @@ const GeoJSONLayerConfig = {
   layer: 'geojson',
   dataId: 'poiGeojson-123',
   visualizations: {
-    radius: {
+    pointRadius: {
       value: { field: 'radius' },
     },
     fill: {
@@ -108,7 +108,6 @@ const GeoJSONLayerConfig = {
       },
     },
   },
-  legend: { showLegend: true },
 }
 
 const textGeoJSONLayerConfig = {
@@ -449,7 +448,7 @@ const geojsonArgs = {
 
 export const GeoJSONLayer = Template.bind({})
 GeoJSONLayer.args = geojsonArgs
-GeoJSONLayer.storyName = 'GeoJSON Layer for POIs - widget-size Legend'
+GeoJSONLayer.storyName = 'GeoJSON Layer for POIs with radius in meters'
 
 const geojsonSchemeColourArgs = {
   layerConfig: [{ ...GeoJSONLayerConfig, schemeColor: '#167108' }, textGeoJSONLayerConfig],
