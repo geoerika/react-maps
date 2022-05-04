@@ -179,8 +179,6 @@ const arcLayerConfig = {
     target: { longitude: 'target_lon', latitude: 'target_lat' },
   },
   visualizations: {
-    sourceArcColor: { value: [182, 38, 40] },
-    targetArcColor: { value: [251, 201, 78] },
     arcWidth: { value: 2 },
   },
   interactions: {
@@ -190,6 +188,7 @@ const arcLayerConfig = {
       },
     },
   },
+  schemeColor: '#366fe4',
 }
 
 const ScatterPlotLayer1Config = {
@@ -197,7 +196,7 @@ const ScatterPlotLayer1Config = {
   dataId: 'xwiReport-123',
   geometry: { longitude: 'source_lon', latitude: 'source_lat' },
   visualizations: {
-    radius: { value: 5 },
+    radius: { value: 10 },
     fill: {
       value: [182, 38, 40],
     },
@@ -211,6 +210,7 @@ const ScatterPlotLayer1Config = {
       },
     },
   },
+  schemeColor: '#366fe4',
 }
 
 const ScatterPlotLayer2Config = {
@@ -218,7 +218,7 @@ const ScatterPlotLayer2Config = {
   dataId: 'xwiReport-123',
   geometry: { longitude: 'target_lon', latitude: 'target_lat' },
   visualizations: {
-    radius: { value: 5 },
+    radius: { value: 10 },
     fill: {
       value: [251, 201, 78],
     },
@@ -232,6 +232,8 @@ const ScatterPlotLayer2Config = {
       },
     },
   },
+  isTargetLayer: true,
+  schemeColor: '#366fe4',
 }
 
 const WIReportLayerConfig = {
@@ -494,7 +496,7 @@ const xwiReportArgs = {
 
 export const XWIReportLayers = Template.bind({})
 XWIReportLayers.args = xwiReportArgs
-XWIReportLayers.storyName = 'Arc & Scatterplot Layers for XWI Reports'
+XWIReportLayers.storyName = 'Arc & Scatterplot Layers with schemeColor prop for XWI Reports'
 
 let initViewState = {
   latitude: 43.41,
