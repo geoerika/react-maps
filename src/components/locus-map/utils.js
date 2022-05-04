@@ -38,7 +38,7 @@ export const parseDeckGLLayerFromConfig = ({
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
 
-  const { layerMode, formatData } = others
+  const { layerMode, formatData, isTargetLayer } = others
   const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
   const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
   const layerGeometry = geometry || layerGeom
@@ -90,6 +90,8 @@ export const parseDeckGLLayerFromConfig = ({
     newLineColor,
     newLabelColor,
     newColorValue,
+    newTargetColor,
+    newTargetLineColor,
     newColorValueOptions,
   } = schemeColor ? getSchemeColorValues(schemeColor) : {}
 
@@ -102,34 +104,41 @@ export const parseDeckGLLayerFromConfig = ({
       const config = visualizations[name] || {}
       let { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
 
-      /*
-       * there is a complication with 'defaultValue' for radius & fill, both need a default value
-       * for the cases when a 'value' and a 'valueOptions' are not provided by the user, hence the
-       * changes below
-       */
       let value = config?.value
-      // no valueOptions needed for radius for GeoJSON layer
-      let valueOptions =
-        layer === LAYER_TYPES.geojson && name === PROP_TYPES.radius?
-          null:
-          config?.valueOptions || defaultValue.valueOptions
+      let valueOptions = config?.valueOptions || defaultValue.valueOptions
 
       if (defaultValue && !Array.isArray(defaultValue) && typeof defaultValue === 'object') {
         defaultValue = defaultValue.value
       }
 
       // change colour values with schemeColour generated colours
-      if (schemeColor && name === PROP_TYPES.lineColor) {
-        value = newLineColor
+      if (!value?.field && schemeColor) {
+        if (name === PROP_TYPES.fill) {
+          value = newColorValue
+          if (isTargetLayer) {
+            value = newTargetColor
+          }
+        }
+        if (name === PROP_TYPES.sourceArcColor) {
+          value = newColorValue
+        }
+        if (name === PROP_TYPES.targetArcColor) {
+          value = newTargetColor
+        }
+        if (name === PROP_TYPES.color && layer === LAYER_TYPES.text) {
+          value = newLabelColor
+        }
       }
-      if (!value?.field && schemeColor && name === PROP_TYPES.fill) {
-        value = newColorValue
-      }
+
       if (value?.field && schemeColor && name === PROP_TYPES.fill) {
         valueOptions = newColorValueOptions
       }
-      if (!value?.field && schemeColor && name === PROP_TYPES.color && layer === LAYER_TYPES.text) {
-        value = newLabelColor
+
+      if (schemeColor && name === PROP_TYPES.lineColor) {
+        value = newLineColor
+        if (isTargetLayer) {
+          value = newTargetLineColor
+        }
       }
 
       // convert color value for text layer in an array format
