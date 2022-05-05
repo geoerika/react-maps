@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { GeoCohortMap } from '../src'
+import { truncate } from '../src/utils/string-format'
 import { getCursor } from '../src/utils'
 import geoCohortFSAraw from './data/geo-cohort-FSA.json'
 import geoCohortPostalraw from './data/geo-cohort-postal.json'
@@ -9,27 +10,12 @@ import geoCohortJsonZero from './data/geo-cohorts-zero.json'
 
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STORYBOOK_MAPBOX_ACCESS_TOKEN
 
-const truncate = (fullStr, strLen, separator = ' ... ') => {
-  if (fullStr.length <= strLen) {
-    return fullStr
-  }
-  const sepLen = separator.length
-  const charsToShow = strLen - sepLen
-  const frontChars = Math.ceil(charsToShow / 2)
-  const backChars = Math.floor(charsToShow / 2)
-
-  return fullStr.substr(0, frontChars)
-           + separator
-           + fullStr.substr(fullStr.length - backChars)
-}
-
 const formatData = {
   Revenue: d => '$' + d,
 }
 
 const reportFSAData = geoCohortFSAraw.filter(elem => elem?.type === 'Feature')
 const reportGeoCohortData = geoCohortPostalraw.filter(elem => elem?.type === 'Feature')
-
 
 export default {
   title: 'GeoCohort Map',
