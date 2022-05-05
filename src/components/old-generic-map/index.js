@@ -8,7 +8,7 @@ import { StaticMap } from 'react-map-gl'
 import { styled, setup } from 'goober'
 
 import MapTooltip from './full-tooltip'
-import Legend from './legend'
+import Legend from '../legend'
 
 
 setup(React.createElement)
