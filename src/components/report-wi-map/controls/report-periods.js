@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
-import { DATE_TYPES } from '../../constants'
+import { DATE_TYPES } from '../../../constants'
 
 
 setup(React.createElement)
