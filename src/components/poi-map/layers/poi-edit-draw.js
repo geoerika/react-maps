@@ -7,7 +7,7 @@ import {
   TransformMode,
 } from '@nebula.gl/edit-modes'
 
-import { TYPE_RADIUS } from '../../constants'
+import { TYPE_RADIUS } from '../../../constants'
 
 
 const defaultProps = {
