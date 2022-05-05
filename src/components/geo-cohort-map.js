@@ -16,13 +16,10 @@ import Map from './generic-map'
 import Legend from './legend'
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
-import {
-  setView,
-  setFinalLayerDataProperty,
-  getArrayFillColors,
-  getArrayGradientFillColors,
-  setLegendOpacity,
-} from '../shared/utils'
+import { setFinalLayerDataProperty } from '../utils/layer'
+import { setView } from '../utils/map-view'
+import { getArrayFillColors, getArrayGradientFillColors } from '../utils/color'
+import { setLegendOpacity } from '../utils/legend'
 import { useLegends } from '../hooks'
 
 
@@ -364,7 +361,7 @@ GeoCohortMap.defaultProps = {
   fillColors: ['#bae0ff', '#0075ff'],
   elevationBasedOn: '',
   elevationDataScale: 'linear',
-  elevations: [0, 1000],
+  elevations: [0, 2000],
   onClick: undefined,
   onHover: undefined,
   opacity: 0.5,

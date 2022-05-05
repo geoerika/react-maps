@@ -9,7 +9,8 @@ import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
 import { useMapData, useLegends } from '../hooks'
-import { getArrayGradientFillColors, setLegendOpacity } from '../shared/utils'
+import { getArrayGradientFillColors } from '../utils/color'
+import { setLegendOpacity } from '../utils/legend'
 import Map from './old-generic-map'
 import Loader, { convertCSVtoJSON } from './loader'
 

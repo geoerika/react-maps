@@ -8,7 +8,8 @@ import { GeoJsonLayer } from '@deck.gl/layers'
 import { interpolateBlues } from 'd3-scale-chromatic'
 
 import { useLegends, useMapData, useElevation, useFill } from '../hooks'
-import { getArrayGradientFillColors, setLegendOpacity } from '../shared/utils'
+import { getArrayGradientFillColors } from '../utils/color'
+import { setLegendOpacity } from '../utils/legend'
 import Map from './old-generic-map'
 
 

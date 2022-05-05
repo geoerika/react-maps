@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
+// https://deck.gl/docs/api-reference/layers/scatterplot-layer
+import { ScatterplotLayer } from '@deck.gl/layers'
+
 import {
   commonProps,
   commonDefaultProps,
@@ -11,18 +14,17 @@ import {
 } from '../shared/map-props'
 
 import Map from './generic-map'
-import Scatter from './layers/scatter-plot'
 import Legend from './legend'
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
+import { setFinalLayerDataProperty } from '../utils/layer'
+import { setView } from '../utils/map-view'
 import {
-  setView,
-  setFinalLayerDataProperty,
   getArrayFillColors,
   arrayToRGBAStrColor,
   getArrayGradientFillColors,
-  setLegendOpacity,
-} from '../shared/utils'
+} from '../utils/color'
+import { setLegendOpacity } from '../utils/legend'
 import { useLegends } from '../hooks'
 
 
@@ -119,7 +121,7 @@ const QLReportMap = ({
 
   const layers = useMemo(() => {
     return [
-      Scatter({
+      new ScatterplotLayer({
         id: `${reportData[0]?.report_id || 'generic'}-report-scatterplot-layer`,
         data: reportData,
         getPosition: d => [d.lon, d.lat],
