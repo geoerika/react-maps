@@ -1,14 +1,14 @@
-import { WebMercatorViewport } from '@deck.gl/core'
 import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@nebula.gl/edit-modes'
 
-import { setFinalLayerDataProperty, getSchemeColorValues, strToArrayColor } from '../../shared/utils'
+import { getSchemeColorValues } from './scheme-color'
+import { setFinalLayerDataProperty } from '../../../utils/layer'
+import { strToArrayColor } from '../../../utils/color'
 import {
   PROP_CONFIGURATIONS,
   LAYER_CONFIGURATIONS,
   LAYER_TYPES,
   PROP_TYPES,
-} from './constants'
-import { GEOJSON_TYPES } from '../../constants'
+} from '../constants'
 
 
 /**
@@ -38,7 +38,7 @@ export const parseDeckGLLayerFromConfig = ({
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
 
-  const { layerMode, formatData } = others
+  const { layerMode, formatData, isTargetLayer } = others
   const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
   const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
   const layerGeometry = geometry || layerGeom
@@ -90,6 +90,8 @@ export const parseDeckGLLayerFromConfig = ({
     newLineColor,
     newLabelColor,
     newColorValue,
+    newTargetColor,
+    newTargetLineColor,
     newColorValueOptions,
   } = schemeColor ? getSchemeColorValues(schemeColor) : {}
 
@@ -102,34 +104,41 @@ export const parseDeckGLLayerFromConfig = ({
       const config = visualizations[name] || {}
       let { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
 
-      /*
-       * there is a complication with 'defaultValue' for radius & fill, both need a default value
-       * for the cases when a 'value' and a 'valueOptions' are not provided by the user, hence the
-       * changes below
-       */
       let value = config?.value
-      // no valueOptions needed for radius for GeoJSON layer
-      let valueOptions =
-        layer === LAYER_TYPES.geojson && name === PROP_TYPES.radius?
-          null:
-          config?.valueOptions || defaultValue.valueOptions
+      let valueOptions = config?.valueOptions || defaultValue.valueOptions
 
       if (defaultValue && !Array.isArray(defaultValue) && typeof defaultValue === 'object') {
         defaultValue = defaultValue.value
       }
 
       // change colour values with schemeColour generated colours
-      if (schemeColor && name === PROP_TYPES.lineColor) {
-        value = newLineColor
+      if (!value?.field && schemeColor) {
+        if (name === PROP_TYPES.fill) {
+          value = newColorValue
+          if (isTargetLayer) {
+            value = newTargetColor
+          }
+        }
+        if (name === PROP_TYPES.sourceArcColor) {
+          value = newColorValue
+        }
+        if (name === PROP_TYPES.targetArcColor) {
+          value = newTargetColor
+        }
+        if (name === PROP_TYPES.color && layer === LAYER_TYPES.text) {
+          value = newLabelColor
+        }
       }
-      if (!value?.field && schemeColor && name === PROP_TYPES.fill) {
-        value = newColorValue
-      }
+
       if (value?.field && schemeColor && name === PROP_TYPES.fill) {
         valueOptions = newColorValueOptions
       }
-      if (!value?.field && schemeColor && name === PROP_TYPES.color && layer === LAYER_TYPES.text) {
-        value = newLabelColor
+
+      if (schemeColor && name === PROP_TYPES.lineColor) {
+        value = newLineColor
+        if (isTargetLayer) {
+          value = newTargetLineColor
+        }
       }
 
       // convert color value for text layer in an array format
@@ -216,150 +225,6 @@ export const parseDeckGLLayerFromConfig = ({
       (layer === LAYER_TYPES.select),
     ...others,
   })
-}
-
-/**
- * setView - handles calculations of viewState lat, long, and zoom, based on
- *           data coordinates and deck size
- * @param { object } param
- * @param { array } param.dataGeomList - array of data arrays and associated geometry to display on the map
- * @param { number } param.width - deck container width
- * @param { number } param.height - deck container height
- * @returns { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
- */
-export const setView = ({ dataGeomList, width, height }) => {
-  const dataCoordinateArray = dataGeomList.map(({ data, longitude, latitude, geometryAccessor = d => d }) =>
-    getDataCoordinates({ data, longitude, latitude, geometryAccessor })).flat()
-
-  const formattedGeoData = dataCoordinateArray.reduce(
-    ([[minLng, minLat], [maxLng, maxLat]], coords) => {
-      const [lng, lat] = coords
-      return [
-        [Math.min(minLng, lng), Math.min(minLat, lat)],
-        [Math.max(maxLng, lng), Math.max(maxLat, lat)],
-      ]
-    }, [[180, 90], [-180, -90]])
-
-  const dataLonDiff = formattedGeoData[0][0] - formattedGeoData[1][0]
-  /**
-   * -120 is the diff in longitude between the westernmost and easternmost points of
-   * North America: (-172 - (-52)) = -120
-   * Compare to the diff in longitude between westernmost point of NA and easternmost point of
-   * Australia: -172 - (+153) = -325
-   * We need to reduce padding with map container shrinking size,
-   * otherwise fitBounds breaks when padding is greater than map dimensions.
-   */
-  let padding = Math.min(width, height) / 4
-  if (dataLonDiff > -120) {
-    padding = Math.min(width, height) / 10
-  } else if (Math.min(width, height) / 2 > 75) {
-    padding =  75
-  }
-
-  const viewPort = new WebMercatorViewport({ width, height })
-    .fitBounds(formattedGeoData, { padding })
-
-  let { longitude, latitude, zoom } = viewPort
-
-  return { longitude, latitude, zoom }
-}
-
-/**
- * getDataCoordinates - gets the coordinates that enclose all location data, including polygons
- * @param { object } param
- * @param { array } param.data - location data array
- * @param { function } param.geometryAccessor - function to help access geometry in the data set
- * @param { string } param.longitude - longitude key in data object
- * @param { string } param.latitude - latitude key in data object
- * @returns { array } - coordinates that define the boundary area where the data is located
- */
-export const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude }) => {
-  let POIType
-  let coordinateArray = []
-  if (data[0]?.geometry?.type) {
-    POIType = data[0]?.geometry?.type
-    coordinateArray = data.reduce((acc, item) => {
-      // POIType has to be read for each element as MVT binary file has a mix of polygons & multipolygons
-      POIType = item.geometry?.type
-      if (POIType === GEOJSON_TYPES.polygon) {
-        return [...acc, ...item.geometry?.coordinates.flat()]
-      }
-      if (POIType === GEOJSON_TYPES.multipolygon) {
-        return [...acc, ...item.geometry?.coordinates.flat().flat()]
-      }
-      return [...acc, item.geometry?.coordinates]
-    }, [])
-  } else {
-    coordinateArray = data.reduce((acc, item) =>
-      [...acc, [geometryAccessor(item)?.[longitude], geometryAccessor(item)?.[latitude]]], [])
-  }
-
-  const [minCoords, maxCoords] = coordinateArray.reduce(
-    ([[minLng, minLat], [maxLng, maxLat]], item) => {
-      const [lng, lat] = item
-      return [
-        [Math.min(minLng, lng), Math.min(minLat, lat)],
-        [Math.max(maxLng, lng), Math.max(maxLat, lat)],
-      ]
-    }, [[180, 90], [-180, -90]])
-
-  return [ minCoords, maxCoords ]
-}
-
-/**
- * getTooltipParams - gets all props related to tooltip component
- * @param { object } param
- * @param { object } param.hoverInfo - object of hovered element on the map
- * @returns { object } - object of tooltip component keys and values
- */
-export const getTooltipParams = ({ hoverInfo }) => {
-  const { layer: { props: layerProps } } = hoverInfo
-  const {
-    visualizations,
-    dataPropertyAccessor,
-    formatData,
-    formatPropertyLabel,
-    metricAliases,
-    interactions,
-  } = layerProps
-
-  const { tooltipKeys, formatTooltipTitle, tooltipProps } = interactions?.tooltip || {}
-  const fillBasedOn  = visualizations?.fill?.value?.field
-  const radiusBasedOn  = visualizations?.radius?.value?.field
-  const elevationBasedOn  = visualizations?.elevation?.value?.field
-
-  const {
-    name,
-    id,
-    metricKeys,
-    metricAccessor,
-    nameAccessor,
-    idAccessor,
-  } = tooltipKeys ? tooltipKeys : {}
-  const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
-  // set metricKeys array if no custom keys are given
-  if (!metricKeys?.length) {
-    ([radiusBasedOn, fillBasedOn, elevationBasedOn]).forEach((key) => {
-      if (key) {
-        metricKeysArray.push(key)
-      }
-    })
-  }
-  return {
-    tooltipKeys : {
-      name: name || 'name',
-      id: id || 'id',
-      nameAccessor: nameAccessor || dataPropertyAccessor,
-      idAccessor: idAccessor || dataPropertyAccessor,
-      metricKeys: metricKeysArray,
-      metricAccessor: metricAccessor || dataPropertyAccessor,
-      metricAliases,
-    },
-    formatData,
-    formatTooltipTitle,
-    formatPropertyLabel,
-    tooltipProps,
-  }
 }
 
 // ====[TODO] should we define also all geometry accessors for MVT layer?? Current solution is based on our MVT tegola files

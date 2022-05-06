@@ -3,6 +3,7 @@ import React from 'react'
 import { storiesOf } from '@storybook/react'
 
 import { QLReportMap } from '../src'
+import { truncate } from '../src/utils/string-format'
 import { getCursor } from '../src/utils'
 import vwiJson from './data/locus-ml-vwi.json'
 import vwiJsonZero from './data/locus-ql-zero.json'
@@ -15,19 +16,6 @@ const formatPropertyLabel = (s) => [
   s.slice(1).replace(/_/g, ' '),
 ].join('')
 
-const truncate = (fullStr, strLen, separator = ' ... ') => {
-  if (fullStr.length <= strLen) {
-    return fullStr
-  }
-  const sepLen = separator.length
-  const charsToShow = strLen - sepLen
-  const frontChars = Math.ceil(charsToShow / 2)
-  const backChars = Math.floor(charsToShow / 2)
-
-  return fullStr.substr(0, frontChars)
-           + separator
-           + fullStr.substr(fullStr.length - backChars)
-}
 
 storiesOf('Locus QL Report', module)
   .add('VWI - basic', () => (

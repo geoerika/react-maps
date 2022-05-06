@@ -62,7 +62,7 @@ export const LAYER_CONFIGURATIONS = {
     // validator: (d) => Array.isArray(d) && d.every(row => hasGeoJson(row)),
     // ====[TODO] radius isn't always valid, so how do we turn it off?
     // =========] GeoJson is EITHER radius around geometry.coordinates OR just coordinates
-    visualizations: ['radius', 'elevation', 'fill', 'lineWidth', 'lineColor'],
+    visualizations: ['pointRadius', 'elevation', 'fill', 'lineWidth', 'lineColor'],
     interactions: ['click', 'hover', 'tooltip', 'highlight'],
     defaultProps: {
       lineWidthUnits: 'pixels',
@@ -197,10 +197,16 @@ export const PROP_CONFIGURATIONS = {
   },
   radius: {
     defaultValue: {
-      value: 10,
+      value: 5,
       valueOptions: [5, 15],
     },
     deckGLName: 'getRadius',
+  },
+  pointRadius: {
+    defaultValue: {
+      value: 5,
+    },
+    deckGLName: 'getPointRadius',
   },
   lineWidth: {
     defaultValue: 1,
@@ -256,7 +262,7 @@ export const PROP_CONFIGURATIONS = {
   },
   backgroundColor: {
     defaultValue: [239, 242, 247],
-    deckGLName: 'backgroundColor',
+    deckGLName: 'getBackgroundColor',
   },
   borderColor: {
     defaultValue: [0, 0, 0, 255],

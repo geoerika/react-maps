@@ -25,16 +25,22 @@ import DrawButtonGroup from './draw-button-group'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 
-import { processLayers, isClusterZoomLevel } from './utils'
-import { setView, createCircleFromPointRadius, getCircleRadiusCentroid } from '../../shared/utils'
-import { getCursor, truncate, formatDataPOI } from '../../utils'
+import { isClusterZoomLevel } from './utils/cluster'
+import { processLayers } from './utils/layers'
+import { getCircleRadiusCentroid } from './utils/geo-calc'
+import { formatDataPOI } from './utils/coord-format'
+import { createCircleFromPointRadius, getCursor } from '../../utils'
+import { setView } from '../../utils/map-view'
+import { truncate } from '../../utils/string-format'
+import {
+  POIMapProps,
+  POIMapDefaultProps,
+} from './map-props'
 import {
   typographyPropTypes,
   typographyDefaultProps,
   tooltipPropTypes,
   tooltipDefaultProps,
-  POIMapProps,
-  POIMapDefaultProps,
 } from '../../shared/map-props'
 import {
   TYPE_POLYGON,

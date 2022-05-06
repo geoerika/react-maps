@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
 
+import { getSchemeColorValues } from './utils/scheme-color'
+import { setLegendConfigs, setLegendOpacity } from '../../utils/legend'
 import {
-  setLegendConfigs,
   getArrayGradientFillColors,
   arrayToRGBAStrColor,
   strToArrayColor,
-  setLegendOpacity,
-  getSchemeColorValues,
-} from '../../shared/utils'
+} from '../../utils/color'
 import { LAYER_CONFIGURATIONS, PROP_CONFIGURATIONS } from './constants'
+
 
 /**
  * useLegends - React Hook to set legend config objects for all map layers

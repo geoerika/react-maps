@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
-import { days, hours } from '../../constants'
-import { reportWI } from '../../datasets'
+import { days, hours } from '../../../constants'
+import { reportWI } from '../datasets'
 
 
 setup(React.createElement)

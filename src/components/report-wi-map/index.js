@@ -1,20 +1,23 @@
 import React, { useState, useEffect, useReducer, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import { commonProps, commonDefaultProps } from '../shared/map-props'
+import { commonProps, commonDefaultProps } from '../../shared/map-props'
 
+import { ScatterplotLayer } from '@deck.gl/layers'
 import { styled, setup } from 'goober'
 import { scaleLinear, scaleQuantile, scaleQuantize } from 'd3-scale'
 import { interpolateBlues } from 'd3-scale-chromatic'
 import { color } from 'd3-color'
 
-import { useLegends, useFullReport, useTimeline } from '../hooks'
-import { hours, days } from '../constants'
-import { reportWI } from '../datasets'
-import { arrayToRGBAStrColor, getArrayGradientFillColors, setLegendOpacity } from '../shared/utils'
+import { useTimeline } from './hooks'
+import { useFullReport } from './hooks/report'
+import { useLegends } from '../../hooks'
+import { hours, days } from '../../constants'
+import { reportWI } from './datasets'
+import { arrayToRGBAStrColor, getArrayGradientFillColors } from '../../utils/color'
+import { setLegendOpacity } from '../../utils/legend'
 
-import Map from './old-generic-map'
-import Scatter from './layers/scatter-plot'
+import Map from '../old-generic-map'
 import EntryList from './entry-list'
 import TimelineControls from './controls'
 import MetricSelector from './controls/report-wi-metrics'
@@ -210,7 +213,7 @@ const ReportWIMap = ({
     } 
 
     return [
-      Scatter({
+      new ScatterplotLayer({
         id: `${report_id}-report-scatterplot-layer`,
         data,
         getPosition: d => [d.lon, d.lat],
