@@ -220,7 +220,7 @@ const ScatterPlotLayer2Config = {
   visualizations: {
     radius: { value: 10 },
     fill: {
-      value: [251, 201, 78],
+      value: { field: 'xvisit_visits' },
     },
   },
   interactions: {
@@ -228,7 +228,7 @@ const ScatterPlotLayer2Config = {
       tooltipKeys: {
         name: 'target_poi_name',
         id: 'target_poi_id',
-        metricKeys: ['target_lon', 'target_lat'],
+        metricKeys: ['xvisit_visits'],
       },
     },
   },
