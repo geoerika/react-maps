@@ -8,8 +8,8 @@ import { arrayToRGBAStrColor, strToArrayColor } from '../../../utils/color'
  *                        base schemeColour value
  * @param { string || Array } schemeColor - string or array format colour
  * @returns { object  } - { newLineColor, newLabelColor, newColorValue, newTargetColor,
- *                          newTargetLineColor, newColorValueOptions } - object of colour values for
- *                        fill and line colour to be used by deck.gl layers
+ *                          newTargetLineColor, newColorValueOptions, newTargetColorValueOptions }
+ * - object of colour values for fill and line colour to be used by deck.gl layers
  */
 export const getSchemeColorValues = (schemeColor) => {
   const arraySchemeColor = Array.isArray(schemeColor) ?
@@ -28,5 +28,6 @@ export const getSchemeColorValues = (schemeColor) => {
     newTargetColor,
     newTargetLineColor: targetColor.shade(30).rgb,
     newColorValueOptions: [color.tint(90).rgb, arraySchemeColor],
+    newTargetColorValueOptions: [targetColor.tint(90).rgb, newTargetColor],
   }
 }
