@@ -93,6 +93,7 @@ export const parseDeckGLLayerFromConfig = ({
     newTargetColor,
     newTargetLineColor,
     newColorValueOptions,
+    newTargetColorValueOptions,
   } = schemeColor ? getSchemeColorValues(schemeColor) : {}
 
   let extruded, parameters
@@ -114,9 +115,10 @@ export const parseDeckGLLayerFromConfig = ({
       // change colour values with schemeColour generated colours
       if (!value?.field && schemeColor) {
         if (name === PROP_TYPES.fill) {
-          value = newColorValue
           if (isTargetLayer) {
             value = newTargetColor
+          } else {
+            value = newColorValue
           }
         }
         if (name === PROP_TYPES.sourceArcColor) {
@@ -131,13 +133,18 @@ export const parseDeckGLLayerFromConfig = ({
       }
 
       if (value?.field && schemeColor && name === PROP_TYPES.fill) {
-        valueOptions = newColorValueOptions
+        if (isTargetLayer) {
+          valueOptions = newTargetColorValueOptions
+        } else {
+          valueOptions = newColorValueOptions
+        }
       }
 
       if (schemeColor && name === PROP_TYPES.lineColor) {
-        value = newLineColor
         if (isTargetLayer) {
           value = newTargetLineColor
+        } else {
+          value = newLineColor
         }
       }
 
