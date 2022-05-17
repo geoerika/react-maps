@@ -17,6 +17,7 @@ import Map from './generic-map'
 import Legend from './legend'
 import MapTooltip from './tooltip'
 import tooltipNode from './tooltip/tooltip-node'
+import { getCursor as getDefaultCursor } from '../utils'
 import { setFinalLayerDataProperty } from '../utils/layer'
 import { setView } from '../utils/map-view'
 import {
@@ -241,7 +242,7 @@ const QLReportMap = ({
       layers={layers}
       setDimensionsCb={(o) => setDimensions(o)}
       getTooltip={getTooltip}
-      getCursor={getCursor}
+      getCursor={getCursor({ layers })}
       onHover={onHover}
       viewStateOverride={viewStateOverride}
       showTooltip={showTooltip}
@@ -342,7 +343,7 @@ QLReportMap.defaultProps = {
   getTooltip: undefined,
   showTooltip: false,
   tooltipNode: tooltipNode,
-  getCursor: undefined,
+  getCursor: getDefaultCursor,
   dataPropertyAccessor: d => d,
   formatLegendTitle: d => d,
   formatTooltipTitle: d => d,
