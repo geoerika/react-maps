@@ -10,6 +10,7 @@ import { styled, setup } from 'goober'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import { useLegends } from './hooks'
+import { getCursor } from '../../utils'
 import { parseDeckGLLayerFromConfig, getObjectMVTData } from './utils/layer'
 import { getTooltipParams } from './utils/tooltip'
 import { setView } from './utils/map-view'
@@ -488,10 +489,7 @@ const LocusMap = ({
       viewStateOverride={viewStateOverride}
       controller={controller}
       { ...mapConfig }
-      getCursor={mapConfig.cursor ?
-        mapConfig.cursor(Object.values(layers).map(o => o.deckLayer)) :
-        () => {}
-      }
+      getCursor={(mapConfig.getCursor || getCursor)(Object.values(layers).map(o => o.deckLayer))}
       showTooltip={mapConfig.showMapTooltip}
       renderTooltip={({ hoverInfo }) => {
         const { tooltipProps, ...tooltipParams } = getTooltipParams({ hoverInfo })
