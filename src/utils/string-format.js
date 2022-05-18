@@ -12,6 +12,7 @@ export function truncate(fullStr, strLen, separator = ' ... ') {
   const sepLen = separator.length
   const charsToShow = strLen - sepLen
   const frontChars = Math.ceil(charsToShow / 2)
+  const endChars = Math.floor(charsToShow / 2)
 
-  return fullStr.substring(0, frontChars) + separator + fullStr.substring(frontChars + sepLen)
+  return fullStr.substring(0, frontChars) + separator + fullStr.substring(fullStr.length + 1 - endChars)
 }
