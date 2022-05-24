@@ -20,6 +20,7 @@ import { setFinalLayerDataProperty } from '../utils/layer'
 import { setView } from '../utils/map-view'
 import { getArrayFillColors, getArrayGradientFillColors } from '../utils/color'
 import { setLegendOpacity } from '../utils/legend'
+import { getCursor as getDefaultCursor } from '../utils'
 import { useLegends } from '../hooks'
 
 
@@ -276,7 +277,7 @@ const GeoCohortMap = ({
       setDimensionsCb={(o) => setDimensions(o)}
       setHighlightObj={setHighlightObj}
       getTooltip={getTooltip}
-      getCursor={getCursor}
+      getCursor={getCursor({ layers })}
       onHover={onHover}
       viewStateOverride={viewStateOverride}
       showTooltip={showTooltip}
@@ -378,7 +379,7 @@ GeoCohortMap.defaultProps = {
   getTooltip: undefined,
   showTooltip: false,
   tooltipNode: tooltipNode,
-  getCursor: undefined,
+  getCursor: getDefaultCursor,
   pitch: 0,
   dataPropertyAccessor: d => d,
   formatLegendTitle: d => d,

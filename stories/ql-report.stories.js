@@ -4,7 +4,6 @@ import { storiesOf } from '@storybook/react'
 
 import { QLReportMap } from '../src'
 import { truncate } from '../src/utils/string-format'
-import { getCursor } from '../src/utils'
 import vwiJson from './data/locus-ml-vwi.json'
 import vwiJsonZero from './data/locus-ql-zero.json'
 
@@ -18,16 +17,9 @@ const formatPropertyLabel = (s) => [
 
 
 storiesOf('Locus QL Report', module)
-  .add('VWI - basic', () => (
+  .add('VWI - basic with default zoom on click', () => (
     <QLReportMap
       reportData={vwiJson}
-      mapboxApiAccessToken={mapboxApiAccessToken}
-    />
-  ))
-  .add('VWI - default cursor on hover and default zoom on click', () => (
-    <QLReportMap
-      reportData={vwiJson}
-      getCursor={getCursor()}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
@@ -35,13 +27,13 @@ storiesOf('Locus QL Report', module)
     <QLReportMap
       reportData={vwiJson}
       onClick={() => {}}
+      getCursor={() => {}}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
   .add('VWI - data-based radius', () => (
     <QLReportMap
       reportData={vwiJson}
-      getCursor={getCursor()}
       radiusBasedOn={'converted_visits'}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
@@ -49,7 +41,6 @@ storiesOf('Locus QL Report', module)
   .add('VWI - data-based colour fill', () => (
     <QLReportMap
       reportData={vwiJson}
-      getCursor={getCursor()}
       fillBasedOn={'converted_unique_visitors'}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
@@ -57,7 +48,6 @@ storiesOf('Locus QL Report', module)
   .add('VWI - tooltip', () => (
     <QLReportMap
       reportData={vwiJson}
-      getCursor={getCursor()}
       showTooltip={true}
       radiusBasedOn={'converted_visits'}
       fillBasedOn={'converted_unique_visitors'}
@@ -67,7 +57,6 @@ storiesOf('Locus QL Report', module)
   .add('VWI - show legend for data-based radius', () => (
     <QLReportMap
       reportData={vwiJson}
-      getCursor={getCursor()}
       showTooltip={true}
       radiusBasedOn={'converted_unique_visitors_single_visit'}
       showLegend={true}
@@ -77,7 +66,6 @@ storiesOf('Locus QL Report', module)
   .add('VWI - show legend for data-based colour tones', () => (
     <QLReportMap
       reportData={vwiJson}
-      getCursor={getCursor()}
       showTooltip={true}
       fillBasedOn={'converted_unique_visitors'}
       showLegend={true}
@@ -87,7 +75,6 @@ storiesOf('Locus QL Report', module)
   .add('VWI - custom opacity', () => (
     <QLReportMap
       reportData={vwiJson}
-      getCursor={getCursor()}
       showTooltip={true}
       radiusBasedOn={'converted_visits'}
       showLegend={true}
@@ -98,7 +85,6 @@ storiesOf('Locus QL Report', module)
   .add('VWI - zero min and max values for radius and radiusFill legend', () => (
     <QLReportMap
       reportData={vwiJsonZero}
-      getCursor={getCursor()}
       showTooltip={true}
       radiusBasedOn={'visits'}
       fillBasedOn={'converted_unique_visitors_single_visit'}
@@ -110,7 +96,6 @@ storiesOf('Locus QL Report', module)
   .add('VWI - format property key in Legend title and Tooltip keys', () => (
     <QLReportMap
       reportData={vwiJson}
-      getCursor={getCursor()}
       showTooltip={true}
       radiusBasedOn={'visits'}
       fillBasedOn={'converted_unique_visitors_single_visit'}
@@ -123,7 +108,6 @@ storiesOf('Locus QL Report', module)
   .add('VWI - format tootltip title', () => (
     <QLReportMap
       reportData={vwiJson}
-      getCursor={getCursor()}
       showTooltip={true}
       radiusBasedOn={'visits'}
       formatPropertyLabel={formatPropertyLabel}

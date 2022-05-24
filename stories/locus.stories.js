@@ -5,7 +5,6 @@ import { ButtonGroup, Button } from '@eqworks/lumen-labs'
 import { Icons } from '@eqworks/lumen-labs'
 
 import { LocusMap } from '../src'
-import { getCursor } from '../src/utils'
 
 import poiRadiiTo from './data/pois-radii-to.json'
 import regionGeoJSON from './data/locus-region-geojson.json'
@@ -57,7 +56,6 @@ export default {
 const mapConfig = {
   showMapLegend: true,
   showMapTooltip: true,
-  cursor: (layers) => getCursor({ layers }),
   legendPosition: 'top-right',
   legendSize: 'lg',
   mapboxApiAccessToken,

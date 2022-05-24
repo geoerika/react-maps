@@ -2,7 +2,6 @@ import React from 'react'
 
 import { GeoCohortMap } from '../src'
 import { truncate } from '../src/utils/string-format'
-import { getCursor } from '../src/utils'
 import geoCohortFSAraw from './data/geo-cohort-FSA.json'
 import geoCohortPostalraw from './data/geo-cohort-postal.json'
 import geoCohortJsonZero from './data/geo-cohorts-zero.json'
@@ -25,7 +24,6 @@ export default {
 const mapArgs = {
   reportFSAData,
   reportGeoCohortData,
-  getCursor: getCursor(),
   mapboxApiAccessToken,
 }
 
