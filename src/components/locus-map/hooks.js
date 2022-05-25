@@ -23,7 +23,14 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
     return map
   }, {})
   const mapLegends = useMemo(() => layerConfig.reduce((layerList, layer) => {
-    const { visualizations, opacity = 1, metricAliases, formatPropertyLabel, formatData } = layer
+    const {
+      visualizations,
+      opacity = 1,
+      metricAliases,
+      formatPropertyLabel,
+      formatData,
+      isTargetLayer,
+    } = layer
     const showLegend = layer.legend?.showLegend
     const formatLegendTitle = layer.legend?.formatLegendTitle
     if (showLegend) {
@@ -40,7 +47,10 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       const {
         newLineColor,
         newColorValue,
+        newTargetColor,
+        newTargetLineColor,
         newColorValueOptions,
+        newTargetColorValueOptions,
       } = schemeColor ? getSchemeColorValues(schemeColor) : {}
 
       // set symbolLineColor param
@@ -61,7 +71,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       }
       if (newLineColor) {
         symbolLineColor = arrayToRGBAStrColor({
-          color: newLineColor,
+          color: isTargetLayer ? newTargetLineColor : newLineColor,
           opacity: setLegendOpacity({ opacity }),
         })
       }
@@ -89,7 +99,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       }
       if (newColorValueOptions) {
         fillColors = getArrayGradientFillColors({
-          fillColors: newColorValueOptions,
+          fillColors: isTargetLayer ? newTargetColorValueOptions : newColorValueOptions,
           opacity: setLegendOpacity({ opacity }),
         })
       }
@@ -110,7 +120,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       }
       if (newColorValue) {
         objColor = arrayToRGBAStrColor({
-          color: newColorValue,
+          color: isTargetLayer ? newTargetColor : newColorValue,
           opacity: setLegendOpacity({ opacity }),
         })
       }

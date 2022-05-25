@@ -5,7 +5,6 @@ import { ButtonGroup, Button } from '@eqworks/lumen-labs'
 import { Icons } from '@eqworks/lumen-labs'
 
 import { LocusMap } from '../src'
-import { getCursor } from '../src/utils'
 
 import poiRadiiTo from './data/pois-radii-to.json'
 import regionGeoJSON from './data/locus-region-geojson.json'
@@ -57,7 +56,6 @@ export default {
 const mapConfig = {
   showMapLegend: true,
   showMapTooltip: true,
-  cursor: (layers) => getCursor({ layers }),
   legendPosition: 'top-right',
   legendSize: 'lg',
   mapboxApiAccessToken,
@@ -220,7 +218,7 @@ const ScatterPlotLayer2Config = {
   visualizations: {
     radius: { value: 10 },
     fill: {
-      value: [251, 201, 78],
+      value: { field: 'xvisit_visits' },
     },
   },
   interactions: {
@@ -228,7 +226,7 @@ const ScatterPlotLayer2Config = {
       tooltipKeys: {
         name: 'target_poi_name',
         id: 'target_poi_id',
-        metricKeys: ['target_lon', 'target_lat'],
+        metricKeys: ['xvisit_visits'],
       },
     },
   },

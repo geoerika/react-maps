@@ -29,7 +29,7 @@ import { isClusterZoomLevel } from './utils/cluster'
 import { processLayers } from './utils/layers'
 import { getCircleRadiusCentroid } from './utils/geo-calc'
 import { formatDataPOI } from './utils/coord-format'
-import { createCircleFromPointRadius, getCursor } from '../../utils'
+import { createCircleFromPointRadius, getCursor as getDefaultCursor } from '../../utils'
 import { setView } from '../../utils/map-view'
 import { truncate } from '../../utils/string-format'
 import {
@@ -139,6 +139,7 @@ const POIMap = ({
   formatTooltipTitle,
   formatPropertyLabel,
   formatData,
+  getCursor,
 }) => {
   const [data, setData] = useState([])
   const [selectedFeatureIndexes, setSelectedFeatureIndexes] = useState([])
@@ -471,8 +472,6 @@ const POIMap = ({
     selectedFeatureIndexes,
   ])
 
-  const getCurrentCursor = getCursor({ layers })
-
   // set state for clusterZoom
   useEffect(() => {
     if (cluster && showClusters && layerVisibleData?.length && viewportBBOX?.length && zoom) {
@@ -627,7 +626,7 @@ const POIMap = ({
               }
               setHoverInfo(null)
             }}
-            getCursor={getCurrentCursor}
+            getCursor={getCursor({ layers })}
             onAfterRender={() => {
               if (cluster && showClusters) {
                 setLayerVisibleData(deckRef?.current?.pickObjects({ x: 0, y: 0, width, height }))
@@ -690,6 +689,7 @@ POIMap.propTypes = {
   formatTooltipTitle: PropTypes.func,
   formatPropertyLabel: PropTypes.func,
   formatData: PropTypes.object,
+  getCursor: PropTypes.func,
   ...typographyPropTypes,
   ...tooltipPropTypes,
   ...POIMapProps,
@@ -711,6 +711,7 @@ POIMap.defaultProps = {
   formatTooltipTitle: (title) => truncate(title, 20),
   formatPropertyLabel: d => d,
   formatData: formatDataPOI,
+  getCursor: getDefaultCursor,
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
   ...POIMapDefaultProps,
