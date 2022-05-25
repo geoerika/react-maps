@@ -4,15 +4,24 @@ import { styled, setup } from 'goober'
 
 setup(React.createElement)
 
+const POIDiv = styled('div')`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+`
+const POIIdKey = styled('div')`
+  font-weight: 700;
+  margin-right: 0.625rem;
+`
+const POIIdValue = styled('div')`
+`
 const Title = styled('div')`
-  margin: 0;
-  fontWeight: 700;
+  font-weight: 700;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 `
 const Id = styled('div')`
-  margin: 0;
   font-size: 0.625rem;
   color: #808080;
   display: flex;
@@ -23,11 +32,10 @@ const TooltipAttributes = styled('div')`
   display: grid;
   grid-template-columns: auto auto;
   grid-gap: 0.625rem;
+  align-items: flex-end;
 `
 const Keys = styled('div')`
-  fontWeight: 600;
-  display: flex;
-  flex-direction: column;
+  font-weight: 600;
 `
 const Values = styled('div')`
   display: flex;
@@ -36,6 +44,7 @@ const Values = styled('div')`
 `
 const Line = styled('hr')`
   border-top: 0.065rem solid #6c6c6c;
+  margin: 0.2rem;
 `
 
 /**
@@ -54,18 +63,59 @@ const tooltipNode = ({
   formatPropertyLabel = d => d,
   params,
 }) => {
-  const { name, id, metricKeys, nameAccessor, idAccessor, metricAccessor, metricAliases } = tooltipKeys
+  const {
+    name,
+    id,
+    sourcePOIId,
+    targetPOIId,
+    metricKeys,
+    nameAccessor = d => d,
+    idAccessor = d => d,
+    sourcePOIIdAccessor = d => d,
+    targetPOIIdAccessor = d => d,
+    metricAccessor = d => d,
+    metricAliases,
+  } = tooltipKeys
+
   return (
     <>
       {name && nameAccessor?.(params)?.[name] &&
-        <Title>{formatTooltipTitle(nameAccessor(params)[name])}</Title>
+        <Title>
+          {formatTooltipTitle(nameAccessor(params)[name])}
+        </Title>
       }
       {id && idAccessor?.(params)?.[id] &&
-        <Id>{idAccessor(params)[id]}</Id>
+        <Id>
+          {idAccessor(params)[id]}
+        </Id>
       }
+      {sourcePOIId && sourcePOIIdAccessor(params)?.[sourcePOIId] && (
+        <POIDiv>
+          <POIIdKey>
+            Source POI ID:
+          </POIIdKey>
+          <POIIdValue>
+            {sourcePOIIdAccessor(params)?.[sourcePOIId]}
+          </POIIdValue>
+        </POIDiv>
+      )}
+      {targetPOIId && targetPOIIdAccessor(params)?.[targetPOIId] && (
+        <POIDiv>
+          <POIIdKey>
+            Target POI ID:
+          </POIIdKey>
+          <POIIdValue>
+            {targetPOIIdAccessor(params)?.[targetPOIId]}
+          </POIIdValue>
+        </POIDiv>
+      )}
       {metricKeys?.length > 0 && metricAccessor && (
         <div>
-          {((nameAccessor?.(params)?.[name]) || (idAccessor?.(params)?.[id])) &&
+          {(nameAccessor?.(params)?.[name] ||
+            idAccessor?.(params)?.[id] ||
+            sourcePOIIdAccessor(params)?.[sourcePOIId] ||
+            targetPOIIdAccessor(params)?.[targetPOIId]
+          ) &&
             <Line/>
           }
           <TooltipAttributes>
@@ -88,6 +138,6 @@ const tooltipNode = ({
       )} 
     </>
   )
-}  
+}
 
 export default tooltipNode
