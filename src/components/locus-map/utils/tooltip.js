@@ -23,10 +23,14 @@ export const getTooltipParams = ({ hoverInfo }) => {
   const {
     name,
     id,
+    sourcePOIId,
+    targetPOIId,
     metricKeys,
     metricAccessor,
     nameAccessor,
     idAccessor,
+    sourcePOIIdAccessor,
+    targetPOIIdAccessor,
   } = tooltipKeys ? tooltipKeys : {}
   const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
   // set metricKeys array if no custom keys are given
@@ -41,10 +45,14 @@ export const getTooltipParams = ({ hoverInfo }) => {
     tooltipKeys : {
       name: name || 'name',
       id: id || 'id',
+      sourcePOIId,
+      targetPOIId,
       nameAccessor: nameAccessor || dataPropertyAccessor,
       idAccessor: idAccessor || dataPropertyAccessor,
       metricKeys: metricKeysArray,
       metricAccessor: metricAccessor || dataPropertyAccessor,
+      sourcePOIIdAccessor: sourcePOIIdAccessor || dataPropertyAccessor,
+      targetPOIIdAccessor: targetPOIIdAccessor || dataPropertyAccessor,
       metricAliases,
     },
     formatData,
