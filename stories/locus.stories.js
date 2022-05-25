@@ -182,7 +182,9 @@ const arcLayerConfig = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        metricKeys: ['source_poi_id', 'target_poi_id', 'xvisit_visits', 'xvisit_unique_visitors'],
+        sourcePOIId: 'source_poi_id',
+        targetPOIId: 'target_poi_id',
+        metricKeys: ['xvisit_visits', 'xvisit_unique_visitors'],
       },
     },
   },
@@ -202,8 +204,7 @@ const ScatterPlotLayer1Config = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        name: 'source_poi_name',
-        id: 'source_poi_id',
+        sourcePOIId: 'source_poi_id',
         metricKeys: ['source_lon', 'source_lat'],
       },
     },
@@ -224,8 +225,7 @@ const ScatterPlotLayer2Config = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        name: 'target_poi_name',
-        id: 'target_poi_id',
+        targetPOIId: 'target_poi_id',
         metricKeys: ['xvisit_visits'],
       },
     },
