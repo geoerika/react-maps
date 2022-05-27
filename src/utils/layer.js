@@ -28,6 +28,7 @@ export const setFinalLayerDataProperty = ({
   mvtGeoKey,
   highlightId = null,
   formatDataValue = {},
+  noZeroMin,
 }) => {
   if (!value && isNaN(value)) {
     return typeof defaultValue === 'function' ? defaultValue(highlightId) : defaultValue
@@ -56,7 +57,7 @@ export const setFinalLayerDataProperty = ({
   }
 
   if (layerData?.length && value.field?.length) {
-    const dataRange = getDataRange({ data: layerData, dataKey: value.field, dataPropertyAccessor })
+    const dataRange = getDataRange({ data: layerData, dataKey: value.field, dataPropertyAccessor, noZeroMin })
     if (valueOptions?.length) {
       const sample = dataPropertyAccessor(layerData[0])
       if (sample[value.field] === undefined) {
