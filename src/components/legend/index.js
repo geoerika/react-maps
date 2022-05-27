@@ -28,6 +28,12 @@ const LegendContainer = styled('div')(({ num_legends, position, typography, opac
   ...position,
 }))
 
+const LayerTitle = styled('div')`
+  margin: 0.75rem auto 0 auto;
+  font-weight: 700;
+  font-size: 0.75rem;
+`
+
 const Legend = ({
   legendPosition,
   legendSize,
@@ -35,6 +41,7 @@ const Legend = ({
   typography,
 }) => {
   const [symbolMarginLeft, setSymbolMarginLeft] = useState(0)
+  const [maxTextContainer, setMaxTextContainer] = useState(0)
   const [opacity, setOpacity] = useState(0)
   let objPosition = {}
   objPosition[legendPosition.split('-')[0]] = '.5rem'
@@ -51,20 +58,29 @@ const Legend = ({
         typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
         opacity={opacity}
       >
-        {legends.map(({ type, ...legendProps }) => (
-          <LegendItem
-            key={type}
-            legendItemProps={
-              {
-                type,
-                legendSize,
-                symbolMarginLeft,
-                setSymbolMarginLeft,
-                setOpacity,
-                ...legendProps,
+        {legends.map(({ type, layerTitle, ...legendProps }) => (
+          <>
+            {layerTitle && (
+              <LayerTitle>
+                {layerTitle}
+              </LayerTitle>
+            )}
+            <LegendItem
+              key={type}
+              legendItemProps={
+                {
+                  type,
+                  legendSize,
+                  symbolMarginLeft,
+                  setSymbolMarginLeft,
+                  maxTextContainer,
+                  setMaxTextContainer,
+                  setOpacity,
+                  ...legendProps,
+                }
               }
-            }
-          />
+            />
+          </>
         ))}
       </LegendContainer>
     </>
