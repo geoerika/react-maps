@@ -22,7 +22,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
     map[data.id] = data
     return map
   }, {})
-  const mapLegends = useMemo(() => layerConfig.reduce((layerList, layer) => {
+  const mapLegends = useMemo(() => layerConfig.reduce((legendList, layer) => {
     const {
       visualizations,
       opacity = 1,
@@ -30,8 +30,10 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       formatDataKey,
       formatDataValue,
       isTargetLayer,
+      legend,
     } = layer
-    const showLegend = layer.legend?.showLegend
+    const showLegend = legend?.showLegend || false
+    const layerTitle = legend?.layerTitle || ''
     const formatLegendTitle = layer.legend?.formatLegendTitle
     if (showLegend) {
       let data = dataMap[layer.dataId]?.data || {}
@@ -41,6 +43,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       const fillBasedOn = visualizations?.fill?.value?.field
       const radiusBasedOn = visualizations?.radius?.value?.field
       const elevationBasedOn = visualizations?.elevation?.value?.field
+      const arcWidthBasedOn = visualizations?.arcWidth?.value?.field
 
       const { schemeColor } = layer
       // generate colours for stroke and fill from the base schemeColour
@@ -103,6 +106,19 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
           opacity: setLegendOpacity({ opacity }),
         })
       }
+      if (visualizations?.arcWidth) {
+        if (newColorValueOptions) {
+          fillColors = getArrayGradientFillColors({
+            fillColors: [newColorValue, newTargetColor],
+            opacity: setLegendOpacity({ opacity }),
+          })
+        } else {
+          fillColors = getArrayGradientFillColors({
+            fillColors: [visualizations?.sourceArcColor?.value, visualizations?.targetArcColor?.value],
+            opacity: setLegendOpacity({ opacity }),
+          })
+        }
+      }
 
       // colour for map symbols when fill is not based on data
       let objColor = arrayToRGBAStrColor({
@@ -133,16 +149,18 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
         fillColors,
         radiusBasedOn,
         keyAliases,
+        arcWidthBasedOn,
         formatLegendTitle,
         formatDataKey,
         formatDataValue,
         symbolLineColor,
         objColor,
         legendSize,
+        layerTitle: layerTitle,
       })
-      layerList = [...layerList, ...layerLegends]
+      legendList = [...legendList, ...layerLegends]
     }
-    return layerList
+    return legendList
   }, []), [layerConfig, dataMap, legendSize])
   return mapLegends
 }
