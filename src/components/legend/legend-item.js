@@ -130,10 +130,10 @@ const LegendItem = ({ legendItemProps }) => {
 
   // reveal Legend only after the textContainerWidth has been calculated
   useEffect(() => {
-    if (textContainerWidth) {
+    if (textContainerWidth || (min === undefined && max === undefined)) {
       setOpacity(0.9)
     }
-  }, [textContainerWidth, setOpacity])
+  }, [textContainerWidth, setOpacity, min, max])
 
   return (
     <>
@@ -200,7 +200,7 @@ const LegendItem = ({ legendItemProps }) => {
           }
         </LegendBody>
       )}
-      {max === undefined && min === undefined && (
+      {min === undefined && max === undefined && (
         <LegendSymbolContainer>
           <LegendSymbol symbolProps={{ max, type, legendSize, ...symbolProps }} />
         </LegendSymbolContainer>
@@ -224,7 +224,7 @@ LegendItem.propTypes = {
     symbolMarginLeft: PropTypes.number.isRequired,
     setSymbolMarginLeft: PropTypes.func.isRequired,
     setOpacity: PropTypes.func.isRequired,
-    maxTextContainer: PropTypes.func.isRequired,
+    maxTextContainer: PropTypes.number.isRequired,
     setMaxTextContainer: PropTypes.func.isRequired,
   }),
 }

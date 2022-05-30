@@ -50,40 +50,38 @@ const Legend = ({
   // const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
 
   return (
-    <>
-      <LegendContainer
-        num_legends={legends.length}
-        // onClick={handleLegendChange}
-        position={objPosition}
-        typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
-        opacity={opacity}
-      >
-        {legends.map(({ type, layerTitle, ...legendProps }) => (
-          <>
-            {layerTitle && (
-              <LayerTitle>
-                {layerTitle}
-              </LayerTitle>
-            )}
-            <LegendItem
-              key={type}
-              legendItemProps={
-                {
-                  type,
-                  legendSize,
-                  symbolMarginLeft,
-                  setSymbolMarginLeft,
-                  maxTextContainer,
-                  setMaxTextContainer,
-                  setOpacity,
-                  ...legendProps,
-                }
+    <LegendContainer
+      num_legends={legends.length}
+      // onClick={handleLegendChange}
+      position={objPosition}
+      typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
+      opacity={opacity}
+    >
+      {legends.map(({ type, layerTitle, ...legendProps }, index) => (
+        <div key={index}>
+          {layerTitle && (
+            <LayerTitle>
+              {layerTitle}
+            </LayerTitle>
+          )}
+          <LegendItem
+            key={type}
+            legendItemProps={
+              {
+                type,
+                legendSize,
+                symbolMarginLeft,
+                setSymbolMarginLeft,
+                maxTextContainer,
+                setMaxTextContainer,
+                setOpacity,
+                ...legendProps,
               }
-            />
-          </>
-        ))}
-      </LegendContainer>
-    </>
+            }
+          />
+        </div>
+      ))}
+    </LegendContainer>
   )
 }
 
