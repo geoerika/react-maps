@@ -200,6 +200,11 @@ const LegendItem = ({ legendItemProps }) => {
           }
         </LegendBody>
       )}
+      {max === undefined && min === undefined && (
+        <LegendSymbolContainer>
+          <LegendSymbol symbolProps={{ max, type, legendSize, ...symbolProps }} />
+        </LegendSymbolContainer>
+      )}
     </>
   )
 }
