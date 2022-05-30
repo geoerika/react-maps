@@ -518,6 +518,21 @@ export const XWIReportLayers = Template.bind({})
 XWIReportLayers.args = xwiReportArgs
 XWIReportLayers.storyName = 'Arc & Scatterplot Layers with schemeColor prop for XWI Reports'
 
+const xwiNoValueKeysReportArgs = {
+  layerConfig: [
+    { ...ScatterPlotLayer1Config, visualizations: {} },
+    { ...ScatterPlotLayer2Config, visualizations: {} },
+    { ...arcLayerConfig, visualizations: {} },
+  ],
+  dataConfig,
+  mapConfig,
+}
+
+export const xwiNoValueKeysReport = Template.bind({})
+xwiNoValueKeysReport.args = xwiNoValueKeysReportArgs
+xwiNoValueKeysReport.storyName = 'Arc & Scatterplot Layers with no values for visualization fields'
+
+
 let initViewState = {
   latitude: 43.41,
   longitude: -79.23,
