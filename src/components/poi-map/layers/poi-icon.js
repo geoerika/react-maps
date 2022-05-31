@@ -1,7 +1,7 @@
 // https://deck.gl/docs/api-reference/layers/icon-layer
 
 import { IconLayer } from '@deck.gl/layers'
-import POIIconMarker from '../icons/poi-location.png'
+import POIIconMarker from '../../../shared/icons/poi-location.png'
 
 // icon mapping for poi icon layer
 const POI_ICON_MAPPING = { marker: { x: 0, y: 0, width: 128, height: 128, anchorY: 128 } }
