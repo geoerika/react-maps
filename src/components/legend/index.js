@@ -17,10 +17,11 @@ const LegendContainer = styled('div')(({ num_legends, position, typography, opac
   ...typography,
   display: 'flex',
   flexDirection: 'column',
+  rowGap: '.375rem',
   position: 'absolute',
   cursor: num_legends > 1 ? 'pointer' : 'default',
   backgroundColor: getTailwindConfigColor('secondary-50'),
-  padding: '0 .75rem .75rem',
+  padding: '.75rem .75rem .8125rem .75rem',
   borderRadius: '0.15rem',
   marginBottom: '1.5rem',
   boxShadow: '0 0.125rem 0.5rem 0 rgba(12, 12, 13, 0.15)',
@@ -29,9 +30,10 @@ const LegendContainer = styled('div')(({ num_legends, position, typography, opac
 }))
 
 const LayerTitle = styled('div')`
-  margin: 0.75rem auto 0 auto;
   font-weight: 700;
   font-size: 0.75rem;
+  text-align: center;
+  margin-bottom: 0.275rem;
 `
 
 const Legend = ({

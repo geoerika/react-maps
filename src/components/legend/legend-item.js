@@ -15,7 +15,6 @@ const TEXT_CONTAINER_LEFT_MARGIN = 0.5
 
 const LegendBody = styled('div')`
   align-items: center;
-  margin-top: 0.625rem;
 `
 
 const LegendTitle = styled('div')`
