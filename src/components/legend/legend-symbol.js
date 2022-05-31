@@ -11,6 +11,8 @@ import {
   LEGEND_LINE_HEIGHT,
 } from '../../constants'
 
+import POIIconMarker from '../../shared/icons/poi-location.png'
+
 
 setup(React.createElement)
 
@@ -53,6 +55,17 @@ const Height = styled('div')`
   border-bottom: 0.065rem solid black;
   border-top: 0.065rem solid black;
   background-color: ${({ color }) => color};
+`
+
+const Icon = styled('div')`
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: auto;
+  margin-top: 0.625rem;
+  /* https://stackoverflow.com/questions/61370618/how-to-replace-color-of-png-image-using-css */
+  background: ${({ color }) => color};
+  -webkit-mask:url(${POIIconMarker}) center/contain;
+          mask:url(${POIIconMarker}) center/contain;
 `
 
 const LegendSymbol = ({ symbolProps }) => {
@@ -131,6 +144,14 @@ const LegendSymbol = ({ symbolProps }) => {
           />
         }
       </>
+    )
+  }
+
+  if (type === LEGEND_TYPE.icon) {
+    return (
+      <Icon
+        color={maxColor}
+      />
     )
   }
   // TODO: choropleth using import { scaleThreshold } from 'd3-scale'
