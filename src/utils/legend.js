@@ -108,8 +108,7 @@ export const setLegendConfigs = ({
   if (layerTitle && layerTitle !== 'Arc Layer' && !(fillBasedOn.length || radiusBasedOn.length)) {
     legends.push({
       layerTitle: JSON.stringify(legends).includes(layerTitle) ? '' : layerTitle,
-      type: LEGEND_TYPE.size,
-      zeroRadiusSize: LEGEND_RADIUS_SIZE.zero,
+      type: LEGEND_TYPE.icon,
       maxColor,
     })
   }
