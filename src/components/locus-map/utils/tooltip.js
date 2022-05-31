@@ -24,6 +24,7 @@ export const getTooltipParams = ({ hoverInfo }) => {
   const fillBasedOn  = visualizations?.fill?.value?.field
   const radiusBasedOn  = visualizations?.radius?.value?.field
   const elevationBasedOn  = visualizations?.elevation?.value?.field
+  const arcWidthBasedOn = visualizations?.arcWidth?.value?.field
 
   const {
     tooltipTitle1,
@@ -36,7 +37,7 @@ export const getTooltipParams = ({ hoverInfo }) => {
   const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
   // set metricKeys array if no custom keys are given
   if (!metricKeys?.length) {
-    ([radiusBasedOn, fillBasedOn, elevationBasedOn]).forEach((key) => {
+    ([radiusBasedOn, fillBasedOn, elevationBasedOn, arcWidthBasedOn]).forEach((key) => {
       if (key) {
         metricKeysArray.push(key)
       }
