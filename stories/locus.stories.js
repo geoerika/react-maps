@@ -257,6 +257,63 @@ const ScatterPlotLayer2Config = {
   schemeColor: '#366fe4',
 }
 
+const IconLayer1Config = {
+  layer: 'icon',
+  dataId: 'xwiReport-123',
+  geometry: { longitude: 'source_lon', latitude: 'source_lat' },
+  visualizations: {
+    size: { value: 5 },
+  },
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        sourcePOIId: 'source_poi_id',
+        metricKeys: [
+          'xvisit_visits',
+          'xvisit_unique_visitors',
+          'xvisit_unique_visitors_single_visit',
+          'xvisit_unique_visitors_multi_visit',
+          'xvisit_repeat_visitors',
+        ],
+      },
+    },
+  },
+  legend: {
+    showLegend: true,
+    layerTitle: 'Source Layer',
+  },
+  schemeColor: '#366fe4',
+}
+
+const IconLayer2Config = {
+  layer: 'icon',
+  dataId: 'xwiReport-123',
+  geometry: { longitude: 'target_lon', latitude: 'target_lat' },
+  visualizations: {
+    size: { value: 5 },
+  },
+  interactions: {
+    tooltip: {
+      tooltipKeys: {
+        targetPOIId: 'target_poi_id',
+        metricKeys: [
+          'xvisit_visits',
+          'xvisit_unique_visitors',
+          'xvisit_unique_visitors_single_visit',
+          'xvisit_unique_visitors_multi_visit',
+          'xvisit_repeat_visitors',
+        ],
+      },
+    },
+  },
+  legend: {
+    showLegend: true,
+    layerTitle: 'Target Layer',
+  },
+  isTargetLayer: true,
+  schemeColor: '#366fe4',
+}
+
 const WIReportLayerConfig = {
   layer: 'scatterplot',
   dataId: 'wiReportData-123',
@@ -520,9 +577,27 @@ XWIReportLayers.storyName = 'Arc & Scatterplot Layers with schemeColor prop for 
 
 const xwiNoValueKeysReportArgs = {
   layerConfig: [
-    { ...ScatterPlotLayer1Config, visualizations: {} },
-    { ...ScatterPlotLayer2Config, visualizations: {} },
-    { ...arcLayerConfig, visualizations: {} },
+    IconLayer1Config,
+    IconLayer2Config,
+    {
+      ...arcLayerConfig,
+      visualizations: {},
+      interactions: {
+        ...arcLayerConfig.interactions,
+        tooltip: {
+          tooltipKeys: {
+            targetPOIId: 'target_poi_id',
+            metricKeys: [
+              'xvisit_visits',
+              'xvisit_unique_visitors',
+              'xvisit_unique_visitors_single_visit',
+              'xvisit_unique_visitors_multi_visit',
+              'xvisit_repeat_visitors',
+            ],
+          },
+        },
+      },
+    },
   ],
   dataConfig,
   mapConfig,
