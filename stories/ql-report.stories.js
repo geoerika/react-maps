@@ -10,7 +10,7 @@ import vwiJsonZero from './data/locus-ql-zero.json'
 
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STORYBOOK_MAPBOX_ACCESS_TOKEN
 
-const formatPropertyLabel = (s) => [
+const formatDataKey = (s) => [
   s.charAt(0).toUpperCase(),
   s.slice(1).replace(/_/g, ' '),
 ].join('')
@@ -99,19 +99,19 @@ storiesOf('Locus QL Report', module)
       showTooltip={true}
       radiusBasedOn={'visits'}
       fillBasedOn={'converted_unique_visitors_single_visit'}
-      formatPropertyLabel={formatPropertyLabel}
+      formatDataKey={formatDataKey}
       showLegend={true}
       opacity={.5}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
-  .add('VWI - format tootltip title', () => (
+  .add('VWI - format tootltip title value', () => (
     <QLReportMap
       reportData={vwiJson}
       showTooltip={true}
       radiusBasedOn={'visits'}
-      formatPropertyLabel={formatPropertyLabel}
-      formatTooltipTitle={(title) => truncate(title, 20)}
+      formatDataKey={formatDataKey}
+      formatTooltipTitleValue={(value) => truncate(value, 20)}
       showLegend={true}
       opacity={.5}
       mapboxApiAccessToken={mapboxApiAccessToken}

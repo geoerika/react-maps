@@ -83,6 +83,12 @@ const dataConfig = [
   { id: 'select-123', data: [] },
 ]
 
+const keyAliases = {
+  source_poi_id: 'Source POI ID',
+  target_poi_id: 'Target POI ID',
+  geo_ca_fsa: 'Geo CA FSA',
+}
+
 const GeoJSONLayerConfig = {
   layer: 'geojson',
   dataId: 'poiGeojson-123',
@@ -98,11 +104,9 @@ const GeoJSONLayerConfig = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        name: 'name',
-        id: 'id',
+        tooltipTitle1: 'name',
+        tooltipTitle2: 'id',
         metricKeys: ['lon', 'lat'],
-        nameAccessor: d => d.properties,
-        idAccessor: d => d.properties,
       },
     },
   },
@@ -137,10 +141,8 @@ const polygonGeoJSONLayerConfig = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        id: 'Address region',
+        tooltipTitle1: 'Address region',
         metricKeys: ['Visits (sum)'],
-        nameAccessor: d => d.properties,
-        idAccessor: d => d.properties,
       },
     },
   },
@@ -182,12 +184,13 @@ const arcLayerConfig = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        sourcePOIId: 'source_poi_id',
-        targetPOIId: 'target_poi_id',
+        tooltipTitle1: 'source_poi_id',
+        tooltipTitle2: 'target_poi_id',
         metricKeys: ['xvisit_visits', 'xvisit_unique_visitors'],
       },
     },
   },
+  keyAliases,
   schemeColor: '#366fe4',
 }
 
@@ -204,11 +207,12 @@ const ScatterPlotLayer1Config = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        sourcePOIId: 'source_poi_id',
+        tooltipTitle1: 'source_poi_id',
         metricKeys: ['source_lon', 'source_lat'],
       },
     },
   },
+  keyAliases,
   schemeColor: '#366fe4',
 }
 
@@ -225,12 +229,13 @@ const ScatterPlotLayer2Config = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        targetPOIId: 'target_poi_id',
+        tooltipTitle1: 'target_poi_id',
         metricKeys: ['xvisit_visits'],
       },
     },
   },
   isTargetLayer: true,
+  keyAliases,
   schemeColor: '#366fe4',
 }
 
@@ -253,11 +258,11 @@ const WIReportLayerConfig = {
     tooltip: {
       // tooltipNode: null,
       tooltipKeys: {
-        name: 'name',
-        id: 'poi_id',
+        tooltipTitle1: 'name',
+        tooltipTitle2: 'poi_id',
         // metricKeys: [],
-        // nameAccessor: () => {},
-        // idAccessor: () => {},
+        // tooltipTitle1Accessor: () => {},
+        // tooltipTitle2Accessor: () => {},
         // metricAccessor: () => {},
       },
       // formatTooltipTitle: () => {},
@@ -265,9 +270,9 @@ const WIReportLayerConfig = {
     },
   },
   legend: { showLegend: true },
-  // formatData: () => {},
-  // formatPropertyLabel: () => {},
-  // metricAliases: {},
+  // formatDataValue: () => {},
+  // formatDataKey: () => {},
+  // keyAliases: {},
   opacity: 0.5,
 }
 const WIReportLabelLayerConfig = {
@@ -319,7 +324,7 @@ const MVTLayerConfig = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        id: 'id',
+        tooltipTitle1: 'id',
         metricKeys: ['value'],
         metricAccessor: d => d.properties,
       },
@@ -327,8 +332,8 @@ const MVTLayerConfig = {
   },
   opacity: 0.2,
   legend: { showLegend: true },
-  metricAliases: { value: 'Median Income' },
-  formatData: { value: d => '$' + d },
+  keyAliases: { value: 'Median Income' },
+  formatDataValue: { value: d => '$' + d },
 }
 
 const GeoJSONMVTConfig = {
@@ -351,8 +356,7 @@ const GeoJSONMVTConfig = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        name: 'geo_id',
-        metricAccessor: d => d.properties,
+        tooltipTitle1: 'geo_id',
       },
     },
   },
@@ -380,12 +384,12 @@ const GeoJSONfsaMVTConfig = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        name: 'geo_ca_fsa',
+        tooltipTitle1: 'geo_ca_fsa',
         metricKeys: ['visits', 'unique_visitors'],
-        metricAccessor: d => d.properties,
       },
     },
   },
+  keyAliases,
   visible: true,
   opacity: 0.3,
   legend: { showLegend: true },
@@ -406,12 +410,12 @@ const GeoJSONMVTLabelConfig = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        name: 'geo_ca_fsa',
+        tooltipTitle1: 'geo_ca_fsa',
         metricKeys: ['visits'],
-        metricAccessor: d => d.properties,
       },
     },
   },
+  keyAliases,
   visible: true,
   opacity: 0.3,
   legend: { showLegend: true },
