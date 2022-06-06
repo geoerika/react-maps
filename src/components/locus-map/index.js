@@ -508,6 +508,8 @@ const LocusMap = ({
               {mapConfig.tooltipNode ||
                 tooltipNode({
                   ...tooltipParams,
+                  fontFamily: mapConfig?.typography?.fontFamily ||
+                    typographyDefaultProps.typography.fontFamily,
                   params: {
                     ...hoverInfo.object,
                     properties: {
