@@ -22,7 +22,7 @@ export const setLegendOpacity = ({ opacity }) =>
 * @param { array } param.data - data array
 * @param { function } param.dataPropertyAccessor - function to access data attribute values in the data objects
 * @param { object } param.legendProps - various other legend props:
-*               {metricAliases, formatLegendTitle, formatPropertyLabel,formatData, symbolLineColor}
+*               {keyAliases, formatLegendTitle, formatDataKey, formatDataValue, symbolLineColor}
 * @returns { array  } - array of legend config objects
 */
 export const setLegendConfigs = ({
