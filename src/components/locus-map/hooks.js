@@ -26,9 +26,9 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
     const {
       visualizations,
       opacity = 1,
-      metricAliases,
-      formatPropertyLabel,
-      formatData,
+      keyAliases,
+      formatDataKey,
+      formatDataValue,
       isTargetLayer,
     } = layer
     const showLegend = layer.legend?.showLegend
@@ -132,10 +132,10 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
         fillBasedOn,
         fillColors,
         radiusBasedOn,
-        metricAliases,
+        keyAliases,
         formatLegendTitle,
-        formatPropertyLabel,
-        formatData,
+        formatDataKey,
+        formatDataValue,
         symbolLineColor,
         objColor,
         legendSize,

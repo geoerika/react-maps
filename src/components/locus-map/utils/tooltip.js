@@ -9,28 +9,29 @@ export const getTooltipParams = ({ hoverInfo }) => {
   const {
     visualizations,
     dataPropertyAccessor,
-    formatData,
-    formatPropertyLabel,
-    metricAliases,
+    formatDataKey,
+    formatDataValue,
+    keyAliases,
     interactions,
   } = layerProps
 
-  const { tooltipKeys, formatTooltipTitle, tooltipProps } = interactions?.tooltip || {}
+  const {
+    tooltipKeys,
+    formatTooltipTitle,
+    formatTooltipTitleValue,
+    tooltipProps,
+  } = interactions?.tooltip || {}
   const fillBasedOn  = visualizations?.fill?.value?.field
   const radiusBasedOn  = visualizations?.radius?.value?.field
   const elevationBasedOn  = visualizations?.elevation?.value?.field
 
   const {
-    name,
-    id,
-    sourcePOIId,
-    targetPOIId,
+    tooltipTitle1,
+    tooltipTitle2,
     metricKeys,
+    tooltipTitle1Accessor,
+    tooltipTitle2Accessor,
     metricAccessor,
-    nameAccessor,
-    idAccessor,
-    sourcePOIIdAccessor,
-    targetPOIIdAccessor,
   } = tooltipKeys ? tooltipKeys : {}
   const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
   // set metricKeys array if no custom keys are given
@@ -43,21 +44,18 @@ export const getTooltipParams = ({ hoverInfo }) => {
   }
   return {
     tooltipKeys : {
-      name: name || 'name',
-      id: id || 'id',
-      sourcePOIId,
-      targetPOIId,
-      nameAccessor: nameAccessor || dataPropertyAccessor,
-      idAccessor: idAccessor || dataPropertyAccessor,
+      tooltipTitle1: tooltipTitle1 || '',
+      tooltipTitle2: tooltipTitle2 || '',
+      tooltipTitle1Accessor: tooltipTitle1Accessor || dataPropertyAccessor,
+      tooltipTitle2Accessor: tooltipTitle2Accessor || dataPropertyAccessor,
       metricKeys: metricKeysArray,
       metricAccessor: metricAccessor || dataPropertyAccessor,
-      sourcePOIIdAccessor: sourcePOIIdAccessor || dataPropertyAccessor,
-      targetPOIIdAccessor: targetPOIIdAccessor || dataPropertyAccessor,
-      metricAliases,
+      keyAliases,
     },
-    formatData,
     formatTooltipTitle,
-    formatPropertyLabel,
+    formatTooltipTitleValue,
+    formatDataKey,
+    formatDataValue,
     tooltipProps,
   }
 }

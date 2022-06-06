@@ -57,8 +57,10 @@ const QLReportMap = ({
   dataPropertyAccessor,
   formatLegendTitle,
   formatTooltipTitle,
-  formatPropertyLabel,
-  formatData,
+  formatTooltipTitleValue,
+  formatDataKey,
+  formatDataValue,
+  keyAliases,
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
@@ -99,10 +101,16 @@ const QLReportMap = ({
 
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
-   * @returns { Node } - object of keys { name, id, metricKeys }
+   * @returns { Node } - object of keys { tooltipTitle1, tooltipTitle2, metricKeys }
    */
   const finalTooltipKeys = useMemo(() => {
-    const { name, id, metricKeys } = tooltipKeys
+    const {
+      tooltipTitle1,
+      tooltipTitle2,
+      tooltipTitle1Accessor,
+      tooltipTitle2Accessor,
+      metricKeys,
+    } = tooltipKeys || {}
     const metricKeysArray = [...(metricKeys || [])]
     // set metricKeys array if no custom keys are given
     if (showTooltip && !metricKeys?.length) {
@@ -114,11 +122,13 @@ const QLReportMap = ({
     }
     return {
       ...tooltipKeys,
-      name: name || 'name',
-      id: id || 'poi_id',
+      tooltipTitle1: tooltipTitle1 || 'name',
+      tooltipTitle2: tooltipTitle2 || 'poi_id',
+      tooltipTitle1Accessor: tooltipTitle1Accessor || dataPropertyAccessor,
+      tooltipTitle2Accessor: tooltipTitle2Accessor || dataPropertyAccessor,
       metricKeys: metricKeysArray,
     }
-  }, [showTooltip, tooltipKeys, radiusBasedOn, fillBasedOn])
+  }, [showTooltip, tooltipKeys, radiusBasedOn, fillBasedOn, dataPropertyAccessor])
 
   const layers = useMemo(() => {
     return [
@@ -213,10 +223,10 @@ const QLReportMap = ({
     objColor: arrayToRGBAStrColor({ color: getFillColor, opacity: setLegendOpacity({ opacity }) }),
     data: reportData,
     dataPropertyAccessor,
-    metricAliases: tooltipKeys.metricAliases,
+    keyAliases,
     formatLegendTitle,
-    formatPropertyLabel,
-    formatData,
+    formatDataKey,
+    formatDataValue,
     symbolLineColor: (typeof getLineColor !== 'function') ?
       arrayToRGBAStrColor({ color: getLineColor, opacity: setLegendOpacity({ opacity }) }) :
       '',
@@ -254,9 +264,12 @@ const QLReportMap = ({
         >
           {tooltipNode({
             tooltipKeys: finalTooltipKeys,
-            formatData,
+            formatDataValue,
             formatTooltipTitle,
-            formatPropertyLabel,
+            formatTooltipTitleValue,
+            formatDataKey,
+            keyAliases,
+            fontFamily: typography?.fontFamily || typographyDefaultProps.typography.fontFamily,
             params: hoverInfo.object,
           })}
         </MapTooltip>
@@ -309,8 +322,9 @@ QLReportMap.propTypes = {
   pitch: PropTypes.number,
   formatLegendTitle: PropTypes.func,
   formatTooltipTitle: PropTypes.func,
-  formatPropertyLabel: PropTypes.func,
+  formatDataKey: PropTypes.func,
   formatData: PropTypes.object,
+  keyAliases: PropTypes.object,
   ...commonProps,
   ...typographyPropTypes,
   ...tooltipPropTypes,
@@ -347,8 +361,10 @@ QLReportMap.defaultProps = {
   dataPropertyAccessor: d => d,
   formatLegendTitle: d => d,
   formatTooltipTitle: d => d,
-  formatPropertyLabel: d => d,
-  formatData: undefined,
+  formatDataKey: d => d,
+  formatDataValue: undefined,
+  formatTooltipTitleValue: undefined,
+  c: undefined,
   ...commonDefaultProps,
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
