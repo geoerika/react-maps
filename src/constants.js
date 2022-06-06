@@ -71,3 +71,5 @@ export const GEOJSON_TYPES = {
   polygon: 'Polygon',
   multipolygon: 'MultiPolygon',
 }
+
+export const FONT_SIZE = getComputedStyle(document.documentElement).fontSize.slice(0, -2) || 16
