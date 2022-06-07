@@ -260,7 +260,7 @@ const WIReportLayerConfig = {
       tooltipKeys: {
         tooltipTitle1: 'name',
         tooltipTitle2: 'poi_id',
-        // metricKeys: [],
+        metricKeys: ['visits', 'repeat_visitors', 'unique_visitors'],
         // tooltipTitle1Accessor: () => {},
         // tooltipTitle2Accessor: () => {},
         // metricAccessor: () => {},
@@ -269,7 +269,7 @@ const WIReportLayerConfig = {
       // tooltipProps: {},
     },
   },
-  legend: { showLegend: true },
+  legend: { showLegend: false },
   // formatDataValue: () => {},
   // formatDataKey: () => {},
   // keyAliases: {},
