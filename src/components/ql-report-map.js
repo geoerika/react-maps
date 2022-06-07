@@ -256,11 +256,10 @@ const QLReportMap = ({
       onHover={onHover}
       viewStateOverride={viewStateOverride}
       showTooltip={showTooltip}
-      renderTooltip={({ hoverInfo }) => (
+      renderTooltip={({ hoverInfo, mapWidth, mapHeight }) => (
         <MapTooltip
           info={hoverInfo}
-          tooltipProps={tooltipProps}
-          typography={typography}
+          {...{ mapWidth, mapHeight, tooltipProps, typography }}
         >
           {tooltipNode({
             tooltipKeys: finalTooltipKeys,

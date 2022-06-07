@@ -565,6 +565,8 @@ const POIMap = ({
             info={hoverInfo}
             tooltipProps={tooltipProps}
             typography={typography}
+            mapWidth={width}
+            mapHeight={height}
           >
             {tooltipNode({
               tooltipKeys: finalTooltipKeys,
