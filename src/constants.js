@@ -73,3 +73,7 @@ export const GEOJSON_TYPES = {
 }
 
 export const FONT_SIZE = getComputedStyle(document.documentElement).fontSize.slice(0, -2) || 16
+
+export const CURSOR_BUFFER = 12
+export const CURSOR_BUFFER_X = 5
+export const TOOLTIP_BUFFER = 2.5
