@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useReducer } from 'react'
+import { useState, useEffect, useMemo, useReducer, useCallback } from 'react'
 
 import { color } from 'd3-color'
 
@@ -169,4 +169,15 @@ export const useRadius = ({
   }, [radiusBasedOn, radiusDataScale, radii, getRadius, metrics, dataPropertyAccessor])
 
   return { finalGetRadius, setRadiusBasedOn }
+}
+
+// https://reactjs.org/docs/hooks-faq.html#how-can-i-measure-a-dom-node
+export const useClientRect = () => {
+  const [rect, setRect] = useState({})
+  const ref = useCallback(node => {
+    if (node !== null) {
+      setRect(node.getBoundingClientRect())
+    }
+  }, [])
+  return [rect, ref]
 }
