@@ -179,7 +179,9 @@ const arcLayerConfig = {
     target: { longitude: 'target_lon', latitude: 'target_lat' },
   },
   visualizations: {
-    arcWidth: { value: 2 },
+    arcWidth: {
+      value: { field: 'xvisit_visits' },
+    },
   },
   interactions: {
     tooltip: {
@@ -191,6 +193,10 @@ const arcLayerConfig = {
     },
   },
   keyAliases,
+  legend: {
+    showLegend: true,
+    layerTitle: 'Arc Layer',
+  },
   schemeColor: '#366fe4',
 }
 
@@ -199,9 +205,11 @@ const ScatterPlotLayer1Config = {
   dataId: 'xwiReport-123',
   geometry: { longitude: 'source_lon', latitude: 'source_lat' },
   visualizations: {
-    radius: { value: 10 },
+    radius: {
+      value: { field: 'xvisit_unique_visitors' },
+    },
     fill: {
-      value: [182, 38, 40],
+      value: { field: 'xvisit_visits' },
     },
   },
   interactions: {
@@ -213,6 +221,10 @@ const ScatterPlotLayer1Config = {
     },
   },
   keyAliases,
+  legend: {
+    showLegend: true,
+    layerTitle: 'Source Layer',
+  },
   schemeColor: '#366fe4',
 }
 
@@ -221,7 +233,9 @@ const ScatterPlotLayer2Config = {
   dataId: 'xwiReport-123',
   geometry: { longitude: 'target_lon', latitude: 'target_lat' },
   visualizations: {
-    radius: { value: 10 },
+    radius: {
+      value: { field: 'xvisit_unique_visitors' },
+    },
     fill: {
       value: { field: 'xvisit_visits' },
     },
@@ -233,6 +247,10 @@ const ScatterPlotLayer2Config = {
         metricKeys: ['xvisit_visits'],
       },
     },
+  },
+  legend: {
+    showLegend: true,
+    layerTitle: 'Target Layer',
   },
   isTargetLayer: true,
   keyAliases,
@@ -491,7 +509,7 @@ ScatterplotLayerSchemeColour.args = scatterplotSchemeColourArgs
 ScatterplotLayerSchemeColour.storyName = 'Scatterplot Layer with array format scheme colour and Text Layer for labels'
 
 const xwiReportArgs = {
-  layerConfig: [arcLayerConfig, ScatterPlotLayer1Config, ScatterPlotLayer2Config],
+  layerConfig: [ScatterPlotLayer1Config, ScatterPlotLayer2Config, arcLayerConfig],
   dataConfig,
   mapConfig,
 }
@@ -499,6 +517,21 @@ const xwiReportArgs = {
 export const XWIReportLayers = Template.bind({})
 XWIReportLayers.args = xwiReportArgs
 XWIReportLayers.storyName = 'Arc & Scatterplot Layers with schemeColor prop for XWI Reports'
+
+const xwiNoValueKeysReportArgs = {
+  layerConfig: [
+    { ...ScatterPlotLayer1Config, visualizations: {} },
+    { ...ScatterPlotLayer2Config, visualizations: {} },
+    { ...arcLayerConfig, visualizations: {} },
+  ],
+  dataConfig,
+  mapConfig,
+}
+
+export const xwiNoValueKeysReport = Template.bind({})
+xwiNoValueKeysReport.args = xwiNoValueKeysReportArgs
+xwiNoValueKeysReport.storyName = 'Arc & Scatterplot Layers with no values for visualization fields'
+
 
 let initViewState = {
   latitude: 43.41,

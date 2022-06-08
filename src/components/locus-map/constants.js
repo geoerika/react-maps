@@ -283,7 +283,10 @@ export const PROP_CONFIGURATIONS = {
     byProducts: { stroked: true },
   },
   arcWidth: {
-    defaultValue: 1,
+    defaultValue: {
+      value: 2,
+      valueOptions: [2, 10],
+    },
     deckGLName: 'getWidth',
     byProducts: { stroked: true },
   },

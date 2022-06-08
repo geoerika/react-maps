@@ -8,12 +8,13 @@ import circle from '@turf/circle'
  * @param { array } param.data - data array
  * @param { string } param.dataKey - data attribute key
  * @param { function } param.dataPropertyAccessor - function to access data attribute
+ * @param { boolean } param.noZeroMin - value to indicate that we don't use 0 values for min
  * @return { array  } - array of min and max values
  */
-export const getDataRange = ({ data, dataKey, dataPropertyAccessor }) => {
+export const getDataRange = ({ data, dataKey, dataPropertyAccessor, noZeroMin }) => {
   if (data?.length) {
     let [min, max] = extent(data, d => dataPropertyAccessor(d)[dataKey])
-    if (min === max && max !== 0) {
+    if (min === max && max !== 0 && !noZeroMin) {
       [min, max] = [Math.min(0, min), Math.max(0, max)]
     }
     return [min, max]

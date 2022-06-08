@@ -178,6 +178,8 @@ export const parseDeckGLLayerFromConfig = ({
           geometryAccessor,
           highlightId,
           formatDataValue,
+          // indicates not to override min value in data range with 0
+          noZeroMin: name === PROP_TYPES.arcWidth,
         }),
         ...byProducts,
         extruded,

@@ -36,15 +36,19 @@ export const getLegendItemElements = ({ legendItemProps }) => {
  * @param { object } param
  * @param { object } param.textMin - ref to lower value in a legend item
  * @param { object } param.textMax - ref to higher value in a legend item
+ * @param { object } param.lineText - ref to line text legend item
  * @returns { array } - array of legend item range value widths (rem)
  */
-export const getValueRangeWidth = ({ textMin, textMax }) =>
+export const getValueRangeWidth = ({ textMin, textMax, lineText }) =>
   [
-    textMin.current?.getBoundingClientRect()?.width ?
-      textMin.current.getBoundingClientRect().width / FONT_SIZE :
+    textMin?.current?.getBoundingClientRect()?.width ?
+      textMin?.current.getBoundingClientRect().width / FONT_SIZE :
       0,
-    textMax.current?.getBoundingClientRect()?.width ?
-      textMax.current.getBoundingClientRect().width / FONT_SIZE :
+    textMax?.current?.getBoundingClientRect()?.width ?
+      textMax?.current.getBoundingClientRect().width / FONT_SIZE :
+      0,
+    lineText?.current?.getBoundingClientRect()?.width ?
+      lineText?.current.getBoundingClientRect().width / FONT_SIZE :
       0,
   ]
 
@@ -79,12 +83,12 @@ export const getLegendItemDimensions = ({
   let textContainerLeftMargin = 0
 
   // don't adjust margins when we have no data variance
-  if (min !== max && textMinWidth && type !== LEGEND_TYPE.size) {
+  if (min !== max && textMinWidth && ![LEGEND_TYPE.size, LEGEND_TYPE.lineWidth].includes(type)) {
     symbolContainerLeftMargin = textMinWidth / 2
   }
 
   if (min !== max && textMinWidth && type === LEGEND_TYPE.size) {
-    // for radius (size) width is samller, as the value labels align with the centers of the edge circles
+    // for radius (size) text width is samller, as the value labels align with the centers of the edge circles
     textContainerWidth = !isNaN(size) && size && !isNaN(dots) && dots ?
       textContainerWidth - (2.5 + dots) * size / 2 : // half of each circle size
       textContainerWidth

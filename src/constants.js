@@ -31,6 +31,7 @@ export const LEGEND_TYPE = {
   size: 'size',
   elevation: 'elevation',
   gradient: 'gradient',
+  lineWidth: 'line width',
 }
 
 export const LEGEND_SIZE = {
@@ -41,29 +42,36 @@ export const LEGEND_SIZE = {
 export const LEGEND_POSITION = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
 
 export const LEGEND_DOTS = {
-  lg: 5,
   sm: 4,
+  lg: 5,
 }
 export const LEGEND_RADIUS_SIZE = {
-  default: 0.325,
   zero: 1.25,
+  default: 0.325,
 }
 
 export const  LEGEND_SYMBOL_WIDTH = {
-  lg: 7.5,
-  sm: 5,
   zero: 1.25,
+  sm: 5,
+  lg: 7.5,
 }
 
-export const LEGEND_HEIGHT_WIDTH = {
+export const LEGEND_HEIGHT = {
   left: {
-    lg: 1.325,
     sm: 1,
+    lg: 1.325,
   },
   right: {
-    lg: 5.25,
     sm: 3.125,
+    lg: 5.25,
   },
+}
+
+export const MIN_LEGEND_LINE_WIDTH = 2
+
+export const LEGEND_LINE_HEIGHT = {
+  min: .15,
+  max: .4,
 }
 
 export const GEOJSON_TYPES = {

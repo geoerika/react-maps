@@ -3,14 +3,22 @@ import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
-import { LEGEND_DOTS, LEGEND_RADIUS_SIZE, LEGEND_HEIGHT_WIDTH } from '../../constants'
+import {
+  LEGEND_TYPE,
+  LEGEND_DOTS,
+  LEGEND_RADIUS_SIZE,
+  LEGEND_HEIGHT,
+  LEGEND_LINE_HEIGHT,
+} from '../../constants'
 
 
 setup(React.createElement)
 
 const Gradient = styled('div')`
-  height: 1rem;
+  height: ${({ height }) => height ? `${height}rem` : '1rem'};
+  width: ${({ width }) => width ? `${width}rem` : '100%'};
   margin: auto;
+  margin-top: ${({ margintop }) => margintop ? `${margintop}rem` : 'auto'};
   background-image: linear-gradient(${({ mincolor, maxcolor }) => `to right, ${mincolor}, ${maxcolor}`});
 `
 
@@ -28,6 +36,7 @@ const Circle = styled('div')`
   border: 0.065rem solid ${({ linecolor }) => linecolor};
   border-radius: ${({ size }) => `${size / 2}rem`};
   background-color: ${({ color }) => color};
+  margin-top: ${({ margintop }) => margintop ? `${margintop}rem` : '0rem'};
 `
 
 const HeightWrapper = styled('div')`
@@ -48,6 +57,7 @@ const Height = styled('div')`
 
 const LegendSymbol = ({ symbolProps }) => {
   const {
+    min,
     max,
     minColor,
     maxColor,
@@ -58,25 +68,28 @@ const LegendSymbol = ({ symbolProps }) => {
     type,
     symbolLineColor,
   } = symbolProps
-  if (type === 'elevation') {
+
+  if (type === LEGEND_TYPE.elevation) {
     return (
       <Size max={max}>
         <HeightWrapper pos={'left'}>
-          <Height width={LEGEND_HEIGHT_WIDTH.left[legendSize]} color={!max ? minColor : maxColor} />
+          <Height width={LEGEND_HEIGHT.left[legendSize]} color={!max ? minColor : maxColor} />
         </HeightWrapper>
         {max > 0 &&
           <HeightWrapper>
-            <Height width={LEGEND_HEIGHT_WIDTH.right[legendSize]} color={maxColor} />
+            <Height width={LEGEND_HEIGHT.right[legendSize]} color={maxColor} />
           </HeightWrapper>
         }
       </Size>
     )
   }
-  if (type === 'gradient') {
+
+  if (type === LEGEND_TYPE.gradient) {
     const [minGradCol, maxGradCol] =  max > 0 ? [minColor, maxColor] : [minColor, minColor]
     return <Gradient mincolor={minGradCol} maxcolor={maxGradCol} />
   }
-  if (type === 'size') {
+
+  if (type === LEGEND_TYPE.size) {
     return (
       <Size max={max}>
         {max > 0 ?
@@ -91,12 +104,33 @@ const LegendSymbol = ({ symbolProps }) => {
           )) :
           <Circle
             size={zeroRadiusSize}
-            color={!max ? minColor : maxColor}
+            color={max === 0 ? minColor : maxColor}
             max={max}
             linecolor={symbolLineColor}
+            margintop={max === 0 ? minColor : 0.625}
           />
         }
       </Size>
+    )
+  }
+
+  if (type === LEGEND_TYPE.lineWidth) {
+    return (
+      <>
+        <Gradient
+          height={LEGEND_LINE_HEIGHT.min}
+          mincolor={minColor}
+          maxcolor={maxColor}
+        />
+        {min !== max && max > 0 &&
+          <Gradient
+            height={LEGEND_LINE_HEIGHT.max}
+            margintop={.75}
+            mincolor={minColor}
+            maxcolor={maxColor}
+          />
+        }
+      </>
     )
   }
   // TODO: choropleth using import { scaleThreshold } from 'd3-scale'
@@ -130,6 +164,7 @@ LegendSymbol.propTypes = {
     legendSize: PropTypes.string.isRequired,
     fillBasedOn: PropTypes.string,
     max: PropTypes.number,
+    min: PropTypes.number,
     minColor: PropTypes.string,
     maxColor: PropTypes.string,
     dots: PropTypes.number,
@@ -144,6 +179,7 @@ LegendSymbol.defaultProps = {
     type: 'gradient',
     fillBasedOn: '',
     max: undefined,
+    min: undefined,
     minColor: 'rgb(0,0,0)',
     maxColor: 'rgb(255,0,0)',
     dots: LEGEND_DOTS.lg,

@@ -17,16 +17,24 @@ const LegendContainer = styled('div')(({ num_legends, position, typography, opac
   ...typography,
   display: 'flex',
   flexDirection: 'column',
+  rowGap: '.375rem',
   position: 'absolute',
   cursor: num_legends > 1 ? 'pointer' : 'default',
   backgroundColor: getTailwindConfigColor('secondary-50'),
-  padding: '0 .75rem .75rem',
+  padding: '.75rem .75rem .8125rem .75rem',
   borderRadius: '0.15rem',
   marginBottom: '1.5rem',
   boxShadow: '0 0.125rem 0.5rem 0 rgba(12, 12, 13, 0.15)',
   opacity,
   ...position,
 }))
+
+const LayerTitle = styled('div')`
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-align: center;
+  margin-bottom: 0.275rem;
+`
 
 const Legend = ({
   legendPosition,
@@ -35,6 +43,7 @@ const Legend = ({
   typography,
 }) => {
   const [symbolMarginLeft, setSymbolMarginLeft] = useState(0)
+  const [maxTextContainer, setMaxTextContainer] = useState(0)
   const [opacity, setOpacity] = useState(0)
   let objPosition = {}
   objPosition[legendPosition.split('-')[0]] = '.5rem'
@@ -43,15 +52,20 @@ const Legend = ({
   // const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
 
   return (
-    <>
-      <LegendContainer
-        num_legends={legends.length}
-        // onClick={handleLegendChange}
-        position={objPosition}
-        typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
-        opacity={opacity}
-      >
-        {legends.map(({ type, ...legendProps }) => (
+    <LegendContainer
+      num_legends={legends.length}
+      // onClick={handleLegendChange}
+      position={objPosition}
+      typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
+      opacity={opacity}
+    >
+      {legends.map(({ type, layerTitle, ...legendProps }, index) => (
+        <div key={index}>
+          {layerTitle && (
+            <LayerTitle>
+              {layerTitle}
+            </LayerTitle>
+          )}
           <LegendItem
             key={type}
             legendItemProps={
@@ -60,14 +74,16 @@ const Legend = ({
                 legendSize,
                 symbolMarginLeft,
                 setSymbolMarginLeft,
+                maxTextContainer,
+                setMaxTextContainer,
                 setOpacity,
                 ...legendProps,
               }
             }
           />
-        ))}
-      </LegendContainer>
-    </>
+        </div>
+      ))}
+    </LegendContainer>
   )
 }
 

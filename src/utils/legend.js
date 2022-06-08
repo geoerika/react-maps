@@ -1,5 +1,5 @@
 import  { getDataRange } from './index'
-import { LEGEND_SIZE, LEGEND_DOTS, LEGEND_RADIUS_SIZE } from '../constants'
+import { LEGEND_TYPE, LEGEND_SIZE, LEGEND_DOTS, LEGEND_RADIUS_SIZE } from '../constants'
 
 
 /**
@@ -28,12 +28,14 @@ export const setLegendOpacity = ({ opacity }) =>
 export const setLegendConfigs = ({
   elevationBasedOn = '',
   fillBasedOn = '',
+  radiusBasedOn = '',
+  arcWidthBasedOn = '',
   fillColors,
   objColor = '',
-  radiusBasedOn = '',
   data = [],
   dataPropertyAccessor = d => d,
   legendSize = LEGEND_SIZE.large,
+  layerTitle,
   ...legendProps
 }) => {
   const [minColor, maxColor] = fillColors && typeof fillColors === 'string' ?
@@ -46,9 +48,10 @@ export const setLegendConfigs = ({
     // i.e. different lengths of fillColors[]
     const dataRange = getDataRange({ data, dataKey: fillBasedOn, dataPropertyAccessor })
     legends.push({
+      layerTitle,
       minColor,
       maxColor,
-      type: 'gradient',
+      type: LEGEND_TYPE.gradient,
       min: dataRange[0],
       max: dataRange[1],
       label: fillBasedOn,
@@ -59,7 +62,8 @@ export const setLegendConfigs = ({
   if (elevationBasedOn.length && data?.length) {
     const dataRange = getDataRange({ data, dataKey: elevationBasedOn, dataPropertyAccessor })
     legends.push({
-      type: 'elevation',
+      layerTitle: JSON.stringify(legends).includes(layerTitle) ? '' : layerTitle,
+      type: LEGEND_TYPE.elevation,
       minColor,
       maxColor,
       min: dataRange[0],
@@ -72,9 +76,10 @@ export const setLegendConfigs = ({
   if (radiusBasedOn.length && data?.length) {
     const dataRange = getDataRange({ data, dataKey: radiusBasedOn, dataPropertyAccessor })
     legends.push({
+      layerTitle: JSON.stringify(legends).includes(layerTitle) ? '' : layerTitle,
       minColor,
       maxColor,
-      type: 'size',
+      type: LEGEND_TYPE.size,
       // TO DO - use to customize legend symbol for radius/size
       dots: LEGEND_DOTS[legendSize],
       size: LEGEND_RADIUS_SIZE.default,
@@ -85,5 +90,29 @@ export const setLegendConfigs = ({
       ...legendProps,
     })
   }
+
+  if (arcWidthBasedOn.length && data?.length) {
+    const dataRange = getDataRange({ data, dataKey: arcWidthBasedOn, dataPropertyAccessor, noZeroMin: true })
+    legends.push({
+      layerTitle: JSON.stringify(legends).includes(layerTitle) ? '' : layerTitle,
+      type: LEGEND_TYPE.lineWidth,
+      minColor,
+      maxColor,
+      min: dataRange[0],
+      max: dataRange[1],
+      label: arcWidthBasedOn,
+      ...legendProps,
+    })
+  }
+
+  if (layerTitle && layerTitle !== 'Arc Layer' && !(fillBasedOn.length || radiusBasedOn.length)) {
+    legends.push({
+      layerTitle: JSON.stringify(legends).includes(layerTitle) ? '' : layerTitle,
+      type: LEGEND_TYPE.size,
+      zeroRadiusSize: LEGEND_RADIUS_SIZE.zero,
+      maxColor,
+    })
+  }
+
   return legends
 }
