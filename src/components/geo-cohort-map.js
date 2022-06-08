@@ -58,8 +58,9 @@ const GeoCohortMap = ({
   dataPropertyAccessor,
   formatLegendTitle,
   formatTooltipTitle,
-  formatPropertyLabel,
-  formatData,
+  formatDataKey,
+  formatDataValue,
+  keyAliases,
   setViewportBBox,
   setApiBBox,
   mapboxApiAccessToken,
@@ -122,10 +123,10 @@ const GeoCohortMap = ({
   /**
    * finalTooltipKeys - React hook that returns an object of keys for map's Tooltip component
    * @returns { object } - object of tooltip keys
-   * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
+   * { tooltipTitle1, metricKeys, keyAliases, tooltipTitle1Accessor, metricAccessor}
    */
   const finalTooltipKeys = useMemo(() => {
-    const { name, nameAccessor, metricKeys } = tooltipKeys
+    const { tooltipTitle1, tooltipTitle1Accessor, metricKeys } = tooltipKeys || {}
     const metricKeysArray = [...(metricKeys || [])]
     // set metricKeys array if no custom keys are given
     if (showTooltip && !metricKeys?.length) {
@@ -137,12 +138,24 @@ const GeoCohortMap = ({
     }
     return {
       ...tooltipKeys,
-      name: name || 'GeoCohortItem',
-      nameAccessor: nameAccessor || dataPropertyAccessor,
+      tooltipTitle1: tooltipTitle1 || 'GeoCohortItem',
+      tooltipTitle1Accessor: tooltipTitle1Accessor || dataPropertyAccessor,
       metricKeys: metricKeysArray,
       metricAccessor: dataPropertyAccessor,
+      keyAliases: {
+        GeoCohortItem: activeLayer === 'FSALayer' ? 'FSA' : 'Postal Code',
+        ...keyAliases,
+      },
     }
-  }, [showTooltip, tooltipKeys, elevationBasedOn, fillBasedOn, dataPropertyAccessor])
+  }, [
+    showTooltip,
+    tooltipKeys,
+    elevationBasedOn,
+    fillBasedOn,
+    dataPropertyAccessor,
+    keyAliases,
+    activeLayer,
+  ])
 
   // set layer configuration for the map
   const layers = useMemo(() => {
@@ -243,10 +256,13 @@ const GeoCohortMap = ({
     fillColors: getArrayGradientFillColors({ fillColors, opacity: setLegendOpacity({ opacity }) }),
     // convert array format color (used in deck.gl elevation fill) into str format color for legend
     data: activeLayer === 'FSALayer' ? reportFSAData : (reportGeoCohortData || []),
-    metricAliases: tooltipKeys.metricAliases,
+    keyAliases: {
+      GeoCohortItem: activeLayer === 'FSALayer' ? 'FSA' : 'Postal Code',
+      ...keyAliases,
+    },
     formatLegendTitle,
-    formatPropertyLabel,
-    formatData,
+    formatDataKey,
+    formatDataValue,
     dataPropertyAccessor,
   })
 
@@ -281,17 +297,17 @@ const GeoCohortMap = ({
       onHover={onHover}
       viewStateOverride={viewStateOverride}
       showTooltip={showTooltip}
-      renderTooltip={({ hoverInfo }) => (
+      renderTooltip={({ hoverInfo, mapWidth, mapHeight }) => (
         <MapTooltip
           info={hoverInfo}
-          tooltipProps={tooltipProps}
-          typography={typography}
+          {...{ mapWidth, mapHeight, tooltipProps, typography }}
         >
           {tooltipNode({
             tooltipKeys: finalTooltipKeys,
-            formatData,
+            formatDataValue,
             formatTooltipTitle,
-            formatPropertyLabel,
+            formatDataKey,
+            fontFamily: typography?.fontFamily || typographyDefaultProps.typography.fontFamily,
             params: hoverInfo.object,
           })}
         </MapTooltip>
@@ -347,8 +363,10 @@ GeoCohortMap.propTypes = {
   pitch: PropTypes.number,
   formatLegendTitle: PropTypes.func,
   formatTooltipTitle: PropTypes.func,
-  formatPropertyLabel: PropTypes.func,
-  formatData: PropTypes.object,
+  formatTooltipTitleValue: PropTypes.func,
+  formatDataKey: PropTypes.func,
+  formatDataValue: PropTypes.object,
+  keyAliases: PropTypes.object,
   setViewportBBox: PropTypes.func,
   setApiBBox: PropTypes.func,
   ...commonProps,
@@ -384,8 +402,10 @@ GeoCohortMap.defaultProps = {
   dataPropertyAccessor: d => d,
   formatLegendTitle: d => d,
   formatTooltipTitle: d => d,
-  formatPropertyLabel: d => d,
-  formatData: undefined,
+  formatTooltipTitleValue: d => d,
+  formatDataKey: d => d,
+  formatDataValue: undefined,
+  keyAliases: undefined,
   setViewportBBox: () => {},
   setApiBBox: () => {},
   ...commonDefaultProps,

@@ -55,6 +55,7 @@ const Map = ({
   mapboxApiAccessToken,
 }) => {
   const [mapViewState, setMapViewState] = useState({ ...INIT_VIEW_STATE, ...initViewState, pitch })
+  const [{ height, width }, setDimensions] = useState({})
   const [hoverInfo, setHoverInfo] = useState({})
 
   /*
@@ -106,6 +107,7 @@ const Map = ({
       <DeckGL
         onResize={({ height, width }) => {
           setDimensionsCb({ height, width })
+          setDimensions({ height, width })
         }}
         onViewStateChange={o => {
           const { viewState, interactionState } = o
@@ -160,7 +162,7 @@ const Map = ({
       </DeckGL>
       {legend}
       {showTooltip && hoverInfo?.object && typeof renderTooltip === 'function' && (
-        renderTooltip({ hoverInfo })
+        renderTooltip({ hoverInfo, mapWidth: width, mapHeight: height })
       )}
     </MapContainer>
   )

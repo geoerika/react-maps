@@ -1,35 +1,77 @@
-import React from 'react'
+import React, { useMemo, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
+import { getOffset, getPosition } from './utils'
+import { useClientRect } from '../../hooks'
 import {
   typographyPropTypes,
   typographyDefaultProps,
   tooltipPropTypes,
   tooltipDefaultProps,
 } from '../../shared/map-props'
+import { CURSOR_BUFFER, CURSOR_BUFFER_X, TOOLTIP_BUFFER } from './../../constants'
 
 
 setup(React.createElement)
 
-const TooltipWrapper = styled('div')(({ info, typography, tooltipstyle }) => ({
+const TooltipWrapper = styled('div', forwardRef)(({ left, top, typography, tooltipstyle }) => ({
   ...typography,
   ...tooltipstyle,
   position: 'absolute',
   zIndex: 1,
   pointerEvents: 'none',
-  left: `calc(${info.x}px + 0.7rem)`,
-  top: `calc(${info.y}px + 0.7rem)`,
+  left,
+  top,
+  opacity: left && top ? tooltipstyle : 0,
 }))
 
 // Tooltip component - general tooltip for maps
 const Tooltip = ({ info, children, typography, tooltipProps }) => {
+  const [{ width, height }, tooltipRef] = useClientRect()
+
+  // calculate left & top for tooltip position
+  const { left, top } = useMemo(() => {
+    const { width: mapWidth, height: mapHeight } = info?.viewport || {}
+    let [left, top] = [0, 0]
+    if (width && height) {
+      const offsetX = getOffset({
+        infoXY: info.x,
+        mapWidthHeight: mapWidth,
+        tooltipWidthHeight: width,
+        offset1: CURSOR_BUFFER,
+        offset2: CURSOR_BUFFER_X,
+      })
+      const offsetY = getOffset({
+        infoXY: info.y,
+        mapWidthHeight: mapHeight,
+        tooltipWidthHeight: height,
+        offset1: CURSOR_BUFFER + 2 * TOOLTIP_BUFFER,
+        offset2: TOOLTIP_BUFFER,
+      })
+      left = getPosition({
+        infoXY: info.x,
+        tooltipWidthHeight: width,
+        viewportWidthHeight: mapWidth,
+        offset: offsetX,
+      })
+      top = getPosition({
+        infoXY: info.y,
+        tooltipWidthHeight: height,
+        viewportWidthHeight: mapHeight,
+        offset: offsetY,
+      })
+    }
+    return { left, top }
+  }, [info, height, width])
+
   return (
     <TooltipWrapper
-      info={info}
-      typography={typography}
+      ref={tooltipRef}
+      id='tooltip'
       tooltipstyle={tooltipProps}
+      { ...{ info, left, top, typography }}
     >
       {children}
     </TooltipWrapper>

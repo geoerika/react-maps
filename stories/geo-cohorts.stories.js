@@ -9,7 +9,7 @@ import geoCohortJsonZero from './data/geo-cohorts-zero.json'
 
 const mapboxApiAccessToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.STORYBOOK_MAPBOX_ACCESS_TOKEN
 
-const formatData = {
+const formatDataValue = {
   Revenue: d => '$' + d,
 }
 
@@ -48,10 +48,10 @@ TooltipWithCustomTootltipKeys.args = {
   showTooltip: true,
   tooltipKeys: {
     metricKeys: ['Imps', 'Clicks', 'Bids', 'Revenue'],
-    metricAliases: {
-      Imps: 'Impressions',
-      Revenue: 'Spend',
-    },
+  },
+  keyAliases: {
+    Imps: 'Impressions',
+    Revenue: 'Spend',
   },
   ...mapArgs,
 }
@@ -77,7 +77,7 @@ export const FormatDataValues = Template.bind({})
 FormatDataValues.args = {
   ...TooltipWithCustomTootltipKeys.args,
   showLegend: true,
-  formatData,
+  formatDataValue,
   ...mapArgs,
 }
 
@@ -96,9 +96,5 @@ ZeroValues.args = {
   showLegend: true,
   tooltipKeys: {
     metricKeys: ['Clicks', 'Bids'],
-    metricAliases: {
-      Imps: 'Impressions',
-      Revenue: 'Spend',
-    },
   },
 }

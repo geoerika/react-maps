@@ -1,4 +1,4 @@
-import { LEGEND_TYPE, LEGEND_SYMBOL_WIDTH } from '../../constants'
+import { LEGEND_TYPE, LEGEND_SYMBOL_WIDTH, FONT_SIZE } from '../../constants'
 
 
 /**
@@ -12,26 +12,24 @@ export const getLegendItemElements = ({ legendItemProps }) => {
     min,
     max,
     label,
-    metricAliases,
+    keyAliases,
     formatLegendTitle = d => d,
-    formatPropertyLabel = d => d,
-    formatData,
+    formatDataKey = d => d,
+    formatDataValue,
     legendSize,
   } = legendItemProps
 
   const legendElemWidth = max !== min ?
     LEGEND_SYMBOL_WIDTH[legendSize] :
     LEGEND_SYMBOL_WIDTH.zero
-  const title = formatLegendTitle(metricAliases?.[label] || formatPropertyLabel(label))
+  const title = formatLegendTitle(keyAliases?.[label] || formatDataKey(label))
 
-  const [minValue, maxValue] = formatData?.[label] ?
-    [formatData[label](min), formatData[label](max)] :
+  const [minValue, maxValue] = formatDataValue?.[label] ?
+    [formatDataValue[label](min), formatDataValue[label](max)] :
     [min, max]
 
   return { legendElemWidth, title, minValue, maxValue }
 }
-
-const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2) || 16
 
 /**
  * getValueRangeWidth - returns the widths for the range values (rem)
@@ -40,14 +38,15 @@ const fontSize = getComputedStyle(document.documentElement).fontSize.slice(0, -2
  * @param { object } param.textMax - ref to higher value in a legend item
  * @returns { array } - array of legend item range value widths (rem)
  */
-export const getValueRangeWidth = ({ textMin, textMax }) => {
-  return fontSize ?
-    [
-      textMin.current?.getBoundingClientRect()?.width / fontSize,
-      textMax.current?.getBoundingClientRect()?.width / fontSize,
-    ] :
-    [0, 0]
-}
+export const getValueRangeWidth = ({ textMin, textMax }) =>
+  [
+    textMin.current?.getBoundingClientRect()?.width ?
+      textMin.current.getBoundingClientRect().width / FONT_SIZE :
+      0,
+    textMax.current?.getBoundingClientRect()?.width ?
+      textMax.current.getBoundingClientRect().width / FONT_SIZE :
+      0,
+  ]
 
 /**
  * getLegendItemDimensions - calculates textContainerWidth, symbolContainerLeftMargin,

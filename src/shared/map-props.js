@@ -21,24 +21,13 @@ export const typographyPropTypes = {
 
 export const typographyDefaultProps = {
   typography: {
-    fontFamily: '"Open Sans", sans-serif',
-    fontSize: '12px',
-    textColor: 'black',
+    fontFamily: 'Open Sans',
+    fontSize: '0.75rem',
+    textColor: 'rgb(0, 0, 0)',
   },
 }
 
 export const tooltipPropTypes = {
-  tooltipKeys: PropTypes.oneOfType([
-    PropTypes.PropTypes.shape({
-      name: PropTypes.string,
-      id: PropTypes.string,
-      metricKeys: PropTypes.array,
-      nameAccessor: PropTypes.func,
-      idAccessor: PropTypes.func,
-      metricAliases: PropTypes.object,
-    }),
-    PropTypes.array,
-  ]),
   tooltipProps: PropTypes.shape({
     backgroundColor: PropTypes.string.isRequired,
     boxShadow: PropTypes.string.isRequired,
@@ -49,20 +38,11 @@ export const tooltipPropTypes = {
 }
 
 export const tooltipDefaultProps = {
-  tooltipKeys: {
-    name: '',
-    id: '',
-    metricKeys: undefined,
-    nameAccessor: d => d,
-    idAccessor: d => d,
-    metricAccessor: d => d,
-    metricAliases: {},
-  },
   tooltipProps: {
     backgroundColor: getTailwindConfigColor('secondary-50'),
     boxShadow: '0 0.125rem 0.5rem 0 rgba(12, 12, 13, 0.15)',
-    borderRadius: '0.15rem',
-    padding: '0.5rem',
+    borderRadius: '0.25rem',
+    padding: '0.625rem 0.75rem',
     opacity: 0.9,
   },  
 }

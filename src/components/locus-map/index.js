@@ -491,7 +491,7 @@ const LocusMap = ({
       { ...mapConfig }
       getCursor={(mapConfig.getCursor || getCursor)(Object.values(layers).map(o => o.deckLayer))}
       showTooltip={mapConfig.showMapTooltip}
-      renderTooltip={({ hoverInfo }) => {
+      renderTooltip={({ hoverInfo, mapWidth, mapHeight }) => {
         const { tooltipProps, ...tooltipParams } = getTooltipParams({ hoverInfo })
         const objMVTData = hoverInfo.layer.id.includes('MVT') ?
           getObjectMVTData({ dataConfig: finalDataConfig, hoverInfo }) :
@@ -502,12 +502,14 @@ const LocusMap = ({
           return (
             <MapTooltip
               info={hoverInfo}
-              tooltipProps={tooltipProps}
               typography={mapConfig.typography || typographyDefaultProps.typography}
+              {...{ mapWidth, mapHeight, tooltipProps }}
             >
               {mapConfig.tooltipNode ||
                 tooltipNode({
                   ...tooltipParams,
+                  fontFamily: mapConfig?.typography?.fontFamily ||
+                    typographyDefaultProps.typography.fontFamily,
                   params: {
                     ...hoverInfo.object,
                     properties: {

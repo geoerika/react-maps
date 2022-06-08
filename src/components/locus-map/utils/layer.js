@@ -38,7 +38,7 @@ export const parseDeckGLLayerFromConfig = ({
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
 
-  const { layerMode, formatData, isTargetLayer } = others
+  const { layerMode, formatDataValue, isTargetLayer } = others
   const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
   const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
   const layerGeometry = geometry || layerGeom
@@ -177,7 +177,7 @@ export const parseDeckGLLayerFromConfig = ({
           mvtGeoKey,
           geometryAccessor,
           highlightId,
-          formatData,
+          formatDataValue,
         }),
         ...byProducts,
         extruded,
