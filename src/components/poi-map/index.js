@@ -137,8 +137,8 @@ const POIMap = ({
   geocoderOnResult,
   dataPropertyAccessor,
   formatTooltipTitle,
-  formatPropertyLabel,
-  formatData,
+  formatDataKey,
+  formatDataValue,
   getCursor,
 }) => {
   const [data, setData] = useState([])
@@ -489,19 +489,30 @@ const POIMap = ({
   /**
    * finalTooltipKeys - React hook that returns an object of keys for MapTooltip component
    * @returns { object } - object of tooltip keys
-   * { name, id, metricKeys, metricAliases, nameAccessor, idAccessor, metricAccessor}
+   * { tooltipTitle1, tooltipTitle2, metricKeys, keyAliases, tooltipTitle1Accessor, tooltipTitle2Accessor, metricAccessor}
    */
   const finalTooltipKeys = useMemo(() => {
-    const { id, idAccessor, name, nameAccessor } = tooltipKeys
+    const {
+      tooltipTitle1,
+      tooltipTitle1Accessor,
+      tooltipTitle2,
+      tooltipTitle2Accessor,
+      keyAliases,
+    } = tooltipKeys || {}
     let metricKeysArray = tooltipKeys?.metricKeys || ['lon', 'lat']
     return {
       ...tooltipKeys,
-      id: id || 'id',
-      idAccessor: idAccessor || dataPropertyAccessor,
-      name: name || 'name',
-      nameAccessor: nameAccessor || dataPropertyAccessor,
+      tooltipTitle1: tooltipTitle1 || 'id',
+      tooltipTitle1Accessor: tooltipTitle1Accessor || dataPropertyAccessor,
+      tooltipTitle2: tooltipTitle2 || 'name',
+      tooltipTitle2Accessor: tooltipTitle2Accessor || dataPropertyAccessor,
       metricKeys: metricKeysArray,
       metricAccessor: dataPropertyAccessor,
+      keyAliases: keyAliases ||
+        {
+          id: 'POI ID',
+          name: 'POI Name',
+        },
     }
   }, [tooltipKeys, dataPropertyAccessor])
 
@@ -554,12 +565,15 @@ const POIMap = ({
             info={hoverInfo}
             tooltipProps={tooltipProps}
             typography={typography}
+            mapWidth={width}
+            mapHeight={height}
           >
             {tooltipNode({
               tooltipKeys: finalTooltipKeys,
-              formatData,
+              formatDataValue,
               formatTooltipTitle,
-              formatPropertyLabel,
+              formatDataKey,
+              ontFamily: typography?.fontFamily || typographyDefaultProps.typography.fontFamily,
               params: hoverInfo.object.properties,
             })}
           </MapTooltip>
@@ -687,8 +701,9 @@ POIMap.propTypes = {
   geocoderOnResult: PropTypes.func,
   dataPropertyAccessor: PropTypes.func,
   formatTooltipTitle: PropTypes.func,
-  formatPropertyLabel: PropTypes.func,
-  formatData: PropTypes.object,
+  formatDataKey: PropTypes.func,
+  formatDataValue: PropTypes.object,
+  keyAliases: PropTypes.object,
   getCursor: PropTypes.func,
   ...typographyPropTypes,
   ...tooltipPropTypes,
@@ -709,8 +724,8 @@ POIMap.defaultProps = {
   geocoderOnResult: () => {},
   dataPropertyAccessor: d => d,
   formatTooltipTitle: (title) => truncate(title, 20),
-  formatPropertyLabel: d => d,
-  formatData: formatDataPOI,
+  formatDataKey: d => d,
+  formatDataValue: formatDataPOI,
   getCursor: getDefaultCursor,
   ...typographyDefaultProps,
   ...tooltipDefaultProps,
