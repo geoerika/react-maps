@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 
 import { styled, setup } from 'goober'
 
 import { getOffset, getPosition } from './utils'
+import { useClientRect } from '../../hooks'
 import {
   typographyPropTypes,
   typographyDefaultProps,
@@ -15,7 +16,7 @@ import { CURSOR_BUFFER, CURSOR_BUFFER_X, TOOLTIP_BUFFER } from './../../constant
 
 setup(React.createElement)
 
-const TooltipWrapper = styled('div')(({ left, top, typography, tooltipstyle }) => ({
+const TooltipWrapper = styled('div', forwardRef)(({ left, top, typography, tooltipstyle }) => ({
   ...typography,
   ...tooltipstyle,
   position: 'absolute',
@@ -28,8 +29,7 @@ const TooltipWrapper = styled('div')(({ left, top, typography, tooltipstyle }) =
 
 // Tooltip component - general tooltip for maps
 const Tooltip = ({ info, children, typography, tooltipProps }) => {
-  // get tooltip node dimensions
-  const { width, height } = document.getElementById('tooltip')?.getBoundingClientRect() || {}
+  const [{ width, height }, tooltipRef] = useClientRect()
 
   // calculate left & top for tooltip position
   const { left, top } = useMemo(() => {
@@ -68,6 +68,7 @@ const Tooltip = ({ info, children, typography, tooltipProps }) => {
 
   return (
     <TooltipWrapper
+      ref={tooltipRef}
       id='tooltip'
       tooltipstyle={tooltipProps}
       { ...{ info, left, top, typography }}
