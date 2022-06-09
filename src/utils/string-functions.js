@@ -7,7 +7,7 @@ import { FONT_SIZE  } from '../constants'
  * @param { string } separator - string to separate formatted string
  * @returns { string } - formatted string
  */
-export function truncate(fullStr, strLen, separator = ' ... ') {
+export const truncate = (fullStr, strLen, separator = ' ... ') => {
   if (fullStr.toString().length <= strLen) {
     return fullStr
   }
@@ -57,7 +57,9 @@ const decodeXML = (str) => {
  * https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/50813259#50813259
  * getTextSize - calculates a rendered text width and height in rem
  * @param { string } text - a text string
- * @param { object } typographyProps - an object with font size, font family, and text color for the chart
+ * @param { number || string } fontWeight - text's font weight
+ * @param { number } fontSize - text's font size in pixels
+ * @param { string } fontFamily - text's font family
  * @returns { object } - the width and height of the rendered text in rem
  */
 export const getTextSize = (text, fontWeight, fontSize, fontFamily) => {

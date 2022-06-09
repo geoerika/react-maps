@@ -3,7 +3,7 @@ import React from 'react'
 import { getTailwindConfigColor } from '@eqworks/lumen-labs'
 import { styled, setup } from 'goober'
 
-import { getTextSize } from '../../utils/string-format'
+import { getTextSize } from '../../utils/string-functions'
 
 
 setup(React.createElement)
