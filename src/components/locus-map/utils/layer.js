@@ -38,7 +38,7 @@ export const parseDeckGLLayerFromConfig = ({
     visualizations: layerVisualizations,
   } = LAYER_CONFIGURATIONS[layer]
 
-  const { layerMode, formatDataValue, isTargetLayer } = others
+  const { layerMode, formatDataKey, formatDataValue, isTargetLayer } = others
   const dataPropertyAccessor = others?.dataPropertyAccessor || layerPropertyAccessor
   const geometryAccessor = geometry?.geometryAccessor || layerGeom?.geometryAccessor
   const layerGeometry = geometry || layerGeom
@@ -177,6 +177,7 @@ export const parseDeckGLLayerFromConfig = ({
           mvtGeoKey,
           geometryAccessor,
           highlightId,
+          formatDataKey,
           formatDataValue,
           // indicates not to override min value in data range with 0
           noZeroMin: name === PROP_TYPES.arcWidth,
