@@ -31,11 +31,13 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       formatDataValue,
       isTargetLayer,
       legend,
+      visible = true,
     } = layer
+
     const showLegend = legend?.showLegend || false
     const layerTitle = legend?.layerTitle || ''
     const formatLegendTitle = layer.legend?.formatLegendTitle
-    if (showLegend) {
+    if (showLegend && visible) {
       let data = dataMap[layer.dataId]?.data || {}
       data = data?.tileData ? data.tileData : data
       const dataPropertyAccessor = layer.dataPropertyAccessor ||
