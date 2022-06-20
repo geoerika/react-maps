@@ -264,7 +264,7 @@ export const PROP_CONFIGURATIONS = {
   },
   size: {
     deckGLName: 'getSize',
-    defaultValue: 14,
+    defaultValue: 12,
   },
   angle: {
     deckGLName: 'getAngle',
