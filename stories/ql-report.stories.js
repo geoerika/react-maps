@@ -3,7 +3,7 @@ import React from 'react'
 import { storiesOf } from '@storybook/react'
 
 import { QLReportMap } from '../src'
-import { truncate } from '../src/utils/string-format'
+import { truncate } from '../src/utils/string-functions'
 import vwiJson from './data/locus-ml-vwi.json'
 import vwiJsonZero from './data/locus-ql-zero.json'
 

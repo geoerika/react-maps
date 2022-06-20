@@ -106,7 +106,7 @@ export const parseDeckGLLayerFromConfig = ({
       let { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
 
       let value = config?.value
-      let valueOptions = config?.valueOptions || defaultValue.valueOptions
+      let valueOptions = config?.valueOptions || defaultValue?.valueOptions
 
       if (defaultValue && !Array.isArray(defaultValue) && typeof defaultValue === 'object') {
         defaultValue = defaultValue.value
@@ -114,7 +114,7 @@ export const parseDeckGLLayerFromConfig = ({
 
       // change colour values with schemeColour generated colours
       if (!value?.field && schemeColor) {
-        if (name === PROP_TYPES.fill) {
+        if (name === PROP_TYPES.fill || name === PROP_TYPES.color) {
           if (isTargetLayer) {
             value = newTargetColor
           } else {

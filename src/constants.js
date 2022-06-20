@@ -32,6 +32,7 @@ export const LEGEND_TYPE = {
   elevation: 'elevation',
   gradient: 'gradient',
   lineWidth: 'line width',
+  icon: 'icon',
 }
 
 export const LEGEND_SIZE = {

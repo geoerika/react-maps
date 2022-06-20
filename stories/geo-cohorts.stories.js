@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { GeoCohortMap } from '../src'
-import { truncate } from '../src/utils/string-format'
+import { truncate } from '../src/utils/string-functions'
 import geoCohortFSAraw from './data/geo-cohort-FSA.json'
 import geoCohortPostalraw from './data/geo-cohort-postal.json'
 import geoCohortJsonZero from './data/geo-cohorts-zero.json'

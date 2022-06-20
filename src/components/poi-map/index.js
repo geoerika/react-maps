@@ -31,7 +31,7 @@ import { getCircleRadiusCentroid } from './utils/geo-calc'
 import { formatDataPOI } from './utils/coord-format'
 import { createCircleFromPointRadius, getCursor as getDefaultCursor } from '../../utils'
 import { setView } from '../../utils/map-view'
-import { truncate } from '../../utils/string-format'
+import { truncate } from '../../utils/string-functions'
 import {
   POIMapProps,
   POIMapDefaultProps,

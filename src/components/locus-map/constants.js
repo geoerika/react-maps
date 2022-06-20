@@ -1,7 +1,9 @@
-import { ScatterplotLayer, GeoJsonLayer, ArcLayer, TextLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, GeoJsonLayer, ArcLayer, IconLayer, TextLayer } from '@deck.gl/layers'
 import { MVTLayer } from '@deck.gl/geo-layers'
 import { EditableGeoJsonLayer } from '@nebula.gl/layers'
+
 import { GEOJSON_TYPES } from '../../constants'
+import POIIconMarker from '../../shared/icons/poi-location.png'
 
 
 // ====[TODO] use individual hover events for each layer
@@ -98,6 +100,26 @@ export const LAYER_CONFIGURATIONS = {
     interactions: [],
     defaultProps: {},
   },
+  icon: {
+    notAClass: false,
+    deckGLClass: IconLayer,
+    dataPropertyAccessor: d => d,
+    geometry: {
+      propName: 'getPosition',
+      propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
+        [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
+      longitude: { type: 'number' },
+      latitude: { type: 'number' },
+    },
+    visualizations: ['icon', 'size', 'color'],
+    interactions: ['click', 'hover', 'tooltip', 'highlight'],
+    defaultProps: {
+      sizeScale: 4,
+      iconAtlas: POIIconMarker,
+      iconMapping:  { marker: { x: 0, y: 0, width: 128, height: 128, anchorY: 128, mask: true } },
+      getSize: 4,
+    },
+  },
   MVT: {
     notAClass: false,
     deckGLClass: MVTLayer,
@@ -188,39 +210,39 @@ export const LAYER_TYPES = Object.keys(LAYER_CONFIGURATIONS).reduce((acc, curr) 
 // ====[NOTE] props that are available for configuration via UI
 export const PROP_CONFIGURATIONS = {
   fill: {
+    deckGLName: 'getFillColor',
     defaultValue: {
       value: [54, 111, 228],
       valueOptions: [[214, 232, 253],[54, 111, 228]],
     },
-    deckGLName: 'getFillColor',
     byProducts: { filled: true },
   },
   radius: {
+    deckGLName: 'getRadius',
     defaultValue: {
       value: 5,
       valueOptions: [5, 15],
     },
-    deckGLName: 'getRadius',
   },
   pointRadius: {
+    deckGLName: 'getPointRadius',
     defaultValue: {
       value: 5,
     },
-    deckGLName: 'getPointRadius',
   },
   lineWidth: {
-    defaultValue: 1,
     deckGLName: 'getLineWidth',
+    defaultValue: 1,
     byProducts: { stroked: true },
   },
   lineColor: {
-    defaultValue: [39, 85, 196],
     deckGLName: 'getLineColor',
+    defaultValue: [39, 85, 196],
     byProducts: { stroked: true },
   },
   elevation: {
-    defaultValue: [0, 1000],
     deckGLName: 'getElevation',
+    defaultValue: [0, 1000],
     byProducts: {
       extruded: true,
       parameters: {
@@ -228,99 +250,103 @@ export const PROP_CONFIGURATIONS = {
       },
     },
   },
+  icon: {
+    deckGLName: 'getIcon',
+    defaultValue: () => () => 'marker',
+  },
   text: {
-    defaultValue: '',
     deckGLName: 'getText',
+    defaultValue: '',
   },
   color: {
-    defaultValue: [42, 42, 42],
     deckGLName: 'getColor',
+    defaultValue: [42, 42, 42],
   },
   size: {
-    defaultValue: 14,
     deckGLName: 'getSize',
+    defaultValue: 14,
   },
   angle: {
-    defaultValue: 0,
     deckGLName: 'getAngle',
+    defaultValue: 0,
   },
   anchor: {
-    defaultValue: 'start',
     deckGLName: 'getTextAnchor',
+    defaultValue: 'start',
   },
   alignment: {
-    defaultValue: 'bottom',
     deckGLName: 'getAlignmentBaseline',
+    defaultValue: 'bottom',
   },
   pixelOffset: {
-    defaultValue: [10, -10],
     deckGLName: 'getPixelOffset',
+    defaultValue: [10, -10],
   },
   backgroundPadding: {
-    defaultValue: [6, 4, 6, 4],
     deckGLName: 'backgroundPadding',
+    defaultValue: [6, 4, 6, 4],
   },
   backgroundColor: {
-    defaultValue: [239, 242, 247],
     deckGLName: 'getBackgroundColor',
+    defaultValue: [239, 242, 247],
   },
   borderColor: {
-    defaultValue: [0, 0, 0, 255],
     deckGLName: 'getBorderColor',
+    defaultValue: [0, 0, 0, 255],
   },
   borderWidth: {
-    defaultValue: 0,
     deckGLName: 'getBorderWidth',
+    defaultValue: 0,
   },
   sourceArcColor: {
-    defaultValue: [54, 111, 228],
     deckGLName: 'getSourceColor',
+    defaultValue: [54, 111, 228],
     byProducts: { stroked: true },
   },
   targetArcColor: {
-    defaultValue: [250, 175, 21],
     deckGLName: 'getTargetColor',
+    defaultValue: [250, 175, 21],
     byProducts: { stroked: true },
   },
   arcWidth: {
+    deckGLName: 'getWidth',
     defaultValue: {
       value: 2,
       valueOptions: [2, 10],
     },
-    deckGLName: 'getWidth',
     byProducts: { stroked: true },
   },
   arcHeight: {
-    defaultValue: 1,
     deckGLName: 'getHeight',
+    defaultValue: 1,
   },
   arcTilt: {
-    defaultValue: 0,
     deckGLName: 'getTilt',
+    defaultValue: 0,
   },
   tentativeFillColor: {
-    defaultValue: [253, 217, 114],
     deckGLName: 'getTentativeFillColor',
+    defaultValue: [253, 217, 114],
   },
   tentativeLineColor: {
-    defaultValue: [215, 142, 15],
     deckGLName: 'getTentativeLineColor',
+    defaultValue: [215, 142, 15],
   },
   tentativeLineWidth: {
-    defaultValue: 2,
     deckGLName: 'getTentativeLineWidth',
+    defaultValue: 2,
   },
   editHandlePointColor: {
-    defaultValue: [182, 38, 40],
     deckGLName: 'getEditHandlePointColor',
+    defaultValue: [182, 38, 40],
   },
   editHandlePointOutlineColor: {
-    defaultValue: [255, 255, 255],
     deckGLName: 'getEditHandlePointOutlineColor',
+    defaultValue: [255, 255, 255],
   },
   editHandlePointRadius: {
-    defaultValue: 4,
     deckGLName: 'getEditHandlePointRadius',
+    defaultValue: 4,
   },
 }
 
