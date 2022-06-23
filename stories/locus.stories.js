@@ -165,9 +165,11 @@ const polygonTextGeoJSONLayerConfig = {
         valueKeys: ['Visits (sum)'],
       },
     },
-    size: { value: 14 },
     pixelOffset: { value: [-30, 0] },
     anchor: { value: 'start' },
+  },
+  keyAliases: {
+    'Address region': 'Region',
   },
 }
 

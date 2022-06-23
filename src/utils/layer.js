@@ -14,6 +14,8 @@ import { SCALES } from '../constants'
  * @param { function } param.geometryAccessor - function to help access geometry keys
  * @param { string } param.mvtGeoKey - geometry key for mvt layer
  * @param { string } param.highlightId - id of selected object on the map
+ * @param { object } param.keyAliases - object of pairs { key: alias } for data keys
+ * @param { function } param.formatDataKey - function to format data key
  * @param { object } param.formatDataValue - object of { key: function } pairs to format values for individual data keys
  * @return { function || number || array  } - final function/number/array for deck.gl layer data accessor
  */
@@ -27,6 +29,8 @@ export const setFinalLayerDataProperty = ({
   geometryAccessor = d => d,
   mvtGeoKey,
   highlightId = null,
+  keyAliases,
+  formatDataKey = d => d,
   formatDataValue = {},
   noZeroMin,
 }) => {
@@ -35,7 +39,7 @@ export const setFinalLayerDataProperty = ({
   }
   // case for text layer
   if (value.title) {
-    return d => getLabel(d)({ value, dataPropertyAccessor, formatDataValue })
+    return d => getLabel(d)({ value, dataPropertyAccessor, keyAliases, formatDataKey, formatDataValue })
   }
   // case for radius for GeoJSON layer - there are no valueOption for this layer
   if (value.field && !valueOptions && !data?.tileData?.length) {
@@ -90,10 +94,12 @@ export const setFinalLayerDataProperty = ({
  * @param { object } param
  * @param { object } param.value - { title, valueKeys } object
  * @param { function } param.dataPropertyAccessor - function to access data properties
- * @param { object } param.formatData - object of { key: function } pairs
+ * @param { object } param.keyAliases - object of pairs { key: alias } for data keys
+ * @param { object } param.formatDataKey - function to format data key
+ * @param { object } param.formatDataValue - object of { key: function } pairs
  * @returns { string } - string value of Label/Text for Text Layer
  */
-const getLabel = d => ({ value, dataPropertyAccessor, formatDataValue }) => {
+const getLabel = d => ({ value, dataPropertyAccessor, keyAliases, formatDataKey, formatDataValue }) => {
   let labelValues = ''
   const labelKeyValue = d => ({ valueKey }) => dataPropertyAccessor(d)[valueKey]
 
@@ -102,9 +108,9 @@ const getLabel = d => ({ value, dataPropertyAccessor, formatDataValue }) => {
     labelKeyValue(d)({ valueKey })
 
   const getLabelValue = ({ valueKey }) =>
-    `\n${valueKey}: ${getFormatLabelValue(d)({ valueKey, labelKeyValue, formatDataValue })}`
+    `\n${keyAliases?.[valueKey] || formatDataKey(valueKey)}: ${getFormatLabelValue(d)({ valueKey, labelKeyValue, formatDataValue })}`
 
   labelValues = value?.valueKeys?.reduce((acc, valueKey) => acc + getLabelValue({ valueKey }), '')
 
-  return `${dataPropertyAccessor(d)[value.title]}${labelValues.length ? labelValues : ''}`
+  return `${keyAliases?.[value.title] || formatDataKey(value.title)}: ${dataPropertyAccessor(d)[value.title]}${labelValues.length ? labelValues : ''}`
 }
