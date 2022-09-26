@@ -626,6 +626,12 @@ export const MVTLayer = Template.bind({})
 MVTLayer.args = MVTLayerArgs
 MVTLayer.storyName = 'MVT Layer with demographic data'
 
+initViewState = {
+  latitude: 52.82,
+  longitude: -79.83,
+  zoom: 3,
+}
+
 const GeoJSONMVTArgs = {
   layerConfig: [GeoJSONMVTConfig],
   dataConfig,
@@ -635,12 +641,6 @@ const GeoJSONMVTArgs = {
 export const GeoJSONMVTLayer = Template.bind({})
 GeoJSONMVTLayer.args = GeoJSONMVTArgs
 GeoJSONMVTLayer.storyName = 'GeoJSON CT polygon Layer with MVT geometry data'
-
-initViewState = {
-  latitude: 44.41,
-  longitude: -79.23,
-  zoom: 7,
-}
 
 const GeoJSONfsaMVTArgs = {
   layerConfig: [GeoJSONfsaMVTConfig],
