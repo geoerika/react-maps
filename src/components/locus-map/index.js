@@ -19,6 +19,7 @@ import Map from '../generic-map'
 import MapTooltip from '../tooltip'
 import tooltipNode from '../tooltip/tooltip-node'
 import Legend from '../legend'
+import { LAYER_TYPES } from './constants'
 import { LEGEND_SIZE, LEGEND_POSITION, GEOJSON_TYPES } from '../../constants'
 
 
@@ -59,7 +60,7 @@ const LocusMap = ({
   // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
   useEffect(() => {
     if (processingMapData) {
-      setTimeout(() => setProcessingMapData(false), 20000)
+      setTimeout(() => setProcessingMapData(false), 10000)
     }
   }, [processingMapData])
 
@@ -419,17 +420,17 @@ const LocusMap = ({
 
   // adjust viewport based on data
   useEffect(() => {
-    if (width && height && finalDataConfig.length && !renderCycleMVT && !viewportAdjustedByData) {
+    if (width && height && finalDataConfig.length && !viewportAdjustedByData &&
+        !processingMapData) {
       // recenter based on data
       let dataGeomList = []
       layerConfig.forEach(layer => {
-        // don't adjust viewport when layer is 'arc', 'MVT', 'geojson', or 'select'
-        if (!['arc', 'MVT', 'select'].includes(layer.layer)) {
+        const { initialViewportDataAdjustment = true } = layer
+        // don't adjust viewport when layer is 'arc', 'MVT', or 'select'
+        if (![LAYER_TYPES.arc, LAYER_TYPES.MVT, LAYER_TYPES.select].includes(layer.layer) &&
+          initialViewportDataAdjustment) {
           const data = finalDataConfig.find(elem => elem.id === layer.dataId)?.data
-          // don't adjust viewport for geojson layer using mvt tile geom
-          if (data?.length && geoJSONMVTDataId !== layer.dataId) {
-            dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
-          }
+          dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
         }
       })
       const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
@@ -453,6 +454,7 @@ const LocusMap = ({
     width,
     viewportAdjustedByData,
     geoJSONMVTDataId,
+    processingMapData,
   ])
 
   // update state for 'select' layer
