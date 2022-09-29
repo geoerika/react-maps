@@ -59,10 +59,12 @@ const LocusMap = ({
 
   // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
   useEffect(() => {
+    let to = undefined
     if (processingMapData) {
-      setTimeout(() => setProcessingMapData(false), 10000)
+      to = setTimeout(() => setProcessingMapData(false), 10000)
     }
-  }, [processingMapData])
+    return () => clearTimeout(to)
+  }, [processingMapData, setProcessingMapData])
 
   // set controller for Map comp
   const controller = useMemo(() => {
