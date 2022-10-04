@@ -422,8 +422,11 @@ const LocusMap = ({
 
   // adjust viewport based on data
   useEffect(() => {
-    if (width && height && finalDataConfig.length && !viewportAdjustedByData &&
-        !processingMapData) {
+    const getArrLength = obj => (obj?.tileData || obj)?.length
+    if (width && height && !viewportAdjustedByData && !processingMapData &&
+      finalDataConfig.every(({ id, data }) =>
+        (getArrLength(dataConfig.find(el => el.id === id)?.data) && getArrLength(data)) ||
+        (!getArrLength(dataConfig.find(el => el.id === id)?.data) && !getArrLength(data)))) {
       // recenter based on data
       let dataGeomList = []
       layerConfig.forEach(layer => {
@@ -432,7 +435,9 @@ const LocusMap = ({
         if (![LAYER_TYPES.arc, LAYER_TYPES.MVT, LAYER_TYPES.select].includes(layer.layer) &&
           initialViewportDataAdjustment) {
           const data = finalDataConfig.find(elem => elem.id === layer.dataId)?.data
-          dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
+          if (data?.length) {
+            dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
+          }
         }
       })
       const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
@@ -447,6 +452,7 @@ const LocusMap = ({
     }
   }, [
     finalDataConfig,
+    dataConfig,
     layerConfig,
     mapConfig,
     selectShape,
@@ -488,11 +494,11 @@ const LocusMap = ({
    */
   const locusMap = useMemo(() => (
     <Map
+      { ...mapConfig }
       layers={Object.values(layers).map(o => o.deckLayer)}
       setDimensionsCb={o => setDimensions(o)}
       viewStateOverride={viewStateOverride}
       controller={controller}
-      { ...mapConfig }
       getCursor={(mapConfig.getCursor || getCursor)(Object.values(layers).map(o => o.deckLayer))}
       showTooltip={mapConfig.showMapTooltip}
       renderTooltip={({ hoverInfo, mapWidth, mapHeight }) => {
