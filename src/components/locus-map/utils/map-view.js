@@ -10,11 +10,17 @@ import { GEOJSON_TYPES } from '../../../constants'
  * @param { array } param.dataGeomList - array of data arrays and associated geometry to display on the map
  * @param { number } param.width - deck container width
  * @param { number } param.height - deck container height
+ * @param { bool } param.haveArcLayer - whether an arc layer is part of the map
  * @returns { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
  */
-export const setView = ({ dataGeomList, width, height }) => {
+export const setView = ({ dataGeomList, width, height, haveArcLayer }) => {
   const dataCoordinateArray = dataGeomList.map(({ data, longitude, latitude, geometryAccessor = d => d }) =>
     getDataCoordinates({ data, longitude, latitude, geometryAccessor })).flat()
+
+  let adjustForArcLayerZoom = false
+  if (haveArcLayer && dataGeomList.every(({ data }) => data?.length < 5)) {
+    adjustForArcLayerZoom = true
+  }
 
   const formattedGeoData = dataCoordinateArray.reduce(
     ([[minLng, minLat], [maxLng, maxLat]], coords) => {
@@ -46,7 +52,7 @@ export const setView = ({ dataGeomList, width, height }) => {
 
   let { longitude, latitude, zoom } = viewPort
 
-  return { longitude, latitude, zoom }
+  return { longitude, latitude, zoom: adjustForArcLayerZoom ? zoom - 1.8 : zoom }
 }
 
 /**

@@ -429,18 +429,22 @@ const LocusMap = ({
         (!getArrLength(dataConfig.find(el => el.id === id)?.data) && !getArrLength(data)))) {
       // recenter based on data
       let dataGeomList = []
+      let haveArcLayer = false
       layerConfig.forEach(layer => {
-        const { initialViewportDataAdjustment = true } = layer
+        const { initialViewportDataAdjustment = true, layer: _layer, dataId, geometry } = layer
+        if (_layer === LAYER_TYPES.arc) {
+          haveArcLayer = true
+        }
         // don't adjust viewport when layer is 'arc', 'MVT', or 'select'
-        if (![LAYER_TYPES.arc, LAYER_TYPES.MVT, LAYER_TYPES.select].includes(layer.layer) &&
+        if (![LAYER_TYPES.arc, LAYER_TYPES.MVT, LAYER_TYPES.select].includes(_layer) &&
           initialViewportDataAdjustment) {
-          const data = finalDataConfig.find(elem => elem.id === layer.dataId)?.data
+          const data = finalDataConfig.find(elem => elem.id === dataId)?.data
           if (data?.length) {
-            dataGeomList = [...dataGeomList, { data, ...layer.geometry }]
+            dataGeomList = [...dataGeomList, { data, ...geometry }]
           }
         }
       })
-      const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height }) : {}
+      const dataView = dataGeomList?.length ? setView({ dataGeomList, width, height, haveArcLayer }) : {}
       if (!selectShape.length) {
         setViewStateOverride(o => ({
           ...o,
