@@ -706,6 +706,20 @@ const mapArgs = {
 export const AllLayers = Template.bind({})
 AllLayers.args = mapArgs
 
+export const AllLayersExplicitZoomControls = Template.bind({})
+AllLayersExplicitZoomControls.args = {
+  layerConfig,
+  dataConfig,
+  mapConfig: {
+    ...mapConfig,
+    controller: {
+      scrollZoom: false,
+      doubleClickZoom: true,
+    },
+  },
+}
+AllLayersExplicitZoomControls.storyName = 'All layers map with disabled scroll zoom and enabled doubleclick zoom'
+
 const noDataConfig = [
   { id: 'xwiReport-123', data: [] },
   { id: 'wiReportData-123', data: [] },
