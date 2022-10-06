@@ -69,11 +69,8 @@ const LocusMap = ({
   // set controller for Map comp
   const controller = useMemo(() => {
     const layerList = layerConfig.reduce((agg, layer) => [...agg, layer.layer], [])
-    if (layerList?.includes('select')) {
-      return { ...controller, doubleClickZoom: false }
-    }
-    return { controller: true }
-  }, [layerConfig])
+    return { controller: true, doubleClickZoom: !layerList?.includes('select'), ...mapConfig.controller }
+  }, [layerConfig, mapConfig.controller])
 
   /**
    * finalOnClick - React hook that handles map's onClick events
@@ -587,6 +584,7 @@ LocusMap.propTypes = {
     pitch: PropTypes.number,
     mapboxApiAccessToken: PropTypes.string.isRequired,
     typography: PropTypes.object,
+    controller: PropTypes.object, // https://deck.gl/docs/api-reference/core/controller
   }).isRequired,
   ...typographyPropTypes,
 }
