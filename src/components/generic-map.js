@@ -8,18 +8,26 @@ import {
 
 import { FlyToInterpolator, MapView } from '@deck.gl/core'
 import { DeckGL } from '@deck.gl/react'
-import { StaticMap } from 'react-map-gl'
+// https://deck.gl/docs/whats-new#use-react-map-gl-components-with-deckgl
+import { _MapContext as MapContext, StaticMap, NavigationControl } from 'react-map-gl'
 
 import { styled, setup } from 'goober'
 
 
 setup(React.createElement)
 
-const MapContainer = styled('div')`
-  height: 100%;
-  width: 100%;
-  position: absolute;
-`
+const MapContainer = styled('div')({
+  height: '100%',
+  width: '100%',
+  position: 'absolute',
+})
+
+const NavigationContainer = styled('div')({
+  position: 'absolute',
+  right: '2.35rem',
+  bottom: '7.25rem',
+  zIndex: 1,
+})
 
 const MAP_VIEW = new MapView({ repeat: true })
 
@@ -105,6 +113,7 @@ const Map = ({
   return (
     <MapContainer>
       <DeckGL
+        ContextProvider={MapContext.Provider}
         onResize={({ height, width }) => {
           setDimensionsCb({ height, width })
           setDimensions({ height, width })
@@ -155,6 +164,9 @@ const Map = ({
           preserveDrawingBuffer: true,  // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
         }}
       >
+        <NavigationContainer>
+          <NavigationControl />
+        </NavigationContainer>
         <StaticMap
           mapboxApiAccessToken={mapboxApiAccessToken}
           preserveDrawingBuffer
