@@ -120,6 +120,9 @@ const Map = ({
         }}
         onViewStateChange={o => {
           const { viewState, interactionState } = o
+          if (!interactionState) {
+            return // "hack" to allow MapContext/NavigationControl take over
+          }
           const{ isDragging, isZooming, isPanning, isRotating } = interactionState
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
