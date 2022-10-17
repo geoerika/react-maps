@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -22,12 +22,11 @@ const MapContainer = styled('div')({
   position: 'absolute',
 })
 
-const NavigationContainer = styled('div')({
+const NavigationContainer = styled('div')(({ position }) => ({
   position: 'absolute',
-  right: '2.35rem',
-  bottom: '7.25rem',
   zIndex: 1,
-})
+  ...position,
+}))
 
 const MAP_VIEW = new MapView({ repeat: true })
 
@@ -50,6 +49,7 @@ const Map = ({
   getCursor,
   viewStateOverride,
   legend,
+  legendPosition,
   onHover,
   onClick,
   showTooltip,
@@ -65,6 +65,16 @@ const Map = ({
   const [mapViewState, setMapViewState] = useState({ ...INIT_VIEW_STATE, ...initViewState, pitch })
   const [{ height, width }, setDimensions] = useState({})
   const [hoverInfo, setHoverInfo] = useState({})
+
+  const navigationPosition = useMemo(() => {
+    let [right, left] = []
+    if (legendPosition.split('-')[0] === 'bottom' && legendPosition.split('-')[1] === 'left') {
+      right = '2.35rem'
+    } else {
+      left = '0.5rem'
+    }
+    return Object.freeze({ bottom: '5.75rem', right, left })
+  }, [legendPosition])
 
   /*
    * we have to keep updating mapViewState in separate useEffect hooks as all props used to update
@@ -167,8 +177,8 @@ const Map = ({
           preserveDrawingBuffer: true,  // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
         }}
       >
-        <NavigationContainer>
-          <NavigationControl />
+        <NavigationContainer position={navigationPosition}>
+          <NavigationControl showCompass={false}/>
         </NavigationContainer>
         <StaticMap
           mapboxApiAccessToken={mapboxApiAccessToken}
@@ -194,6 +204,7 @@ Map.propTypes = {
     PropTypes.node,
     PropTypes.bool,
   ]),
+  legendPosition: PropTypes.string,
   showTooltip: PropTypes.bool,
   renderTooltip: PropTypes.func,
   initViewState: PropTypes.object,
@@ -216,6 +227,7 @@ Map.defaultProps = {
   getCursor: () => {},
   viewStateOverride: {},
   legend: undefined,
+  legendPosition: 'bottom-right',
   showTooltip: false,
   renderTooltip: undefined,
   pitch: 0,
