@@ -619,7 +619,7 @@ let initViewState = {
 const MVTLayerArgs = {
   layerConfig: [MVTLayerConfig],
   dataConfig,
-  mapConfig: { ...mapConfig, initViewState },
+  mapConfig: { ...mapConfig, initViewState, legendPosition: 'bottom-left' },
 }
 
 export const MVTLayer = Template.bind({})
