@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -8,18 +8,25 @@ import {
 
 import { FlyToInterpolator, MapView } from '@deck.gl/core'
 import { DeckGL } from '@deck.gl/react'
-import { StaticMap } from 'react-map-gl'
+// https://deck.gl/docs/whats-new#use-react-map-gl-components-with-deckgl
+import { _MapContext as MapContext, StaticMap, NavigationControl } from 'react-map-gl'
 
 import { styled, setup } from 'goober'
 
 
 setup(React.createElement)
 
-const MapContainer = styled('div')`
-  height: 100%;
-  width: 100%;
-  position: absolute;
-`
+const MapContainer = styled('div')({
+  height: '100%',
+  width: '100%',
+  position: 'absolute',
+})
+
+const NavigationContainer = styled('div')(({ position }) => ({
+  position: 'absolute',
+  zIndex: 1,
+  ...position,
+}))
 
 const MAP_VIEW = new MapView({ repeat: true })
 
@@ -42,6 +49,7 @@ const Map = ({
   getCursor,
   viewStateOverride,
   legend,
+  legendPosition,
   onHover,
   onClick,
   showTooltip,
@@ -57,6 +65,16 @@ const Map = ({
   const [mapViewState, setMapViewState] = useState({ ...INIT_VIEW_STATE, ...initViewState, pitch })
   const [{ height, width }, setDimensions] = useState({})
   const [hoverInfo, setHoverInfo] = useState({})
+
+  const navigationPosition = useMemo(() => {
+    let [right, left] = []
+    if (legendPosition.split('-')[0] === 'bottom' && legendPosition.split('-')[1] === 'left') {
+      right = '2.35rem'
+    } else {
+      left = '0.5rem'
+    }
+    return Object.freeze({ bottom: '5.75rem', right, left })
+  }, [legendPosition])
 
   /*
    * we have to keep updating mapViewState in separate useEffect hooks as all props used to update
@@ -105,12 +123,16 @@ const Map = ({
   return (
     <MapContainer>
       <DeckGL
+        ContextProvider={MapContext.Provider}
         onResize={({ height, width }) => {
           setDimensionsCb({ height, width })
           setDimensions({ height, width })
         }}
         onViewStateChange={o => {
           const { viewState, interactionState } = o
+          if (!interactionState) {
+            return // "hack" to allow MapContext/NavigationControl take over
+          }
           const{ isDragging, isZooming, isPanning, isRotating } = interactionState
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
@@ -155,6 +177,9 @@ const Map = ({
           preserveDrawingBuffer: true,  // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
         }}
       >
+        <NavigationContainer position={navigationPosition}>
+          <NavigationControl showCompass={false}/>
+        </NavigationContainer>
         <StaticMap
           mapboxApiAccessToken={mapboxApiAccessToken}
           preserveDrawingBuffer
@@ -179,6 +204,7 @@ Map.propTypes = {
     PropTypes.node,
     PropTypes.bool,
   ]),
+  legendPosition: PropTypes.string,
   showTooltip: PropTypes.bool,
   renderTooltip: PropTypes.func,
   initViewState: PropTypes.object,
@@ -201,6 +227,7 @@ Map.defaultProps = {
   getCursor: () => {},
   viewStateOverride: {},
   legend: undefined,
+  legendPosition: 'bottom-right',
   showTooltip: false,
   renderTooltip: undefined,
   pitch: 0,
