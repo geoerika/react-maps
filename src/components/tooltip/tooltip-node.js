@@ -107,7 +107,7 @@ const tooltipNode = ({
   }, titleKeyMaxWidth)
 
   const titleValMaxWidth = [tooltipTitle1, tooltipTitle2].reduce((acc, key) => {
-    let tooltipTitleAccessor = key === tooltipTitle1 ?
+    const tooltipTitleAccessor = key === tooltipTitle1 ?
       tooltipTitle1Accessor :
       tooltipTitle2Accessor
     if (key) {
@@ -146,8 +146,9 @@ const tooltipNode = ({
           </TooltipTitle>
         ))
       })}
-      {((tooltipTitle1 && (tooltipTitle1Accessor || metricAccessor)(params)?.[tooltipTitle1]) ||
-          (tooltipTitle2 && (tooltipTitle2Accessor || metricAccessor)(params)?.[tooltipTitle2])) && (
+      {(((tooltipTitle1 && (tooltipTitle1Accessor || metricAccessor)(params)?.[tooltipTitle1]) ||
+          (tooltipTitle2 && (tooltipTitle2Accessor || metricAccessor)(params)?.[tooltipTitle2])) &&
+        (metricKeys?.length > 0 && metricAccessor)) && (
         <Line/>
       )}
       {metricKeys?.length > 0 && metricAccessor && (
