@@ -53,6 +53,7 @@ const Legend = ({
 
   return (
     <LegendContainer
+      id='legend-container'
       num_legends={legends.length}
       // onClick={handleLegendChange}
       position={objPosition}
