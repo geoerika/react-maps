@@ -13,7 +13,7 @@ import circle from '@turf/circle'
  */
 export const getDataRange = ({ data, dataKey, dataPropertyAccessor, noZeroMin }) => {
   if (data?.length) {
-    let [min, max] = extent(data, d => dataPropertyAccessor(d)[dataKey])
+    let [min, max] = extent(data, d => dataPropertyAccessor(d)?.[dataKey])
     if (min === max && max !== 0 && !noZeroMin) {
       [min, max] = [Math.min(0, min), Math.max(0, max)]
     }
