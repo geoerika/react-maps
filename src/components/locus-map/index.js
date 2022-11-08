@@ -53,6 +53,7 @@ const LocusMap = ({
   // limits viewport adjusting by data to one time only, the first time when map loads with data
   const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
   const [processingMapData, setProcessingMapData] = useState(true)
+  const [inInteractiveState, setInInteractiveState] = useState(true)
 
   const selectMode = useMemo(() =>
     layerConfig.find(layer => layer.layer === 'select' && layer.visible !== false), [layerConfig])
@@ -60,11 +61,11 @@ const LocusMap = ({
   // covers the cases when we cannot detect that map finished re-rendering polygons in a new viepwort
   useEffect(() => {
     let to = undefined
-    if (processingMapData) {
-      to = setTimeout(() => setProcessingMapData(false), 10000)
+    if (processingMapData && !inInteractiveState) {
+      to = setTimeout(() => setProcessingMapData(false), 3000)
     }
     return () => clearTimeout(to)
-  }, [processingMapData, setProcessingMapData])
+  }, [processingMapData, setProcessingMapData, inInteractiveState])
 
   // set controller for Map comp
   const controller = useMemo(() => {
@@ -245,8 +246,9 @@ const LocusMap = ({
     textGeoJSONMVTLayer,
   } = useMemo(() => {
     const geoJSONLayers = layerConfig?.filter(layer => layer.layer === 'geojson')
-    const visbleMVTLayer = layerConfig.some(layer => layer.layer === 'MVT' &&
-      (layer.visible === undefined || (layer.visible !== undefined && layer.visible)))
+    const visibleMVTLayer = layerConfig.some(layer => {
+      return layer.layer === 'MVT' &&
+      (layer.visible === undefined || (layer.visible !== undefined && layer.visible))})
     const geoJSONMVT = geoJSONLayers?.reduce((acc, layer) => {
       const geoJSONLayerTileData = dataConfig.find(layerData => layerData.id === layer.dataId)
       if (geoJSONLayerTileData?.data?.tileGeom) {
@@ -263,7 +265,7 @@ const LocusMap = ({
     }, {})
     const textGeoJSONMVTLayer = layerConfig?.find(layer =>
       layer.layer === 'text' && layer.dataId === geoJSONMVT.geoJSONMVTDataId)
-    return { ...geoJSONMVT, visbleMVTLayer, textGeoJSONMVTLayer }
+    return { ...geoJSONMVT, visibleMVTLayer, textGeoJSONMVTLayer }
   }, [layerConfig, dataConfig])
 
   // create MVT layer to get all geometry for polygons in the viewport
@@ -390,12 +392,15 @@ const LocusMap = ({
     if (finalDataConfig?.length && !visibleMVTLayer) {
       if (geoJSONMVTLayerData?.tileData?.length) {
         const finalGeoJSONMVTData = finalDataConfig.find(({ id }) => id === geoJSONMVTDataId)
-        if (!renderedFeatures.length || finalGeoJSONMVTData?.data?.[0]?.properties) {
+        if ((((!renderedFeatures.length || !finalGeoJSONMVTData?.data?.length) && !renderCycleMVT) ||
+          finalGeoJSONMVTData?.data?.[0]?.properties) && !inInteractiveState) {
           setProcessingMapData(false)
         }
-      } else {
+      } else if (!inInteractiveState) {
         setProcessingMapData(false)
       }
+    } else if (!inInteractiveState) {
+      setProcessingMapData(false)
     }
   }, [
     layerConfig,
@@ -405,6 +410,8 @@ const LocusMap = ({
     visibleMVTLayer,
     finalDataConfig,
     renderedFeatures,
+    inInteractiveState,
+    renderCycleMVT,
   ])
 
   // set initial layers and their corresponding data
@@ -424,6 +431,7 @@ const LocusMap = ({
       finalDataConfig.every(({ id, data }) =>
         (getArrLength(dataConfig.find(el => el.id === id)?.data) && getArrLength(data)) ||
         (!getArrLength(dataConfig.find(el => el.id === id)?.data) && !getArrLength(data)))) {
+      setProcessingMapData(true)
       // recenter based on data
       let dataGeomList = []
       let haveArcLayer = false
@@ -431,6 +439,9 @@ const LocusMap = ({
         const { initialViewportDataAdjustment = true, layer: _layer, dataId, geometry } = layer
         if (_layer === LAYER_TYPES.arc) {
           haveArcLayer = true
+        }
+        if (layerConfig.length === 1 && _layer === LAYER_TYPES.MVT) {
+          setProcessingMapData(false)
         }
         // don't adjust viewport when layer is 'arc', 'MVT', or 'select'
         if (![LAYER_TYPES.arc, LAYER_TYPES.MVT, LAYER_TYPES.select].includes(_layer) &&
@@ -458,7 +469,6 @@ const LocusMap = ({
     mapConfig,
     selectShape,
     renderedFeatures,
-    renderCycleMVT,
     height,
     width,
     viewportAdjustedByData,
@@ -536,10 +546,8 @@ const LocusMap = ({
         return null
       }}
       onClick={finalOnClick}
-      setProcessingMapData={geoJSONMVTLayerData || visibleMVTLayer ?
-        setProcessingMapData :
-        () => {}
-      }
+      setProcessingMapData={setProcessingMapData}
+      setInInteractiveState={setInInteractiveState}
     />
   ), [
     controller,
@@ -547,8 +555,6 @@ const LocusMap = ({
     mapConfig,
     layers,
     viewStateOverride,
-    geoJSONMVTLayerData,
-    visibleMVTLayer,
     finalOnClick,
   ])
 
