@@ -67,7 +67,12 @@ export const setView = ({ dataGeomList, width, height, haveArcLayer }) => {
 const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude }) => {
   let POIType
   let coordinateArray = []
-  if (data[0]?.geometry?.type) {
+  /**
+   * TEMP, will change logic in widget-studio: if lat & lon in data, it means we have a mixed data
+   * type for geom (ex: scatterplot & polygons) & will give priority to geom outside GEOJson format
+   * until we solve in Widget Studio data source to come in an object instead of a list
+   */
+  if (data[0]?.geometry?.type && !(longitude && latitude)) {
     POIType = data[0]?.geometry?.type
     coordinateArray = data.reduce((acc, item) => {
       // POIType has to be read for each element as MVT binary file has a mix of polygons & multipolygons
