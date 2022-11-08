@@ -41,7 +41,10 @@ const LoaderWrapper = styled('div')`
 const LocusMap = ({
   dataConfig,
   layerConfig,
-  mapConfig,
+  mapConfig: {
+    setMapInRenderState,
+    ...mapConfig
+  },
 }) => {
   const [finalDataConfig, setFinalDataConfig] = useState([])
   const [viewStateOverride, setViewStateOverride] = useState({})
@@ -66,6 +69,9 @@ const LocusMap = ({
     }
     return () => clearTimeout(to)
   }, [processingMapData, setProcessingMapData, inInteractiveState])
+
+  // update parent with processing / render state of the map
+  useEffect(() => setMapInRenderState(processingMapData), [setMapInRenderState, processingMapData])
 
   // set controller for Map comp
   const controller = useMemo(() => {
@@ -587,6 +593,7 @@ LocusMap.propTypes = {
     showMapTooltip: PropTypes.bool,
     initViewState: PropTypes.object,
     setCurrentViewport: PropTypes.func,
+    setMapInRenderState: PropTypes.func,
     pitch: PropTypes.number,
     mapboxApiAccessToken: PropTypes.string.isRequired,
     typography: PropTypes.object,
