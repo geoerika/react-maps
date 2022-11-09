@@ -511,7 +511,12 @@ const LocusMap = ({
    */
   const locusMap = useMemo(() => (
     <Map
-      { ...mapConfig }
+      {
+        ...{
+          ...mapConfig,
+          ...(viewportAdjustedByData && { initViewState: null }),
+        }
+      }
       layers={Object.values(layers).map(o => o.deckLayer)}
       setDimensionsCb={o => setDimensions(o)}
       viewStateOverride={viewStateOverride}
@@ -559,6 +564,7 @@ const LocusMap = ({
     controller,
     finalDataConfig,
     mapConfig,
+    viewportAdjustedByData,
     layers,
     viewStateOverride,
     finalOnClick,
