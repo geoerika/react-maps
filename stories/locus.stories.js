@@ -59,6 +59,7 @@ const mapConfig = {
   legendPosition: 'top-right',
   legendSize: 'lg',
   mapboxApiAccessToken,
+  setMapInRenderState: () => {},
 }
 
 const dataConfig = [

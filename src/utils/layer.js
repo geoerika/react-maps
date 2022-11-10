@@ -43,13 +43,13 @@ export const setFinalLayerDataProperty = ({
   }
   // case for radius for GeoJSON layer - there are no valueOption for this layer
   if (value.field && !valueOptions && !data?.tileData?.length) {
-    return d => dataPropertyAccessor(d)[value.field]
+    return d => dataPropertyAccessor(d)?.[value.field]
   }
   let layerData = data?.tileData?.length ? data.tileData : data
 
   const setTileProp = ({ propValue, dataRange }) => {
     layerData = Object.fromEntries(data.tileData.map((item) =>
-      [geometryAccessor(item)[mvtGeoKey], { value: dataPropertyAccessor(item)[value.field] }]))
+      [geometryAccessor(item)[mvtGeoKey], { value: dataPropertyAccessor(item)?.[value.field] }]))
     return ({ properties: { geo_id } }) => {
       const { value } = layerData[geo_id] || { value: 0 }
       if (value || value === dataRange[0]) {
@@ -64,7 +64,7 @@ export const setFinalLayerDataProperty = ({
     const dataRange = getDataRange({ data: layerData, dataKey: value.field, dataPropertyAccessor, noZeroMin })
     if (valueOptions?.length) {
       const sample = dataPropertyAccessor(layerData[0])
-      if (sample[value.field] === undefined) {
+      if (sample?.[value.field] === undefined) {
         return defaultValue
       }
 
@@ -74,7 +74,7 @@ export const setFinalLayerDataProperty = ({
         if (data?.tileData?.length) {
           return setTileProp({ propValue: d3Fn, dataRange })
         }
-        return (d) => d3Fn(dataPropertyAccessor(d)[value.field])
+        return (d) => d3Fn(dataPropertyAccessor(d)?.[value.field])
       }
       return valueOptions[0]
     }
@@ -101,7 +101,7 @@ export const setFinalLayerDataProperty = ({
  */
 const getLabel = d => ({ value, dataPropertyAccessor, keyAliases, formatDataKey, formatDataValue }) => {
   let labelValues = ''
-  const labelKeyValue = d => ({ valueKey }) => dataPropertyAccessor(d)[valueKey]
+  const labelKeyValue = d => ({ valueKey }) => dataPropertyAccessor(d)?.[valueKey]
 
   const getFormatLabelValue = d => ({ valueKey, labelKeyValue, formatDataValue }) => formatDataValue[valueKey] ?
     formatDataValue[valueKey](labelKeyValue(d)({ valueKey })) :
@@ -112,5 +112,5 @@ const getLabel = d => ({ value, dataPropertyAccessor, keyAliases, formatDataKey,
 
   labelValues = value?.valueKeys?.reduce((acc, valueKey) => acc + getLabelValue({ valueKey }), '')
 
-  return `${keyAliases?.[value.title] || formatDataKey(value.title)}: ${dataPropertyAccessor(d)[value.title]}${labelValues.length ? labelValues : ''}`
+  return `${keyAliases?.[value.title] || formatDataKey(value.title)}: ${dataPropertyAccessor(d)?.[value.title]}${labelValues.length ? labelValues : ''}`
 }

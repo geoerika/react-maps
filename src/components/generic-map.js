@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
+import { useDebounce } from 'use-debounce'
+
 import {
   commonProps,
   commonDefaultProps,
@@ -59,12 +61,19 @@ const Map = ({
   setZoom,
   setCurrentViewport,
   setProcessingMapData,
+  setInInteractiveState,
   controller,
   mapboxApiAccessToken,
 }) => {
   const [mapViewState, setMapViewState] = useState({ ...INIT_VIEW_STATE, ...initViewState, pitch })
   const [{ height, width }, setDimensions] = useState({})
   const [hoverInfo, setHoverInfo] = useState({})
+
+  const [inTransition, setInTransition] = useState(false)
+  const [render, setRender] = useState(false)
+  const [inInteractiveState] = useDebounce(inTransition || render, 300)
+
+  useEffect(() => setInInteractiveState(inInteractiveState), [inInteractiveState, setInInteractiveState])
 
   const navigationPosition = useMemo(() => {
     let [right, left] = []
@@ -133,7 +142,10 @@ const Map = ({
           if (!interactionState) {
             return // "hack" to allow MapContext/NavigationControl take over
           }
-          const{ isDragging, isZooming, isPanning, isRotating } = interactionState
+          const{ isDragging, isZooming, isPanning, isRotating, inTransition } = interactionState
+          if (inTransition) {
+            setInTransition(true)
+          }
           // makes tooltip info disappear when we click and zoom in on a location
           setHoverInfo(null)
           // send zoom and viewState to parent comp
@@ -159,7 +171,10 @@ const Map = ({
           if ([isDragging, isZooming, isPanning, isRotating, inTransition].every(action => !action)) {
             setProcessingMapData(true)
           }
+          setInTransition(inTransition)
         }}
+        onBeforeRender={() => setRender(true)}
+        onAfterRender={() => setRender(false)}
         initialViewState={mapViewState}
         views={ MAP_VIEW }
         layers={layers}
@@ -214,6 +229,7 @@ Map.propTypes = {
   onHover: PropTypes.func,
   onClick: PropTypes.func,
   setProcessingMapData: PropTypes.func,
+  setInInteractiveState: PropTypes.func,
   controller: PropTypes.object,
   ...StaticMap.propTypes,
   ...commonProps,
@@ -238,6 +254,7 @@ Map.defaultProps = {
   onHover: () => {},
   onClick: () => {},
   setProcessingMapData: () => {},
+  setInInteractiveState: () => {},
   ...StaticMap.defaultProps,
   ...commonDefaultProps,
 }
