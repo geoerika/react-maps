@@ -4,6 +4,21 @@ import { GEOJSON_TYPES } from '../../../constants'
 
 
 /**
+ * getBoundBoxCoordFromArray - calculates the bounding box coordinates of an array of [lon, lat] elements
+ * @param { array } array - array of [lon, lat] elements
+ * @returns { array } [[minLng, minLat], [maxLng, maxLat]] - the bounding box coordinates of a
+ *                                                           collection of coordinates
+ */
+const getBoundBoxCoordFromArray = (array) => array.reduce(
+  ([[minLng, minLat], [maxLng, maxLat]], coords) => {
+    const [lng, lat] = coords
+    return [
+      [Math.min(minLng, lng), Math.min(minLat, lat)],
+      [Math.max(maxLng, lng), Math.max(maxLat, lat)],
+    ]
+  }, [[180, 90], [-180, -90]])
+
+/**
  * setView - handles calculations of viewState lat, long, and zoom, based on
  *           data coordinates and deck size
  * @param { object } param
@@ -14,24 +29,19 @@ import { GEOJSON_TYPES } from '../../../constants'
  * @returns { object } { latitude, longitude, zoom } - lat, long, and zoom for new viewState
  */
 export const setView = ({ dataGeomList, width, height, haveArcLayer }) => {
-  const dataCoordinateArray = dataGeomList.map(({ data, longitude, latitude, geometryAccessor = d => d }) =>
+  const dataCoordinateArray = dataGeomList?.map(({ data, longitude, latitude, geometryAccessor = d => d }) =>
     getDataCoordinates({ data, longitude, latitude, geometryAccessor })).flat()
 
   let adjustForArcLayerZoom = false
-  if (haveArcLayer && dataGeomList.every(({ data }) => data?.length < 5)) {
+  if (haveArcLayer && dataGeomList?.every(({ data }) => data?.length < 5)) {
     adjustForArcLayerZoom = true
   }
 
-  const formattedGeoData = dataCoordinateArray.reduce(
-    ([[minLng, minLat], [maxLng, maxLat]], coords) => {
-      const [lng, lat] = coords
-      return [
-        [Math.min(minLng, lng), Math.min(minLat, lat)],
-        [Math.max(maxLng, lng), Math.max(maxLat, lat)],
-      ]
-    }, [[180, 90], [-180, -90]])
+  const formattedGeoData = dataCoordinateArray?.length ?
+    getBoundBoxCoordFromArray(dataCoordinateArray) :
+    []
 
-  const dataLonDiff = formattedGeoData[0][0] - formattedGeoData[1][0]
+  const dataLonDiff = formattedGeoData[0]?.[0] - formattedGeoData[1]?.[0]
   /**
    * -120 is the diff in longitude between the westernmost and easternmost points of
    * North America: (-172 - (-52)) = -120
@@ -47,8 +57,15 @@ export const setView = ({ dataGeomList, width, height, haveArcLayer }) => {
     padding =  75
   }
 
-  const viewPort = new WebMercatorViewport({ width, height })
-    .fitBounds(formattedGeoData, { padding })
+  const validFormattedGeoData = [formattedGeoData[0]?.[0], formattedGeoData[1]?.[0]]
+    .every(coord => coord >= -180 && coord <= 180) &&
+    [formattedGeoData[0]?.[1], formattedGeoData[1]?.[1]]
+      .every(coord => coord >= 0 && coord <= 90)
+
+  const viewPort = validFormattedGeoData ?
+    new WebMercatorViewport({ width, height })
+      .fitBounds(formattedGeoData, { padding }) :
+    {}
 
   let { longitude, latitude, zoom } = viewPort
 
@@ -85,19 +102,14 @@ const getDataCoordinates = ({ data, geometryAccessor, longitude, latitude }) => 
       }
       return [...acc, item.geometry?.coordinates]
     }, [])
-  } else {
+  } else if (longitude && latitude) {
     coordinateArray = data.reduce((acc, item) =>
       [...acc, [geometryAccessor(item)?.[longitude], geometryAccessor(item)?.[latitude]]], [])
   }
 
-  const [minCoords, maxCoords] = coordinateArray.reduce(
-    ([[minLng, minLat], [maxLng, maxLat]], item) => {
-      const [lng, lat] = item
-      return [
-        [Math.min(minLng, lng), Math.min(minLat, lat)],
-        [Math.max(maxLng, lng), Math.max(maxLat, lat)],
-      ]
-    }, [[180, 90], [-180, -90]])
+  const [minCoords, maxCoords] = coordinateArray.length ?
+    getBoundBoxCoordFromArray(coordinateArray) :
+    []
 
   return [ minCoords, maxCoords ]
 }

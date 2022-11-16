@@ -71,7 +71,11 @@ const LocusMap = ({
   }, [processingMapData, setProcessingMapData, inInteractiveState])
 
   // update parent with processing / render state of the map
-  useEffect(() => setMapInRenderState(processingMapData), [setMapInRenderState, processingMapData])
+  useEffect(() => {
+    if (setMapInRenderState) {
+      setMapInRenderState(processingMapData)
+    }
+  }, [setMapInRenderState, processingMapData])
 
   // set controller for Map comp
   const controller = useMemo(() => {
