@@ -34,11 +34,11 @@ export const getTooltipParams = ({ hoverInfo }) => {
     tooltipTitle2Accessor,
     metricAccessor,
   } = tooltipKeys ? tooltipKeys : {}
-  const metricKeysArray = [...(tooltipKeys?.metricKeys || [])]
+  const metricKeysArray = metricKeys || []
   // set metricKeys array if no custom keys are given
   if (!metricKeys?.length) {
     ([radiusBasedOn, fillBasedOn, elevationBasedOn, arcWidthBasedOn]).forEach((key) => {
-      if (key) {
+      if (key && !metricKeysArray.includes(key)) {
         metricKeysArray.push(key)
       }
     })
