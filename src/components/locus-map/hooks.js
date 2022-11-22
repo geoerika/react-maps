@@ -67,12 +67,15 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
         const visLineColor = visualizations.lineColor.value.customValue ?
           visualizations.lineColor.value.customValue :
           visualizations.lineColor.value
-        symbolLineColor = arrayToRGBAStrColor({
-          color: Array.isArray(visLineColor) ?
-            visLineColor :
-            strToArrayColor({ strColor: visLineColor }),
-          opacity: setLegendOpacity({ opacity }),
-        })
+        // check when we send lineColor with a value.field but not customValue for schemeColor & MVT layer
+        if (Array.isArray(visLineColor) || typeof visLineColor === 'string')  {
+          symbolLineColor = arrayToRGBAStrColor({
+            color: Array.isArray(visLineColor) ?
+              visLineColor :
+              strToArrayColor({ strColor: visLineColor }),
+            opacity: setLegendOpacity({ opacity }),
+          })
+        }
       }
       if (newLineColor) {
         symbolLineColor = arrayToRGBAStrColor({
