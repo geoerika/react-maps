@@ -143,6 +143,9 @@ export const parseDeckGLLayerFromConfig = ({
       if (schemeColor && name === PROP_TYPES.lineColor) {
         if (isTargetLayer) {
           value = newTargetLineColor
+          // if MVT layer has value.field but not value.customValue, set customValue to newLineColor
+        } else if (layer === LAYER_TYPES.MVT && value?.field && !value?.customValue) {
+          value = { ...value, customValue: newLineColor }
         } else {
           value = newLineColor
         }
