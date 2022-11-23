@@ -529,12 +529,25 @@ const LocusMap = ({
       showTooltip={mapConfig.showMapTooltip}
       renderTooltip={({ hoverInfo, mapWidth, mapHeight }) => {
         const { tooltipProps, ...tooltipParams } = getTooltipParams({ hoverInfo })
-        const objMVTData = hoverInfo.layer.id.includes('MVT') ?
+        const isMVTLayer = hoverInfo.layer.id.includes('MVT')
+        const objMVTData = isMVTLayer ?
           getObjectMVTData({ dataConfig: finalDataConfig, hoverInfo }) :
           {}
-        const { layer : { props: { interactions } } } = hoverInfo
+        const { layer : { props: { interactions, visualizations } } } = hoverInfo
+        const layerVis = Object.keys(visualizations).reduce((acc, key) =>
+          visualizations?.[key]?.value?.field && !acc.includes(key) ?
+            [...acc, key] :
+            acc,
+        [])
         const tooltip = interactions?.tooltip
-        if (tooltip) {
+        const metricKeys = tooltip?.tooltipKeys?.metricKeys || layerVis || []
+        const showTooltip = tooltip && (
+          (isMVTLayer && metricKeys.length &&
+            metricKeys.some(key => [hoverInfo.object, hoverInfo.object?.properties, objMVTData]
+              .some(el => el?.[key] || el?.[key] === 0))) ||
+          !isMVTLayer
+        )
+        if (showTooltip) {
           return (
             <MapTooltip
               info={hoverInfo}
