@@ -34,7 +34,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       visible = true,
     } = layer
 
-    const showLegend = legend?.showLegend || false
+    const showLegend = legend?.showLegend || true
     const layerTitle = legend?.layerTitle || ''
     const formatLegendTitle = layer.legend?.formatLegendTitle
     if (showLegend && visible) {
@@ -43,7 +43,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
       const dataPropertyAccessor = layer.dataPropertyAccessor ||
         LAYER_CONFIGURATIONS[layer.layer]?.dataPropertyAccessor || (d => d)
       const fillBasedOn = visualizations?.fill?.value?.field
-      const radiusBasedOn = visualizations?.radius?.value?.field
+      const radiusBasedOn = visualizations?.radius?.value?.field || visualizations?.pointRadius?.value?.field
       const elevationBasedOn = visualizations?.elevation?.value?.field
       const arcWidthBasedOn = visualizations?.arcWidth?.value?.field
 
