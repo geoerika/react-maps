@@ -111,6 +111,7 @@ const GeoJSONLayerConfig = {
       },
     },
   },
+  legend: { showLegend: true },
 }
 
 const textGeoJSONLayerConfig = {
@@ -270,7 +271,7 @@ const IconLayer1Config = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        sourcePOIId: 'source_poi_id',
+        tooltipTitle1: 'source_poi_id',
         metricKeys: [
           'xvisit_visits',
           'xvisit_unique_visitors',
@@ -281,6 +282,7 @@ const IconLayer1Config = {
       },
     },
   },
+  keyAliases,
   legend: {
     showLegend: true,
     layerTitle: 'Source Layer',
@@ -298,7 +300,7 @@ const IconLayer2Config = {
   interactions: {
     tooltip: {
       tooltipKeys: {
-        targetPOIId: 'target_poi_id',
+        tooltipTitle1: 'target_poi_id',
         metricKeys: [
           'xvisit_visits',
           'xvisit_unique_visitors',
@@ -309,6 +311,7 @@ const IconLayer2Config = {
       },
     },
   },
+  keyAliases,
   legend: {
     showLegend: true,
     layerTitle: 'Target Layer',
@@ -347,10 +350,10 @@ const WIReportLayerConfig = {
       // tooltipProps: {},
     },
   },
-  legend: { showLegend: false },
+  legend: { showLegend: true },
   // formatDataValue: () => {},
   // formatDataKey: () => {},
-  // keyAliases: {},
+  keyAliases,
   opacity: 0.5,
 }
 const WIReportLabelLayerConfig = {
@@ -435,6 +438,7 @@ const GeoJSONMVTConfig = {
     tooltip: {
       tooltipKeys: {
         tooltipTitle1: 'geo_id',
+        metricKeys: ['value'],
       },
     },
   },
@@ -589,7 +593,8 @@ const xwiNoValueKeysReportArgs = {
         ...arcLayerConfig.interactions,
         tooltip: {
           tooltipKeys: {
-            targetPOIId: 'target_poi_id',
+            tooltipTitle1: 'source_poi_id',
+            tooltipTitle2: 'target_poi_id',
             metricKeys: [
               'xvisit_visits',
               'xvisit_unique_visitors',
