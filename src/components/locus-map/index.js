@@ -534,13 +534,14 @@ const LocusMap = ({
           getObjectMVTData({ dataConfig: finalDataConfig, hoverInfo }) :
           {}
         const { layer : { props: { interactions, visualizations } } } = hoverInfo
-        const layerVis = Object.keys(visualizations).reduce((acc, key) =>
-          visualizations?.[key]?.value?.field && !acc.includes(key) ?
-            [...acc, key] :
-            acc,
-        [])
+        const layerVisDataKeys = Object.keys(visualizations).reduce((acc, key) => {
+          const datakey = visualizations?.[key]?.value?.field
+          return datakey && !acc.includes(datakey) ?
+            [...acc, datakey] :
+            acc
+        }, [])
         const tooltip = interactions?.tooltip
-        const metricKeys = tooltip?.tooltipKeys?.metricKeys || layerVis || []
+        const metricKeys = tooltip?.tooltipKeys?.metricKeys || layerVisDataKeys || []
         const showTooltip = tooltip && (
           (isMVTLayer && metricKeys.length &&
             metricKeys.some(key => [hoverInfo.object, hoverInfo.object?.properties, objMVTData]
