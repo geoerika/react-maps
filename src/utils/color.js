@@ -62,8 +62,14 @@ export const validColor = (color) => {
     return Boolean(color.match(/^#[0-9a-fA-F]{6}$/g)?.[0])
   }
   // case for array color ex: [165, 42, 42]
-  if (Array.isArray(color) && color.length >=3) {
-    return color.every(el => el >=0 && el <= 255)
+  if (Array.isArray(color)) {
+    if (color.length === 3) {
+      return color.every(el => el >= 0 && el <= 255 && Number.isInteger(el))
+    }
+    if (color.length === 4) {
+      return color.every((el, i) => (i < 3 && el >= 0 && el <= 255 && Number.isInteger(el)) ||
+        (i === 3 && el >= 0 && el <= 1))
+    }
   }
   return false
 }
