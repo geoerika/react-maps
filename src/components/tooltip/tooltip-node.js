@@ -148,7 +148,7 @@ const tooltipNode = ({
       })}
       {(((tooltipTitle1 && (tooltipTitle1Accessor || metricAccessor)(params)?.[tooltipTitle1]) ||
           (tooltipTitle2 && (tooltipTitle2Accessor || metricAccessor)(params)?.[tooltipTitle2])) &&
-        (metricKeys?.length > 0 && metricAccessor)) && (
+        (metricKeys?.length > 0)) && (
         <Line/>
       )}
       {metricKeys?.length > 0 && metricAccessor && (
