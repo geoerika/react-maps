@@ -38,9 +38,16 @@ export const setLegendConfigs = ({
   layerTitle,
   ...legendProps
 }) => {
-  const [minColor, maxColor] = fillColors && typeof fillColors === 'string' ?
-    [fillColors, fillColors] :
-    [fillColors?.[0] || objColor, fillColors?.[1] || objColor]
+
+  let [minColor, maxColor] = [objColor, objColor]
+  if (fillBasedOn) {
+    if (Array.isArray(fillColors)) {
+      [minColor, maxColor] = [fillColors?.[0], fillColors?.[1]]
+    }
+    if (typeof fillColors === 'string') {
+      [minColor, maxColor] = [fillColors, fillColors]
+    }
+  }
 
   const legends = []
   if (fillBasedOn.length && data?.length) {
