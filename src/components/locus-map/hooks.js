@@ -6,6 +6,7 @@ import {
   getArrayGradientFillColors,
   arrayToRGBAStrColor,
   strToArrayColor,
+  validColor,
 } from '../../utils/color'
 import { LAYER_CONFIGURATIONS, PROP_CONFIGURATIONS } from './constants'
 
@@ -56,7 +57,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
         newTargetLineColor,
         newColorValueOptions,
         newTargetColorValueOptions,
-      } = schemeColor ? getSchemeColorValues(schemeColor) : {}
+      } = validColor(schemeColor) ? getSchemeColorValues(schemeColor) : {}
 
       // set symbolLineColor param
       let symbolLineColor = arrayToRGBAStrColor({
@@ -64,11 +65,11 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
         opacity: setLegendOpacity({ opacity }),
       })
       if (visualizations?.lineColor?.value) {
-        const visLineColor = visualizations.lineColor.value.customValue ?
+        const visLineColor = validColor(visualizations.lineColor.value.customValue) ?
           visualizations.lineColor.value.customValue :
           visualizations.lineColor.value
         // check when we send lineColor with a value.field but not customValue for schemeColor & MVT layer
-        if (Array.isArray(visLineColor) || typeof visLineColor === 'string')  {
+        if (validColor(visLineColor))  {
           symbolLineColor = arrayToRGBAStrColor({
             color: Array.isArray(visLineColor) ?
               visLineColor :
@@ -92,14 +93,14 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
        * we need to adjust opacity for symbols in the legend to have a closer match
        */
       const [colorMin, colorMax] = PROP_CONFIGURATIONS.fill.defaultValue.valueOptions || []
-      let fillColors =  getArrayGradientFillColors({
+      let fillColors = getArrayGradientFillColors({
         fillColors: [
           arrayToRGBAStrColor({ color: colorMin }),
           arrayToRGBAStrColor({ color: colorMax }),
         ],
         opacity: setLegendOpacity({ opacity }),
       })
-      if (visualizations?.fill?.valueOptions) {
+      if (visualizations?.fill?.valueOptions?.every(col => validColor(col))) {
         fillColors = getArrayGradientFillColors({
           fillColors: visualizations.fill.valueOptions,
           opacity: setLegendOpacity({ opacity }),
@@ -117,7 +118,8 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
             fillColors: [newColorValue, newTargetColor],
             opacity: setLegendOpacity({ opacity }),
           })
-        } else {
+        } else if (validColor(visualizations?.sourceArcColor?.value) &&
+          validColor(visualizations?.targetArcColor?.value)) {
           fillColors = getArrayGradientFillColors({
             fillColors: [visualizations?.sourceArcColor?.value, visualizations?.targetArcColor?.value],
             opacity: setLegendOpacity({ opacity }),
@@ -131,7 +133,7 @@ export const useLegends = ({ dataConfig, layerConfig, legendSize }) => {
         opacity: setLegendOpacity({ opacity }),
       })
       const colorVal = visualizations?.fill?.value
-      if (colorVal && !colorVal.field) {
+      if (validColor(colorVal)) {
         objColor = arrayToRGBAStrColor({
           color: Array.isArray(colorVal) ?
             colorVal :
