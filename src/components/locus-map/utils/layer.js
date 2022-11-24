@@ -2,7 +2,7 @@ import { DrawCircleByDiameterMode, DrawRectangleMode, DrawPolygonMode } from '@n
 
 import { getSchemeColorValues } from './scheme-color'
 import { setFinalLayerDataProperty } from '../../../utils/layer'
-import { strToArrayColor } from '../../../utils/color'
+import { strToArrayColor, validColor } from '../../../utils/color'
 import {
   PROP_CONFIGURATIONS,
   LAYER_CONFIGURATIONS,
@@ -94,7 +94,7 @@ export const parseDeckGLLayerFromConfig = ({
     newTargetLineColor,
     newColorValueOptions,
     newTargetColorValueOptions,
-  } = schemeColor ? getSchemeColorValues(schemeColor) : {}
+  } = validColor(schemeColor) ? getSchemeColorValues(schemeColor) : {}
 
   let extruded, parameters
 
@@ -105,15 +105,27 @@ export const parseDeckGLLayerFromConfig = ({
       const config = visualizations[name] || {}
       let { deckGLName, defaultValue, byProducts = {} } = PROP_CONFIGURATIONS[name]
 
-      let value = config?.value
+      let value = config?.value || defaultValue?.value || defaultValue
       let valueOptions = config?.valueOptions || defaultValue?.valueOptions
 
+      // fall on default color values if config colors are not valid colors
+      if ([PROP_TYPES.fill, PROP_TYPES.color, PROP_TYPES.sourceArcColor,
+        PROP_TYPES.targetArcColor, PROP_TYPES.lineColor].includes(name)) {
+        if (!value.field && !validColor(value)) {
+          value = defaultValue?.value || defaultValue
+        }
+        if (valueOptions?.some(col => !validColor(col))) {
+          valueOptions = defaultValue?.valueOptions
+        }
+      }
+
+      let _defaultValue = defaultValue
       if (defaultValue && !Array.isArray(defaultValue) && typeof defaultValue === 'object') {
-        defaultValue = defaultValue.value
+        _defaultValue = defaultValue.value
       }
 
       // change colour values with schemeColour generated colours
-      if (!value?.field && schemeColor) {
+      if (!value?.field && validColor(schemeColor)) {
         if (name === PROP_TYPES.fill || name === PROP_TYPES.color) {
           if (isTargetLayer) {
             value = newTargetColor
@@ -132,7 +144,7 @@ export const parseDeckGLLayerFromConfig = ({
         }
       }
 
-      if (value?.field && schemeColor && name === PROP_TYPES.fill) {
+      if (value?.field && validColor(schemeColor) && name === PROP_TYPES.fill) {
         if (isTargetLayer) {
           valueOptions = newTargetColorValueOptions
         } else {
@@ -140,7 +152,7 @@ export const parseDeckGLLayerFromConfig = ({
         }
       }
 
-      if (schemeColor && name === PROP_TYPES.lineColor) {
+      if (validColor(schemeColor) && name === PROP_TYPES.lineColor) {
         if (isTargetLayer) {
           value = newTargetLineColor
           // if MVT layer has value.field but not value.customValue, set customValue to newLineColor
@@ -175,7 +187,7 @@ export const parseDeckGLLayerFromConfig = ({
           data,
           value,
           valueOptions,
-          defaultValue,
+          defaultValue: _defaultValue,
           dataPropertyAccessor,
           mvtGeoKey,
           geometryAccessor,
