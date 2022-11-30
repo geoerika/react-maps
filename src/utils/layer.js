@@ -41,7 +41,7 @@ export const setFinalLayerDataProperty = ({
   if (value.title) {
     return d => getLabel(d)({ value, dataPropertyAccessor, keyAliases, formatDataKey, formatDataValue })
   }
-  // case for radius for GeoJSON layer - there are no valueOption for this layer
+  // case for radius for GeoJSON layer - there are no valueOptions for this layer
   if (value.field && !valueOptions && !data?.tileData?.length) {
     return d => dataPropertyAccessor(d)?.[value.field]
   }
@@ -51,7 +51,7 @@ export const setFinalLayerDataProperty = ({
     layerData = Object.fromEntries(data.tileData.map((item) =>
       [geometryAccessor(item)[mvtGeoKey], { value: dataPropertyAccessor(item)?.[value.field] }]))
     return ({ properties: { geo_id } }) => {
-      const { value } = layerData[geo_id] || { value: 0 }
+      const { value } = layerData[geo_id] || {}
       if (value || value === dataRange[0]) {
         return typeof propValue === 'function' ? propValue(value) : propValue
       }
@@ -79,7 +79,7 @@ export const setFinalLayerDataProperty = ({
       return valueOptions[0]
     }
 
-    // allow layer props with no data values and valueOptions, such as getLineColor in MVT layers, to be set transparent
+    // allow layer props with no data values and valueOptions, such as getLineWidth in MVT layers, to be set transparent
     if (data?.tileData?.length) {
       return setTileProp({ propValue: value.customValue || defaultValue, dataRange })
     }
