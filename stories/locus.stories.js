@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 
 import { ButtonGroup, Button } from '@eqworks/lumen-labs'
 import { Icons } from '@eqworks/lumen-labs'
+import { Authenticated } from '@eqworks/common-login'
 
 import { LocusMap } from '../src'
 
@@ -525,6 +526,11 @@ const textGeoJSONMVTConfig = {
 }
 
 const Template = (args) => <LocusMap { ...args } />
+const AuthTemplate = (args) => (
+  <Authenticated product='locus'>
+    <LocusMap { ...args } />
+  </Authenticated>
+)
 
 const geojsonArgs = {
   layerConfig: [GeoJSONLayerConfig],
@@ -628,7 +634,7 @@ const MVTLayerArgs = {
   mapConfig: { ...mapConfig, initViewState, legendPosition: 'bottom-left' },
 }
 
-export const MVTLayer = Template.bind({})
+export const MVTLayer = AuthTemplate.bind({})
 MVTLayer.args = MVTLayerArgs
 MVTLayer.storyName = 'MVT Layer with demographic data'
 
@@ -644,7 +650,7 @@ const GeoJSONMVTArgs = {
   mapConfig: { ...mapConfig, initViewState, pitch: 45 },
 }
 
-export const GeoJSONMVTLayer = Template.bind({})
+export const GeoJSONMVTLayer = AuthTemplate.bind({})
 GeoJSONMVTLayer.args = GeoJSONMVTArgs
 GeoJSONMVTLayer.storyName = 'GeoJSON CT polygon Layer with MVT geometry data'
 
@@ -654,7 +660,7 @@ const GeoJSONfsaMVTArgs = {
   mapConfig: { ...mapConfig, initViewState, pitch: 45 },
 }
 
-export const GeoJSONfsaMVTLayer = Template.bind({})
+export const GeoJSONfsaMVTLayer = AuthTemplate.bind({})
 GeoJSONfsaMVTLayer.args = GeoJSONfsaMVTArgs
 GeoJSONfsaMVTLayer.storyName = 'GeoJSON FSA Polygon Layer with MVT geometry data'
 
@@ -664,7 +670,7 @@ const GeoJSONMVTLabelArgs = {
   mapConfig: { ...mapConfig, initViewState },
 }
 
-export const GeoJSONMVTLabelLayer = Template.bind({})
+export const GeoJSONMVTLabelLayer = AuthTemplate.bind({})
 GeoJSONMVTLabelLayer.args = GeoJSONMVTLabelArgs
 GeoJSONMVTLabelLayer.storyName = 'GeoJSON FSA polygon Layer with MVT geometry data & Text Layer for labels'
 

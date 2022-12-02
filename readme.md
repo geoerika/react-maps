@@ -1,6 +1,7 @@
 # react-maps
 
 A React map component library for ATOM and Locus.
+More info soon.
 
 # Setup
 
