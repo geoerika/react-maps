@@ -6,7 +6,13 @@ import { styled, setup } from 'goober'
 
 import LegendSymbol from './legend-symbol'
 import { getLegendItemElements, getValueRangeWidth, getLegendItemDimensions } from './utils'
-import { LEGEND_TYPE, LEGEND_SYMBOL_WIDTH, MIN_LEGEND_LINE_WIDTH } from '../../constants'
+import {
+  LEGEND_TYPE,
+  LEGEND_SYMBOL_WIDTH,
+  MIN_LEGEND_LINE_WIDTH,
+  LEGEND_DOTS,
+  LEGEND_RADIUS_SIZE,
+} from '../../constants'
 
 
 setup(React.createElement)
@@ -18,7 +24,7 @@ const LegendBody = styled('div')`
 `
 
 const LegendTitle = styled('div')`
-  margin: 0 auto 0.4rem auto;
+  margin:  ${({ marginbottom, marginleft }) => `0 auto ${marginbottom}rem ${marginleft}rem`};
   text-align: center;
   font-weight: 700;
   font-size: 0.625rem;
@@ -31,7 +37,7 @@ const LegendElements = styled('div')`
   display: flex;
   flex-direction: column;
   margin-left: ${({ legendelementsleftmargin }) => legendelementsleftmargin}rem;
-  ${({ max }) => max ? '' : 'align-items: center'};
+  ${({ min, max }) => min || max ? '' : 'align-items: center'};
 `
 
 const LegendTextContainer = styled('div')`
@@ -66,6 +72,7 @@ const LegendLineWidth = styled('div')`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  width: ${({ legendelemwidth }) => legendelemwidth}rem;
   margin-left: ${({ legendelementsleftmargin }) => legendelementsleftmargin}rem;
 `
 
@@ -74,8 +81,7 @@ const LineWidthTextContainer = styled('div')`
   flex-direction: column;
   justify-content: space-between;
   width: ${({ textcontainerwidth }) => textcontainerwidth}rem;
-  margin-top: -0.4rem;
-  margin-left: ${TEXT_CONTAINER_LEFT_MARGIN}rem;
+  margin-left: ${({ textcontainerleftmargin }) => textcontainerleftmargin}rem;
 `
 
 const LegendItem = ({ legendItemProps }) => {
@@ -86,8 +92,8 @@ const LegendItem = ({ legendItemProps }) => {
     legendSize,
     symbolMarginLeft,
     setSymbolMarginLeft,
-    maxTextContainer,
-    setMaxTextContainer,
+    rightTextOffset,
+    setRightTextOffset,
     setOpacity,
     ...symbolProps
   } = legendItemProps
@@ -100,10 +106,10 @@ const LegendItem = ({ legendItemProps }) => {
   const lineTextMax = useRef(null)
 
   const [textMinWidth, textMaxWidth, lineTextMaxWidth] =
-    getValueRangeWidth({ textMin, textMax, lineText: min === max ? lineTextMin : lineTextMax })
+    getValueRangeWidth({ textMin, textMax, lineTextMin, lineTextMax })
 
   const { textContainerWidth, symbolContainerLeftMargin, textContainerLeftMargin } =
-    getLegendItemDimensions({ legendItemProps,  legendElemWidth, textMinWidth, textMaxWidth })
+    getLegendItemDimensions({ legendItemProps, legendElemWidth, textMinWidth, textMaxWidth, legendSize })
 
   // set symbolMarginLeft as the maxium left margin value of all legend item symbols
   useEffect(() => {
@@ -112,12 +118,21 @@ const LegendItem = ({ legendItemProps }) => {
     }
   }, [symbolContainerLeftMargin, setSymbolMarginLeft])
 
-  // sets the maximum width of all legend item text containers
+  // sets the maximum width of the upper data range text in all legends, except for line width legend
   useEffect(() => {
-    if (textContainerWidth) {
-      setMaxTextContainer(prev => Math.max(prev, textContainerWidth))
+    if (type !== LEGEND_TYPE.lineWidth) {
+      if ([LEGEND_TYPE.gradient, LEGEND_TYPE.elevation].includes(type)) {
+        setRightTextOffset(prev => Math.max(prev, textMaxWidth / 2))
+      }
+      if (type === LEGEND_TYPE.size) {
+        const circleRadius = (LEGEND_DOTS[legendSize] + 0.75) *
+          (symbolProps.size || LEGEND_RADIUS_SIZE.default) / 2
+        if (circleRadius < textMaxWidth / 2) {
+          setRightTextOffset(prev => Math.max(prev, textMaxWidth / 2 - circleRadius))
+        }
+      }
     }
-  }, [textContainerWidth, setMaxTextContainer])
+  }, [type, textMaxWidth, setRightTextOffset, legendSize, symbolProps.size])
 
   // adjust LegendElement left margin so the legend symbols of all legends align vertically
   const legendElementsLeftMargin = useMemo(() => {
@@ -134,20 +149,48 @@ const LegendItem = ({ legendItemProps }) => {
     }
   }, [textContainerWidth, setOpacity, min, max])
 
+  const legendTitleMarginBottom = useMemo(() =>{
+    if (type === LEGEND_TYPE.lineWidth) {
+      return 0.135
+    }
+    return 0.4
+  }, [type])
+
+  const lineWidthSymbolContainerWidth = useMemo(() => {
+    if (rightTextOffset && rightTextOffset >= lineTextMaxWidth + TEXT_CONTAINER_LEFT_MARGIN) {
+      return LEGEND_SYMBOL_WIDTH[legendSize]
+    }
+    return Math.max(
+      MIN_LEGEND_LINE_WIDTH,
+      LEGEND_SYMBOL_WIDTH[legendSize] + rightTextOffset - lineTextMaxWidth - TEXT_CONTAINER_LEFT_MARGIN,
+    )
+  }
+  , [rightTextOffset, lineTextMaxWidth, legendSize])
+
   return (
     <>
       {max !== undefined && min !== undefined && (
-        <LegendBody>
-          <LegendTitle legendelemwidth={LEGEND_SYMBOL_WIDTH[legendSize]}>
+        <LegendBody id='legend-body'>
+          <LegendTitle
+            id='legend-title'
+            legendelemwidth={LEGEND_SYMBOL_WIDTH[legendSize]}
+            marginbottom={legendTitleMarginBottom}
+            marginleft={legendElementsLeftMargin + symbolContainerLeftMargin}
+          >
             {title}
           </LegendTitle>
           {type !== LEGEND_TYPE.lineWidth &&
-            <LegendElements max={max} legendelementsleftmargin={legendElementsLeftMargin}>
+            <LegendElements
+              id='legend-element'
+              min={min}
+              max={max}
+              legendelementsleftmargin={legendElementsLeftMargin}
+            >
               <LegendSymbolContainer
                 legendelemwidth={legendElemWidth}
                 symbolcontainerleftmargin={symbolContainerLeftMargin}
               >
-                <LegendSymbol symbolProps={{ max, type, legendSize, ...symbolProps }} />
+                <LegendSymbol symbolProps={{ min, max, type, legendSize, ...symbolProps }} />
               </LegendSymbolContainer>
               <LegendTextContainer
                 textcontainerwidth={textContainerWidth}
@@ -156,7 +199,7 @@ const LegendItem = ({ legendItemProps }) => {
                 <LegendTextMin ref={textMin}>
                   {minValue.toLocaleString()}
                 </LegendTextMin>
-                {max > 0 && (
+                {min !== max && (
                   <LegendTextMax
                     ref={textMax}
                     marginleft={type === LEGEND_TYPE.gradient ? TEXT_CONTAINER_LEFT_MARGIN : 0}
@@ -169,31 +212,27 @@ const LegendItem = ({ legendItemProps }) => {
           }
           {/* line width type legend is different than the other legends, therefore it is separate */}
           {type === LEGEND_TYPE.lineWidth &&
-            <LegendLineWidth legendelementsleftmargin={legendElementsLeftMargin}>
+            <LegendLineWidth
+              legendelementsleftmargin={legendElementsLeftMargin}
+              legendelemwidth={lineWidthSymbolContainerWidth  + lineTextMaxWidth + TEXT_CONTAINER_LEFT_MARGIN}
+            >
               <LegendSymbolContainer
                 symbolcontainerleftmargin={symbolContainerLeftMargin}
-                legendelemwidth={
-                  Math.max(
-                    MIN_LEGEND_LINE_WIDTH,
-                    Math.max(maxTextContainer, LEGEND_SYMBOL_WIDTH[legendSize]) -
-                    TEXT_CONTAINER_LEFT_MARGIN -
-                      lineTextMaxWidth -
-                      legendElementsLeftMargin,
-                  )
-                }
+                legendelemwidth={lineWidthSymbolContainerWidth}
               >
                 <LegendSymbol symbolProps={{ max, min, type, legendSize, ...symbolProps }} />
               </LegendSymbolContainer>
               <LineWidthTextContainer
+                textcontainerleftmargin={TEXT_CONTAINER_LEFT_MARGIN}
               >
-                <LegendTextMin ref={lineTextMin}>
-                  {minValue.toLocaleString()}
-                </LegendTextMin>
-                {min !== max && max > 0 && (
-                  <LegendTextMax ref={lineTextMax}>
-                    {maxValue.toLocaleString()}
-                  </LegendTextMax>
-                )}
+                {min !== max &&
+                  <LegendTextMin ref={lineTextMin}>
+                    {minValue.toLocaleString()}
+                  </LegendTextMin>
+                }
+                <LegendTextMax ref={lineTextMax}>
+                  {maxValue.toLocaleString()}
+                </LegendTextMax>
               </LineWidthTextContainer>
             </LegendLineWidth>
           }
@@ -223,8 +262,8 @@ LegendItem.propTypes = {
     symbolMarginLeft: PropTypes.number.isRequired,
     setSymbolMarginLeft: PropTypes.func.isRequired,
     setOpacity: PropTypes.func.isRequired,
-    maxTextContainer: PropTypes.number.isRequired,
-    setMaxTextContainer: PropTypes.func.isRequired,
+    rightTextOffset: PropTypes.number.isRequired,
+    setRightTextOffset: PropTypes.func.isRequired,
   }),
 }
 
