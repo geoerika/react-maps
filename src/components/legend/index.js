@@ -43,7 +43,8 @@ const Legend = ({
   typography,
 }) => {
   const [symbolMarginLeft, setSymbolMarginLeft] = useState(0)
-  const [maxTextContainer, setMaxTextContainer] = useState(0)
+  // the largest offset on the right side of the legend symbol due to underneath text width
+  const [rightTextOffset, setRightTextOffset] = useState(0)
   const [opacity, setOpacity] = useState(0)
   let objPosition = {}
   objPosition[legendPosition.split('-')[0]] = '.5rem'
@@ -75,8 +76,8 @@ const Legend = ({
                 legendSize,
                 symbolMarginLeft,
                 setSymbolMarginLeft,
-                maxTextContainer,
-                setMaxTextContainer,
+                rightTextOffset,
+                setRightTextOffset,
                 setOpacity,
                 ...legendProps,
               }
