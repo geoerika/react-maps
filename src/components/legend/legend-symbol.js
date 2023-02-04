@@ -16,6 +16,13 @@ import POIIconMarker from '../../shared/icons/poi-location.png'
 
 setup(React.createElement)
 
+const GradientContainer = styled('div')`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+`
+
 const Gradient = styled('div')`
   height: ${({ height }) => height ? `${height}rem` : '1rem'};
   width: ${({ width }) => width ? `${width}rem` : '100%'};
@@ -28,7 +35,7 @@ const Size = styled('div')`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: ${({ max }) => max ? 'space-between' : 'center'};
+  justify-content: ${({ min, max }) => min || max ? 'space-between' : 'center'};
 `
 
 const Circle = styled('div')`
@@ -84,11 +91,11 @@ const LegendSymbol = ({ symbolProps }) => {
 
   if (type === LEGEND_TYPE.elevation) {
     return (
-      <Size max={max}>
-        <HeightWrapper pos={'left'}>
-          <Height width={LEGEND_HEIGHT.left[legendSize]} color={!max ? minColor : maxColor} />
+      <Size min={min} max={max}>
+        <HeightWrapper pos={min !== max ? 'left' : 'center' }>
+          <Height width={LEGEND_HEIGHT.left[legendSize]} color={!max && !min ? minColor : maxColor} />
         </HeightWrapper>
-        {max > 0 &&
+        {max !== min &&
           <HeightWrapper>
             <Height width={LEGEND_HEIGHT.right[legendSize]} color={maxColor} />
           </HeightWrapper>
@@ -98,19 +105,25 @@ const LegendSymbol = ({ symbolProps }) => {
   }
 
   if (type === LEGEND_TYPE.gradient) {
-    const [minGradCol, maxGradCol] =  max > 0 ? [minColor, maxColor] : [minColor, minColor]
-    return <Gradient mincolor={minGradCol} maxcolor={maxGradCol} />
+    const [minGradCol, maxGradCol] =  max !== min ? [minColor, maxColor] : [minColor, minColor]
+    return (
+      // we need to wrap Gradient into a <>, otherwise it might result in Legend disapearing from map
+      <>
+        <Gradient mincolor={minGradCol} maxcolor={maxGradCol} />
+      </>
+    )
   }
 
   if (type === LEGEND_TYPE.size) {
     return (
-      <Size max={max}>
-        {max > 0 ?
-          new Array(dots ? dots: LEGEND_DOTS[legendSize]).fill(0).map((_, i) => (
+      <Size min={min} max={max}>
+        {max !== min ?
+          new Array(dots ? dots : LEGEND_DOTS[legendSize]).fill(0).map((_, i) => (
             <Circle
               key={i}
-              size={(i + .75) * size + size}
+              size={(i + 1.75) * size}
               color={maxColor}
+              min={min}
               max={max}
               linecolor={symbolLineColor}
             />
@@ -129,29 +142,35 @@ const LegendSymbol = ({ symbolProps }) => {
 
   if (type === LEGEND_TYPE.lineWidth) {
     return (
-      <>
-        <Gradient
-          height={LEGEND_LINE_HEIGHT.min}
-          mincolor={minColor}
-          maxcolor={maxColor}
-        />
-        {min !== max && max > 0 &&
+      <GradientContainer>
+        {(min !== max || (min === max && min === 0)) &&
           <Gradient
-            height={LEGEND_LINE_HEIGHT.max}
-            margintop={.75}
+            height={LEGEND_LINE_HEIGHT.min}
+            margintop={.4}
             mincolor={minColor}
             maxcolor={maxColor}
           />
         }
-      </>
+        {(min || max || (min === max && min !== 0)) &&
+          <Gradient
+            height={LEGEND_LINE_HEIGHT.max}
+            margintop={min === max ? 0 : .5}
+            mincolor={minColor}
+            maxcolor={maxColor}
+          />
+        }
+      </GradientContainer>
     )
   }
 
   if (type === LEGEND_TYPE.icon) {
     return (
-      <Icon
-        color={maxColor}
-      />
+      // we need to wrap Icon into a <>, otherwise it might result in Legend disapearing from map
+      <>
+        <Icon
+          color={maxColor}
+        />
+      </>
     )
   }
   // TODO: choropleth using import { scaleThreshold } from 'd3-scale'
