@@ -16,11 +16,14 @@ export const setLegendOpacity = ({ opacity }) =>
 * @param { object } param
 * @param { string } param.elevationBasedOn - data attribute key for elevation
 * @param { string } param.fillBasedOn - data attribute key for fill
+* @param { string } param.radiusBasedOn - data attribute key for radius
+* @param { string } param.arcWidthBasedOn - data attribute key for radius
 * @param { array } param.fillColors - array of string or array colors
 * @param { string } param.objColor - string format colour 'rgb(r, g, b, opacity)'
-* @param { string } param.radiusBasedOn - data attribute key for radius
 * @param { array } param.data - data array
 * @param { function } param.dataPropertyAccessor - function to access data attribute values in the data objects
+* @param { string } param.legendSize - legend size ('lg' or 'sm')
+* @param { string } param.layerTitle - layer title
 * @param { object } param.legendProps - various other legend props:
 *               {keyAliases, formatLegendTitle, formatDataKey, formatDataValue, symbolLineColor}
 * @returns { array  } - array of legend config objects
@@ -38,9 +41,8 @@ export const setLegendConfigs = ({
   layerTitle,
   ...legendProps
 }) => {
-
   let [minColor, maxColor] = [objColor, objColor]
-  if (fillBasedOn) {
+  if (fillBasedOn || elevationBasedOn || arcWidthBasedOn) {
     if (Array.isArray(fillColors)) {
       [minColor, maxColor] = [fillColors?.[0], fillColors?.[1]]
     }
