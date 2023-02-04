@@ -76,7 +76,7 @@ export const setFinalLayerDataProperty = ({
         }
         return (d) => d3Fn(dataPropertyAccessor(d)?.[value.field])
       }
-      return valueOptions[0]
+      return noZeroMin && dataRange[0] ? valueOptions[1] : valueOptions[0]
     }
 
     // allow layer props with no data values and valueOptions, such as getLineWidth in MVT layers, to be set transparent
