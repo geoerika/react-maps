@@ -75,6 +75,13 @@ export const LEGEND_LINE_HEIGHT = {
   max: .4,
 }
 
+export const LEGEND_TITLE_BOTTOM_MARGIN = {
+  default: 0.4,
+  lineWidth: 0.135,
+}
+
+export const LEGEND_TEXT_GAP = 0.5
+
 export const GEOJSON_TYPES = {
   point: 'Point',
   polygon: 'Polygon',
