@@ -8,7 +8,7 @@ import { styled, setup } from 'goober'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import LegendItem from './legend-item'
-import { LEGEND_SIZE, LEGEND_POSITION } from '../../constants'
+import { LEGEND_SIZE, LEGEND_POSITION, LEGEND_SYMBOL_WIDTH } from '../../constants'
 
 
 setup(React.createElement)
@@ -34,6 +34,9 @@ const LayerTitle = styled('div')`
   font-size: 0.75rem;
   text-align: center;
   margin-bottom: 0.275rem;
+  margin-left: ${({ titleleftmargin }) => titleleftmargin}rem;
+  maxWidth: ${({ maxwidth }) => maxwidth}rem;
+  overflow-wrap: break-word;
 `
 
 const Legend = ({
@@ -42,10 +45,12 @@ const Legend = ({
   legends,
   typography,
 }) => {
+  // the largest offset / margin on the left side of the legend symbol due to underneath text width
   const [symbolMarginLeft, setSymbolMarginLeft] = useState(0)
   // the largest offset on the right side of the legend symbol due to underneath text width
   const [rightTextOffset, setRightTextOffset] = useState(0)
   const [opacity, setOpacity] = useState(0)
+
   let objPosition = {}
   objPosition[legendPosition.split('-')[0]] = '.5rem'
   objPosition[legendPosition.split('-')[1]] = '.5rem'
@@ -64,7 +69,10 @@ const Legend = ({
       {legends.map(({ type, layerTitle, ...legendProps }, index) => (
         <div key={index}>
           {layerTitle && (
-            <LayerTitle>
+            <LayerTitle
+              titleleftmargin={symbolMarginLeft}
+              maxwidth={LEGEND_SYMBOL_WIDTH[legendSize]}
+            >
               {layerTitle}
             </LayerTitle>
           )}
