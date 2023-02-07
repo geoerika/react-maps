@@ -21,6 +21,7 @@ setup(React.createElement)
 
 const LegendBody = styled('div')`
   align-items: center;
+  padding-left: ${({ padding }) => padding}rem;
 `
 
 const LegendTitle = styled('div')`
@@ -94,6 +95,7 @@ const LegendItem = ({ legendItemProps }) => {
     setSymbolMarginLeft,
     rightTextOffset,
     setRightTextOffset,
+    paddingLeft,
     setOpacity,
     ...symbolProps
   } = legendItemProps
@@ -178,7 +180,7 @@ const LegendItem = ({ legendItemProps }) => {
   return (
     <>
       {max !== undefined && min !== undefined && (
-        <LegendBody id='legend-body'>
+        <LegendBody id='legend-body' padding={paddingLeft}>
           <LegendTitle
             id='legend-title'
             legendelemwidth={LEGEND_SYMBOL_WIDTH[legendSize]}
@@ -268,6 +270,7 @@ LegendItem.propTypes = {
     symbolProps: PropTypes.object,
     symbolMarginLeft: PropTypes.number.isRequired,
     setSymbolMarginLeft: PropTypes.func.isRequired,
+    paddingLeft: PropTypes.number,
     setOpacity: PropTypes.func.isRequired,
     rightTextOffset: PropTypes.number.isRequired,
     setRightTextOffset: PropTypes.func.isRequired,
@@ -284,6 +287,7 @@ LegendItem.defaultProps = {
     formatDataKey: d => d,
     formatDataValue: undefined,
     symbolProps: undefined,
+    paddingLeft: 0,
   },
 }
 
