@@ -35,6 +35,8 @@ export const LEGEND_TYPE = {
   icon: 'icon',
 }
 
+export const LEGEND_LAYER_MAX_WIDTH = 10
+
 export const LEGEND_SIZE = {
   small: 'sm',
   large: 'lg',
