@@ -82,7 +82,7 @@ FormatDataValues.args = {
 }
 
 export const CustomOpacity = Template.bind({})
-CustomOpacity.args = { opacity: 0.8, ...LegendColorFill.args }
+CustomOpacity.args = { opacity: 0.2, ...LegendColorFill.args }
 
 export const ZeroValues = Template.bind({})
 ZeroValues.args = {
