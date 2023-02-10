@@ -8,12 +8,13 @@ import { styled, setup } from 'goober'
 
 import { typographyPropTypes, typographyDefaultProps } from '../../shared/map-props'
 import LegendItem from './legend-item'
-import { getElemWidth } from './utils'
+import { getCanvasFont, getTextWidth } from './utils'
 import {
   LEGEND_SIZE,
   LEGEND_POSITION,
   LEGEND_SYMBOL_WIDTH,
   LEGEND_LAYER_MAX_WIDTH,
+  FONT_SIZE,
 } from '../../constants'
 
 
@@ -39,10 +40,11 @@ const LayerTitle = styled('div', forwardRef)`
   font-weight: 700;
   font-size: 0.75rem;
   text-align: center;
-  maxWidth: ${({ maxwidth }) => maxwidth}rem;
+  max-width: ${({ maxwidth }) => maxwidth}rem;
   margin-bottom: 0.275rem;
   margin-left: ${({ titleleftmargin }) => titleleftmargin}rem;
   overflow-wrap: break-word;
+  width: fit-content;
 `
 
 const Legend = ({
@@ -55,7 +57,6 @@ const Legend = ({
   const [symbolMarginLeft, setSymbolMarginLeft] = useState(0)
   // the largest offset on the right side of the legend symbol due to underneath text width
   const [rightTextOffset, setRightTextOffset] = useState(0)
-  const [legendItemPadding, setLegendItemPadding] = useState(0)
   const [opacity, setOpacity] = useState(0)
 
   const layerTitleRef = useRef(null)
@@ -66,7 +67,10 @@ const Legend = ({
   // const [activeLegend, setActiveLegend] = useState(0)
   // const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
 
-  const layerTitleWidth = getElemWidth(layerTitleRef)
+  let font = ''
+  if (layerTitleRef.current) {
+    font = getCanvasFont(layerTitleRef.current)
+  }
 
   const maxLegendWidth = useMemo(() =>
     Math.max(
@@ -75,13 +79,15 @@ const Legend = ({
     )
   , [symbolMarginLeft, legendSize, rightTextOffset])
 
-  const layerTitleLeftMargin = useMemo(() => {
-    if (symbolMarginLeft <= (maxLegendWidth - LEGEND_SYMBOL_WIDTH[legendSize]) / 2) {
-      setLegendItemPadding((maxLegendWidth - LEGEND_SYMBOL_WIDTH[legendSize]) / 2 - symbolMarginLeft)
-      return 0
-    }
-    return symbolMarginLeft - layerTitleWidth / 2 +  LEGEND_SYMBOL_WIDTH[legendSize] / 2
-  }, [legendSize, symbolMarginLeft, layerTitleWidth, maxLegendWidth])
+  const maxLayerTitleWidth = useMemo(() =>
+    legends.reduce((acc, { layerTitle }) =>
+      Math.max(acc, Math.min(maxLegendWidth, getTextWidth(layerTitle, font) / FONT_SIZE)), 0)
+  , [legends, font, maxLegendWidth])
+
+  const legendItemPadding = useMemo(() => symbolMarginLeft <= (maxLayerTitleWidth - LEGEND_SYMBOL_WIDTH[legendSize]) / 2 ?
+    (maxLayerTitleWidth - LEGEND_SYMBOL_WIDTH[legendSize]) / 2 - symbolMarginLeft :
+    0
+  ,[legendSize, maxLayerTitleWidth, symbolMarginLeft])
 
   return (
     <LegendContainer
@@ -91,36 +97,44 @@ const Legend = ({
       position={objPosition}
       typography={legendSize === LEGEND_SIZE.large ? typography : { ...typography, fontSize: '0.625rem' }}
       opacity={opacity}
+      maxwidth={maxLegendWidth}
     >
-      {legends.map(({ type, layerTitle, ...legendProps }, index) => (
-        <div key={index}>
-          {layerTitle && (
-            <LayerTitle
-              ref={layerTitleRef}
-              titleleftmargin={layerTitleLeftMargin}
-              maxwidth={maxLegendWidth}
-            >
-              {layerTitle}
-            </LayerTitle>
-          )}
-          <LegendItem
-            key={type}
-            legendItemProps={
-              {
-                type,
-                legendSize,
-                symbolMarginLeft,
-                setSymbolMarginLeft,
-                rightTextOffset,
-                setRightTextOffset,
-                setOpacity,
-                ...legendProps,
-                ...{ paddingLeft: legendItemPadding },
+      {legends.map(({ type, layerTitle, ...legendProps }, index) => {
+        const layerTitleWidth = Math.min(maxLegendWidth, getTextWidth(layerTitle, font) / FONT_SIZE)
+        let layerTitleLeftMargin = 0
+        if (symbolMarginLeft + legendItemPadding > (layerTitleWidth - LEGEND_SYMBOL_WIDTH[legendSize]) / 2) {
+          layerTitleLeftMargin = symbolMarginLeft + legendItemPadding - layerTitleWidth / 2 +
+            LEGEND_SYMBOL_WIDTH[legendSize] / 2
+        }
+        return (
+          <div key={index}>
+            {layerTitle && (
+              <LayerTitle
+                ref={layerTitleRef}
+                titleleftmargin={layerTitleLeftMargin}
+                maxwidth={maxLegendWidth}
+              >
+                {layerTitle}
+              </LayerTitle>
+            )}
+            <LegendItem
+              key={type}
+              legendItemProps={
+                {
+                  type,
+                  legendSize,
+                  symbolMarginLeft,
+                  setSymbolMarginLeft,
+                  rightTextOffset,
+                  setRightTextOffset,
+                  setOpacity,
+                  ...legendProps,
+                  ...{ paddingLeft: legendItemPadding },
+                }
               }
-            }
-          />
-        </div>
-      ))}
+            />
+          </div>
+        )})}
     </LegendContainer>
   )
 }
