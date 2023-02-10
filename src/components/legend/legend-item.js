@@ -13,6 +13,7 @@ import {
   LEGEND_RADIUS_SIZE,
   LEGEND_TITLE_BOTTOM_MARGIN,
   LEGEND_TEXT_GAP,
+  LEGEND_SYMBOL_WIDTH,
 } from '../../constants'
 
 
@@ -182,7 +183,7 @@ const LegendItem = ({ legendItemProps }) => {
         <LegendBody id='legend-body' padding={paddingLeft}>
           <LegendTitle
             id='legend-title'
-            legendelemwidth={legendElemWidth}
+            legendelemwidth={LEGEND_SYMBOL_WIDTH[legendSize]}
             marginbottom={legendTitleMarginBottom}
             marginleft={legendElementsLeftMargin + symbolContainerLeftMargin}
           >
