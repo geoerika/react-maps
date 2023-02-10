@@ -26,9 +26,9 @@ export const getLegendItemElements = ({ legendItemProps }) => {
     legendSize,
   } = legendItemProps
 
-  const legendElemWidth = max !== min ?
-    LEGEND_SYMBOL_WIDTH[legendSize] :
-    LEGEND_SYMBOL_WIDTH.zero
+  const legendElemWidth = min === max && min === 0 ?
+    LEGEND_SYMBOL_WIDTH.zero :
+    LEGEND_SYMBOL_WIDTH[legendSize]
   const title = formatLegendTitle(keyAliases?.[label] || formatDataKey(label))
 
   const [minValue, maxValue] = formatDataValue?.[label] ?
@@ -156,4 +156,45 @@ export const getLegendItemDimensions = ({
   }
 
   return { textContainerWidth, symbolContainerLeftMargin, textContainerLeftMargin }
+}
+
+/**
+ * getTextWidth - uses canvas.measureText to compute and return the width of the given text of given font in pixels.
+ * @param { string } text - the text to be rendered.
+ * @param { string } font - the css font descriptor that text is to be rendered with (e.g. 'bold 14px verdana').
+ * @returns { number } - the width of the text in px
+ *
+ * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+ */
+export const getTextWidth = (text, font) => {
+  // re-use canvas object for better performance
+  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'))
+  const context = canvas.getContext('2d')
+  context.font = font
+  const metrics = context.measureText(text)
+  return metrics.width
+}
+
+/**
+ * getCssStyle - gets css styling for an element
+ * @param { element } element - an element
+ * @param { string } prop - the css property to retrieve
+ * @returns { number || string } - the value of a css property
+ */
+const getCssStyle = (element, prop) => window.getComputedStyle(element, null).getPropertyValue(prop)
+
+/**
+ * getCanvasFont - gets font weight, size, & family for an element
+ * @param { element } el - an element
+ * @returns { string } - concatenated string of font weight, size, & family for an element
+ */
+export const getCanvasFont = (el = document.documentElement) => {
+  if (!el) {
+    return ''
+  }
+  const fontWeight = getCssStyle(el, 'font-weight') || 'normal'
+  const fontSize = getCssStyle(el, 'font-size') || '16px'
+  const fontFamily = getCssStyle(el, 'font-family').split(',')[0] || 'Times New Roman'
+
+  return `${fontWeight} ${fontSize} ${fontFamily}`
 }
