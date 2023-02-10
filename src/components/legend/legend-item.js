@@ -8,7 +8,6 @@ import LegendSymbol from './legend-symbol'
 import { getLegendItemElements, getValueRangeWidth, getLegendItemDimensions } from './utils'
 import {
   LEGEND_TYPE,
-  LEGEND_SYMBOL_WIDTH,
   MIN_LEGEND_LINE_WIDTH,
   LEGEND_DOTS,
   LEGEND_RADIUS_SIZE,
@@ -172,10 +171,10 @@ const LegendItem = ({ legendItemProps }) => {
     }
     return Math.max(
       MIN_LEGEND_LINE_WIDTH,
-      LEGEND_SYMBOL_WIDTH[legendSize] + rightTextOffset - lineTextMaxWidth - LEGEND_TEXT_GAP,
+      legendElemWidth + rightTextOffset - lineTextMaxWidth - LEGEND_TEXT_GAP,
     )
   }
-  , [rightTextOffset, lineTextMaxWidth, legendElemWidth, legendSize])
+  , [rightTextOffset, lineTextMaxWidth, legendElemWidth])
 
   return (
     <>
@@ -183,7 +182,7 @@ const LegendItem = ({ legendItemProps }) => {
         <LegendBody id='legend-body' padding={paddingLeft}>
           <LegendTitle
             id='legend-title'
-            legendelemwidth={LEGEND_SYMBOL_WIDTH[legendSize]}
+            legendelemwidth={legendElemWidth}
             marginbottom={legendTitleMarginBottom}
             marginleft={legendElementsLeftMargin + symbolContainerLeftMargin}
           >
@@ -248,7 +247,10 @@ const LegendItem = ({ legendItemProps }) => {
         </LegendBody>
       )}
       {min === undefined && max === undefined && type === LEGEND_TYPE.icon && (
-        <LegendSymbolContainer>
+        <LegendSymbolContainer
+          legendelemwidth={legendElemWidth}
+          symbolcontainerleftmargin={symbolMarginLeft + paddingLeft}
+        >
           <LegendSymbol symbolProps={{ max, type, legendSize, ...symbolProps }} />
         </LegendSymbolContainer>
       )}
