@@ -67,10 +67,7 @@ const Legend = ({
   // const [activeLegend, setActiveLegend] = useState(0)
   // const handleLegendChange = () => setActiveLegend(o => o === legends.length - 1 ? 0 : o + 1)
 
-  let font = ''
-  if (layerTitleRef.current) {
-    font = getCanvasFont(layerTitleRef.current)
-  }
+  const font = getCanvasFont(layerTitleRef.current)
 
   const maxLegendWidth = useMemo(() =>
     Math.max(

@@ -189,6 +189,9 @@ const getCssStyle = (element, prop) => window.getComputedStyle(element, null).ge
  * @returns { string } - concatenated string of font weight, size, & family for an element
  */
 export const getCanvasFont = (el = document.documentElement) => {
+  if (!el) {
+    return ''
+  }
   const fontWeight = getCssStyle(el, 'font-weight') || 'normal'
   const fontSize = getCssStyle(el, 'font-size') || '16px'
   const fontFamily = getCssStyle(el, 'font-family').split(',')[0] || 'Times New Roman'
