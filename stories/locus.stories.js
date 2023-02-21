@@ -157,8 +157,6 @@ const polygonTextGeoJSONLayerConfig = {
   dataId: 'regionGeojson-123',
   dataPropertyAccessor: d => d.properties,
   geometry: {
-    longitude: 'longitude',
-    latitude: 'latitude',
     geometryAccessor: d => d.properties,
   },
   visualizations: {
@@ -510,8 +508,6 @@ const textGeoJSONMVTConfig = {
   dataPropertyAccessor: d => d.properties,
   geometry: {
     geoKey: 'geo_ca_fsa',
-    longitude: 'longitude',
-    latitude: 'latitude',
     geometryAccessor: d => d.properties,
   },
   visualizations: {

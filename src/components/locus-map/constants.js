@@ -173,10 +173,12 @@ export const LAYER_CONFIGURATIONS = {
     dataPropertyAccessor: d => d,
     geometry: {
       propName: 'getPosition',
-      propFn: ({ longitude, latitude, geometryAccessor = d => d }) => d =>
-        d.type === 'Feature' && d.geometry?.type === GEOJSON_TYPES.point ?
-          d.geometry.coordinates :
-          [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]],
+      propFn: ({ longitude = 'longitude', latitude = 'latitude', geometryAccessor = d => d }) => d => {
+        if (d.type === 'Feature' && d.geometry?.type === GEOJSON_TYPES.point) {
+          return d.geometry.coordinates
+        }
+        return [geometryAccessor(d)[longitude], geometryAccessor(d)[latitude]]
+      },
       longitude: { type: 'number' },
       latitude: { type: 'number' },
     },
