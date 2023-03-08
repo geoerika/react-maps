@@ -18,7 +18,13 @@
     "start": "env $(print-env) start-storybook -p 6006",
     "storybook": "env $(print-env) start-storybook -p 6006",
     "build-storybook": "env $(print-env) build-storybook",
-    "chromatic": "npx chromatic --skip 'dependabot/**'"
+    "chromatic": "npx chromatic --skip 'dependabot/**'",
+    "deploy-storybook": "storybook-to-ghpages"
+  },
+  "storybook-deployer": {
+    "gitUsername": "Deployer",
+    "gitEmail": "sb-deployer@eqworks.com",
+    "commitMessage": "Deploy Storybook"
   },
   "repository": {
     "type": "git",
@@ -90,6 +96,7 @@
     "@storybook/addon-links": "^6.3.4",
     "@storybook/addons": "^6.3.4",
     "@storybook/react": "^6.3.4",
+    "@storybook/storybook-deployer": "^2.8.16",
     "axios": "^0.23.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.1",
