@@ -85,7 +85,6 @@
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",
-    "@eqworks/common-login": "^0.9.0-alpha.12",
     "@eqworks/lumen-labs": "^0.1.0-alpha.39",
     "@eqworks/react-labs": "^1.8.0",
     "@material-ui/core": "^4.10.2",
@@ -112,7 +111,7 @@
     "size-limit": "^4.9.2"
   },
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   },
   "homepage": "https://github.com/EQWorks/react-maps#readme"
 }

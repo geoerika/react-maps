@@ -69,7 +69,20 @@ export const setFinalLayerDataProperty = ({
       }
 
       if (dataRange[0] !== dataRange[1]) {
-        const d3Fn = SCALES[dataScale](dataRange, valueOptions)
+        const scaleValues = valueOptions.length
+        let dataRangeValues = [dataRange[0]]
+        if (scaleValues > 2) {
+          const dataInterval = (dataRange[1] - dataRange[0]) / (scaleValues - 1)
+          for (let i = 0; i < scaleValues - 2; i++) {
+            dataRangeValues.push(dataInterval * (i + 1))
+          }
+        }
+        dataRangeValues.push(dataRange[1])
+
+        console.log('dataRangeValues 2: ', dataRangeValues)
+        
+        const d3Fn = SCALES[dataScale](dataRangeValues, valueOptions)
+        console.log('d3Fn: ', d3Fn)
         // case for MVT layer
         if (data?.tileData?.length) {
           return setTileProp({ propValue: d3Fn, dataRange })

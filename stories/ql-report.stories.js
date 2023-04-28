@@ -42,6 +42,7 @@ storiesOf('Locus QL Report', module)
     <QLReportMap
       reportData={vwiJson}
       fillBasedOn={'converted_unique_visitors'}
+      fillColors={['#09d65b', '#EFEE07', '#f00707']}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
@@ -51,6 +52,7 @@ storiesOf('Locus QL Report', module)
       showTooltip={true}
       radiusBasedOn={'converted_visits'}
       fillBasedOn={'converted_unique_visitors'}
+      fillColors={['#09d65b', '#EFEE07', '#f00707']}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
   ))
@@ -68,6 +70,7 @@ storiesOf('Locus QL Report', module)
       reportData={vwiJson}
       showTooltip={true}
       fillBasedOn={'converted_unique_visitors'}
+      fillColors={['#09d65b', '#EFEE07', '#f00707']}
       showLegend={true}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
@@ -88,6 +91,7 @@ storiesOf('Locus QL Report', module)
       showTooltip={true}
       radiusBasedOn={'visits'}
       fillBasedOn={'converted_unique_visitors_single_visit'}
+      fillColors={['#09d65b', '#EFEE07', '#f00707']}
       showLegend={true}
       opacity={.5}
       mapboxApiAccessToken={mapboxApiAccessToken}
@@ -99,6 +103,7 @@ storiesOf('Locus QL Report', module)
       showTooltip={true}
       radiusBasedOn={'visits'}
       fillBasedOn={'converted_unique_visitors_single_visit'}
+      fillColors={['#09d65b', '#EFEE07', '#f00707']}
       formatDataKey={formatDataKey}
       showLegend={true}
       opacity={.5}

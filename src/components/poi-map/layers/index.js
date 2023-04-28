@@ -1,5 +1,0 @@
-export { default as POIGeoJson } from './poi-geojson'
-export { default as POIEditDraw } from './poi-edit-draw'
-export { default as POIPolygon } from './poi-polygon'
-export { default as POIIcon } from './poi-icon'
-export { default as POICluster } from './poi-cluster'

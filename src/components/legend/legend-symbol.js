@@ -11,7 +11,7 @@ import {
   LEGEND_LINE_HEIGHT,
 } from '../../constants'
 
-import POIIconMarker from '../../shared/icons/poi-location.png'
+// import POIIconMarker from '../../shared/icons/poi-location.png'
 
 
 setup(React.createElement)
@@ -28,7 +28,9 @@ const Gradient = styled('div')`
   width: ${({ width }) => width ? `${width}rem` : '100%'};
   margin: auto;
   margin-top: ${({ margintop }) => margintop ? `${margintop}rem` : 'auto'};
-  background-image: linear-gradient(${({ mincolor, maxcolor }) => `to right, ${mincolor}, ${maxcolor}`});
+  background-image: linear-gradient(${({ mincolor, maxcolor, fillColors }) => fillColors ?
+    `to right, ${fillColors.join(', ')}`:
+    `to right, ${mincolor}, ${maxcolor}`});
 `
 
 const Size = styled('div')`
@@ -64,16 +66,16 @@ const Height = styled('div')`
   background-color: ${({ color }) => color};
 `
 
-const Icon = styled('div')`
-  width: 1.5rem;
-  height: 1.5rem;
-  margin: auto;
-  margin-top: 0.625rem;
-  /* https://stackoverflow.com/questions/61370618/how-to-replace-color-of-png-image-using-css */
-  background: ${({ color }) => color};
-  -webkit-mask:url(${POIIconMarker}) center/contain;
-          mask:url(${POIIconMarker}) center/contain;
-`
+// const Icon = styled('div')`
+//   width: 1.5rem;
+//   height: 1.5rem;
+//   margin: auto;
+//   margin-top: 0.625rem;
+//   /* https://stackoverflow.com/questions/61370618/how-to-replace-color-of-png-image-using-css */
+//   background: ${({ color }) => color};
+//   -webkit-mask:url(${POIIconMarker}) center/contain;
+//           mask:url(${POIIconMarker}) center/contain;
+// `
 
 const LegendSymbol = ({ symbolProps }) => {
   const {
@@ -81,6 +83,7 @@ const LegendSymbol = ({ symbolProps }) => {
     max,
     minColor,
     maxColor,
+    fillColors,
     dots,
     size,
     legendSize,
@@ -105,11 +108,13 @@ const LegendSymbol = ({ symbolProps }) => {
   }
 
   if (type === LEGEND_TYPE.gradient) {
+    // console.log('fillColors: ', fillColors)
+    // console.log(' JOIN: ',  fillColors.join(','))
     const [minGradCol, maxGradCol] =  max !== min ? [minColor, maxColor] : [minColor, minColor]
     return (
       // we need to wrap Gradient into a <>, otherwise it might result in Legend disapearing from map
       <>
-        <Gradient mincolor={minGradCol} maxcolor={maxGradCol} />
+        <Gradient mincolor={minGradCol} maxcolor={maxGradCol} fillColors={fillColors}/>
       </>
     )
   }
@@ -163,16 +168,16 @@ const LegendSymbol = ({ symbolProps }) => {
     )
   }
 
-  if (type === LEGEND_TYPE.icon) {
-    return (
-      // we need to wrap Icon into a <>, otherwise it might result in Legend disapearing from map
-      <>
-        <Icon
-          color={maxColor}
-        />
-      </>
-    )
-  }
+  // if (type === LEGEND_TYPE.icon) {
+  //   return (
+  //     // we need to wrap Icon into a <>, otherwise it might result in Legend disapearing from map
+  //     <>
+  //       <Icon
+  //         color={maxColor}
+  //       />
+  //     </>
+  //   )
+  // }
   // TODO: choropleth using import { scaleThreshold } from 'd3-scale'
   // potentially different methods of calculating domain, e.g. linear vs quartile
   /*
@@ -207,11 +212,12 @@ LegendSymbol.propTypes = {
     min: PropTypes.number,
     minColor: PropTypes.string,
     maxColor: PropTypes.string,
+    fillColors: PropTypes.arrayOf(PropTypes.string),
     dots: PropTypes.number,
     size: PropTypes.number,
     zeroRadiusSize: PropTypes.number,
     symbolLineColor: PropTypes.string,
-  }),
+  }).isRequired,
 }
 
 LegendSymbol.defaultProps = {
@@ -220,6 +226,7 @@ LegendSymbol.defaultProps = {
     fillBasedOn: '',
     max: undefined,
     min: undefined,
+    fillColors: undefined,
     minColor: 'rgb(0,0,0)',
     maxColor: 'rgb(255,0,0)',
     dots: LEGEND_DOTS.lg,

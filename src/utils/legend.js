@@ -44,7 +44,7 @@ export const setLegendConfigs = ({
   let [minColor, maxColor] = [objColor, objColor]
   if (fillBasedOn || elevationBasedOn || arcWidthBasedOn) {
     if (Array.isArray(fillColors)) {
-      [minColor, maxColor] = [fillColors?.[0], fillColors?.[1]]
+      [minColor, maxColor] = [fillColors?.[0], fillColors?.[fillColors.length - 1]]
     }
     if (typeof fillColors === 'string') {
       [minColor, maxColor] = [fillColors, fillColors]
@@ -60,6 +60,7 @@ export const setLegendConfigs = ({
       layerTitle,
       minColor,
       maxColor,
+      fillColors,
       type: LEGEND_TYPE.gradient,
       min: dataRange[0],
       max: dataRange[1],
@@ -75,6 +76,7 @@ export const setLegendConfigs = ({
       type: LEGEND_TYPE.elevation,
       minColor,
       maxColor,
+      fillColors,
       min: dataRange[0],
       max: dataRange[1],
       label: elevationBasedOn,

@@ -122,8 +122,8 @@ const QLReportMap = ({
     }
     return {
       ...tooltipKeys,
-      tooltipTitle1: tooltipTitle1 || 'name',
-      tooltipTitle2: tooltipTitle2 || 'poi_id',
+      tooltipTitle1: tooltipTitle1 || '',
+      tooltipTitle2: tooltipTitle2 || '',
       tooltipTitle1Accessor: tooltipTitle1Accessor || dataPropertyAccessor,
       tooltipTitle2Accessor: tooltipTitle2Accessor || dataPropertyAccessor,
       metricKeys: metricKeysArray,
