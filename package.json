@@ -1,5 +1,5 @@
 {
-  "name": "@eqworks/react-maps",
+  "name": "@geoerika/react-maps",
   "version": "0.11.11",
   "description": "React maps",
   "author": "EQ Inc.",
@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EQWorks/react-maps.git"
+    "url": "git+https://github.com/geoerika/react-maps"
   },
   "dependencies": {
     "@deck.gl/aggregation-layers": "^8.7.5",
@@ -113,5 +113,5 @@
   "engines": {
     "node": "16.x"
   },
-  "homepage": "https://github.com/EQWorks/react-maps#readme"
+  "homepage": "https://github.com/geoerika/react-maps#readme"
 }
