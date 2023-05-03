@@ -46,6 +46,9 @@ const QLReportMap = ({
   fillColors,
   getLineWidth,
   getLineColor,
+  selectedPOI,
+  resetMapView,
+  setResetMapView,
   showTooltip,
   tooltipProps,
   tooltipNode,
@@ -61,17 +64,28 @@ const QLReportMap = ({
   formatDataKey,
   formatDataValue,
   keyAliases,
+  controller,
   mapboxApiAccessToken,
   ...scatterLayerProps
 }) => {
   const [viewStateOverride, setViewOverride] = useState({})
   const [highlightId, setHighlightId] = useState(0)
+  const [selectedMapPOI, setSelectedMapPOI] = useState({})
   const [{ height, width }, setDimensions] = useState({})
   // limits viewport adjusting by data to one time only, the first time when map loads with data
   const [viewportAdjustedByData, setViewportAdjustedByData] = useState(false)
 
   useEffect(() => {
-    if (width && height && reportData?.length && !viewportAdjustedByData) {
+    const { lat, lon } = selectedPOI || {}
+    if (lat && lon) {
+      setSelectedMapPOI({ lat, lon })
+      const [longitude, latitude] = [lon, lat]
+      setViewOverride({ longitude, latitude, zoom: 13 })
+    }
+  }, [selectedPOI])
+
+  useEffect(() => {
+    if (width && height && reportData?.length && (!viewportAdjustedByData || resetMapView)) {
       // recenter based on data
       const dataView = setView({ data: reportData, width, height })
       setViewOverride(o => ({
@@ -79,8 +93,9 @@ const QLReportMap = ({
         ...dataView,
       }))
       setViewportAdjustedByData(true)
+      setResetMapView(false)
     }
-  }, [reportData, height, width, viewportAdjustedByData])
+  }, [reportData, height, width, viewportAdjustedByData, resetMapView, setResetMapView])
 
   /**
    * finalOnClick - React hook that handles layer's onClick events
@@ -88,14 +103,19 @@ const QLReportMap = ({
    * @param { object } param.object - clicked object on the map
    */
   const finalOnClick = useCallback(({ object }) => {
-    if (onClick) {
-      onClick(object)
-    } else if (object) {
+    if (object) {
       const { lat, lon } = object
       // correct way to center map on clicked point; don't use 'coordinate' from onClick event
       const [longitude, latitude] = [lon, lat]
       setHighlightId(object.poi_id)
-      setViewOverride({ longitude, latitude, zoom: 14 })
+      setViewOverride({ longitude, latitude, zoom: 13 })
+      if (onClick) {
+        onClick(object)
+      }
+    } else {
+      if (onClick) {
+        onClick({})
+      }
     }
   }, [onClick])
 
@@ -157,8 +177,18 @@ const QLReportMap = ({
           valueOptions: getArrayFillColors({ fillColors }),
           highlightId,
         }),
-        getLineWidth,
-        getLineColor,
+        getLineWidth: setFinalLayerDataProperty({
+          data: reportData,
+          defaultValue: getLineWidth,
+          dataPropertyAccessor,
+          highlightId: selectedMapPOI,
+        }),
+        getLineColor: setFinalLayerDataProperty({
+          data: reportData,
+          defaultValue: getLineColor,
+          dataPropertyAccessor,
+          highlightId: selectedMapPOI,
+        }),
         getTooltip,
         updateTriggers: {
           getRadius: [
@@ -205,6 +235,7 @@ const QLReportMap = ({
     getTooltip,
     scatterLayerProps,
     dataPropertyAccessor,
+    selectedMapPOI,
   ])
 
   // prepare list of legends with used parameteres
@@ -273,6 +304,7 @@ const QLReportMap = ({
           })}
         </MapTooltip>
       )}
+      controller={controller}
       legend={legend}
       mapboxApiAccessToken={mapboxApiAccessToken}
     />
@@ -307,6 +339,9 @@ QLReportMap.propTypes = {
     PropTypes.func,
     PropTypes.array,
   ]),
+  selectedPOI: PropTypes.object,
+  resetMapView: PropTypes.func,
+  setResetMapView: PropTypes.func,
   opacity: PropTypes.number,
   onClick: PropTypes.func,
   onHover: PropTypes.func,
@@ -324,6 +359,7 @@ QLReportMap.propTypes = {
   formatDataKey: PropTypes.func,
   formatData: PropTypes.object,
   keyAliases: PropTypes.object,
+  controller: PropTypes.object,
   ...commonProps,
   ...typographyPropTypes,
   ...tooltipPropTypes,
@@ -345,8 +381,15 @@ QLReportMap.defaultProps = {
   getFillColor: highlightId => d => d?.poi_id === highlightId ? [255, 138, 0] : [0, 117, 255],
   stroked: true,
   lineWidthUnits: 'pixels',
-  getLineWidth: 1,
-  getLineColor: [34, 66, 205],
+  getLineWidth: selectedMapPOI =>
+    d => d?.lat === selectedMapPOI.lat && d?.lon === selectedMapPOI.lon ?
+      3 : 1,
+  getLineColor: selectedMapPOI =>
+    d => d?.lat === selectedMapPOI.lat && d?.lon === selectedMapPOI.lon ?
+      [160, 32, 240] : [34, 66, 205],
+  selectedPOI: null,
+  resetMapView: () => {},
+  setResetMapView: () => {},
   opacity: 0.5,
   onClick: undefined,
   onHover: undefined,
@@ -363,6 +406,7 @@ QLReportMap.defaultProps = {
   formatDataKey: d => d,
   formatDataValue: undefined,
   formatTooltipTitleValue: undefined,
+  controller: { controller: true },
   c: undefined,
   ...commonDefaultProps,
   ...typographyDefaultProps,
