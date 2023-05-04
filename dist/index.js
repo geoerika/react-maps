@@ -9,7 +9,5 @@ Object.defineProperty(exports, "QLReportMap", {
     return _qlReportMap["default"];
   }
 });
-
 var _qlReportMap = _interopRequireDefault(require("./components/ql-report-map"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }

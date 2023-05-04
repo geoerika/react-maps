@@ -3,10 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TOOLTIP_BUFFER = exports.CURSOR_BUFFER_X = exports.CURSOR_BUFFER = exports.FONT_SIZE = exports.GEOJSON_TYPES = exports.LEGEND_TEXT_GAP = exports.LEGEND_TITLE_BOTTOM_MARGIN = exports.LEGEND_LINE_HEIGHT = exports.MIN_LEGEND_LINE_WIDTH = exports.LEGEND_HEIGHT = exports.LEGEND_SYMBOL_WIDTH = exports.LEGEND_RADIUS_SIZE = exports.LEGEND_DOTS = exports.LEGEND_POSITION = exports.LEGEND_SIZE = exports.LEGEND_LAYER_MAX_WIDTH = exports.LEGEND_TYPE = exports.SUPERCLUSTER_ZOOM = exports.CLUSTER_SIZE_SCALE = exports.SCALES = exports.COLOURS = exports.TYPE_RADIUS = exports.TYPE_POLYGON = exports.days = exports.hours = exports.DATE_TYPES = void 0;
-
+exports.hours = exports.days = exports.TYPE_RADIUS = exports.TYPE_POLYGON = exports.TOOLTIP_BUFFER = exports.SUPERCLUSTER_ZOOM = exports.SCALES = exports.MIN_LEGEND_LINE_WIDTH = exports.LEGEND_TYPE = exports.LEGEND_TITLE_BOTTOM_MARGIN = exports.LEGEND_TEXT_GAP = exports.LEGEND_SYMBOL_WIDTH = exports.LEGEND_SIZE = exports.LEGEND_RADIUS_SIZE = exports.LEGEND_POSITION = exports.LEGEND_LINE_HEIGHT = exports.LEGEND_LAYER_MAX_WIDTH = exports.LEGEND_HEIGHT = exports.LEGEND_DOTS = exports.GEOJSON_TYPES = exports.FONT_SIZE = exports.DATE_TYPES = exports.CURSOR_BUFFER_X = exports.CURSOR_BUFFER = exports.COLOURS = exports.CLUSTER_SIZE_SCALE = void 0;
 var _d3Scale = require("d3-scale");
-
 var DATE_TYPES = {
   1: 'Daily',
   2: 'Weekly',

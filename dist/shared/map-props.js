@@ -3,14 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.tooltipDefaultProps = exports.tooltipPropTypes = exports.typographyDefaultProps = exports.typographyPropTypes = exports.commonDefaultProps = exports.commonProps = void 0;
-
+exports.typographyPropTypes = exports.typographyDefaultProps = exports.tooltipPropTypes = exports.tooltipDefaultProps = exports.commonProps = exports.commonDefaultProps = void 0;
 var _propTypes = _interopRequireDefault(require("prop-types"));
-
 var _lumenLabs = require("@eqworks/lumen-labs");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 var commonProps = {
   mapboxApiAccessToken: _propTypes["default"].string.isRequired
 };
