@@ -108,6 +108,7 @@ const QLReportMap = ({
       // correct way to center map on clicked point; don't use 'coordinate' from onClick event
       const [longitude, latitude] = [lon, lat]
       setHighlightId(object.poi_id)
+      setSelectedMapPOI({ lat, lon })
       setViewOverride({ longitude, latitude, zoom: 13 })
       if (onClick) {
         onClick(object)
@@ -383,7 +384,7 @@ QLReportMap.defaultProps = {
   lineWidthUnits: 'pixels',
   getLineWidth: selectedMapPOI =>
     d => d?.lat === selectedMapPOI.lat && d?.lon === selectedMapPOI.lon ?
-      3 : 1,
+      2 : 1,
   getLineColor: selectedMapPOI =>
     d => d?.lat === selectedMapPOI.lat && d?.lon === selectedMapPOI.lon ?
       [160, 32, 240] : [34, 66, 205],
